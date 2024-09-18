@@ -1394,6 +1394,17 @@
     "@types/babel__core" "^7.20.5"
     react-refresh "^0.14.2"
 
+"MemoryFlashCore@file:packages/MemoryFlashCore":
+  version "1.0.0"
+  dependencies:
+    "@reduxjs/toolkit" "^2.1.0"
+    "@types/react-redux" "^7.1.33"
+    axios "^1.7.4"
+    bson-objectid "^2.0.4"
+    mongoose "^8.6.0"
+    tonal "^6.2.0"
+    zod "^3.22.4"
+
 abbrev@1:
   version "1.1.1"
   resolved "https://registry.npmjs.org/abbrev/-/abbrev-1.1.1.tgz#f8f2c887ad10bf67f634f005b6987fed3179aac8"
@@ -1577,7 +1588,7 @@ autoprefixer@^10.4.16:
     picocolors "^1.0.1"
     postcss-value-parser "^4.2.0"
 
-axios@^1.6.7:
+axios@^1.7.4:
   version "1.7.7"
   resolved "https://registry.npmjs.org/axios/-/axios-1.7.7.tgz#2f554296f9892a72ac8d8e4c5b79c14a91d0a47f"
   integrity sha512-S4kL7XrjgBmvdGut0sN3yJxqYzrDOnivkBiN0OFs6hLiUam3UPvswUo0kqGyhqUZGEOytHyumEdXsAkgCOUf3Q==
