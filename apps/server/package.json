@@ -13,7 +13,7 @@
 		"test:watch": "nodemon --ext ts --exec 'yarn test'"
 	},
 	"dependencies": {
-		"MemoryFlashCore": "*",
+		"MemoryFlashCore": "file:../../packages/MemoryFlashCore",
 		"bcrypt": "^5.1.1",
 		"bcryptjs": "^2.4.3",
 		"bson-objectid": "^2.0.4",

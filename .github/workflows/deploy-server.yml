@@ -20,14 +20,13 @@ jobs:
                   cache: 'yarn'
             - name: commits
               run: git log -15 --graph --pretty=format:'%h -%d %s (%cr) <%an>' --abbrev-commit
-            - name: yarn install
-              run: yarn install
             - name: Authenticate on GCS
               uses: google-github-actions/auth@v2
               with:
                   credentials_json: ${{ secrets.GCP_MFLASH_PROD_JSON_KEY }}
             - name: Build and Deploy
               run: |
+                  yarn install
                   cd apps/server
                   touch app.yaml
                   echo 'runtime: nodejs20' >> app.yaml
