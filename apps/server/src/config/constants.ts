@@ -23,7 +23,7 @@ export const SESSION_OPTS: SessionOptions = {
 		// When using https, we use none so we always get the sid cookie. This is not insecure
 		// because we are using HTTP Only and Secure.
 		sameSite: IS_DEV ? 'strict' : 'none',
-		secure: false,
+		secure: IS_PROD || IS_STAGING,
 	},
 	name: 'sid',
 	resave: false, // whether to save the session if it wasn't modified during the request
