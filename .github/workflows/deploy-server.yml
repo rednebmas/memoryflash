@@ -48,5 +48,6 @@ jobs:
                   echo "$(pwd)"
                   echo "$(ls -la)"
                   echo "$(ls -la ..)"
-                  gcloud app deploy --project "memory-flash-436000" app.yaml
+                  cd ../../
+                  gcloud app deploy --project "memory-flash-436000" apps/server/app.yaml
                   curl https://mflash-api.riker.tech
