@@ -1,0 +1,153 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+	box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+	width: 100vw;
+	height: 100vh;
+	margin: 0 auto;
+	/* font-family: 'Jost', sans-serif; */
+}
+
+.card-border {
+	border: 0.75px solid rgba(255, 255, 255, 0.44);
+}
+
+.card-shadow-1 {
+	box-shadow: -10px 20px 20px 0px rgba(0, 0, 0, 0.2);
+}
+
+.card-shadow-2 {
+	box-shadow: -4px 10px 20px 0px rgba(0, 0, 0, 0.2);
+}
+
+.card-shadow-3 {
+	box-shadow: 4px 10px 20px 0px rgba(0, 0, 0, 0.2);
+}
+
+.card-shadow-4 {
+	box-shadow: 10px 10px 20px 0px rgba(0, 0, 0, 0.2);
+}
+
+.highlight {
+	@apply fill-green-500;
+	@apply stroke-green-500;
+}
+
+.answered {
+	@apply fill-green-500;
+	@apply stroke-green-500;
+}
+
+/*  */
+/* DARK MODE */
+/*  */
+
+.dark .bg-white {
+	@apply bg-gray-900;
+}
+
+.dark .bg-slate-100 {
+	@apply bg-gray-950;
+}
+
+.dark .text-slate-950 {
+	@apply text-gray-100;
+}
+
+.dark .text-gray-900 {
+	@apply text-gray-100;
+}
+
+.dark .hover\:bg-gray-50:hover {
+	@apply bg-gray-700; /* Example: using a darker shade for dark mode */
+}
+
+.dark .text-gray-700 {
+	@apply text-gray-200;
+}
+
+.dark .bg-gray-100 {
+	@apply bg-gray-700;
+}
+
+.dark .card-border {
+	border: 0.75px solid rgba(255, 255, 255, 0.125);
+}
+
+/* For MusicNotiation */
+@media (prefers-color-scheme: dark) {
+	.svg-dark-mode {
+		filter: invert(100%);
+	}
+}
+.dark .highlight {
+	@apply fill-purple-700;
+	@apply stroke-purple-700;
+}
+
+.dark .answered {
+	@apply fill-purple-700;
+	@apply stroke-purple-700;
+}
+
+/*  */
+
+.dark .bg-gray-50 {
+	@apply bg-gray-800;
+}
+
+.dark .text-gray-600 {
+	@apply text-gray-400;
+}
+
+.dark .ring-gray-500\/10 {
+	@apply ring-gray-200/10; /* Adjusts the gray shade and keeps the opacity */
+}
+
+.dark .bg-green-50 {
+	@apply bg-green-800;
+}
+
+.dark .text-green-700 {
+	@apply text-green-300;
+}
+
+.dark .ring-green-600\/20 {
+	@apply ring-green-200/20; /* Darker green with the same transparency */
+}
+
+.dark .ring-gray-300 {
+	@apply ring-gray-700;
+}
+
+.dark .hover\:bg-gray-200:hover {
+	@apply bg-gray-800; /* Darker shade for dark mode hover */
+}
+
+.dark .active\:bg-gray-200:active {
+	@apply bg-gray-700; /* Darker shade for dark mode active */
+}
+
+.dark .hover\:bg-gray-50:hover {
+	@apply bg-gray-800;
+}
+
+/* recharts */
+.dark .recharts-tooltip-label {
+	@apply text-black;
+}
+
+/* account screen */
+.dark .divide-gray-100 {
+	@apply divide-gray-800;
+}
+.dark .border-gray-100 {
+	@apply border-gray-700;
+}

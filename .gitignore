@@ -1,0 +1,9 @@
+node_modules
+.env
+dist
+.DS_Store
+.swp
+
+yarn-error.log
+
+apps/MemoryFlashServer/.gitignore.swp

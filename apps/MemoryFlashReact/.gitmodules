@@ -1,0 +1,3 @@
+[submodule "src/submodules/MemoryFlashCore"]
+	path = src/submodules/MemoryFlashCore
+	url = https://github.com/rikertechllc/MemoryFlashCore

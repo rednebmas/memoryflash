@@ -1,0 +1,49 @@
+on:
+    workflow_dispatch:
+
+name: Deploy
+jobs:
+    deploy:
+        name: Deploy
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v1
+              with:
+                  submodules: 'true'
+                  token: ${{ secrets.WORKFLOW_SUBMODULE_ACCESS_TOKEN }}
+            - name: install node
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 20
+                  cache: 'yarn'
+            - name: commits
+              run: git log -15 --graph --pretty=format:'%h -%d %s (%cr) <%an>' --abbrev-commit
+            - name: yarn install
+              run: yarn install
+            - name: Authenticate on GCS
+              uses: google-github-actions/auth@v2
+              with:
+                  credentials_json: ${{ secrets.GCP_TAPIN_PROD_JSON_KEY }}
+            - name: Make deployment descriptor
+              run: |
+                  touch app.yaml
+                  echo 'runtime: nodejs20' >> app.yaml
+                  echo 'env: standard' >> app.yaml
+                  echo 'service: default' >> app.yaml
+                  echo 'instance_class: F2' >> app.yaml
+                  echo '' >> app.yaml
+                  echo 'env_variables:' >> app.yaml
+                  echo '  NODE_ENV: production' >> app.yaml
+                  echo '  APP_URL: https://prod.tapinconnect.com' >> app.yaml
+                  echo '  SESSION_SECRET_KEY: ${{ secrets.PROD_SESSION_SECRET_KEY }}'  >> app.yaml
+                  echo '  MONGO_URI: mongodb+srv://${{ secrets.MONGO_AUTH }}@tapin-prod.6gwdxhc.mongodb.net/tapinprod?retryWrites=true&w=majority'  >> app.yaml
+                  echo '  FRONT_END_URL: https://app.tapinconnect.com'  >> app.yaml
+                  echo '  GOOGLE_CLIENT_ID: 221224434690-lg8lqpa05ktg6d7tq2mlftjrfcscaj2e.apps.googleusercontent.com'  >> app.yaml
+                  echo '  GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_SSO_CLIENT_SECRET }}'  >> app.yaml
+                  echo '  SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}'  >> app.yaml
+                  echo 'automatic_scaling:' >> app.yaml
+                  echo '  max_instances: 1' >> app.yaml
+
+            - name: deploy
+              run: ./scripts/deploy_prod.sh
