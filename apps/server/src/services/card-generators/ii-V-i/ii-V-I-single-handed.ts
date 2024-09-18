@@ -1,5 +1,5 @@
-import { StaffEnum } from '../MemoryFlashCore/src/types/Cards';
-import { DeckWithoutGeneratedFields as IDeck } from '../MemoryFlashCore/src/types/Deck';
+import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
+import { DeckWithoutGeneratedFields as IDeck } from 'MemoryFlashCore/src/types/Deck';
 import { generateCardsForProgression } from './ii-V-I-progression-generators';
 
 export function singleHanded251_V1V2(courseId: string) {

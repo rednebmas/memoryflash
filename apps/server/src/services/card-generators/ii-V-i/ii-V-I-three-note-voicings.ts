@@ -1,4 +1,4 @@
-import { DeckWithoutGeneratedFields as IDeck } from '../MemoryFlashCore/src/types/Deck';
+import { DeckWithoutGeneratedFields as IDeck } from 'MemoryFlashCore/src/types/Deck';
 import { createTwoHandedCardsFromProgressions } from '../create-two-handed-cards-from-progressions';
 import { generateProgressionsFromRomanNumerals } from './ii-V-I-progression-generators';
 

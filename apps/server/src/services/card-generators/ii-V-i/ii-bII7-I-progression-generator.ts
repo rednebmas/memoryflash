@@ -1,9 +1,9 @@
 import { Interval, Note, Progression, Scale } from 'tonal';
-import { majorKeys } from '../MemoryFlashCore/src/lib/notes';
-import { AnswerType, CardTypeEnum, StaffEnum } from '../MemoryFlashCore/src/types/Cards';
-import { DeckWithoutGeneratedFields as IDeck } from '../MemoryFlashCore/src/types/Deck';
-import { MultiSheetCard } from '../MemoryFlashCore/src/types/MultiSheetCard';
-import { PresentationMode } from '../MemoryFlashCore/src/types/PresentationMode';
+import { majorKeys } from 'MemoryFlashCore/src/lib/notes';
+import { AnswerType, CardTypeEnum, StaffEnum } from 'MemoryFlashCore/src/types/Cards';
+import { DeckWithoutGeneratedFields as IDeck } from 'MemoryFlashCore/src/types/Deck';
+import { MultiSheetCard } from 'MemoryFlashCore/src/types/MultiSheetCard';
+import { PresentationMode } from 'MemoryFlashCore/src/types/PresentationMode';
 import { createProgressionNotesFromChords } from './ii-V-I-progression-generators';
 
 const presentationModes: PresentationMode[] = [

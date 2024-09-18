@@ -1,7 +1,7 @@
 on:
     workflow_dispatch:
 
-name: Deploy Servre
+name: Deploy Server
 jobs:
     deploy:
         name: Deploy Server

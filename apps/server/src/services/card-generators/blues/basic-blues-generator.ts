@@ -1,5 +1,5 @@
 import Course from '../../../models/Course';
-import { DeckWithoutGeneratedFields as IDeck } from '../MemoryFlashCore/src/types/Deck';
+import { DeckWithoutGeneratedFields as IDeck } from 'MemoryFlashCore/src/types/Deck';
 import { createTwoHandedCardsFromProgressions } from '../create-two-handed-cards-from-progressions';
 import { generateProgressionsFromRomanNumerals } from '../ii-V-i/ii-V-I-progression-generators';
 import { upsertCourse } from '../upsert-course';

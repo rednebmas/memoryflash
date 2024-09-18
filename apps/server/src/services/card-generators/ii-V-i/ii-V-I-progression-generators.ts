@@ -1,14 +1,10 @@
 import { Chord, Progression, Note as TonalNote, Voicing } from 'tonal';
 import Course from '../../../models/Course';
-import { majorKeys } from '../MemoryFlashCore/src/lib/notes';
-import { AnswerType, CardTypeEnum, StaffEnum } from '../MemoryFlashCore/src/types/Cards';
-import {
-	MultiSheetCard,
-	SheetNote,
-	StackedNotes,
-} from '../MemoryFlashCore/src/types/MultiSheetCard';
-import { PresentationMode } from '../MemoryFlashCore/src/types/PresentationMode';
-import { VoicingDictionary } from '../MemoryFlashCore/src/types/VoicingDictionary';
+import { majorKeys } from 'MemoryFlashCore/src/lib/notes';
+import { AnswerType, CardTypeEnum, StaffEnum } from 'MemoryFlashCore/src/types/Cards';
+import { MultiSheetCard, SheetNote, StackedNotes } from 'MemoryFlashCore/src/types/MultiSheetCard';
+import { PresentationMode } from 'MemoryFlashCore/src/types/PresentationMode';
+import { VoicingDictionary } from 'MemoryFlashCore/src/types/VoicingDictionary';
 import { upsertCourse } from '../upsert-course';
 import { singleHandedTritoneSub251 } from './ii-bII7-I-progression-generator';
 import { singleHanded251_V1V2 } from './ii-V-I-single-handed';
