@@ -26,7 +26,7 @@ jobs:
                   credentials_json: ${{ secrets.GCP_MFLASH_PROD_JSON_KEY }}
             - name: Build and Deploy
               run: |
-                  yarn install --production --frozen-lockfile --hoist
+                  yarn install --hoist
                   touch app.yaml
                   echo 'runtime: nodejs20' >> app.yaml
                   echo 'env: standard' >> app.yaml

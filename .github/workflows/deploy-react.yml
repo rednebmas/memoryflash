@@ -26,6 +26,7 @@ jobs:
                   credentials_json: ${{ secrets.GCP_MFLASH_PROD_JSON_KEY }}
             - name: Make envfile
               run: |
+                  cd apps/react
                   touch .env
                   echo VITE_API_BASE_URL=https://mflash-api.riker.tech >> .env
                   echo VITE_DEPLOY_DATE=$(TZ=America/Los_Angeles date +"%Y-%m-%d %T") >> .env
