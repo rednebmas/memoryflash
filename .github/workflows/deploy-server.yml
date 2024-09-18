@@ -46,6 +46,7 @@ jobs:
 
             - name: deploy
               run: |
+                  cd apps/server
                   yarn run build
                   gcloud app deploy --project "memory-flash-436000" app.yaml
                   curl https://mflash-api.riker.tech
