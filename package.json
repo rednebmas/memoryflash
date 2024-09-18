@@ -1,10 +1,13 @@
 {
-  "name": "MemoryFlash",
-  "version": "1.0.0",
-  "main": "index.js",
-  "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ]
+	"name": "MemoryFlash",
+	"version": "1.0.0",
+	"main": "index.js",
+	"private": true,
+	"scripts": {
+		"dev": "concurrently \"yarn workspace MemoryFlashServer dev\" \"yarn workspace MemoryFlashReact dev\""
+	},
+	"workspaces": [
+		"apps/*",
+		"packages/*"
+	]
 }

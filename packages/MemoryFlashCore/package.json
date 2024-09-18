@@ -4,6 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "devDependencies": {
+    "concurrently": "^9.0.1",
     "typescript": "^5.5.4"
   },
   "dependencies": {
