@@ -25,11 +25,9 @@ jobs:
               uses: google-github-actions/auth@v2
               with:
                   credentials_json: ${{ secrets.GCP_MFLASH_PROD_JSON_KEY }}
-            - name: change to server directory
+            - name: Build and Deploy
               run: |
                   cd apps/server
-            - name: Make deployment descriptor
-              run: |
                   touch app.yaml
                   echo 'runtime: nodejs20' >> app.yaml
                   echo 'env: standard' >> app.yaml
@@ -42,13 +40,10 @@ jobs:
                   echo '  SESSION_SECRET_KEY: ${{ secrets.PROD_SESSION_SECRET_KEY }}'  >> app.yaml
                   echo '  MONGO_URI: mongodb+srv://${{ secrets.MONGO_AUTH }}@memoryflash.r6ngiew.mongodb.net/?retryWrites=true&w=majority&appName=memoryflash'  >> app.yaml
                   echo '  FRONT_END_URL: https://mflash.riker.tech'  >> app.yaml
-                  # echo '  GOOGLE_CLIENT_ID: 221224434690-lg8lqpa05ktg6d7tq2mlftjrfcscaj2e.apps.googleusercontent.com'  >> app.yaml
-                  # echo '  GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_SSO_CLIENT_SECRET }}'  >> app.yaml
                   echo 'automatic_scaling:' >> app.yaml
                   echo '  max_instances: 1' >> app.yaml
 
-            - name: deploy
-              run: |
+                  # Build and deploy within the apps/server directory
                   yarn run build
                   gcloud app deploy --project "memory-flash-436000" app.yaml
                   curl https://mflash-api.riker.tech
