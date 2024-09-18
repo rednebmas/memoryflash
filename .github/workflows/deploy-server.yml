@@ -25,6 +25,9 @@ jobs:
               uses: google-github-actions/auth@v2
               with:
                   credentials_json: ${{ secrets.GCP_MFLASH_PROD_JSON_KEY }}
+            - name: change to server directory
+              run: |
+                  cd apps/server
             - name: Make deployment descriptor
               run: |
                   touch app.yaml
@@ -46,7 +49,6 @@ jobs:
 
             - name: deploy
               run: |
-                  cd apps/server
                   yarn run build
                   gcloud app deploy --project "memory-flash-436000" app.yaml
                   curl https://mflash-api.riker.tech
