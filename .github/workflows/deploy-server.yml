@@ -31,7 +31,7 @@ jobs:
                   echo 'runtime: nodejs20' >> app.yaml
                   echo 'env: standard' >> app.yaml
                   echo 'service: default' >> app.yaml
-                  echo 'instance_class: F1' >> app.yaml
+                  echo 'instance_class: F2' >> app.yaml
                   echo '' >> app.yaml
                   echo 'env_variables:' >> app.yaml
                   echo '  NODE_ENV: production' >> app.yaml

@@ -79,8 +79,6 @@ const initApp = async () => {
 			// ).exec();
 			// await Attempt.deleteMany().exec();
 
-			// const { tritoneSubRhDeck, tritoneSubRhCards, tritoneSubLhDeck, tritoneSubLHCards } =
-			// 	singleHandedTritoneSub251('x');
 			// replayAttemptsForUser('66d4a69b871f809f48a0d2b7');
 			generate251s();
 			generateBluesCourse();
