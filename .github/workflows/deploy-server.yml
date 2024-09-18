@@ -45,5 +45,8 @@ jobs:
 
                   # Build and deploy within the apps/server directory
                   yarn run build
+                  echo "$(pwd)"
+                  echo "$(ls -la)"
+                  echo "$(ls -la ..)"
                   gcloud app deploy --project "memory-flash-436000" app.yaml
                   curl https://mflash-api.riker.tech
