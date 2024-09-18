@@ -1,5 +1,5 @@
-import { useSelector } from "react-redux";
-import { ReduxState } from "../store";
+import { useSelector } from 'react-redux';
+import { ReduxState } from '../store';
 
 const noNetworkState = { isLoading: false, error: null };
 

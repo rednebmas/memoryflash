@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface ScreenLoadingState {
 	isLoading: boolean;
@@ -14,7 +14,7 @@ const initialState: NetworkReduxState = {
 };
 
 const networkSlice = createSlice({
-	name: "network",
+	name: 'network',
 	initialState,
 	reducers: {
 		set(state, action: PayloadAction<ScreenLoadingState & { name: string }>) {

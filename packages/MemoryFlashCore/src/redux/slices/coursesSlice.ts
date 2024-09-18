@@ -2,7 +2,7 @@ import { createSlice, createEntityAdapter, EntityState, PayloadAction } from '@r
 import { Course } from '../../types/Course';
 
 export const coursesAdapter = createEntityAdapter({
-	selectId: (course: Course) => course._id
+	selectId: (course: Course) => course._id,
 });
 
 export interface CoursesState extends EntityState<Course, string> {
@@ -10,7 +10,7 @@ export interface CoursesState extends EntityState<Course, string> {
 }
 
 const initialState: CoursesState = coursesAdapter.getInitialState({
-	parsingCourse: undefined
+	parsingCourse: undefined,
 });
 
 const coursesSlice = createSlice({
@@ -20,8 +20,8 @@ const coursesSlice = createSlice({
 		upsert: coursesAdapter.upsertMany,
 		setParsingCourse(state, action: PayloadAction<string>) {
 			state.parsingCourse = action.payload;
-		}
-	}
+		},
+	},
 });
 
 export const coursesReducer = coursesSlice.reducer;

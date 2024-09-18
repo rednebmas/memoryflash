@@ -7,7 +7,7 @@ export function nullableGet<T>(obj: any, keypath: string) {
 
 export function nullableGetWithDefault<T>(obj: any, keypath: string, defaultVal: T): T {
 	var curr = obj;
-	for (var i = 0, path = keypath.split("."), len = path.length; i < len; i++) {
+	for (var i = 0, path = keypath.split('.'), len = path.length; i < len; i++) {
 		if (curr && curr.hasOwnProperty(path[i])) {
 			curr = curr[path[i]];
 		} else {
@@ -19,7 +19,7 @@ export function nullableGetWithDefault<T>(obj: any, keypath: string, defaultVal:
 
 export function deleteKeypath(obj: any, keypath: string) {
 	var curr = obj;
-	for (var i = 0, path = keypath.split("."), len = path.length; i < len; i++) {
+	for (var i = 0, path = keypath.split('.'), len = path.length; i < len; i++) {
 		if (curr && curr.hasOwnProperty(path[i])) {
 			if (i === len - 1) {
 				delete curr[path[i]];
@@ -36,7 +36,7 @@ export function deleteKeypath(obj: any, keypath: string) {
 export function setKeypath(obj: any, keypath: string, value: any) {
 	if (!obj) return;
 
-	const path = keypath.split(".");
+	const path = keypath.split('.');
 	for (var i = 0; i < path.length - 1; i++) {
 		if (!obj[path[i]]) {
 			obj[path[i]] = {};

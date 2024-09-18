@@ -1,6 +1,6 @@
-import { networkActions } from "../slices/networkSlice";
-import { AppDispatch } from "../store";
-import { NetworkErrorMsg } from "./networkErrorMessage";
+import { networkActions } from '../slices/networkSlice';
+import { AppDispatch } from '../store';
+import { NetworkErrorMsg } from './networkErrorMessage';
 
 interface NetworkCallWithReduxStateOptions {
 	successCb?: () => void;
@@ -11,7 +11,7 @@ export const networkCallWithReduxState = async (
 	dispatch: AppDispatch,
 	networkStateName: string,
 	networkCallAndProcessing: () => Promise<void>,
-	options?: NetworkCallWithReduxStateOptions
+	options?: NetworkCallWithReduxStateOptions,
 ) => {
 	try {
 		dispatch(
@@ -19,7 +19,7 @@ export const networkCallWithReduxState = async (
 				name: networkStateName,
 				isLoading: true,
 				error: null,
-			})
+			}),
 		);
 
 		await networkCallAndProcessing();
@@ -29,7 +29,7 @@ export const networkCallWithReduxState = async (
 				name: networkStateName,
 				isLoading: false,
 				error: null,
-			})
+			}),
 		);
 
 		if (options?.successCb) {
@@ -43,7 +43,7 @@ export const networkCallWithReduxState = async (
 				name: networkStateName,
 				isLoading: false,
 				error: msg,
-			})
+			}),
 		);
 
 		if (options?.failureCb) {

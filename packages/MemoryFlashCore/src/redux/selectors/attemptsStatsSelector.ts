@@ -78,21 +78,25 @@ export const attemptsStatsSelector = createSelector(
 		const stats: UserDeckStatsType | undefined = userDeckStatsByDeckId[deckId];
 
 		// Compute totalTimeSpent
-		const totalTimeSpent = Object.values(timeSpentPerDay).reduce((total, time) => total + time, 0);
+		const totalTimeSpent = Object.values(timeSpentPerDay).reduce(
+			(total, time) => total + time,
+			0,
+		);
 
 		const timeTaken: number[] = Object.values(currentDeck)
 			.map((c) => c.attempts[0]?.timeTaken)
 			.filter((c) => c !== undefined);
 
 		// Calculate mean, median, and std
-		const mean = timeTaken.length > 0 ? timeTaken.reduce((a, b) => a + b, 0) / timeTaken.length : 0;
+		const mean =
+			timeTaken.length > 0 ? timeTaken.reduce((a, b) => a + b, 0) / timeTaken.length : 0;
 		const median = timeTaken.length > 0 ? calculateMedian([...timeTaken]) : 0;
 		const std =
 			timeTaken.length > 0
 				? Math.sqrt(
 						timeTaken.map((x) => Math.pow(x - mean, 2)).reduce((a, b) => a + b, 0) /
 							timeTaken.length,
-				  )
+					)
 				: 0;
 
 		const tooLongTime = median * 2;

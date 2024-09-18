@@ -1,6 +1,6 @@
-import { PresentationModeIds } from "../../types/PresentationMode";
-import { settingsActions } from "../slices/settingsSlice";
-import { AppThunk } from "../store";
+import { PresentationModeIds } from '../../types/PresentationMode';
+import { settingsActions } from '../slices/settingsSlice';
+import { AppThunk } from '../store';
 
 export const setPresentationMode =
 	(cardType: string, mode: PresentationModeIds): AppThunk =>

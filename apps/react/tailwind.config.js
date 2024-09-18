@@ -3,7 +3,11 @@ const defaultTheme = require('tailwindcss/defaultTheme');
 
 export default {
 	darkMode: 'class',
-	content: ['!./src/submodules/**/*.{js,jsx,ts,tsx}', './src/**/*.{js,jsx,ts,tsx}', './index.html'],
+	content: [
+		'!./src/submodules/**/*.{js,jsx,ts,tsx}',
+		'./src/**/*.{js,jsx,ts,tsx}',
+		'./index.html',
+	],
 	theme: {
 		screens: {
 			xs: '425px',

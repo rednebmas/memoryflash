@@ -9,9 +9,9 @@ export const triads = (key: string = 'all'): Course => {
 			sheetMusic: 'Sheet Music',
 			leftHand: 'Left Hand',
 			rightHand: 'Right Hand',
-			bothHands: 'Both Hands'
+			bothHands: 'Both Hands',
 		},
-		sections: []
+		sections: [],
 	};
 
 	if (!items.segments) {
@@ -24,44 +24,44 @@ export const triads = (key: string = 'all'): Course => {
 			subTitle: 'Right Hand',
 			subSections: [
 				{
-					title: 'Major'
+					title: 'Major',
 				},
 				{
-					title: 'Minor'
+					title: 'Minor',
 				},
 				{
-					title: 'Diminished'
+					title: 'Diminished',
 				},
 				{
-					title: 'Augmented'
+					title: 'Augmented',
 				},
 				{
-					title: 'All triads'
-				}
+					title: 'All triads',
+				},
 			],
-			active: [items.segments.chordSymbols, items.segments.rightHand]
+			active: [items.segments.chordSymbols, items.segments.rightHand],
 		},
 		{
 			title: 'Chord Symbols',
 			subTitle: 'Left Hand',
 			subSections: [
 				{
-					title: 'Major'
+					title: 'Major',
 				},
 				{
-					title: 'Minor'
+					title: 'Minor',
 				},
 				{
-					title: 'Diminished'
+					title: 'Diminished',
 				},
 				{
-					title: 'Augmented'
+					title: 'Augmented',
 				},
 				{
-					title: 'All triads'
-				}
+					title: 'All triads',
+				},
 			],
-			active: [items.segments.chordSymbols, items.segments.leftHand]
+			active: [items.segments.chordSymbols, items.segments.leftHand],
 		},
 		{
 			title: 'Chord Symbols',
@@ -69,90 +69,90 @@ export const triads = (key: string = 'all'): Course => {
 			subSections: [
 				{
 					title: 'Major',
-					subTitle: 'LEFT HAND ROOT'
+					subTitle: 'LEFT HAND ROOT',
 				},
 				{
 					title: 'Minor',
-					subTitle: 'LEFT HAND ROOT'
+					subTitle: 'LEFT HAND ROOT',
 				},
 				{
 					title: 'Diminished',
-					subTitle: 'LEFT HAND ROOT'
+					subTitle: 'LEFT HAND ROOT',
 				},
 				{
 					title: 'Augmented',
-					subTitle: 'LEFT HAND ROOT'
+					subTitle: 'LEFT HAND ROOT',
 				},
 				{
 					title: 'Major',
-					subTitle: 'LEFT HAND OCTAVE'
+					subTitle: 'LEFT HAND OCTAVE',
 				},
 				{
 					title: 'Minor',
-					subTitle: 'LEFT HAND OCTAVE'
+					subTitle: 'LEFT HAND OCTAVE',
 				},
 				{
 					title: 'Diminished',
-					subTitle: 'LEFT HAND OCTAVE'
+					subTitle: 'LEFT HAND OCTAVE',
 				},
 				{
 					title: 'Augmented',
-					subTitle: 'LEFT HAND OCTAVE'
+					subTitle: 'LEFT HAND OCTAVE',
 				},
 				{
 					title: 'All triads',
-					subTitle: 'LEFT HAND ROOT'
+					subTitle: 'LEFT HAND ROOT',
 				},
 				{
 					title: 'All triads',
-					subTitle: 'LEFT HAND OCTAVE'
-				}
+					subTitle: 'LEFT HAND OCTAVE',
+				},
 			],
-			active: [items.segments.chordSymbols, items.segments.bothHands]
+			active: [items.segments.chordSymbols, items.segments.bothHands],
 		},
 		{
 			title: 'Sheet Music',
 			subTitle: 'Right Hand',
 			subSections: [
 				{
-					title: 'Major'
+					title: 'Major',
 				},
 				{
-					title: 'Minor'
+					title: 'Minor',
 				},
 				{
-					title: 'Diminished'
+					title: 'Diminished',
 				},
 				{
-					title: 'Augmented'
+					title: 'Augmented',
 				},
 				{
-					title: 'All triads'
-				}
+					title: 'All triads',
+				},
 			],
-			active: [items.segments.sheetMusic, items.segments.rightHand]
+			active: [items.segments.sheetMusic, items.segments.rightHand],
 		},
 		{
 			title: 'Sheet Music',
 			subTitle: 'Left Hand',
 			subSections: [
 				{
-					title: 'Major'
+					title: 'Major',
 				},
 				{
-					title: 'Minor'
+					title: 'Minor',
 				},
 				{
-					title: 'Diminished'
+					title: 'Diminished',
 				},
 				{
-					title: 'Augmented'
+					title: 'Augmented',
 				},
 				{
-					title: 'All triads'
-				}
+					title: 'All triads',
+				},
 			],
-			active: [items.segments.sheetMusic, items.segments.leftHand]
+			active: [items.segments.sheetMusic, items.segments.leftHand],
 		},
 		{
 			title: 'Sheet Music',
@@ -160,47 +160,47 @@ export const triads = (key: string = 'all'): Course => {
 			subSections: [
 				{
 					title: 'Major',
-					subTitle: 'LEFT HAND ROOT'
+					subTitle: 'LEFT HAND ROOT',
 				},
 				{
 					title: 'Minor',
-					subTitle: 'LEFT HAND ROOT'
+					subTitle: 'LEFT HAND ROOT',
 				},
 				{
 					title: 'Diminished',
-					subTitle: 'LEFT HAND ROOT'
+					subTitle: 'LEFT HAND ROOT',
 				},
 				{
 					title: 'Augmented',
-					subTitle: 'LEFT HAND ROOT'
+					subTitle: 'LEFT HAND ROOT',
 				},
 				{
 					title: 'Major',
-					subTitle: 'LEFT HAND OCTAVE'
+					subTitle: 'LEFT HAND OCTAVE',
 				},
 				{
 					title: 'Minor',
-					subTitle: 'LEFT HAND OCTAVE'
+					subTitle: 'LEFT HAND OCTAVE',
 				},
 				{
 					title: 'Diminished',
-					subTitle: 'LEFT HAND OCTAVE'
+					subTitle: 'LEFT HAND OCTAVE',
 				},
 				{
 					title: 'Augmented',
-					subTitle: 'LEFT HAND OCTAVE'
+					subTitle: 'LEFT HAND OCTAVE',
 				},
 				{
 					title: 'All triads',
-					subTitle: 'LEFT HAND ROOT'
+					subTitle: 'LEFT HAND ROOT',
 				},
 				{
 					title: 'All triads',
-					subTitle: 'LEFT HAND OCTAVE'
-				}
+					subTitle: 'LEFT HAND OCTAVE',
+				},
 			],
-			active: [items.segments.sheetMusic, items.segments.bothHands]
-		}
+			active: [items.segments.sheetMusic, items.segments.bothHands],
+		},
 	];
 
 	sectionsData.forEach((section) => {
