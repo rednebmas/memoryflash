@@ -1,52 +1,51 @@
 on:
-  push:
-  workflow_dispatch:
+    push:
+    workflow_dispatch:
 
 name: Deploy React
 jobs:
-  deploy:
-    name: Deploy React
-    runs-on: ubuntu-latest
+    deploy:
+        name: Deploy React
+        runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v1
-        with:
-          submodules: 'true'
-          token: ${{ secrets.WORKFLOW_SUBMODULE_PERSONAL_ACCESS_TOKEN }}
-      - name: install node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: 'yarn'
-      - name: yarn install
-        run: yarn install
-      - name: Authenticate on GCS
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.GCP_MFLASH_PROD_JSON_KEY }}
-      - name: Make envfile
-        run: |
-          touch .env
-          echo VITE_API_BASE_URL=https://mflash-api.riker.tech >> .env
-          echo VITE_DEPLOY_DATE=$(TZ=America/Los_Angeles date +"%Y-%m-%d %T") >> .env
-          echo VITE_DEPLOY_COMMIT=$(git rev-parse --short HEAD) >> .env
-      - name: Build & deploy
-        run: |
-            # Note: when a new environment is added, use the following command to set the automatic redirects: 
-            # gsutil web set -m index.html -e index.html gs://NEW_ENV_SUBDOMAIN.riker.tech
-            gsutil web set -m index.html -e index.html gs://mflash.riker.tech
-                        
-            echo "$(git log -10 --format=oneline)"
-                        
-            gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
-                        
-            bucketname=mflash.riker.tech
-                        
-            yarn install
-            cd apps/react
-                        
-            yarn build
-            cd dist 
-                        
-            gsutil cp -r ./ gs://$bucketname/
-            gsutil setmeta -h "Cache-Control:no-cache" gs://$bucketname/index.html
+        steps:
+            - uses: actions/checkout@v1
+              with:
+                  submodules: 'true'
+                  token: ${{ secrets.WORKFLOW_SUBMODULE_PERSONAL_ACCESS_TOKEN }}
+            - name: install node
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 18
+                  cache: 'yarn'
+            - name: yarn install
+              run: yarn install
+            - name: Authenticate on GCS
+              uses: google-github-actions/auth@v2
+              with:
+                  credentials_json: ${{ secrets.GCP_MFLASH_PROD_JSON_KEY }}
+            - name: Make envfile
+              run: |
+                  touch .env
+                  echo VITE_API_BASE_URL=https://mflash-api.riker.tech >> .env
+                  echo VITE_DEPLOY_DATE=$(TZ=America/Los_Angeles date +"%Y-%m-%d %T") >> .env
+                  echo VITE_DEPLOY_COMMIT=$(git rev-parse --short HEAD) >> .env
+            - name: Build & deploy
+              run: |
+                  # Note: when a new environment is added, use the following command to set the automatic redirects: 
+                  # gsutil web set -m index.html -e index.html gs://NEW_ENV_SUBDOMAIN.riker.tech
+                              
+                  echo "$(git log -10 --format=oneline)"
+                              
+                  gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+                              
+                  bucketname=mflash.riker.tech
+                              
+                  yarn install
+                  cd apps/react
+                              
+                  yarn build
+                  cd dist 
+                              
+                  gsutil cp -r ./ gs://$bucketname/
+                  gsutil setmeta -h "Cache-Control:no-cache" gs://$bucketname/index.html
