@@ -21,9 +21,9 @@ jobs:
       - name: yarn install
         run: yarn install
       - name: Authenticate on GCS
-        uses: google-github-actions/auth@v1
+        uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.GCP_TAPIN_PROD_JSON_KEY }}
+          credentials_json: ${{ secrets.GCP_MFLASH_PROD_JSON_KEY }}
       - name: Make envfile
         run: |
           touch .env
