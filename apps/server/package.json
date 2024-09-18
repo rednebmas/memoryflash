@@ -8,7 +8,7 @@
 		"dev": "nodemon src/app.ts",
 		"format": "prettier --write \"src/**/*.{ts,json}\"",
 		"lint": "eslint src/**/*.ts",
-		"start:prod": "yarn build && node dist/app.js",
+		"start:prod": "node dist/app.js",
 		"test": "NODE_ENV=test mocha --require ts-node/register --require dotenv/config src/**/*.test.ts",
 		"test:watch": "nodemon --ext ts --exec 'yarn test'"
 	},
