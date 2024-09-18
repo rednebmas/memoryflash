@@ -1,0 +1,9 @@
+{
+	"compilerOptions": {
+		"baseUrl": ".",
+		"paths": {
+			"MemoryFlashCore/*": ["packages/MemoryFlashCore/src/*"]
+		},
+		"moduleResolution": "node"
+	}
+}
