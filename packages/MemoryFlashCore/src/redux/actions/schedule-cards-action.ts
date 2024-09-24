@@ -62,7 +62,7 @@ export const schedule =
 		let cardTypes = [
 			{
 				name: 'New',
-				weight: cardsWithNoAttempts.length ? 2 : 0,
+				weight: cardsWithNoAttempts.length ? 6 : 0,
 				generateCard: () => cardsWithNoAttempts.shift(),
 			},
 			{
