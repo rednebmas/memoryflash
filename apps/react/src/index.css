@@ -9,6 +9,7 @@
 html,
 body,
 #root {
+	@apply text-gray-950;
 	width: 100vw;
 	height: 100vh;
 	margin: 0 auto;
@@ -48,6 +49,10 @@ body,
 /*  */
 /* DARK MODE */
 /*  */
+
+.dark .text-gray-950 {
+	@apply text-gray-50;
+}
 
 .dark .bg-white {
 	@apply bg-gray-900;

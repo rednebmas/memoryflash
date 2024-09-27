@@ -35,7 +35,6 @@ class ViewController: UIViewController, WKScriptMessageHandler {
         
         connectToMIDISources()
         
-        setupWebView()
     }
     
     func midiNotification(message: UnsafePointer<MIDINotification>) {
@@ -57,28 +56,61 @@ class ViewController: UIViewController, WKScriptMessageHandler {
         
         let contentController = WKUserContentController()
         contentController.add(self, name: "midiHandler")
+        contentController.add(self, name: "consoleHandler")
+
+        // Disable pinch to zoom & read console log messages
+        if let disablePinchToZoomPath = Bundle.main.path(forResource: "Setup", ofType: "js"),
+           let jsString = try? String(contentsOfFile: disablePinchToZoomPath, encoding: .utf8)
+        {
+            let userScript = WKUserScript(source: jsString, injectionTime: .atDocumentStart, forMainFrameOnly: false)
+            contentController.addUserScript(userScript)
+        } else {
+            print("Failed to insert setup script")
+        }
         
+        // Load the MIDI polyfill
+        if let polyfillPath = Bundle.main.path(forResource: "WebMIDIPolyfill", ofType: "js"),
+           let polyfillString = try? String(contentsOfFile: polyfillPath, encoding: .utf8)
+        {
+            let userScript = WKUserScript(source: polyfillString, injectionTime: .atDocumentStart, forMainFrameOnly: false)
+            contentController.addUserScript(userScript)
+        } else {
+            print("Failed to load WebMIDIPolyfill.js")
+        }
+        
+
         let config = WKWebViewConfiguration()
         config.userContentController = contentController
         
-        let rect = CGRect(origin: CGPointMake(50, 50), size: CGSize(width: 200, height: 200))
-        let webView = WKWebView(frame: rect, configuration: config)
+        let webView = WKWebView(frame: .zero, configuration: config)
+        webView.backgroundColor = .clear
+        #if DEBUG
+        webView.isInspectable = true
+        #endif
         
         Autolayout.addAsSubview(webView, toParent: self.view, pinToParent: true)
         
-        if let url = URL(string: "https://mflash.riker.tech/") {
+        // if let url = URL(string: "https://mflash.riker.tech/") {
+        if let url = URL(string: "http://sd-mbpr.local:5173/") {
             let request = URLRequest(url: url)
             webView.load(request)
-            webView.backgroundColor = .red
         }
         
         self.webView = webView
     }
     
-    func sendMIDIMessageToWebView(message: String) {
-        print("Sending MIDI message: \(message)")
-        let script = "handleMIDIMessage('\(message)')"
-        webView?.evaluateJavaScript(script, completionHandler: nil)
+    func sendMIDIMessageToWebView(data: [UInt8]) {
+        let dataString = data.map { String($0) }.joined(separator: ",")
+        let script = "_receiveMIDIMessage([\(dataString)])"
+        // print("Sending message from swift: \(script)")
+        
+        DispatchQueue.main.async {
+            self.webView?.evaluateJavaScript(script, completionHandler: { (result, error) in
+                if let error = error {
+                    print("Error evaluating JavaScript: \(error)")
+                }
+            })
+        }
     }
     
     func handleMIDIPacketList(packetList: UnsafePointer<MIDIPacketList>) {
@@ -93,39 +125,8 @@ class ViewController: UIViewController, WKScriptMessageHandler {
                 }
             }
             
-            parseMIDIMessages(bytes: bytes)
+            sendMIDIMessageToWebView(data: bytes)
             packet = MIDIPacketNext(&packet).pointee
-        }
-    }
-    
-    func parseMIDIMessages(bytes: [UInt8]) {
-        var index = 0
-        while index < bytes.count {
-            let statusByte = bytes[index]
-            let messageType = statusByte & 0xF0
-            let channel = statusByte & 0x0F
-            
-            if messageType == 0x90 && index + 2 < bytes.count {
-                // Note On
-                let note = bytes[index + 1]
-                let velocity = bytes[index + 2]
-                let midiMessage = "Note On - Channel: \(channel + 1), Note: \(note), Velocity: \(velocity)"
-                DispatchQueue.main.async {
-                    self.sendMIDIMessageToWebView(message: midiMessage)
-                }
-                index += 3
-            } else if messageType == 0x80 && index + 2 < bytes.count {
-                // Note Off
-                let note = bytes[index + 1]
-                let velocity = bytes[index + 2]
-                let midiMessage = "Note Off - Channel: \(channel + 1), Note: \(note), Velocity: \(velocity)"
-                DispatchQueue.main.async {
-                    self.sendMIDIMessageToWebView(message: midiMessage)
-                }
-                index += 3
-            } else {
-                index += 1
-            }
         }
     }
     
@@ -134,6 +135,21 @@ class ViewController: UIViewController, WKScriptMessageHandler {
         for index in 0..<sourceCount {
             let src = MIDIGetSource(index)
             if !connectedSources.contains(src) {
+                // Get the name of the MIDI source
+                var name: Unmanaged<CFString>?
+                let statusName = MIDIObjectGetStringProperty(src, kMIDIPropertyName, &name)
+                
+                if let name = name?.takeRetainedValue(), statusName == noErr {
+                    if String(name) == "Session 1" {
+                        // Idk what "Session 1" is but it's annoying and confusing me
+                        continue
+                    }
+                    print("MIDI Source Name: \(name)")
+                } else {
+                    print("Could not retrieve MIDI source name, error: \(statusName)")
+                }
+                
+                
                 let status = MIDIPortConnectSource(inputPort, src, nil)
                 if status == noErr {
                     print("Connected to new midi source: \(src)")
@@ -143,6 +159,10 @@ class ViewController: UIViewController, WKScriptMessageHandler {
                 }
             }
         }
+        
+        if connectedSources.count > 0 {
+            setupWebView()
+        }
     }
     
     @IBAction func openBluetoothMIDICentral(_ sender: Any) {
@@ -151,7 +171,11 @@ class ViewController: UIViewController, WKScriptMessageHandler {
     }
     
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        print("Did receive message from userContentController")
+        if message.name == "consoleHandler", let consoleMessage = message.body as? String {
+            print("[JS] \(consoleMessage)")
+        } else {
+            print("[MFflash] Recieved unknown message: \(message)")
+        }
     }
-    
+
 }

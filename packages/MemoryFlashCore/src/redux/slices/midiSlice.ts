@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { Midi, Note } from 'tonal';
 
 type MidiInput = {
 	id: string;
@@ -39,6 +40,12 @@ const midiSlice = createSlice({
 				// UnExactMultiAnswerValidator depends on this sorting
 				state.notes = [...state.notes, note].sort((a, b) => a.number - b.number);
 			}
+
+			console.log(
+				'[addNote] ',
+				state.notes.map((n) => `${Midi.midiToNoteName(n.number)}`).join(', '),
+				`(${state.notes.map((n) => n.number).join(', ')})`,
+			);
 		},
 		removeNote(state, action: PayloadAction<number>) {
 			state.notes = state.notes.filter((note) => note.number !== action.payload);
@@ -46,6 +53,12 @@ const midiSlice = createSlice({
 			if (state.waitingUntilEmpty && state.notes.length === 0) {
 				state.waitingUntilEmpty = false;
 			}
+
+			console.log(
+				'[removeNote] ',
+				state.notes.map((n) => `${Midi.midiToNoteName(n.number)}`).join(', '),
+				`(${state.notes.map((n) => n.number).join(', ')})`,
+			);
 		},
 		addWrongNote(state, action: PayloadAction<number>) {
 			const existingNote = state.wrongNotes.find((note) => note === action.payload);

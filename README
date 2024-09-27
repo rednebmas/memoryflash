@@ -1,0 +1,2 @@
+If running on local mobile device using sd-mbpr.local, you will need to enable the following flag in Chrome:
+chrome://flags/#unsafely-treat-insecure-origin-as-secure
