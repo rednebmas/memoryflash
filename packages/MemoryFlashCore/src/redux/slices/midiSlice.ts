@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Midi, Note } from 'tonal';
+import { Midi, note, Note } from 'tonal';
 
 type MidiInput = {
 	id: string;
@@ -16,6 +16,7 @@ export interface MidiReduxState {
 	notes: MidiNote[];
 	wrongNotes: number[];
 	waitingUntilEmpty: boolean;
+	waitingUntilEmptyNotes: MidiNote[];
 	availableMidiDevices: MidiInput[];
 	selectedInput?: string;
 	selectedOutput?: string;
@@ -25,6 +26,7 @@ const initialState: MidiReduxState = {
 	notes: [],
 	wrongNotes: [],
 	waitingUntilEmpty: false,
+	waitingUntilEmptyNotes: [],
 	availableMidiDevices: [],
 };
 
@@ -50,7 +52,10 @@ const midiSlice = createSlice({
 		removeNote(state, action: PayloadAction<number>) {
 			state.notes = state.notes.filter((note) => note.number !== action.payload);
 			state.wrongNotes = state.wrongNotes.filter((note) => note !== action.payload);
-			if (state.waitingUntilEmpty && state.notes.length === 0) {
+			state.waitingUntilEmptyNotes = state.waitingUntilEmptyNotes.filter(
+				(note) => note.number !== action.payload,
+			);
+			if (state.waitingUntilEmpty && state.waitingUntilEmptyNotes.length === 0) {
 				state.waitingUntilEmpty = false;
 			}
 
@@ -96,6 +101,7 @@ const midiSlice = createSlice({
 		},
 		waitUntilEmpty(state) {
 			state.waitingUntilEmpty = true;
+			state.waitingUntilEmptyNotes = state.notes;
 		},
 
 		// ok the thing with the click keyboard is
