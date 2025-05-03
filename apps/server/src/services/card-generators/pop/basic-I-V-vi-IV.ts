@@ -66,6 +66,37 @@ function generateSimpleVoicingsV2() {
 	);
 }
 
+function generateSimpleVoicingsV3() {
+	const progressions = generateProgressionsFromRomanNumerals(
+		['I', 'V', 'vim', 'IV'],
+		['A2', 'C7'],
+		[
+			{
+				M: ['1P 10M 12M 15P'],
+			},
+			{
+				M: ['1P 12M 15P 17M'],
+			},
+			{
+				m: ['1P 12M 15P 17m'],
+			},
+			{
+				M: ['1P 15P 17M 19M'],
+			},
+		],
+	);
+
+	return createTwoHandedCardsFromProgressions(
+		'pop both hands v3',
+		'pop v3 in the key of',
+		'pop v3 starting with',
+		1,
+		progressions,
+	);
+}
+
+// Up vs. down on the six
+
 export async function generatePopCourse() {
 	let course = await Course.findOne({ name: 'Pop' });
 	if (!course) {
@@ -77,11 +108,14 @@ export async function generatePopCourse() {
 		simplePopVoicingV1Cards,
 		simplePopVoicingV2,
 		simplePopVoicingV2Cards,
+		simplePopVoicingV3,
+		simplePopVoicingV3Cards,
 	} = generatePopDecks(course.id);
 
 	await upsertCourse(course, [
 		[simplePopVoicingV1, simplePopVoicingV1Cards],
 		[simplePopVoicingV2, simplePopVoicingV2Cards],
+		[simplePopVoicingV3, simplePopVoicingV3Cards],
 	]);
 }
 
@@ -104,10 +138,21 @@ export function generatePopDecks(courseId: string) {
 		tags: ['both hands'],
 	};
 
+	const simplePopVoicingV3: IDeck = {
+		uid: 'pop I V vi IV v3',
+		courseId,
+		name: 'The Four Chords Both Hands V3',
+		section: 'Simple',
+		sectionSubtitle: '',
+		tags: ['both hands'],
+	};
+
 	return {
-		simplePopVoicingV2,
-		simplePopVoicingV2Cards: generateSimpleVoicingsV2(),
 		simplePopVoicingV1,
 		simplePopVoicingV1Cards: generateSimpleVoicingsV1(),
+		simplePopVoicingV2,
+		simplePopVoicingV2Cards: generateSimpleVoicingsV2(),
+		simplePopVoicingV3,
+		simplePopVoicingV3Cards: generateSimpleVoicingsV3(),
 	};
 }

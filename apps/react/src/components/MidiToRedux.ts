@@ -18,10 +18,12 @@ export const MidiToRedux: React.FunctionComponent<MidiToReduxProps> = ({}) => {
 	useEffect(() => {
 		WebMidi.enable()
 			.then(onEnabled)
-			.catch((err) => alert(err));
+			.catch((err) => {
+				console.error(err);
+			});
 
 		function onEnabled() {
-			console.log('WebMidi enabled');
+			console.log('[MIDI] WebMidi enabled');
 
 			dispatch(midiActions.clearDevices());
 			let setInputDevice = false;
@@ -43,6 +45,8 @@ export const MidiToRedux: React.FunctionComponent<MidiToReduxProps> = ({}) => {
 
 			// Then, find the first input & output devices and set it as selected
 			if (WebMidi.inputs[0]) {
+				let device = WebMidi.inputs[0];
+				console.log('[MIDI] Setting selected input:', device.name, device.id, device);
 				dispatch(midiActions.setSelectedInput(WebMidi.inputs[0].id));
 			}
 			if (WebMidi.outputs[0]) {
@@ -51,7 +55,7 @@ export const MidiToRedux: React.FunctionComponent<MidiToReduxProps> = ({}) => {
 
 			// connected listener
 			WebMidi.addListener('connected', (e) => {
-				// console.log('Midi Input Connected:', e.port.id, e.port.name);
+				console.log('[MIDI] Device connected:', e.port.name, e.port.id, e.port.name);
 
 				dispatch(
 					midiActions.addDevice({
@@ -76,16 +80,18 @@ export const MidiToRedux: React.FunctionComponent<MidiToReduxProps> = ({}) => {
 			WebMidi.getInputById(previousSelectedInputId)?.removeListener('noteoff');
 		}
 		if (selectedInputId) {
+			console.log('adding listener');
+
 			WebMidi.getInputById(selectedInputId)?.addListener('noteon', (e) => {
 				const note = Midi.midiToNoteName(e.note.number);
-				console.log('Note On:', e.note.number, note);
+				// console.log('Note On:', e.note.number, note);
 				dispatch(midiActions.addNote(e.note.number));
 				if (e.note.number === 24) {
 					window.location.reload();
 				}
 			});
 			WebMidi.getInputById(selectedInputId)?.addListener('noteoff', (e) => {
-				console.log('Note Off:', e.note.number, e.note.name, e.note.octave);
+				// console.log('Note Off:', e.note.number, e.note.name, e.note.octave);
 				dispatch(midiActions.removeNote(e.note.number));
 			});
 		}
