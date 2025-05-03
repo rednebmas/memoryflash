@@ -55,6 +55,9 @@ const schedulerSlice = createSlice({
 			state.nextCards = [];
 			state.currCard = undefined;
 		},
+		startFromBeginningOfCurrentCard: (state) => {
+			state.multiPartCardIndex = 0;
+		},
 		incrementMultiPartCardIndex(state) {
 			state.multiPartCardIndex += 1;
 		},

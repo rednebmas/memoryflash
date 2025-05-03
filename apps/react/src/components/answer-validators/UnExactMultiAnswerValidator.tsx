@@ -1,5 +1,6 @@
 import { Midi, Note } from 'tonal';
 import useDeepCompareEffect from 'use-deep-compare-effect';
+import { useState } from 'react';
 import { recordAttempt } from 'MemoryFlashCore/src/redux/actions/record-attempt-action';
 import { midiActions } from 'MemoryFlashCore/src/redux/slices/midiSlice';
 import { schedulerActions } from 'MemoryFlashCore/src/redux/slices/schedulerSlice';
@@ -8,7 +9,7 @@ import { Card } from 'MemoryFlashCore/src/types/Cards';
 import { MultiSheetCard } from 'MemoryFlashCore/src/types/MultiSheetCard';
 
 export const UnExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _card }) => {
-	let card = _card as MultiSheetCard;
+	const card = _card as MultiSheetCard;
 
 	const dispatch = useAppDispatch();
 	const onNotes = useAppSelector((state) => state.midi.notes);
@@ -17,47 +18,64 @@ export const UnExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _c
 	const waitingUntilEmpty = useAppSelector((state) => state.midi.waitingUntilEmpty);
 	const multiPartCardIndex = useAppSelector((state) => state.scheduler.multiPartCardIndex);
 
-	const part = card.question.voices.map((voice) => voice.stack[multiPartCardIndex].notes).flat();
-	const answerPartNotesChroma = part
-		.sort((a, b) => {
-			const noteA = Note.midi(a.name + a.octave);
-			const noteB = Note.midi(b.name + b.octave);
-			if (noteA && noteB) {
-				return noteA - noteB;
+	const [wrongIndex, setWrongIndex] = useState(-1);
+
+	const getChromaNotesForPart = (index: number): number[] => {
+		return card.question.voices
+			.flatMap((voice) => voice.stack[index].notes)
+			.map((note) => Note.chroma(note.name + note.octave));
+	};
+
+	const answerPartNotesChroma = getChromaNotesForPart(multiPartCardIndex);
+	const firstPartNotesChroma = getChromaNotesForPart(0);
+
+	const areArraysEqual = (array1: number[], array2: number[]): boolean => {
+		if (array1.length !== array2.length) return false;
+		for (let i = 0; i < array1.length; i++) {
+			if (array1[i] !== array2[i]) {
+				return false;
 			}
-			return 0;
-		})
-		.map((note) => Note.chroma(note.name + note.octave));
+		}
+		return true;
+	};
 
 	useDeepCompareEffect(() => {
 		if (waitingUntilEmpty) return;
+
+		// Allow restarting from the first index if the first part is played after an incorrect attempt
+		if (
+			multiPartCardIndex !== 0 &&
+			wrongIndex === multiPartCardIndex &&
+			areArraysEqual(onNotesChroma, firstPartNotesChroma)
+		) {
+			console.log('[scheduler] Restarting from the first part');
+			dispatch(schedulerActions.startFromBeginningOfCurrentCard());
+			setWrongIndex(-1);
+			return;
+		}
+
+		// Validate notes for the current part
 		for (let i = 0; i < onNotesChroma.length; i++) {
 			if (!answerPartNotesChroma.includes(onNotesChroma[i])) {
 				dispatch(recordAttempt(false));
+				setWrongIndex(multiPartCardIndex);
 				dispatch(midiActions.addWrongNote(onNotesMidi[i]));
 				return;
 			}
 		}
 
-		// order should be correct to get answer correct
-		for (let i = 0; i < onNotesChroma.length; i++) {
-			if (answerPartNotesChroma[i] !== onNotesChroma[i]) {
-				console.log(
-					'[UnExactMultiAnswerValidator] Incorrect order: ',
-					onNotesChroma[i],
-					answerPartNotesChroma[i],
-					onNotes[i],
-					part,
-				);
-
-				return;
-			} else {
-				console.log('[UnExactMultiAnswerValidator] Correct order: ', onNotesChroma[i]);
-			}
+		// Check order correctness
+		if (!areArraysEqual(onNotesChroma, answerPartNotesChroma.slice(0, onNotesChroma.length))) {
+			console.log(
+				'[UnExactMultiAnswerValidator] Incorrect order: ',
+				onNotesChroma,
+				answerPartNotesChroma,
+			);
+			return;
 		}
 
-		if (onNotes.length === answerPartNotesChroma.length) {
-			if (multiPartCardIndex == card.question.voices[0].stack.length - 1) {
+		if (onNotesChroma.length === answerPartNotesChroma.length) {
+			if (multiPartCardIndex === card.question.voices[0].stack.length - 1) {
 				console.log('Correct card!');
 				dispatch(recordAttempt(true));
 			} else {
