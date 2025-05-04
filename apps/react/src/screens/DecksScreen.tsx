@@ -1,12 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Layout, SectionData, SectionHeader } from '../components';
 import { BasicErrorCard } from '../components/ErrorCard';
 import { Spinner } from '../components/Spinner';
 import { Button } from '../components/Button';
 import { PlusIcon } from '@heroicons/react/24/solid';
-import { CreateDeckModal } from '../components/modals/CreateDeckModal';
 import { getCourse } from 'MemoryFlashCore/src/redux/actions/get-course-action';
 import { decksSelector } from 'MemoryFlashCore/src/redux/selectors/decksSelector';
 import { useNetworkState } from 'MemoryFlashCore/src/redux/selectors/useNetworkState';
@@ -16,7 +15,7 @@ import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store'
 export const DecksScreen = () => {
 	const dispatch = useAppDispatch();
 	const { courseId } = useParams();
-	const [isCreateModalOpen, setCreateModalOpen] = useState(false);
+	const navigate = useNavigate();
 	const { course, parsingCourseId } = useAppSelector((state) => {
 		if (state.courses.parsingCourse) {
 			return {
@@ -41,6 +40,12 @@ export const DecksScreen = () => {
 			dispatch(getCourse(parsingCourseId));
 		}
 	}, [parsingCourseId]);
+
+	const handleCreateDeck = () => {
+		if (courseId) {
+			navigate(`/course/${courseId}/create-deck`);
+		}
+	};
 
 	return (
 		<Layout subtitle={course?.name} back="/">
@@ -73,7 +78,7 @@ export const DecksScreen = () => {
 				{course?.userId && (
 					<div className="mt-6 flex justify-center">
 						<Button
-							onClick={() => setCreateModalOpen(true)}
+							onClick={handleCreateDeck}
 							icon={<PlusIcon className="h-5 w-5" />}
 						>
 							Create Deck
@@ -81,14 +86,6 @@ export const DecksScreen = () => {
 					</div>
 				)}
 			</div>
-
-			{courseId && (
-				<CreateDeckModal
-					isOpen={isCreateModalOpen}
-					onClose={() => setCreateModalOpen(false)}
-					courseId={courseId}
-				/>
-			)}
 		</Layout>
 	);
 };

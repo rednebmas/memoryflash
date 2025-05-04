@@ -7,6 +7,7 @@ import { AuthenticatedRoute } from './components/navigation/Routers';
 import { CoursesScreen } from './screens';
 import { AllDeckCardsScreen } from './screens/AllDeckCardsScreen';
 import { DecksScreen } from './screens/DecksScreen';
+import { CreateDeckScreen } from './screens/CreateDeckScreen';
 import { LoginScreen } from './screens/LoginScreen';
 import { SignUpScreen } from './screens/SignUpScreen';
 import { loadWebReudxStatePromise, store } from './utils/store';
@@ -36,6 +37,10 @@ export default function App() {
 					<Route
 						path='/course/:courseId'
 						element={<AuthenticatedRoute screen={<DecksScreen />} />}
+					/>
+					<Route
+						path='/course/:courseId/create-deck'
+						element={<AuthenticatedRoute screen={<CreateDeckScreen />} />}
 					/>
 					<Route path='/study/:deckId' element={<AuthenticatedRoute screen={<StudyScreen />} />} />
 					<Route
