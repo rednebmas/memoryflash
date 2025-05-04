@@ -14,7 +14,7 @@ type MidiNote = {
  * @param key    e.g. "C", "Eb", "F#", etc.
  * @returns      e.g. "Eb4" or "C#4"
  */
-function namedInKey(midi: number, key: string): string {
+export function namedInKey(midi: number, key: string): string {
   const keyInfo = Key.majorKey(key);
   const useSharps = keyInfo.scale.some(n => n.includes("#"));
   return useSharps

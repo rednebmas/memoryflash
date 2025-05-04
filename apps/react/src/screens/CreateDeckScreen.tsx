@@ -2,14 +2,13 @@ import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Layout } from '../components';
 import { Button } from '../components/Button';
-import { MusicNotation } from '../components/MusicNotation';
 import { MidiInputsDropdown } from '../components/MidiInputsDropdown';
 import Dropdown from '../components/Dropdown';
+import SheetMusicEditor from '../components/SheetMusicEditor';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { createDeck } from 'MemoryFlashCore/src/redux/actions/create-deck-action';
 import { useNetworkState } from 'MemoryFlashCore/src/redux/selectors/useNetworkState';
 import { Midi } from 'tonal';
-import { midiNotesToMultiSheetQuestion } from '../utils/midiNotesToMultiSheetQuestion';
 import { majorKeys } from 'MemoryFlashCore/src/lib/notes';
 
 interface MiddleNoteControlsProps {
@@ -144,23 +143,19 @@ export const CreateDeckScreen: React.FC = () => {
 
 	const { isLoading: isCreating } = useNetworkState('createDeck');
 	const midiNotes = useAppSelector((state) => state.midi.notes);
-	const multiSheetQuestion = midiNotesToMultiSheetQuestion(midiNotes, middleNote, keySignature);
 
 	const handleSave = async () => {
 		if (!courseId || !deckName.trim()) return;
 
-		const result = await dispatch(
-			createDeck({
-				courseId,
-				name: deckName,
-				section: 'Custom',
-				sectionSubtitle: '',
-			}),
-		);
-
-		if (result) {
+			await dispatch(
+				createDeck({
+					courseId,
+					name: deckName,
+					section: 'Custom',
+					sectionSubtitle: '',
+				}),
+			);
 			navigate(`/course/${courseId}`);
-		}
 	};
 
 	return (
@@ -187,18 +182,11 @@ export const CreateDeckScreen: React.FC = () => {
 
 				<MiddleNoteControls middleNote={middleNote} setMiddleNote={setMiddleNote} />
 
-				<div className="mb-8">
-					<h3 className="mb-3">Live Note Display</h3>
-					<div className="p-4 border rounded">
-						{midiNotes.length > 0 ? (
-							<MusicNotation data={multiSheetQuestion} />
-						) : (
-							<div className="flex justify-center items-center h-40 text-gray-500">
-								Play notes on your MIDI device to see them displayed here
-							</div>
-						)}
-					</div>
-				</div>
+				<SheetMusicEditor 
+					keySignature={keySignature}
+					middleNote={middleNote}
+					midiNotes={midiNotes}
+				/>
 			</div>
 		</Layout>
 	);
