@@ -1,0 +1,2 @@
+# Testing
+`cd apps/react && yarn test:run`

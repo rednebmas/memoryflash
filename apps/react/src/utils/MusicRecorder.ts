@@ -1,226 +1,251 @@
-import { MultiSheetQuestion, Voice, StackedNotes, SheetNote } from 'MemoryFlashCore/src/types/MultiSheetCard';
-import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
 import { Midi } from 'tonal';
 import { namedInKey } from './midiNotesToMultiSheetQuestion';
+import {
+	MultiSheetQuestion,
+	Voice,
+	StackedNotes,
+	SheetNote,
+	Duration,
+} from 'MemoryFlashCore/src/types/MultiSheetCard';
+import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
+import { MidiNote } from 'MemoryFlashCore/src/redux/slices/midiSlice';
 
-type MidiNote = {
-  number: number;
-  clicked?: boolean;
-};
+function getDurationInBeats(d: string): number {
+	switch (d) {
+		case 'w':
+			return 4;
+		case 'h':
+			return 2;
+		case 'q':
+			return 1;
+		case '8':
+			return 0.5;
+		case '16':
+			return 0.25;
+		default:
+			return 2;
+	}
+}
 
-/**
- * Simple utility to record MIDI notes as musical notation
- */
+function ensureCompleteMeasure(stacks: StackedNotes[], measuresCount: number): StackedNotes[] {
+	// First, calculate how many beats we have
+	const recordedBeats = stacks.reduce((sum, s) => sum + getDurationInBeats(s.duration), 0);
+	const targetBeats = measuresCount * 4; // Each measure should have exactly 4 beats
+	
+	// Create a new array to hold balanced measures
+	let result: StackedNotes[] = [];
+	
+	// Group notes into complete 4-beat measures
+	let currentMeasureBeats = 0;
+	let currentMeasureNotes: StackedNotes[] = [];
+	
+	// Process each note
+	for (const note of stacks) {
+		const noteDuration = getDurationInBeats(note.duration);
+		
+		// If adding this note would exceed 4 beats, we need to split it or start a new measure
+		if (currentMeasureBeats + noteDuration > 4) {
+			// If we have some notes in the current measure, add appropriate rests to complete it
+			if (currentMeasureBeats < 4 && currentMeasureBeats > 0) {
+				const remainingBeats = 4 - currentMeasureBeats;
+				currentMeasureNotes.push(createRest(remainingBeats));
+			}
+			
+			// Add the completed measure to the result
+			result = [...result, ...currentMeasureNotes];
+			
+			// Start a new measure
+			currentMeasureBeats = 0;
+			currentMeasureNotes = [];
+		}
+		
+		// Add the note to the current measure
+		currentMeasureNotes.push(note);
+		currentMeasureBeats += noteDuration;
+		
+		// If we exactly completed a measure, add it to the result and start a new one
+		if (currentMeasureBeats === 4) {
+			result = [...result, ...currentMeasureNotes];
+			currentMeasureBeats = 0;
+			currentMeasureNotes = [];
+		}
+	}
+	
+	// If we have notes left in an incomplete measure, add rests to complete it
+	if (currentMeasureBeats > 0) {
+		const remainingBeats = 4 - currentMeasureBeats;
+		currentMeasureNotes.push(createRest(remainingBeats));
+		result = [...result, ...currentMeasureNotes];
+	}
+	
+	// Now ensure we have exactly the requested number of measures by adding full-measure rests if needed
+	const completedMeasures = Math.ceil(result.length / 4);
+	if (completedMeasures < measuresCount) {
+		const measuresToAdd = measuresCount - completedMeasures;
+		for (let i = 0; i < measuresToAdd; i++) {
+			// Add a whole-note rest (4 beats)
+			result.push(createRest(4));
+		}
+	}
+	
+	return result;
+}
+
+// Helper function to create a rest with the appropriate duration
+function createRest(beats: number): StackedNotes {
+	let restDuration: Duration;
+	
+	if (beats >= 4) {
+		restDuration = 'w';
+	} else if (beats >= 2) {
+		restDuration = 'h';
+	} else if (beats >= 1) {
+		restDuration = 'q';
+	} else if (beats >= 0.5) {
+		restDuration = '8';
+	} else {
+		restDuration = '16';
+	}
+	
+	return {
+		notes: [{ name: 'b', octave: 4, isRest: true }],
+		duration: restDuration,
+		isRest: true
+	};
+}
+
 export class MusicRecorder {
-  private _noteDuration: string;
-  private _measuresCount: number;
-  private _middleNote: number;
-  private _key: string;
-  private _stacks: StackedNotes[] = [];
-  private _currentPosition = 0;
-  
-  constructor(key = 'C', middleNote = 60, measuresCount = 1, noteDuration = 'h') {
-    this._key = key;
-    this._middleNote = middleNote;
-    this._measuresCount = measuresCount;
-    this._noteDuration = noteDuration;
-    this._initializeStacks();
-  }
-  
-  /**
-   * Initialize empty stacks based on current settings
-   */
-  private _initializeStacks() {
-    // Calculate how many notes fit in each measure based on duration
-    const notesPerMeasure = this._getNotesPerMeasure();
-    const totalPositions = notesPerMeasure * this._measuresCount;
-    
-    // Create empty stacks for each position
-    this._stacks = Array(totalPositions).fill(null).map(() => ({
-      notes: [],
-      duration: this._noteDuration
-    }));
-    
-    this._currentPosition = 0;
-  }
-  
-  /**
-   * Get how many notes of current duration fit in a 4/4 measure
-   */
-  private _getNotesPerMeasure(): number {
-    switch (this._noteDuration) {
-      case 'w': return 1;
-      case 'h': return 2;
-      case 'q': return 4;
-      case '8': return 8;
-      case '16': return 16;
-      default: return 2; // Default to half notes
-    }
-  }
-  
-  /**
-   * Record current MIDI notes at the current position and advance
-   */
-  recordNotes(midiNotes: MidiNote[]) {
-    if (this._currentPosition >= this._stacks.length) {
-      return false; // Can't record any more notes
-    }
-    
-    // Convert MIDI numbers to properly named notes
-    const notes = midiNotes.map(note => {
-      const fullNote = namedInKey(note.number, this._key);
-      const parts = fullNote.match(/([A-G][b#]*)(\d+)/);
-      
-      if (!parts) {
-        throw new Error(`Invalid note format: ${fullNote}`);
-      }
-      
-      return {
-        name: parts[1],
-        octave: parseInt(parts[2])
-      };
-    });
-    
-    // Record notes at current position
-    this._stacks[this._currentPosition] = {
-      notes,
-      duration: this._noteDuration
-    };
-    
-    // Move to next position
-    this._currentPosition++;
-    
-    return true;
-  }
-  
-  /**
-   * Get information about the current recording state
-   */
-  getState() {
-    return {
-      currentPosition: this._currentPosition,
-      totalPositions: this._stacks.length,
-      isComplete: this._currentPosition >= this._stacks.length
-    };
-  }
-  
-  /**
-   * Reset the recorder to start a new recording
-   */
-  reset() {
-    this._initializeStacks();
-  }
-  
-  /**
-   * Update settings and reset the recorder
-   */
-  updateSettings({
-    key, 
-    middleNote, 
-    measuresCount, 
-    noteDuration
-  }: {
-    key?: string;
-    middleNote?: number;
-    measuresCount?: number;
-    noteDuration?: string;
-  }) {
-    let needsReset = false;
-    
-    if (key !== undefined && key !== this._key) {
-      this._key = key;
-      needsReset = true;
-    }
-    
-    if (middleNote !== undefined && middleNote !== this._middleNote) {
-      this._middleNote = middleNote;
-      needsReset = true;
-    }
-    
-    if (measuresCount !== undefined && measuresCount !== this._measuresCount) {
-      this._measuresCount = measuresCount;
-      needsReset = true;
-    }
-    
-    if (noteDuration !== undefined && noteDuration !== this._noteDuration) {
-      this._noteDuration = noteDuration;
-      needsReset = true;
-    }
-    
-    if (needsReset) {
-      this.reset();
-    }
-  }
-  
-  /**
-   * Convert recorded notes to the MultiSheetQuestion format
-   */
-  toMultiSheetQuestion(): MultiSheetQuestion {
-    // Only include up to current position
-    const activeStacks = this._stacks.slice(0, this._currentPosition);
-    
-    // Group by staff (treble/bass)
-    const trebleStacks: StackedNotes[] = [];
-    const bassStacks: StackedNotes[] = [];
-    
-    let hasTrebleNotes = false;
-    let hasBassNotes = false;
-    
-    // Process each stack
-    activeStacks.forEach(stack => {
-      // Split notes between treble and bass
-      const trebleNotes = stack.notes.filter(note => {
-        const midiNum = Midi.toMidi(`${note.name}${note.octave}`);
-        return midiNum !== null && midiNum >= this._middleNote;
-      });
-      
-      const bassNotes = stack.notes.filter(note => {
-        const midiNum = Midi.toMidi(`${note.name}${note.octave}`);
-        return midiNum !== null && midiNum < this._middleNote;
-      });
-      
-      // Add to respective stacks
-      if (trebleNotes.length > 0) {
-        hasTrebleNotes = true;
-      }
-      
-      if (bassNotes.length > 0) {
-        hasBassNotes = true;
-      }
-      
-      trebleStacks.push({
-        notes: trebleNotes,
-        duration: stack.duration
-      });
-      
-      bassStacks.push({
-        notes: bassNotes,
-        duration: stack.duration
-      });
-    });
-    
-    // Create voices array
-    const voices: Voice[] = [];
-    
-    // Only add voices if they have actual notes
-    if (hasTrebleNotes) {
-      voices.push({
-        staff: StaffEnum.Treble,
-        stack: trebleStacks
-      });
-    }
-    
-    if (hasBassNotes) {
-      voices.push({
-        staff: StaffEnum.Bass,
-        stack: bassStacks
-      });
-    }
-    
-    return {
-      voices,
-      key: this._key,
-      _8va: false
-    };
-  }
+	private key: string;
+	private middleNote: number;
+	private measuresCount: number;
+	private noteDuration: Duration;
+	private stacks: StackedNotes[] = [];
+	private position = 0;
+
+	constructor(key = 'C', middleNote = 60, measuresCount = 1, noteDuration: Duration = 'h') {
+		this.key = key;
+		this.middleNote = middleNote;
+		this.measuresCount = measuresCount;
+		this.noteDuration = noteDuration;
+		this.reset();
+	}
+
+	private getNotesPerMeasure(): number {
+		switch (this.noteDuration) {
+			case 'w':
+				return 1;
+			case 'h':
+				return 2;
+			case 'q':
+				return 4;
+			case '8':
+				return 8;
+			case '16':
+				return 16;
+			default:
+				return 2;
+		}
+	}
+
+	private initializeStacks() {
+		const totalSlots = this.getNotesPerMeasure() * this.measuresCount;
+		this.stacks = Array.from({ length: totalSlots }, () => ({
+			notes: [{ name: 'b', octave: 4, isRest: true }],
+			duration: this.noteDuration as Duration,
+			isRest: true
+		}));
+		this.position = 0;
+	}
+
+	private parseMidiNotes(input: MidiNote[]): SheetNote[] {
+		return input.map(({ number }) => {
+			const full = namedInKey(number, this.key);
+			const m = full.match(/([A-G][b#]*)(\d+)/);
+			if (!m) throw new Error(`Invalid note: ${full}`);
+			return { name: m[1], octave: parseInt(m[2], 10) };
+		});
+	}
+
+	recordNotes(input: MidiNote[]): boolean {
+		if (this.position >= this.stacks.length) return false;
+		const notes = this.parseMidiNotes(input);
+		this.stacks[this.position++] = { notes, duration: this.noteDuration };
+		return true;
+	}
+
+	getState() {
+		return {
+			currentPosition: this.position,
+			totalPositions: this.stacks.length,
+			isComplete: this.position >= this.stacks.length,
+		};
+	}
+
+	reset() {
+		this.initializeStacks();
+	}
+
+	updateSettings(opts: {
+		key?: string;
+		middleNote?: number;
+		measuresCount?: number;
+		noteDuration?: Duration;
+	}) {
+		if (opts.key !== undefined) this.key = opts.key;
+		if (opts.middleNote !== undefined) this.middleNote = opts.middleNote;
+		if (opts.measuresCount !== undefined) this.measuresCount = opts.measuresCount;
+		if (opts.noteDuration !== undefined) this.noteDuration = opts.noteDuration;
+		this.reset();
+	}
+
+	private splitForStaves(stacks: StackedNotes[]) {
+		const treble: StackedNotes[] = [];
+		const bass: StackedNotes[] = [];
+		let hasTreble = false;
+		let hasBass = false;
+
+		for (const { notes, duration } of stacks) {
+			const t = notes.filter((n) => {
+				const v = Midi.toMidi(`${n.name}${n.octave}`);
+				return v !== null && v >= this.middleNote;
+			});
+			const b = notes.filter((n) => {
+				const v = Midi.toMidi(`${n.name}${n.octave}`);
+				return v !== null && v < this.middleNote;
+			});
+			if (t.length) hasTreble = true;
+			if (b.length) hasBass = true;
+			treble.push({ notes: t, duration });
+			bass.push({ notes: b, duration });
+		}
+
+		return { treble, bass, hasTreble, hasBass };
+	}
+
+	toMultiSheetQuestion(): MultiSheetQuestion {
+		const recorded = this.stacks.slice(0, this.position);
+		const { treble, bass, hasTreble, hasBass } = this.splitForStaves(recorded);
+		const voices: Voice[] = [];
+
+		if (hasTreble)
+			voices.push({
+				staff: StaffEnum.Treble,
+				stack: ensureCompleteMeasure(treble, this.measuresCount),
+			});
+
+		if (hasBass)
+			voices.push({
+				staff: StaffEnum.Bass,
+				stack: ensureCompleteMeasure(bass, this.measuresCount),
+			});
+
+		if (!voices.length && recorded.length) {
+			voices.push({
+				staff: StaffEnum.Treble,
+				stack: ensureCompleteMeasure([], this.measuresCount),
+			});
+		}
+
+		return { voices, key: this.key, _8va: false };
+	}
 }

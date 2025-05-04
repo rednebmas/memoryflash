@@ -1,11 +1,7 @@
 import { Midi, Note, Key } from 'tonal';
 import { MultiSheetQuestion, Voice } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
-
-type MidiNote = {
-	number: number;
-	clicked?: boolean;
-};
+import { MidiNote } from 'MemoryFlashCore/src/redux/slices/midiSlice';
 
 /**
  * Convert a MIDI note number to its name in the context of a given key.
@@ -33,10 +29,12 @@ export const midiNotesToMultiSheetQuestion = (
 		// Extract note name (without octave) and octave
 		const { letter, acc, oct } = Note.get(noteName);
 		const name = `${letter}${acc || ''}`;
+		// TypeScript needs explicit type assertion here
+		const octaveNum = oct !== null ? Number(oct) : 4;
 		return {
 			number: note.number,
 			name,
-			octave: parseInt(oct || '4'),
+			octave: octaveNum,
 		};
 	});
 

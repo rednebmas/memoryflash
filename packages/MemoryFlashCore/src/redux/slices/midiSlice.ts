@@ -7,7 +7,7 @@ type MidiInput = {
 	type: 'input' | 'output';
 };
 
-type MidiNote = {
+export type MidiNote = {
 	number: number;
 	clicked?: boolean;
 };

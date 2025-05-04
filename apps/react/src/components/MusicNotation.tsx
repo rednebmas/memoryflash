@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Stave, Vex, Note as VFNote } from 'vexflow';
-import { MultiSheetQuestion, Voice } from 'MemoryFlashCore/src/types/MultiSheetCard';
+import { MultiSheetQuestion, Voice, StackedNotes } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { Chord } from 'tonal';
 import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
@@ -129,62 +129,182 @@ export const MusicNotation: React.FunctionComponent<MusicNotationProps> = ({
 		const topStave = trebleStave || bassStave!;
 
 		let formatter = new VF.Formatter();
-		let vfNotes: VFNote[][] = [];
 		let allNotesGroup = context.openGroup();
-
-		let vfVoices = data.voices.map((voice) => {
-			const notes = createNotes(
-				voice,
-				voice.staff === StaffEnum.Treble ? trebleStave! : bassStave!,
-				allNotesClassName,
-				highlightClassName,
-				multiPartCardIndex,
-				data._8va,
-			);
-			vfNotes.push(notes);
-			const vfVoice = new VF.Voice({ num_beats: 4, beat_value: 4 }).addTickables(notes);
-
-			VF.Accidental.applyAccidentals([vfVoice], data.key);
-
-			formatter.joinVoices([vfVoice]);
-			return vfVoice;
-		});
-
-		// if (data._8va) {
-		// const textBracket = new VF.TextBracket({
-		// 	start: vfNotes[0][0],
-		// 	stop: vfNotes[0][2],
-		// 	// stop: vfNotes[0][vfNotes[0].length - 1],
-		// 	text: '8',
-		// 	superscript: 'va',
-		// 	position: VF.TextBracketPosition.BOTTOM,
-		// });
-		// const startNote = vfNotes[0][0];
-		// const endNote = vfNotes[0][vfNotes[0].length - 1];
-		// }
-
-		if (!hideChords) {
-			const textNotes = createTextNotes(data, topStave);
-			const textVoice = new VF.Voice({ num_beats: 4, beat_value: 4 }).addTickables(textNotes);
-			formatter.joinVoices([textVoice]);
-			vfVoices.push(textVoice);
-		}
-
-		formatter.formatToStave(vfVoices, topStave);
-		vfVoices.forEach((voice, i) => {
-			let stave = topStave;
-			if (data.voices[i]?.staff === StaffEnum.Bass && bassStave) {
-				stave = bassStave;
+		
+		// Define beat map type
+		type BeatMap = {
+			'w': number;
+			'h': number;
+			'q': number;
+			'8': number;
+			'16': number;
+			'32': number;
+			'64': number;
+		};
+		
+		// Beat map for duration calculations
+		const beatMap: BeatMap = { 'w': 4, 'h': 2, 'q': 1, '8': 0.5, '16': 0.25, '32': 0.125, '64': 0.0625 };
+		
+		// Calculate total beats to determine how many measures we have
+		const calculateTotalBeats = (stack: StackedNotes[]) => {
+			return stack.reduce((total: number, item: StackedNotes) => {
+				return total + (beatMap[item.duration as keyof BeatMap] || 0);
+			}, 0);
+		};
+		
+		// IMPORTANT: MusicNotation expects complete 4-beat measures.
+		// It's the responsibility of the data provider (e.g., MusicRecorder) to ensure
+		// that input data contains complete measures. This component will not attempt
+		// to fix incomplete measures - it will only display what it's given.
+		
+		// We need to split the notes into measures of 4 beats each
+		data.voices.forEach((voice) => {
+			const stave = voice.staff === StaffEnum.Treble ? trebleStave! : bassStave!;
+			
+			// Split the stack into groups of 4 beats (one measure)
+			let currentMeasureNotes: VFNote[] = [];
+			let currentBeats = 0;
+			let allMeasures: VFNote[][] = [];
+			
+			voice.stack.forEach((stackedNote, i) => {
+				const noteDuration = beatMap[stackedNote.duration as keyof BeatMap] || 0;
+				
+				// If adding this note would exceed 4 beats, start a new measure
+				if (currentBeats + noteDuration > 4) {
+					if (currentMeasureNotes.length > 0) {
+						allMeasures.push(currentMeasureNotes);
+					}
+					currentMeasureNotes = [];
+					currentBeats = 0;
+				}
+				
+				// Create the note and add it to the current measure
+				const staveNote = new VF.StaveNote({
+					keys: stackedNote.notes.map((note) => `${note.name}/${note.octave + (data._8va ? 0 : 0)}`),
+					duration: stackedNote.isRest ? stackedNote.duration + 'r' : stackedNote.duration,
+					clef: stave.getClef(),
+					auto_stem: true,
+				});
+				staveNote.setStave(stave);
+				
+				if (allNotesClassName) {
+					staveNote.addClass(allNotesClassName);
+				}
+				if (i < multiPartCardIndex && highlightClassName) {
+					staveNote.addClass(highlightClassName);
+				}
+				
+				currentMeasureNotes.push(staveNote);
+				currentBeats += noteDuration;
+				
+				// If we've filled exactly 4 beats, start a new measure
+				if (currentBeats === 4) {
+					allMeasures.push(currentMeasureNotes);
+					currentMeasureNotes = [];
+					currentBeats = 0;
+				}
+			});
+			
+			// Add any remaining notes as the last measure
+			if (currentMeasureNotes.length > 0) {
+				allMeasures.push(currentMeasureNotes);
 			}
-			voice.draw(context, stave);
+			
+			// Create a VexFlow Voice for each measure
+			const voices = allMeasures.map(measureNotes => {
+				// Only create a voice if we have notes to add
+				if (measureNotes.length === 0) return null;
+				
+				const vfVoice = new VF.Voice({ num_beats: 4, beat_value: 4 }).addTickables(measureNotes);
+				VF.Accidental.applyAccidentals([vfVoice], data.key);
+				return vfVoice;
+			}).filter(Boolean); // Remove null voices
+			
+			// Only join and format if we have valid voices
+			if (voices.length > 0) {
+				// Join voices separately for each measure to avoid IncompleteVoice error
+				voices.forEach(voice => {
+					if (voice) {
+						formatter.joinVoices([voice]);
+					}
+				});
+				
+				// Format and draw the notes
+				formatter.formatToStave(voices as any, stave);
+				voices.forEach(voice => {
+					if (voice) {
+						voice.draw(context, stave);
+					}
+				});
+			}
 		});
+		
+		// Handle chord notation
+		if (!hideChords && data.voices.length > 0) {
+			const textNotes = createTextNotes(data, topStave);
+			
+			// Split text notes into measures similar to regular notes
+			let currentMeasureTextNotes: VFNote[] = [];
+			let currentBeats = 0;
+			let allTextMeasures: VFNote[][] = [];
+			
+			textNotes.forEach(textNote => {
+				// Access the duration without using the protected property directly
+				// Use type assertion to access internal properties safely
+				const textNoteObj = textNote as any;
+				const duration = textNoteObj.duration || 'q'; // Default to quarter note
+				const noteDuration = beatMap[duration as keyof BeatMap] || 0;
+				
+				if (currentBeats + noteDuration > 4) {
+					if (currentMeasureTextNotes.length > 0) {
+						allTextMeasures.push(currentMeasureTextNotes);
+					}
+					currentMeasureTextNotes = [];
+					currentBeats = 0;
+				}
+				
+				currentMeasureTextNotes.push(textNote);
+				currentBeats += noteDuration;
+				
+				if (currentBeats === 4) {
+					allTextMeasures.push(currentMeasureTextNotes);
+					currentMeasureTextNotes = [];
+					currentBeats = 0;
+				}
+			});
+			
+			if (currentMeasureTextNotes.length > 0) {
+				allTextMeasures.push(currentMeasureTextNotes);
+			}
+			
+			// Create and draw voices for chord text notes
+			const textVoices = allTextMeasures.map(measureTextNotes => {
+				if (measureTextNotes.length === 0) return null;
+				
+				const textVoice = new VF.Voice({ num_beats: 4, beat_value: 4 }).addTickables(measureTextNotes);
+				return textVoice;
+			}).filter(Boolean); // Remove null voices
+			
+			// Only join and format if we have valid voices
+			if (textVoices.length > 0) {
+				textVoices.forEach(voice => {
+					if (voice) {
+						formatter.joinVoices([voice]);
+					}
+				});
+				
+				// Format and draw
+				formatter.formatToStave(textVoices as any, topStave);
+				textVoices.forEach(voice => {
+					if (voice) {
+						voice.draw(context, topStave);
+					}
+				});
+			}
+		}
 
 		context.closeGroup();
 		allNotesGroup.classList.add('music-notation-notes');
-
-		// if (data._8va) {
-		// 	textBracket.setContext(context).draw();
-		// }
 	}, [data, multiPartCardIndex, allNotesClassName, highlightClassName, hideChords]);
 
 	return <div className='svg-dark-mode' ref={divRef} id='output'></div>;
