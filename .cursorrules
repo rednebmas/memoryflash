@@ -1,2 +1,7 @@
+# General
+Write high quality modular code, break large files or components into smaller files refactoring when necessary.
+
+Don't add comments. Code should be well-named such that is self-documenting.
+
 # Testing
 `cd apps/react && yarn test:run`
