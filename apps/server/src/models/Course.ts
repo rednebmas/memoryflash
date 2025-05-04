@@ -8,6 +8,10 @@ const courseSchema = new Schema<CourseDoc>({
 		type: String,
 		required: true,
 	},
+	userId: {
+		type: Types.ObjectId,
+		ref: 'User',
+	},
 	decks: [
 		{
 			type: Types.ObjectId,

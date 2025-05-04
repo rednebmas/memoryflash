@@ -1,4 +1,4 @@
-import { Document, model, Schema } from 'mongoose';
+import { Document, model, Schema, Types } from 'mongoose';
 import { Deck as IDeck } from 'MemoryFlashCore/src/types/Deck';
 
 export type DeckDoc = IDeck & Document;
@@ -16,6 +16,10 @@ const DeckSchema = new Schema<DeckDoc>(
 		courseId: {
 			type: String,
 			required: true,
+		},
+		userId: {
+			type: Types.ObjectId,
+			ref: 'User',
 		},
 		section: { type: String, required: true },
 		sectionSubtitle: { type: String, required: false },

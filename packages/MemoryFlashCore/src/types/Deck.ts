@@ -3,6 +3,7 @@ export type Deck = {
 	// unique human readable id
 	uid: string;
 	courseId: string;
+	userId?: string;
 	name: string;
 	section: string;
 	sectionSubtitle: string;

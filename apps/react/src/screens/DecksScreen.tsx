@@ -1,9 +1,12 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { Layout, SectionData, SectionHeader } from '../components';
 import { BasicErrorCard } from '../components/ErrorCard';
 import { Spinner } from '../components/Spinner';
+import { Button } from '../components/Button';
+import { PlusIcon } from '@heroicons/react/24/solid';
+import { CreateDeckModal } from '../components/modals/CreateDeckModal';
 import { getCourse } from 'MemoryFlashCore/src/redux/actions/get-course-action';
 import { decksSelector } from 'MemoryFlashCore/src/redux/selectors/decksSelector';
 import { useNetworkState } from 'MemoryFlashCore/src/redux/selectors/useNetworkState';
@@ -13,6 +16,7 @@ import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store'
 export const DecksScreen = () => {
 	const dispatch = useAppDispatch();
 	const { courseId } = useParams();
+	const [isCreateModalOpen, setCreateModalOpen] = useState(false);
 	const { course, parsingCourseId } = useAppSelector((state) => {
 		if (state.courses.parsingCourse) {
 			return {
@@ -39,26 +43,52 @@ export const DecksScreen = () => {
 	}, [parsingCourseId]);
 
 	return (
-		<Layout subtitle={course?.name} back='/'>
-			<Spinner show={isLoading && Object.keys(decks).length === 0} />
-			<BasicErrorCard error={error} />
-			{Object.keys(decks).map((section) => {
-				return (
-					<div key={section} className='space-y-4'>
-						<SectionHeader title={decks[section][0].section} />
-						<SectionData
-							btnText='Lessons'
-							items={decks[section].map((deck) => {
-								return {
-									title: deck.name,
-									link: `/study/${deck._id}`,
-									subTitle: deck.stats && `Median: ${deck.stats?.medianTimeTaken.toFixed(1)}`,
-								};
-							})}
-						/>
+		<Layout subtitle={course?.name} back="/">
+			<div className="space-y-6">
+				<div>
+					<Spinner show={isLoading && Object.keys(decks).length === 0} />
+					<BasicErrorCard error={error} />
+					{Object.keys(decks).map((section) => {
+						return (
+							<div key={section} className="space-y-4 mb-6">
+								<SectionHeader title={decks[section][0].section} />
+								<SectionData
+									btnText="Study"
+									items={decks[section].map((deck) => {
+										return {
+											title: deck.name,
+											link: `/study/${deck._id}`,
+											subTitle:
+												deck.stats &&
+												`Median: ${deck.stats?.medianTimeTaken.toFixed(1)}`,
+										};
+									})}
+								/>
+							</div>
+						);
+					})}
+				</div>
+
+				{/* Only show the create deck button if this is the user's course */}
+				{course?.userId && (
+					<div className="mt-6 flex justify-center">
+						<Button
+							onClick={() => setCreateModalOpen(true)}
+							icon={<PlusIcon className="h-5 w-5" />}
+						>
+							Create Deck
+						</Button>
 					</div>
-				);
-			})}
+				)}
+			</div>
+
+			{courseId && (
+				<CreateDeckModal
+					isOpen={isCreateModalOpen}
+					onClose={() => setCreateModalOpen(false)}
+					courseId={courseId}
+				/>
+			)}
 		</Layout>
 	);
 };

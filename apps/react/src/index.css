@@ -154,5 +154,11 @@ body,
 	@apply divide-gray-800;
 }
 .dark .border-gray-100 {
-	@apply border-gray-700;
+   @apply border-gray-700;
+}
+/* Dark mode text fields background color */
+.dark input,
+.dark textarea,
+.dark select {
+   @apply bg-gray-800;
 }
