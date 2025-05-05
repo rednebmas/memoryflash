@@ -4,7 +4,12 @@ import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
 import { VF, calculateTotalBeats } from './utils';
 
 // Calculate the number of measures based on the total beats
-export const calculateMeasureCount = (voices: Voice[]): number => {
+export const calculateMeasureCount = (voices: Voice[], specifiedCount?: number): number => {
+  // If a measure count is explicitly specified, use that
+  if (specifiedCount !== undefined) {
+    return specifiedCount;
+  }
+  
   if (!voices.length) return 1;
   
   // Get total beats from the longest voice

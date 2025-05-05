@@ -3,6 +3,20 @@ import { MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { Chord } from 'tonal';
 import { VF, beatMap, BeatMap } from './utils';
 
+// Create a spacer note for empty chord measures
+const createEmptyChordSpacer = (stave: Stave): VFNote => {
+  const spacerNote = new VF.TextNote({
+    text: '', // Empty text
+    font: { family: 'FreeSerif' },
+    duration: 'w', // Whole note duration
+  })
+    .setJustification(VF.TextNote.Justification.CENTER)
+    .setLine(-1)
+    .setStave(stave);
+    
+  return spacerNote;
+};
+
 // Create text notes for chords
 export const createChordTextNotes = (
   data: MultiSheetQuestion,
@@ -62,8 +76,18 @@ export const organizeChordsByMeasure = (
   let currentMeasureIndex = 0;
   let allMeasureTextNotes: VFNote[][] = Array(measuresCount).fill(0).map(() => []);
   
+  // If there are no chord notes, still need to create at least one empty note per measure
+  if (textNotes.length === 0) {
+    for (let i = 0; i < measuresCount; i++) {
+      allMeasureTextNotes[i].push(createEmptyChordSpacer(topStaves[i]));
+    }
+    return allMeasureTextNotes;
+  }
+  
   // Split the text notes into measures
-  textNotes.forEach(textNote => {
+  for (let i = 0; i < textNotes.length; i++) {
+    const textNote = textNotes[i];
+    
     // Access the duration without using the protected property directly
     // Use type assertion to access internal properties safely
     const textNoteObj = textNote as any;
@@ -76,9 +100,9 @@ export const organizeChordsByMeasure = (
       currentBeats = 0;
     }
     
-    // Ensure we don't exceed the measure count
+    // If we've exceeded our measure count, stop processing notes
     if (currentMeasureIndex >= measuresCount) {
-      currentMeasureIndex = measuresCount - 1;
+      break; // Stop processing more notes
     }
     
     // Update the stave for this text note to the appropriate measure's stave
@@ -87,7 +111,15 @@ export const organizeChordsByMeasure = (
     // Add to the appropriate measure's notes
     allMeasureTextNotes[currentMeasureIndex].push(textNote);
     currentBeats += noteDuration;
-  });
+  }
+  
+  // Ensure all measures have at least one note
+  for (let i = 0; i < measuresCount; i++) {
+    if (allMeasureTextNotes[i].length === 0) {
+      // Add an empty spacer for measures without chord notes
+      allMeasureTextNotes[i].push(createEmptyChordSpacer(topStaves[i]));
+    }
+  }
   
   return allMeasureTextNotes;
 };

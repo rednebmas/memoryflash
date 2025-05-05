@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Layout } from '../components';
 import { Button } from '../components/Button';
@@ -10,6 +10,10 @@ import { createDeck } from 'MemoryFlashCore/src/redux/actions/create-deck-action
 import { useNetworkState } from 'MemoryFlashCore/src/redux/selectors/useNetworkState';
 import { Midi } from 'tonal';
 import { majorKeys } from 'MemoryFlashCore/src/lib/notes';
+import { MusicRecorder } from '../utils/MusicRecorder';
+import { transposeToAllKeys } from '../utils/transposeUtils';
+import { AnswerType, CardTypeBase, CardTypeEnum } from 'MemoryFlashCore/src/types/Cards';
+import { MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
 
 interface MiddleNoteControlsProps {
 	middleNote: number;
@@ -132,6 +136,17 @@ const SaveDeckControls: React.FC<SaveDeckControlsProps> = ({
 	);
 };
 
+// Create a card from a MultiSheetQuestion
+const createCard = (question: MultiSheetQuestion, index: number): CardTypeBase<CardTypeEnum.MultiSheet, MultiSheetQuestion> => {
+	const uid = `music-notation-${Date.now()}-${index}`;
+	return {
+		uid,
+		type: CardTypeEnum.MultiSheet,
+		question,
+		answer: { type: AnswerType.ExactMulti }
+	};
+};
+
 export const CreateDeckScreen: React.FC = () => {
 	const { courseId } = useParams<{ courseId: string }>();
 	const navigate = useNavigate();
@@ -140,22 +155,87 @@ export const CreateDeckScreen: React.FC = () => {
 	const [deckName, setDeckName] = useState('');
 	const [middleNote, setMiddleNote] = useState(60); // Middle C (C4) by default
 	const [keySignature, setKeySignature] = useState('C'); // C major by default
-
+	const [noteDuration, setNoteDuration] = useState<'w' | 'h' | 'q' | '8' | '16'>('h'); // Default to half note
+	const [measureCount, setMeasureCount] = useState<number>(1); // Default to 1 measure
+	const [showAllKeys, setShowAllKeys] = useState<boolean>(true); // Default to showing all keys
+	
 	const { isLoading: isCreating } = useNetworkState('createDeck');
 	const midiNotes = useAppSelector((state) => state.midi.notes);
+	
+	// Create and maintain recorder instance
+	const recorderRef = useRef(
+		new MusicRecorder(keySignature, middleNote, measureCount, noteDuration),
+	);
+	const [recordedMusic, setRecordedMusic] = useState<MultiSheetQuestion>(
+		recorderRef.current.toMultiSheetQuestion(),
+	);
+	const [transposedMusic, setTransposedMusic] = useState<MultiSheetQuestion[]>([]);
+	
+	// Update recorder when settings change
+	useEffect(() => {
+		recorderRef.current.updateSettings({
+			key: keySignature,
+			middleNote,
+			measuresCount: measureCount,
+			noteDuration,
+		});
+		const music = recorderRef.current.toMultiSheetQuestion();
+		setRecordedMusic(music);
+
+		// Update transposed versions when original changes
+		if (music.voices.length > 0) {
+			setTransposedMusic(transposeToAllKeys(music, keySignature));
+		}
+	}, [keySignature, middleNote, measureCount, noteDuration]);
+
+	// Record notes when MIDI notes change
+	useEffect(() => {
+		if (midiNotes.length > 0) {
+			if (recorderRef.current.recordNotes(midiNotes)) {
+				const music = recorderRef.current.toMultiSheetQuestion();
+				setRecordedMusic(music);
+
+				// Update transposed versions when original changes
+				if (music.voices.length > 0) {
+					setTransposedMusic(transposeToAllKeys(music, keySignature));
+				}
+			}
+		}
+	}, [midiNotes, keySignature]);
 
 	const handleSave = async () => {
 		if (!courseId || !deckName.trim()) return;
 
-			await dispatch(
-				createDeck({
-					courseId,
-					name: deckName,
-					section: 'Custom',
-					sectionSubtitle: '',
-				}),
-			);
-			navigate(`/course/${courseId}`);
+		// Create cards from the recorded music and all transposed versions
+		const cards: CardTypeBase<CardTypeEnum.MultiSheet, MultiSheetQuestion>[] = [];
+		
+		// Only add cards if there are actual notes in the recording
+		if (recordedMusic.voices.length > 0 && recordedMusic.voices.some(v => v.stack.some(s => s.notes.length > 0))) {
+			// Add the original (non-transposed) music as a card
+			cards.push(createCard(recordedMusic, 0));
+			
+			// Add all transposed versions as cards
+			transposedMusic.forEach((music, index) => {
+				cards.push(createCard(music, index + 1));
+			});
+		}
+
+		await dispatch(
+			createDeck({
+				courseId,
+				name: deckName,
+				section: 'Custom',
+				sectionSubtitle: '',
+				cards: cards.length > 0 ? cards : undefined
+			}),
+		);
+		navigate(`/course/${courseId}`);
+	};
+
+	// Handle music changes from the SheetMusicEditor
+	const handleMusicChange = (recorded: MultiSheetQuestion, transposed: MultiSheetQuestion[]) => {
+		setRecordedMusic(recorded);
+		setTransposedMusic(transposed);
 	};
 
 	return (
@@ -186,6 +266,13 @@ export const CreateDeckScreen: React.FC = () => {
 					keySignature={keySignature}
 					middleNote={middleNote}
 					midiNotes={midiNotes}
+					showAllKeys={showAllKeys}
+					setShowAllKeys={setShowAllKeys}
+					noteDuration={noteDuration}
+					setNoteDuration={setNoteDuration}
+					measureCount={measureCount}
+					setMeasureCount={setMeasureCount}
+					onMusicChange={handleMusicChange}
 				/>
 			</div>
 		</Layout>

@@ -3,7 +3,7 @@ import { MusicNotation } from './MusicNotation';
 import { Button } from './Button';
 import NumberAdjuster from './NumberAdjuster';
 import Dropdown from './Dropdown';
-import { MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
+import { MultiSheetQuestion, StackedNotes } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { MusicRecorder } from '../utils/MusicRecorder';
 import { transposeToAllKeys, TRANSPOSITION_KEYS } from '../utils/transposeUtils';
 
@@ -20,17 +20,65 @@ interface SheetMusicEditorProps {
 	keySignature: string;
 	middleNote: number;
 	midiNotes: { number: number; clicked?: boolean }[];
+	
+	// Optional props for controlling state externally
+	showAllKeys?: boolean;
+	setShowAllKeys?: (show: boolean) => void;
+	noteDuration?: string;
+	setNoteDuration?: (duration: 'w' | 'h' | 'q' | '8' | '16') => void;
+	measureCount?: number;
+	setMeasureCount?: (count: number) => void;
+	
+	// Callback for when music changes
+	onMusicChange?: (recorded: MultiSheetQuestion, transposed: MultiSheetQuestion[]) => void;
 }
 
 const SheetMusicEditor: React.FC<SheetMusicEditorProps> = ({
 	keySignature,
 	middleNote,
 	midiNotes,
+	showAllKeys: externalShowAllKeys,
+	setShowAllKeys: externalSetShowAllKeys,
+	noteDuration: externalNoteDuration,
+	setNoteDuration: externalSetNoteDuration,
+	measureCount: externalMeasureCount,
+	setMeasureCount: externalSetMeasureCount,
+	onMusicChange,
 }) => {
-	// State for editor settings
-	const [noteDuration, setNoteDuration] = useState<string>('h'); // Default: half note
-	const [measureCount, setMeasureCount] = useState<number>(1); // Default: 1 measure
-	const [showAllKeys, setShowAllKeys] = useState<boolean>(false);
+	// State for editor settings - use external state if provided, otherwise use local state
+	const [internalNoteDuration, setInternalNoteDuration] = useState<'w' | 'h' | 'q' | '8' | '16'>('h');
+	const [internalMeasureCount, setInternalMeasureCount] = useState<number>(1);
+	const [internalShowAllKeys, setInternalShowAllKeys] = useState<boolean>(false);
+	
+	// Use either external or internal state
+	const noteDuration = externalNoteDuration as 'w' | 'h' | 'q' | '8' | '16' || internalNoteDuration;
+	const measureCount = externalMeasureCount || internalMeasureCount;
+	const showAllKeys = externalShowAllKeys !== undefined ? externalShowAllKeys : internalShowAllKeys;
+	
+	// Functions to update state that consider external state handlers
+	const updateNoteDuration = (value: 'w' | 'h' | 'q' | '8' | '16') => {
+		if (externalSetNoteDuration) {
+			externalSetNoteDuration(value);
+		} else {
+			setInternalNoteDuration(value);
+		}
+	};
+	
+	const updateMeasureCount = (value: number) => {
+		if (externalSetMeasureCount) {
+			externalSetMeasureCount(value);
+		} else {
+			setInternalMeasureCount(value);
+		}
+	};
+	
+	const updateShowAllKeys = (value: boolean) => {
+		if (externalSetShowAllKeys) {
+			externalSetShowAllKeys(value);
+		} else {
+			setInternalShowAllKeys(value);
+		}
+	};
 
 	// Create and maintain recorder instance
 	const recorderRef = useRef(
@@ -58,7 +106,12 @@ const SheetMusicEditor: React.FC<SheetMusicEditorProps> = ({
 		if (showAllKeys && music.voices.length > 0) {
 			setTransposedMusic(transposeToAllKeys(music, keySignature));
 		}
-	}, [keySignature, middleNote, measureCount, noteDuration, showAllKeys]);
+		
+		// Notify parent component of music changes
+		if (onMusicChange) {
+			onMusicChange(music, showAllKeys ? transposeToAllKeys(music, keySignature) : []);
+		}
+	}, [keySignature, middleNote, measureCount, noteDuration, showAllKeys, onMusicChange]);
 
 	// Record notes when MIDI notes change
 	useEffect(() => {
@@ -71,27 +124,49 @@ const SheetMusicEditor: React.FC<SheetMusicEditorProps> = ({
 
 				// Update transposed versions when original changes
 				if (showAllKeys && music.voices.length > 0) {
-					setTransposedMusic(transposeToAllKeys(music, keySignature));
+					const transposed = transposeToAllKeys(music, keySignature);
+					setTransposedMusic(transposed);
+					
+					// Notify parent component of music changes
+					if (onMusicChange) {
+						onMusicChange(music, transposed);
+					}
+				} else if (onMusicChange) {
+					onMusicChange(music, []);
 				}
 			}
 		}
-	}, [midiNotes, showAllKeys, keySignature]);
+	}, [midiNotes, showAllKeys, keySignature, onMusicChange]);
 
 	// Reset the recording
 	const handleReset = () => {
 		recorderRef.current.reset();
 		setRecordingState(recorderRef.current.getState());
-		setRecordedMusic(recorderRef.current.toMultiSheetQuestion());
+		const music = recorderRef.current.toMultiSheetQuestion();
+		setRecordedMusic(music);
 		setTransposedMusic([]);
+		
+		// Notify parent component of music changes
+		if (onMusicChange) {
+			onMusicChange(music, []);
+		}
 	};
 
 	// Toggle showing all keys
 	const handleToggleAllKeys = () => {
 		const newValue = !showAllKeys;
-		setShowAllKeys(newValue);
+		updateShowAllKeys(newValue);
 
 		if (newValue && recordedMusic.voices.length > 0) {
-			setTransposedMusic(transposeToAllKeys(recordedMusic, keySignature));
+			const transposed = transposeToAllKeys(recordedMusic, keySignature);
+			setTransposedMusic(transposed);
+			
+			// Notify parent component
+			if (onMusicChange) {
+				onMusicChange(recordedMusic, transposed);
+			}
+		} else if (onMusicChange) {
+			onMusicChange(recordedMusic, []);
 		}
 	};
 
@@ -104,9 +179,9 @@ const SheetMusicEditor: React.FC<SheetMusicEditorProps> = ({
 		() =>
 			NOTE_DURATIONS.map((duration) => ({
 				label: duration.label,
-				onClick: () => setNoteDuration(duration.value),
+				onClick: () => updateNoteDuration(duration.value as 'w' | 'h' | 'q' | '8' | '16'),
 			})),
-		[setNoteDuration],
+		[updateNoteDuration],
 	);
 
 	// Calculate progress percentage
@@ -114,10 +189,6 @@ const SheetMusicEditor: React.FC<SheetMusicEditorProps> = ({
 		recordingState.totalPositions > 0
 			? (recordingState.currentPosition / recordingState.totalPositions) * 100
 			: 0;
-
-	console.log('Recorded Music:');
-
-	console.log(JSON.stringify(recordedMusic));
 
 	return (
 		<div className='space-y-6'>
@@ -133,7 +204,7 @@ const SheetMusicEditor: React.FC<SheetMusicEditorProps> = ({
 					<NumberAdjuster
 						label='Number of Measures'
 						value={measureCount}
-						onValueChange={setMeasureCount}
+						onValueChange={updateMeasureCount}
 						min={1}
 						max={8}
 						allowManualInput={false}

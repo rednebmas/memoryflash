@@ -20,6 +20,7 @@ export type MultiSheetQuestion = {
 	_8va?: boolean;
 	key: string;
 	voices: Voice[];
+	measuresCount?: number; // Maximum number of measures to display
 };
 export type MultiSheetCard = CardTypeBase<CardTypeEnum.MultiSheet, MultiSheetQuestion>;
 

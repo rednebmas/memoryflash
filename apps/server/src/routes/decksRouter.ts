@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { isAuthenticated } from '../middleware';
-import { getDeckForUser, createDeck } from '../services/deckService';
+import { getDeckForUser, createDeck, addCardsToDeck } from '../services/deckService';
 import { User } from 'MemoryFlashCore/src/types/User';
 import { getDeckStats } from '../services/statsService';
 
@@ -24,6 +24,27 @@ router.get('/:id', isAuthenticated, async (req, res, next) => {
 	}
 });
 
+// Endpoint to add cards to an existing deck
+router.post('/:id/cards', isAuthenticated, async (req, res, next) => {
+	try {
+		const { cards } = req.body;
+		
+		if (!cards || !Array.isArray(cards)) {
+			return res.status(400).json({ error: 'Cards array is required' });
+		}
+		
+		const result = await addCardsToDeck(
+			req.params.id,
+			cards,
+			req.user as User
+		);
+		
+		return res.status(201).json(result);
+	} catch (error) {
+		next(error);
+	}
+});
+
 router.get('/:id/stats', isAuthenticated, async (req, res, next) => {
 	try {
 		return res.json(
@@ -40,7 +61,7 @@ router.get('/:id/stats', isAuthenticated, async (req, res, next) => {
 
 router.post('/', isAuthenticated, async (req, res, next) => {
 	try {
-		const { courseId, name, section, sectionSubtitle } = req.body;
+		const { courseId, name, section, sectionSubtitle, cards } = req.body;
 		
 		if (!courseId || !name) {
 			return res.status(400).json({ error: 'Course ID and deck name are required' });
@@ -51,7 +72,8 @@ router.post('/', isAuthenticated, async (req, res, next) => {
 			name,
 			section || 'Custom',
 			sectionSubtitle || '',
-			req.user as User
+			req.user as User,
+			cards
 		);
 		
 		return res.status(201).json({ deck });

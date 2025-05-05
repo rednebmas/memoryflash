@@ -2,6 +2,19 @@ import { Note as VFNote, Stave } from 'vexflow';
 import { Voice, StackedNotes } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { VF, beatMap, BeatMap, getRestPosition } from './utils';
 
+// Create a rest note for an empty measure
+const createRestForEmptyMeasure = (stave: Stave): VFNote => {
+  const restPosition = getRestPosition('w', stave.getClef());
+  const restNote = new VF.StaveNote({
+    keys: [restPosition],
+    duration: 'wr', // Whole rest
+    clef: stave.getClef(),
+    auto_stem: false, // disable stem calculation for rests
+  });
+  restNote.setStave(stave);
+  return restNote;
+};
+
 // Create notes for each measure
 export const createMeasureNotes = (
   voice: Voice, 
@@ -16,7 +29,9 @@ export const createMeasureNotes = (
   let currentMeasureIndex = 0;
   let allMeasureNotes: VFNote[][] = Array(measuresCount).fill(0).map(() => []);
   
-  voice.stack.forEach((stackedNote, i) => {
+  // Loop through the stack, but only process notes that will fit within our measure count
+  for (let i = 0; i < voice.stack.length; i++) {
+    const stackedNote = voice.stack[i];
     const noteDuration = beatMap[stackedNote.duration as keyof BeatMap] || 0;
     
     // If adding this note would exceed 4 beats, move to next measure
@@ -25,9 +40,9 @@ export const createMeasureNotes = (
       currentBeats = 0;
     }
     
-    // Ensure we don't exceed the measure count
+    // If we've exceeded our measure count, stop processing notes
     if (currentMeasureIndex >= measuresCount) {
-      currentMeasureIndex = measuresCount - 1;
+      break; // Stop processing more notes
     }
     
     // Get the current stave
@@ -35,36 +50,66 @@ export const createMeasureNotes = (
     
     // Create the note
     let keys;
-    if (stackedNote.isRest) {
+    // Treat explicit rests or empty note arrays as rests
+    if (stackedNote.isRest || stackedNote.notes.length === 0) {
       // For rests, use standard positioning based on duration and clef
       const restPosition = getRestPosition(stackedNote.duration, stave.getClef());
       keys = [restPosition];
+      
+      // Create a rest note
+      const staveNote = new VF.StaveNote({
+        keys,
+        duration: stackedNote.duration + 'r', // Add 'r' suffix for rests
+        clef: stave.getClef(),
+        auto_stem: false, // Disable for rests as they don't need stems
+      });
+      staveNote.setStave(stave);
+      
+      if (allNotesClassName) {
+        staveNote.addClass(allNotesClassName);
+      }
+      if (i < multiPartCardIndex && highlightClassName) {
+        staveNote.addClass(highlightClassName);
+      }
+      
+      // Add rest to the appropriate measure's notes
+      allMeasureNotes[currentMeasureIndex].push(staveNote);
     } else {
       // For regular notes, use the provided pitch
       keys = stackedNote.notes.map((note) => 
         `${note.name}/${note.octave + (_8va ? 0 : 0)}`
       );
+      
+      // Create a regular note
+      const staveNote = new VF.StaveNote({
+        keys,
+        duration: stackedNote.duration,
+        clef: stave.getClef(),
+        auto_stem: true, // Regular notes should have auto-stemming
+      });
+      staveNote.setStave(stave);
+      
+      if (allNotesClassName) {
+        staveNote.addClass(allNotesClassName);
+      }
+      if (i < multiPartCardIndex && highlightClassName) {
+        staveNote.addClass(highlightClassName);
+      }
+      
+      // Add note to the appropriate measure's notes
+      allMeasureNotes[currentMeasureIndex].push(staveNote);
     }
     
-    const staveNote = new VF.StaveNote({
-      keys,
-      duration: stackedNote.isRest ? stackedNote.duration + 'r' : stackedNote.duration,
-      clef: stave.getClef(),
-      auto_stem: true,
-    });
-    staveNote.setStave(stave);
-    
-    if (allNotesClassName) {
-      staveNote.addClass(allNotesClassName);
-    }
-    if (i < multiPartCardIndex && highlightClassName) {
-      staveNote.addClass(highlightClassName);
-    }
-    
-    // Add note to the appropriate measure's notes
-    allMeasureNotes[currentMeasureIndex].push(staveNote);
     currentBeats += noteDuration;
-  });
+  }
+  
+  // Ensure all measures have at least one note
+  for (let i = 0; i < measuresCount; i++) {
+    if (allMeasureNotes[i].length === 0) {
+      // Add a whole rest for empty measures
+      allMeasureNotes[i].push(createRestForEmptyMeasure(staves[i]));
+    }
+  }
   
   return allMeasureNotes;
 };

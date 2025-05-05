@@ -27,7 +27,7 @@ function getDurationInBeats(d: string): number {
 	}
 }
 
-function ensureCompleteMeasure(stacks: StackedNotes[], measuresCount: number): StackedNotes[] {
+export function ensureCompleteMeasure(stacks: StackedNotes[], measuresCount: number): StackedNotes[] {
 	// First, calculate how many beats we have
 	const recordedBeats = stacks.reduce((sum, s) => sum + getDurationInBeats(s.duration), 0);
 	const targetBeats = measuresCount * 4; // Each measure should have exactly 4 beats
@@ -246,6 +246,6 @@ export class MusicRecorder {
 			});
 		}
 
-		return { voices, key: this.key, _8va: false };
+		return { voices, key: this.key, _8va: false, measuresCount: this.measuresCount };
 	}
 }

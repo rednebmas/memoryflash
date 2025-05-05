@@ -5,6 +5,7 @@ import { VF } from './utils';
 import { calculateMeasureCount, setupRenderer, createStavesForVoice, createChordStaves } from './StaveRenderer';
 import { createMeasureNotes, renderNotes } from './NoteRenderer';
 import { createChordTextNotes, organizeChordsByMeasure, renderChordNotation } from './ChordRenderer';
+import { ensureCompleteMeasure } from '../../utils/MusicRecorder';
 
 interface MusicNotationProps {
   data: MultiSheetQuestion;
@@ -28,7 +29,12 @@ export const MusicNotation: React.FunctionComponent<MusicNotationProps> = ({
     div.innerHTML = '';
     
     // Step 1: Determine the number of measures for this music notation
-    const measuresCount = calculateMeasureCount(data.voices);
+    const measuresCount = calculateMeasureCount(data.voices, data.measuresCount);
+    // Balance each voice to ensure full measures
+    const balancedVoices = data.voices.map((voice) => ({
+      ...voice,
+      stack: ensureCompleteMeasure(voice.stack, measuresCount),
+    }));
     
     // Step 2: Setup the renderer and get context
     const { context, treble, bass, measureWidth } = setupRenderer(div, data, measuresCount);
@@ -37,15 +43,15 @@ export const MusicNotation: React.FunctionComponent<MusicNotationProps> = ({
     const formatter = new VF.Formatter();
     const allNotesGroup = context.openGroup();
     
-    // Step 4: Process each voice
-    data.voices.forEach((voice) => {
+    // Step 4: Process each balanced voice
+    balancedVoices.forEach((voice) => {
       // Create staves for this voice
       const staves = createStavesForVoice(
-        voice, 
-        measuresCount, 
-        measureWidth, 
-        treble, 
-        context, 
+        voice,
+        measuresCount,
+        measureWidth,
+        treble,
+        context,
         data.key
       );
       
@@ -65,7 +71,7 @@ export const MusicNotation: React.FunctionComponent<MusicNotationProps> = ({
     });
     
     // Step 5: Handle chord notation
-    if (!hideChords && data.voices.length > 0) {
+    if (!hideChords && balancedVoices.length > 0) {
       // Create staves for chord notation
       const topStaves = createChordStaves(
         measuresCount,
