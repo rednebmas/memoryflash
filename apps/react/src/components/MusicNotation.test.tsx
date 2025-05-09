@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render } from '@testing-library/react';
 import { MusicNotation } from './MusicNotation';
 import { MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
@@ -11,6 +11,22 @@ import React from 'react';
 vi.mock('MemoryFlashCore/src/redux/store', () => ({
 	useAppSelector: (selector: (state: ReduxState) => any) => 0, // Always return 0 for the multiPartCardIndex
 }));
+
+// Add global mocks for basic SVG functions that VexFlow depends on
+// @ts-ignore - Add getBBox to SVG prototype
+global.SVGElement.prototype.getBBox = function() {
+	return { x: 0, y: 0, width: 100, height: 100 };
+};
+
+// Define a minimal mock for SVGTextElement if it doesn't exist
+if (typeof global.SVGTextElement === 'undefined') {
+	// @ts-ignore - Create SVGTextElement constructor to mock text measurement
+	global.SVGTextElement = class SVGTextElement extends global.SVGElement {
+		getComputedTextLength() {
+			return 50;
+		}
+	};
+}
 
 // Do NOT mock VexFlow - we want to use the real library to catch rendering errors
 
@@ -89,18 +105,16 @@ describe('MusicNotation', () => {
 			{ number: 60 }, // C4
 			{ number: 64 }, // E4
 			{ number: 67 }, // G4
+			{ number: 69 }, // G4
 		]);
 		
-		// Get the data and add chord name
 		const mockData = recorder.toMultiSheetQuestion();
 		
 		// Add the chord name to the first stack item
 		mockData.voices[0].stack[0].chordName = 'Cmaj7';
 
-		// Act
 		const { container } = render(<MusicNotation data={mockData} />);
 
-		// Assert
 		expect(container.querySelector('.svg-dark-mode')).toBeTruthy();
 	});
 
