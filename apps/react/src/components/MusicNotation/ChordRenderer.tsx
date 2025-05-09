@@ -1,10 +1,23 @@
-import { Note as VFNote, Stave } from 'vexflow';
+import { Note as VFNote, TextNote, Stave } from 'vexflow';
 import { MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { Chord } from 'tonal';
 import { VF, beatMap, BeatMap } from './utils';
 
+const noteDurations = new WeakMap<VFNote, string>();
+
+const createTextNoteWithDuration = (params: { 
+  text: string, 
+  superscript?: string, 
+  font: { family: string }, 
+  duration: string 
+}): TextNote => {
+  const note = new VF.TextNote(params);
+  noteDurations.set(note, params.duration);
+  return note;
+};
+
 const createEmptyChordSpacer = (stave: Stave): VFNote => {
-  const spacerNote = new VF.TextNote({
+  const spacerNote = createTextNoteWithDuration({
     text: '', 
     font: { family: 'FreeSerif' },
     duration: 'w', 
@@ -17,7 +30,7 @@ const createEmptyChordSpacer = (stave: Stave): VFNote => {
 };
 
 const getNoteDurationInBeats = (note: VFNote): number => {
-  const duration = (note as unknown as { duration: string }).duration || 'q';
+  const duration = noteDurations.get(note) || 'q';
   return beatMap[duration as keyof BeatMap] || 0;
 };
 
@@ -66,8 +79,7 @@ export const createChordTextNotes = (
           break;
       }
 
-      // Create the text note with a reference to the first stave (will update later)
-      const textNote = new VF.TextNote({
+      const textNote = createTextNoteWithDuration({
         text,
         superscript,
         font: { family: 'FreeSerif' },
