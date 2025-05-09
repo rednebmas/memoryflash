@@ -1,9 +1,21 @@
-import { MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
+import { MultiSheetQuestion, SheetNote } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { majorKeys } from 'MemoryFlashCore/src/lib/notes';
-import { Midi, Chord, Note } from 'tonal';
+import { Midi, Chord, Note, Scale, Interval, Key } from 'tonal';
 
 // All 12 keys for transposition (C and equivalents removed since they're the original)
 export const TRANSPOSITION_KEYS = majorKeys.filter(key => key !== 'C');
+
+export const getEnharmonicPreferenceForTargetKey = (targetKey: string): boolean | undefined => {
+  const keySignatureInfo = Key.majorKey(targetKey);
+  if (keySignatureInfo) {
+    if (keySignatureInfo.alteration > 0) {
+      return true; 
+    } else if (keySignatureInfo.alteration < 0) {
+      return false; 
+    }
+  }
+  return undefined; 
+};
 
 /**
  * Calculates the semitone difference between two keys
@@ -34,7 +46,6 @@ export const transposeToAllKeys = (music: MultiSheetQuestion, originalKey: strin
   if (!music.voices.length) return [];
   
   return TRANSPOSITION_KEYS.map(targetKey => {
-    // Clone the music object
     const transposed: MultiSheetQuestion = {
       ...music,
       key: targetKey,
@@ -42,27 +53,23 @@ export const transposeToAllKeys = (music: MultiSheetQuestion, originalKey: strin
         ...voice,
         stack: voice.stack.map(stack => ({
           ...stack,
-          notes: stack.notes.map(note => {
-            const fullNote = `${note.name}${note.octave}`;
-            const midiNum = Midi.toMidi(fullNote);
-            
-            if (midiNum === null) return note; // Return original if conversion fails
-            
-            // Calculate interval between original key and target key
+          notes: stack.notes.map((n): SheetNote => {
+            const originalFullName = `${n.name}${n.octave}`;
+            const midiNum = Midi.toMidi(originalFullName);
+
+            if (midiNum === null) return n;
+
             const semitones = getSemitonesBetweenKeys(originalKey, targetKey);
-            
-            // Transpose the note by the interval
             const transposedMidi = midiNum + semitones;
             
-            // Convert back to note name in the target key
-            const transposedNote = Note.fromMidi(transposedMidi);
-            const noteParts = transposedNote.match(/([A-G][b#]*)(\d+)/);
-            
-            if (!noteParts) return note; // Return original if parsing fails
-            
+            const useSharps = getEnharmonicPreferenceForTargetKey(targetKey);
+
+            const transposedNoteNameFull = Midi.midiToNoteName(transposedMidi, { sharps: useSharps });
+            const transposedNoteDetails = Note.get(transposedNoteNameFull);
+
             return {
-              name: noteParts[1],
-              octave: parseInt(noteParts[2])
+              name: transposedNoteDetails.pc || Note.pitchClass(transposedNoteNameFull), // Fallback for pc
+              octave: transposedNoteDetails.oct ?? 4, 
             };
           })
         }))
