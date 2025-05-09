@@ -32,8 +32,8 @@ export const setupRenderer = (
   const context = renderer.getContext();
   
   // Calculate width based on number of measures
-  // Base width for a single measure
-  const measureWidth = 200;
+  // Base width for a single measure - increased from 200 to 280 for better readability
+  const measureWidth = 280;
   const width = measureWidth * measuresCount;
   const height = treble && bass ? 250 : 160;
 

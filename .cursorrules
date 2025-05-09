@@ -1,7 +1,10 @@
 # General
-Write high quality modular code, break large files or components into smaller files refactoring when necessary.
+Write high quality modular code, break large files or components into smaller files refactoring when necessary. Prefer functions less than 15 lines and files less than 100 lines.
 
 Don't add comments. Code should be well-named such that is self-documenting.
 
 # Testing
+
+When asked to write tests, use Test Driven Development methodology and write failing tests before implementing/fixing.
+
 `cd apps/react && yarn test:run`

@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Test the react app with the following command: `cd apps/react && yarn test:run`

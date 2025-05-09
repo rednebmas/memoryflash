@@ -2,6 +2,7 @@ import React from 'react';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import Dropdown from './Dropdown';
 import { midiActions } from 'MemoryFlashCore/src/redux/slices/midiSlice';
+import { settingsActions } from 'MemoryFlashCore/src/redux/slices/settingsSlice';
 
 interface MidiInputsDropdownProps {}
 
@@ -17,21 +18,13 @@ export const MidiInputsDropdown: React.FunctionComponent<MidiInputsDropdownProps
 
 	return (
 		<div className='flex flex-row gap-4'>
-			{/* <Dropdown
-				label={selectedOutputName || 'No MIDI Output'}
-				items={outputs.map((device) => ({
-					label: device.name,
-					onClick: () => {
-						dispatch(midiActions.setSelectedOutput(device.id));
-					},
-				}))}
-			/> */}
 			<Dropdown
 				label={selectedInputName || 'No MIDI Input'}
 				items={inputs.map((device) => ({
 					label: device.name,
 					onClick: () => {
 						dispatch(midiActions.setSelectedInput(device.id));
+						dispatch(settingsActions.setMidiDevicePreference({ inputId: device.id }));
 					},
 				}))}
 			/>

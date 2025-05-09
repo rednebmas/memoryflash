@@ -248,13 +248,6 @@ export const CreateDeckScreen: React.FC = () => {
 					isCreating={isCreating}
 				/>
 
-				<div className="mb-6">
-					<div className="flex items-center justify-between mb-2">
-						<label>MIDI Input</label>
-						<MidiInputsDropdown />
-					</div>
-				</div>
-
 				<KeySignatureControls
 					keySignature={keySignature}
 					setKeySignature={setKeySignature}
