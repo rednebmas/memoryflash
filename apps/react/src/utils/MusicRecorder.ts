@@ -204,7 +204,8 @@ export class MusicRecorder {
 		let hasTreble = false;
 		let hasBass = false;
 
-		for (const { notes, duration } of stacks) {
+		for (const stack of stacks) {
+			const { notes, duration, chordName } = stack;
 			const t = notes.filter((n) => {
 				const v = Midi.toMidi(`${n.name}${n.octave}`);
 				return v !== null && v >= this.middleNote;
@@ -215,8 +216,8 @@ export class MusicRecorder {
 			});
 			if (t.length) hasTreble = true;
 			if (b.length) hasBass = true;
-			treble.push({ notes: t, duration });
-			bass.push({ notes: b, duration });
+			treble.push({ notes: t, duration, chordName });
+			bass.push({ notes: b, duration, chordName });
 		}
 
 		return { treble, bass, hasTreble, hasBass };

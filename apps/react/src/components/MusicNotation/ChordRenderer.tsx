@@ -17,6 +17,31 @@ const createEmptyChordSpacer = (stave: Stave): VFNote => {
   return spacerNote;
 };
 
+// Helper to get note duration in beats
+const getNoteDurationInBeats = (note: VFNote): number => {
+  // Access the duration using the appropriate accessor method if available
+  // or use a type assertion to access the protected property
+  const duration = (note as unknown as { duration: string }).duration || 'q';
+  return beatMap[duration as keyof BeatMap] || 0;
+};
+
+// Helper to get total beats in a measure
+const calculateTotalBeats = (notes: VFNote[]): number => {
+  return notes.reduce((sum, note) => sum + getNoteDurationInBeats(note), 0);
+};
+
+// Helper to ensure a measure has exactly 4 beats
+const ensureCompleteMeasure = (notes: VFNote[], stave: Stave): VFNote[] => {
+  const totalBeats = calculateTotalBeats(notes);
+  
+  // If measure is empty or has incorrect beat count, replace with a whole note spacer
+  if (notes.length === 0 || totalBeats !== 4) {
+    return [createEmptyChordSpacer(stave)];
+  }
+  
+  return notes;
+};
+
 // Create text notes for chords
 export const createChordTextNotes = (
   data: MultiSheetQuestion,
@@ -72,11 +97,10 @@ export const organizeChordsByMeasure = (
   topStaves: Stave[],
   measuresCount: number
 ): VFNote[][] => {
-  let currentBeats = 0;
-  let currentMeasureIndex = 0;
+  // Initialize array to hold notes for each measure
   let allMeasureTextNotes: VFNote[][] = Array(measuresCount).fill(0).map(() => []);
   
-  // If there are no chord notes, still need to create at least one empty note per measure
+  // If there are no chord notes, add a spacer to each measure
   if (textNotes.length === 0) {
     for (let i = 0; i < measuresCount; i++) {
       allMeasureTextNotes[i].push(createEmptyChordSpacer(topStaves[i]));
@@ -84,39 +108,42 @@ export const organizeChordsByMeasure = (
     return allMeasureTextNotes;
   }
   
-  // Split the text notes into measures
-  for (let i = 0; i < textNotes.length; i++) {
-    const textNote = textNotes[i];
+  // Distribute notes across measures
+  let currentBeats = 0;
+  let currentMeasureIndex = 0;
+  
+  for (const textNote of textNotes) {
+    const noteDuration = getNoteDurationInBeats(textNote);
     
-    // Access the duration without using the protected property directly
-    // Use type assertion to access internal properties safely
-    const textNoteObj = textNote as any;
-    const duration = textNoteObj.duration || 'q'; // Default to quarter note
-    const noteDuration = beatMap[duration as keyof BeatMap] || 0;
-    
-    // If adding this note would exceed 4 beats, move to next measure
+    // Start a new measure if adding this note would exceed 4 beats
     if (currentBeats + noteDuration > 4) {
+      // Complete current measure with a spacer if needed
+      if (currentBeats < 4) {
+        allMeasureTextNotes[currentMeasureIndex].push(createEmptyChordSpacer(topStaves[currentMeasureIndex]));
+      }
+      
+      // Move to next measure
       currentMeasureIndex++;
       currentBeats = 0;
+      
+      // Stop if we've reached the end of available measures
+      if (currentMeasureIndex >= measuresCount) break;
     }
     
-    // If we've exceeded our measure count, stop processing notes
-    if (currentMeasureIndex >= measuresCount) {
-      break; // Stop processing more notes
-    }
-    
-    // Update the stave for this text note to the appropriate measure's stave
+    // Update stave reference and add to current measure
     textNote.setStave(topStaves[currentMeasureIndex]);
-    
-    // Add to the appropriate measure's notes
     allMeasureTextNotes[currentMeasureIndex].push(textNote);
     currentBeats += noteDuration;
+  }
+  
+  // Complete the last measure if it's not full
+  if (currentBeats > 0 && currentBeats < 4 && currentMeasureIndex < measuresCount) {
+    allMeasureTextNotes[currentMeasureIndex].push(createEmptyChordSpacer(topStaves[currentMeasureIndex]));
   }
   
   // Ensure all measures have at least one note
   for (let i = 0; i < measuresCount; i++) {
     if (allMeasureTextNotes[i].length === 0) {
-      // Add an empty spacer for measures without chord notes
       allMeasureTextNotes[i].push(createEmptyChordSpacer(topStaves[i]));
     }
   }
@@ -131,12 +158,16 @@ export const renderChordNotation = (
   formatter: any,
   context: any
 ): void => {
-  // Create and draw voices for chord text notes, one for each measure
+  // Process each measure
   allMeasureTextNotes.forEach((measureNotes, measureIndex) => {
     if (measureNotes.length === 0) return;
     
+    // Ensure the measure has exactly 4 beats
+    const validMeasureNotes = ensureCompleteMeasure(measureNotes, topStaves[measureIndex]);
+    
+    // Create voice and add notes
     const textVoice = new VF.Voice({ num_beats: 4, beat_value: 4 })
-      .addTickables(measureNotes);
+      .addTickables(validMeasureNotes);
       
     // Format and draw
     formatter.joinVoices([textVoice]);
