@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Layout } from '../components';
 import { Button } from '../components/Button';
@@ -233,10 +233,10 @@ export const CreateDeckScreen: React.FC = () => {
 	};
 
 	// Handle music changes from the SheetMusicEditor
-	const handleMusicChange = (recorded: MultiSheetQuestion, transposed: MultiSheetQuestion[]) => {
+	const handleMusicChange = useCallback((recorded: MultiSheetQuestion, transposed: MultiSheetQuestion[]) => {
 		setRecordedMusic(recorded);
 		setTransposedMusic(transposed);
-	};
+	}, [setRecordedMusic, setTransposedMusic]);
 
 	return (
 		<Layout subtitle="Create New Deck" back={`/course/${courseId}`}>
