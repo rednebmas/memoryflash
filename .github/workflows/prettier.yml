@@ -15,11 +15,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 20
-          cache: 'yarn'
-      - name: Install dependencies
-        run: yarn install --ignore-scripts
       - name: Format
-        run: yarn format
+        run: npx prettier@3 --write .
       - name: Commit changes
         run: |
           if [[ -n $(git status --porcelain) ]]; then
