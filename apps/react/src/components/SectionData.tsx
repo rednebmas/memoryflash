@@ -9,7 +9,7 @@ export const SectionData: React.FC<{
 	btnText: string;
 }> = ({ items, btnText }) => {
 	return (
-		<div className='flex justify-center flex-wrap items-center gap-8'>
+		<div className="flex justify-center flex-wrap items-center gap-8">
 			{items.map((item, i) => (
 				<SectionCard
 					key={i}

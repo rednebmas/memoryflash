@@ -11,10 +11,10 @@ interface SegmentHeaderProps {
 export const SegmentHeader: React.FC<SegmentHeaderProps> = ({
 	segments,
 	activeSegment,
-	toggleSegment
+	toggleSegment,
 }) => {
 	return (
-		<div className='flex p-1 bg-card gap-2 rounded-xl'>
+		<div className="flex p-1 bg-card gap-2 rounded-xl">
 			{segments.map((segment, i) => (
 				<SegmentButton
 					key={i}

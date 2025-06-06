@@ -7,8 +7,8 @@ import { WhiteKey } from './WhiteKey';
 
 export const Keyboard = () => {
 	return (
-		<div className='p-4 flex justify-center'>
-			<div className='relative flex justify-center'>
+		<div className="p-4 flex justify-center">
+			<div className="relative flex justify-center">
 				{/* <div className='relative flex justify-center rounded-xl overflow-hidden '> */}
 				{[1, 2, 3, 4, 5].map((octave) => (
 					<KeyBoardKeys key={octave} rootMidi={36 + (octave - 1) * 12} />
@@ -20,22 +20,22 @@ export const Keyboard = () => {
 
 const KeyBoardKeys: React.FC<{ extra?: boolean; rootMidi: number }> = ({ rootMidi }) => {
 	return (
-		<div className='relative flex'>
+		<div className="relative flex">
 			{/* C through E */}
-			<CustomisedKey midi={rootMidi + 0} type='white' />
-			<CustomisedKey midi={rootMidi + 1} type='black' className='absolute ml-[22px]' />
-			<CustomisedKey midi={rootMidi + 2} type='white' />
-			<CustomisedKey midi={rootMidi + 3} type='black' className='absolute ml-[55px]' />
-			<CustomisedKey midi={rootMidi + 4} type='white' />
+			<CustomisedKey midi={rootMidi + 0} type="white" />
+			<CustomisedKey midi={rootMidi + 1} type="black" className="absolute ml-[22px]" />
+			<CustomisedKey midi={rootMidi + 2} type="white" />
+			<CustomisedKey midi={rootMidi + 3} type="black" className="absolute ml-[55px]" />
+			<CustomisedKey midi={rootMidi + 4} type="white" />
 
 			{/* F through B */}
-			<CustomisedKey midi={rootMidi + 5} type='white' />
-			<CustomisedKey midi={rootMidi + 6} type='black' className='absolute ml-[124px]' />
-			<CustomisedKey midi={rootMidi + 7} type='white' />
-			<CustomisedKey midi={rootMidi + 8} type='black' className='absolute ml-[157px]' />
-			<CustomisedKey midi={rootMidi + 9} type='white' />
-			<CustomisedKey midi={rootMidi + 10} type='black' className='absolute ml-[190px]' />
-			<CustomisedKey midi={rootMidi + 11} type='white' />
+			<CustomisedKey midi={rootMidi + 5} type="white" />
+			<CustomisedKey midi={rootMidi + 6} type="black" className="absolute ml-[124px]" />
+			<CustomisedKey midi={rootMidi + 7} type="white" />
+			<CustomisedKey midi={rootMidi + 8} type="black" className="absolute ml-[157px]" />
+			<CustomisedKey midi={rootMidi + 9} type="white" />
+			<CustomisedKey midi={rootMidi + 10} type="black" className="absolute ml-[190px]" />
+			<CustomisedKey midi={rootMidi + 11} type="white" />
 		</div>
 	);
 };
