@@ -10,6 +10,7 @@ export default defineConfig({
   use: {
     baseURL: 'http://localhost:4173',
     screenshot: 'only-on-failure',
+    snapshotPathTemplate: '{testDir}/{testFilePath}-snapshots/{arg}{ext}',
   },
   reporter: [['html', { open: 'never' }]],
 });
