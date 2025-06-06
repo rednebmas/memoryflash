@@ -5,7 +5,7 @@ import MongoStore from 'connect-mongo';
 import cors from 'cors';
 import express, { Express } from 'express';
 import session from 'express-session';
-import { mongo } from 'mongoose';
+import type { MongoClient } from 'mongodb';
 import { APP_URL, IS_PROD, SESSION_OPTS, passport } from './config';
 import { customErrorHandler } from './middleware';
 import { devSleep } from './middleware/devSleep';
@@ -25,7 +25,7 @@ import { singleHandedTritoneSub251 } from './services/card-generators/ii-V-i/ii-
 
 const PORT = process.env.PORT || 3333;
 
-const setupMiddlewaresAndRoutes = (server: Express, dbClient: mongo.MongoClient) => {
+const setupMiddlewaresAndRoutes = (server: Express, dbClient: MongoClient) => {
 	server.set('trust proxy', true);
 
 	const corsOrigins: (string | RegExp)[] = [];
