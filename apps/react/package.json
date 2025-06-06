@@ -9,7 +9,6 @@
 		"lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
 		"preview": "vite preview",
 		"test:screenshots": "playwright test",
-		"test:screenshots:report": "playwright show-report",
 		"test:screenshots:update": "playwright test --update-snapshots"
 	},
 	"dependencies": {
