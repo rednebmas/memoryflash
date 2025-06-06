@@ -2799,7 +2799,7 @@ util-deprecate@^1.0.2:
 
 "vexflow@github:rednebmas/vexflow":
   version "4.2.7-sam.2"
-  resolved "https://codeload.github.com/rednebmas/vexflow/tar.gz/a8be7aa6b5e86ec3dd207305383460ffe8154611"
+  resolved "https://codeload.github.com/rednebmas/vexflow/tar.gz/3199cca26a5322841192c02ee2267237a99b4806"
 
 victory-vendor@^36.6.8:
   version "36.9.2"
