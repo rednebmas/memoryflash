@@ -39,20 +39,22 @@ export const DecksScreen = () => {
 	}, [parsingCourseId]);
 
 	return (
-		<Layout subtitle={course?.name} back='/'>
+		<Layout subtitle={course?.name} back="/">
 			<Spinner show={isLoading && Object.keys(decks).length === 0} />
 			<BasicErrorCard error={error} />
 			{Object.keys(decks).map((section) => {
 				return (
-					<div key={section} className='space-y-4'>
+					<div key={section} className="space-y-4">
 						<SectionHeader title={decks[section][0].section} />
 						<SectionData
-							btnText='Lessons'
+							btnText="Lessons"
 							items={decks[section].map((deck) => {
 								return {
 									title: deck.name,
 									link: `/study/${deck._id}`,
-									subTitle: deck.stats && `Median: ${deck.stats?.medianTimeTaken.toFixed(1)}`,
+									subTitle:
+										deck.stats &&
+										`Median: ${deck.stats?.medianTimeTaken.toFixed(1)}`,
 								};
 							})}
 						/>

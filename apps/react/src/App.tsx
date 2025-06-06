@@ -29,21 +29,27 @@ export default function App() {
 			<MidiToRedux />
 			<BrowserRouter>
 				<Routes>
-					<Route path='/' element={<AuthenticatedRoute screen={<CoursesScreen />} />} />
-					<Route path='/auth/sign-up' element={<SignUpScreen />} />
-					<Route path='/auth/login' element={<LoginScreen />} />
-					<Route path='/account' element={<AuthenticatedRoute screen={<AccountScreen />} />} />
+					<Route path="/" element={<AuthenticatedRoute screen={<CoursesScreen />} />} />
+					<Route path="/auth/sign-up" element={<SignUpScreen />} />
+					<Route path="/auth/login" element={<LoginScreen />} />
 					<Route
-						path='/course/:courseId'
+						path="/account"
+						element={<AuthenticatedRoute screen={<AccountScreen />} />}
+					/>
+					<Route
+						path="/course/:courseId"
 						element={<AuthenticatedRoute screen={<DecksScreen />} />}
 					/>
-					<Route path='/study/:deckId' element={<AuthenticatedRoute screen={<StudyScreen />} />} />
 					<Route
-						path='/study/:deckId/list'
+						path="/study/:deckId"
+						element={<AuthenticatedRoute screen={<StudyScreen />} />}
+					/>
+					<Route
+						path="/study/:deckId/list"
 						element={<AuthenticatedRoute screen={<AllDeckCardsScreen />} />}
 					/>
 					<Route
-						path='/study/:deckId/stats'
+						path="/study/:deckId/stats"
 						element={<AuthenticatedRoute screen={<DeckStatsScreen />} />}
 					/>
 				</Routes>

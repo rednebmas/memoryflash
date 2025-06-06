@@ -26,14 +26,14 @@ export const Metronome: React.FunctionComponent<MetronomeProps> = ({ bpm }) => {
 		>
 			{playing && <MetronomeSound bpm={bpm} />}
 			<div
-				className='h-7 w-7 rounded-full flex items-center justify-center bg-blue-500  hover:ring ring-blue-400 ring-2 transition'
-				role='button'
+				className="h-7 w-7 rounded-full flex items-center justify-center bg-blue-500  hover:ring ring-blue-400 ring-2 transition"
+				role="button"
 			>
 				{playing ? (
-					<PauseIcon className='h-4 w-4  text-white' />
+					<PauseIcon className="h-4 w-4  text-white" />
 				) : (
 					<PlayIcon
-						className='h-4 w-4  text-white'
+						className="h-4 w-4  text-white"
 						style={{
 							marginLeft: '0.1rem',
 						}}

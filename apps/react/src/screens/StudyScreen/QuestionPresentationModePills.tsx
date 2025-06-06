@@ -28,7 +28,7 @@ export const QuestionPresentationModePills: React.FunctionComponent<
 	}
 
 	return (
-		<div className='flex justify-center gap-2'>
+		<div className="flex justify-center gap-2">
 			{modes.map((mode) => {
 				return (
 					<Pill

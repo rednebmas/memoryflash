@@ -31,10 +31,10 @@ export const AllDeckCardsScreen: React.FunctionComponent<AllDeckCardsScreenProps
 		<Layout>
 			<Spinner show={isLoading && deck.length === 0} />
 			<BasicErrorCard error={error} />
-			<div className='flex flex-col items-center'>
-				<div className='mb-4'>{deck.length} cards</div>
+			<div className="flex flex-col items-center">
+				<div className="mb-4">{deck.length} cards</div>
 				{deck.map((card, i) => (
-					<div className='inline-block'>
+					<div className="inline-block">
 						<FlashCard
 							placement={'cur'}
 							key={card._id + i}

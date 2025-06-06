@@ -7,7 +7,7 @@ interface AccountNavButtonProps {}
 export const AccountNavButton: React.FunctionComponent<AccountNavButtonProps> = ({}) => {
 	return (
 		<CircleHover link={`/account`}>
-			<UserCircleIcon className='w-6 h-6 stroke-2' />
+			<UserCircleIcon className="w-6 h-6 stroke-2" />
 		</CircleHover>
 	);
 };

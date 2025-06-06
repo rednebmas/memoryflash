@@ -35,29 +35,34 @@ export const MultiSheetCardQuestion: React.FC<QuestionRender> = ({ card, placeme
 	} else if (activePresentationModeId === 'Key Signature Only') {
 		let presentationModeData = activePresentationMode as PresentationModeStartCard;
 		return (
-			<div className='flex flex-col items-center justify-center text-center gap-2'>
-				<span className='text-xs text-gray-500 mt-auto'>{presentationModeData.textAbove}</span>
-				<span className='pt-3'>{c.question.key}</span>
-				<div className='mb-auto'>{CorrectDots(c, multiPartCardIndex, placement)}</div>
+			<div className="flex flex-col items-center justify-center text-center gap-2">
+				<span className="text-xs text-gray-500 mt-auto">
+					{presentationModeData.textAbove}
+				</span>
+				<span className="pt-3">{c.question.key}</span>
+				<div className="mb-auto">{CorrectDots(c, multiPartCardIndex, placement)}</div>
 			</div>
 		);
 	} else if (activePresentationModeId === 'First Chord Only') {
 		let presentationModeData = activePresentationMode as PresentationModeStartCard;
 		return (
-			<div className='flex flex-col items-center justify-center text-center gap-2'>
-				<span className='text-xs text-gray-500 mt-auto'>{presentationModeData.textAbove}</span>
-				<span className='pt-3'>{c.question.voices[0].stack[0].chordName}</span>
-				<div className='mb-auto'>{CorrectDots(c, multiPartCardIndex, placement)}</div>
+			<div className="flex flex-col items-center justify-center text-center gap-2">
+				<span className="text-xs text-gray-500 mt-auto">
+					{presentationModeData.textAbove}
+				</span>
+				<span className="pt-3">{c.question.voices[0].stack[0].chordName}</span>
+				<div className="mb-auto">{CorrectDots(c, multiPartCardIndex, placement)}</div>
 			</div>
 		);
 	} else if (activePresentationModeId === 'Chords') {
 		const chords = c.question.voices[0].stack.map((s) => s.chordName);
 		return (
-			<span className='flex flex-col text-center'>
-				<span className='pt-1 w-72 text-3xl'>
+			<span className="flex flex-col text-center">
+				<span className="pt-1 w-72 text-3xl">
 					{chords.map((chord, i) => {
 						const correct =
-							(i < multiPartCardIndex && placement === 'cur') || placement === 'answered';
+							(i < multiPartCardIndex && placement === 'cur') ||
+							placement === 'answered';
 						return (
 							<span
 								key={i}
@@ -79,9 +84,10 @@ export const MultiSheetCardQuestion: React.FC<QuestionRender> = ({ card, placeme
 
 function CorrectDots(c: MultiSheetCard, multiPartCardIndex: number, placement: string) {
 	return (
-		<span className='flex gap-4 justify-center pt-5'>
+		<span className="flex gap-4 justify-center pt-5">
 			{c.question.voices[0].stack.map((_, i) => {
-				const correct = (i < multiPartCardIndex && placement === 'cur') || placement === 'answered';
+				const correct =
+					(i < multiPartCardIndex && placement === 'cur') || placement === 'answered';
 				return (
 					<span
 						key={i}

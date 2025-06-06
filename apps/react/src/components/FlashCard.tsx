@@ -51,11 +51,13 @@ export const FlashCard = forwardRef<HTMLDivElement, FlashCardProps>(
 					transition: 'opacity 0.5s ease',
 				}}
 			>
-				<div className='text-4xl font-medium flex flex-1 justify-center items-center'>
+				<div className="text-4xl font-medium flex flex-1 justify-center items-center">
 					<QuestionComponent card={card} placement={placement} />
 				</div>
 				{card?.attempts?.length > 0 && (
-					<span className='text-xs text-gray-600'>{card.attempts[0].timeTaken.toFixed(1)}s</span>
+					<span className="text-xs text-gray-600">
+						{card.attempts[0].timeTaken.toFixed(1)}s
+					</span>
 				)}
 				<FlashCardIcons card={card} placement={placement} />
 			</div>
@@ -83,13 +85,13 @@ export const FlashCardIcons: React.FC<{ card: CardWithAttempts; placement: Place
 	}
 
 	return (
-		<div className='w-full grid grid-cols-3 grid-rows-1 gap-0'>
-			<div className='col-start-2 flex justify-center items-center gap-2'>
-				{showNew && <Pill text='New' theme='green' ring={false} />}
-				{correct && <CheckIcon className='w-5 h-5 stroke-green-500 stroke-2' />}
-				{correct == false && <XMarkIcon className='w-5 h-5 stroke-red-500 stroke-2' />}
+		<div className="w-full grid grid-cols-3 grid-rows-1 gap-0">
+			<div className="col-start-2 flex justify-center items-center gap-2">
+				{showNew && <Pill text="New" theme="green" ring={false} />}
+				{correct && <CheckIcon className="w-5 h-5 stroke-green-500 stroke-2" />}
+				{correct == false && <XMarkIcon className="w-5 h-5 stroke-red-500 stroke-2" />}
 			</div>
-			<div className='col-start-3 flex  items-center flex-row-reverse'></div>
+			<div className="col-start-3 flex  items-center flex-row-reverse"></div>
 		</div>
 	);
 };

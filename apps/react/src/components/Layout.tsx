@@ -27,27 +27,27 @@ export const Layout: React.FC<LayoutProps> = ({
 	const location = useLocation();
 
 	return (
-		<div className='mx-auto h-screen w-full flex flex-col overflow-scroll ' onScroll={onScroll}>
-			<div className='pt-6 grid grid-cols-3 mx-6'>
-				<div className='flex items-center'>
+		<div className="mx-auto h-screen w-full flex flex-col overflow-scroll " onScroll={onScroll}>
+			<div className="pt-6 grid grid-cols-3 mx-6">
+				<div className="flex items-center">
 					{location.pathname !== '/' &&
 						(back ? (
 							<Link to={back}>
 								<CircleHover>
-									<ChevronLeftIcon className='w-6 h-6 stroke-2' />
+									<ChevronLeftIcon className="w-6 h-6 stroke-2" />
 								</CircleHover>
 							</Link>
 						) : (
 							<CircleHover onClick={() => navigate(-1)}>
-								<ChevronLeftIcon className='w-6 h-6 stroke-2' />
+								<ChevronLeftIcon className="w-6 h-6 stroke-2" />
 							</CircleHover>
 						))}
 				</div>
-				<div className='text-2xl mx-auto font-medium flex flex-col text-center'>
-					<Link to='/'>MFlash</Link>
-					<span className='text-xs'>{subtitle}</span>
+				<div className="text-2xl mx-auto font-medium flex flex-col text-center">
+					<Link to="/">MFlash</Link>
+					<span className="text-xs">{subtitle}</span>
 				</div>
-				<div className='flex flex-row-reverse items-center gap-3'>
+				<div className="flex flex-row-reverse items-center gap-3">
 					{right || (
 						<>
 							<AccountNavButton />
@@ -62,7 +62,7 @@ export const Layout: React.FC<LayoutProps> = ({
 					contentClassName,
 				)}
 			>
-				<div className='space-y-8 flex flex-col flex-1'>{children}</div>
+				<div className="space-y-8 flex flex-col flex-1">{children}</div>
 			</div>
 		</div>
 	);
