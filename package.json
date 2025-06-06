@@ -1,14 +1,20 @@
 {
-	"name": "MemoryFlash",
-	"version": "1.0.0",
-	"main": "index.js",
-	"private": true,
-	"scripts": {
-                "dev": "concurrently \"yarn workspace MemoryFlashServer dev\" \"yarn workspace MemoryFlashReact dev\"",
-                "test": "echo 'no tests'"
-        },
-	"workspaces": [
-		"apps/*",
-		"packages/*"
-	]
+    "name": "MemoryFlash",
+    "version": "1.0.0",
+    "main": "index.js",
+    "private": true,
+    "scripts": {
+        "dev": "concurrently \"yarn workspace MemoryFlashServer dev\" \"yarn workspace MemoryFlashReact dev\"",
+        "test": "echo 'no tests'",
+        "format": "prettier --write .",
+        "format:check": "prettier --check ."
+    },
+    "workspaces": [
+        "apps/*",
+        "packages/*"
+    ],
+    "devDependencies": {
+        "prettier": "^3.3.3"
+    },
+    "packageManager": "yarn@4.9.2"
 }
