@@ -4617,9 +4617,9 @@ vary@^1, vary@~1.1.2:
   resolved "https://registry.npmjs.org/vary/-/vary-1.1.2.tgz#2299f02c6ded30d4a5961b0b9f74524a18f634fc"
   integrity sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==
 
-"vexflow@github:rednebmas/vexflow":
+"vexflow@github:rednebmas/vexflow#3199cca26a5322841192c02ee2267237a99b4806":
   version "4.2.7-sam.2"
-  resolved "https://codeload.github.com/rednebmas/vexflow/tar.gz/a8be7aa6b5e86ec3dd207305383460ffe8154611"
+  resolved "https://codeload.github.com/rednebmas/vexflow/tar.gz/3199cca26a5322841192c02ee2267237a99b4806"
 
 victory-vendor@^36.6.8:
   version "36.9.2"
