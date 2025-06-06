@@ -1,9 +1,15 @@
 {
-	"compilerOptions": {
-		"baseUrl": ".",
-		"paths": {
-			"MemoryFlashCore/*": ["packages/MemoryFlashCore/src/*"]
-		},
-		"moduleResolution": "node"
-	}
+    "files": [],
+    "compilerOptions": {
+        "baseUrl": ".",
+        "paths": {
+            "MemoryFlashCore/*": ["packages/MemoryFlashCore/src/*"]
+        },
+        "moduleResolution": "node"
+    },
+    "references": [
+        { "path": "packages/MemoryFlashCore" },
+        { "path": "apps/react" },
+        { "path": "apps/server" }
+    ]
 }

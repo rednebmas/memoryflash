@@ -1,7 +1,8 @@
 import mongoose from 'mongoose';
+import type { MongoClient } from 'mongodb';
 import { MONGO_URI } from '../config/constants';
 
-export const connectDB = async () => {
+export const connectDB = async (): Promise<MongoClient> => {
 	try {
 		console.log('Connecting to MongoDB...');
 		const res = await mongoose.connect(MONGO_URI, {
@@ -23,7 +24,7 @@ export const connectDB = async () => {
 			process.kill(process.pid, 'SIGUSR2');
 		});
 
-		return res.connection.getClient();
+                return res.connection.getClient() as unknown as MongoClient;
 	} catch (error: any) {
 		console.error(`Error:${error.message}`);
 		process.exit(1);
