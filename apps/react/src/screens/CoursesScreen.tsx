@@ -21,12 +21,12 @@ export const CoursesScreen = () => {
 
 	return (
 		<Layout>
-			<div className='space-y-4'>
-				<SectionHeader title='Courses' />
+			<div className="space-y-4">
+				<SectionHeader title="Courses" />
 				<Spinner show={isLoading && courses.length === 0} />
 				<BasicErrorCard error={error} />
 				<SectionData
-					btnText='Lessons'
+					btnText="Lessons"
 					items={courses.map((course) => {
 						return {
 							title: course.name,

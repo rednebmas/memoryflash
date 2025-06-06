@@ -5,7 +5,7 @@ export const BothHands = (props: { color?: string }) => {
 	const { color } = props;
 
 	return (
-		<div className='flex'>
+		<div className="flex">
 			<HandLeft color={color} />
 			<HandRight color={color} />
 		</div>

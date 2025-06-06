@@ -24,7 +24,7 @@ export const connectDB = async (): Promise<MongoClient> => {
 			process.kill(process.pid, 'SIGUSR2');
 		});
 
-                return res.connection.getClient() as unknown as MongoClient;
+		return res.connection.getClient() as unknown as MongoClient;
 	} catch (error: any) {
 		console.error(`Error:${error.message}`);
 		process.exit(1);

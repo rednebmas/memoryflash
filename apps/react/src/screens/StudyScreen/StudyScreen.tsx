@@ -125,17 +125,17 @@ export const StudyScreen = () => {
 	return (
 		<Layout
 			back={`/course/${deck?.courseId}`}
-			contentClassName='max-w-none sm:px-0 lg:px-0'
+			contentClassName="max-w-none sm:px-0 lg:px-0"
 			right={
-				<div className='flex items-center gap-4 ml-2'>
-					<div className='pl-1'>
+				<div className="flex items-center gap-4 ml-2">
+					<div className="pl-1">
 						<Metronome bpm={bpm} />
 					</div>
 					<CircleHover link={`stats`}>
-						<PresentationChartLineIcon className='w-6 h-6 stroke-2' />
+						<PresentationChartLineIcon className="w-6 h-6 stroke-2" />
 					</CircleHover>
 					<CircleHover link={`list`}>
-						<ListBulletIcon className='w-6 h-6 stroke-2' />
+						<ListBulletIcon className="w-6 h-6 stroke-2" />
 					</CircleHover>
 					<MidiInputsDropdown />
 					<AccountNavButton />
@@ -143,9 +143,9 @@ export const StudyScreen = () => {
 			}
 			subtitle={course && deck && `${course?.name} · ${deck?.name}`}
 		>
-			<div className='flex flex-1' ref={cardContainerRef}>
+			<div className="flex flex-1" ref={cardContainerRef}>
 				<div
-					className='flex items-center'
+					className="flex items-center"
 					style={{
 						transform: cardsTranslation,
 						transition: 'transform 0.5s ease',
@@ -167,11 +167,14 @@ export const StudyScreen = () => {
 			<div>
 				<QuestionPresentationModePills card={cards[index]} />
 				<Keyboard />
-				<div className='text-center text-xs'>
-					tooLongTime: {tooLongTime.toFixed(0)}s, bpm: {bpm}, median: {median.toFixed(1)}s, goal:{' '}
-					{goalTime.toFixed(1)}s, timeSinceStart:{' '}
+				<div className="text-center text-xs">
+					tooLongTime: {tooLongTime.toFixed(0)}s, bpm: {bpm}, median: {median.toFixed(1)}
+					s, goal: {goalTime.toFixed(1)}s, timeSinceStart:{' '}
 					<Timer
-						className={clsx('font-serif', timeSinceCardStart() > tooLongTime && 'text-green-300')}
+						className={clsx(
+							'font-serif',
+							timeSinceCardStart() > tooLongTime && 'text-green-300',
+						)}
 						startTime={currStartTime}
 					/>
 				</div>

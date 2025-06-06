@@ -33,24 +33,24 @@ export const LoginScreen: React.FunctionComponent<{}> = ({}) => {
 			<h1>Log in</h1>
 			<form onSubmit={handleSubmit}>
 				<input
-					type='text'
-					placeholder='Email'
+					type="text"
+					placeholder="Email"
 					value={email}
 					onChange={(e) => {
 						setEmail(e.target.value);
 					}}
 				/>
 				<input
-					type='password'
-					placeholder='Password'
+					type="password"
+					placeholder="Password"
 					value={password}
 					onChange={(e) => {
 						setPassword(e.target.value);
 					}}
 				/>
-				<div className='text-red-600 '>{error}</div>
+				<div className="text-red-600 ">{error}</div>
 
-				<button type='submit' className=''>
+				<button type="submit" className="">
 					Login
 				</button>
 			</form>

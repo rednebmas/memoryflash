@@ -61,17 +61,20 @@ export const DeckStatsScreen: React.FunctionComponent<DeckStatsScreenProps> = ({
 
 	return (
 		<Layout subtitle={deck?.name}>
-			<div className='flex gap-8 flex-col'>
+			<div className="flex gap-8 flex-col">
 				<Spinner show={isLoading} />
 				<BasicErrorCard error={error} />
 
-				<div className='flex flex-col items-center'>
+				<div className="flex flex-col items-center">
 					<div>Number of cards: {numCards}</div>
 					<div>Median time to answer: {median.toFixed(1)}s</div>
 					<div>Total time studying: {(totalTimeSpent / 60).toFixed(1)} minutes</div>
 
-					<div className='mt-8 flex flex-col gap-2 svg-dark-mode'>
-						<div className='text-black font-bold text-center' style={{ paddingLeft: '' }}>
+					<div className="mt-8 flex flex-col gap-2 svg-dark-mode">
+						<div
+							className="text-black font-bold text-center"
+							style={{ paddingLeft: '' }}
+						>
 							Median Time Taken to Answer Questions
 						</div>
 						<LineChart
@@ -85,9 +88,9 @@ export const DeckStatsScreen: React.FunctionComponent<DeckStatsScreenProps> = ({
 								bottom: 20,
 							}}
 						>
-							<CartesianGrid strokeDasharray='4 4' />
-							<XAxis dataKey='i' tickFormatter={() => ''}>
-								<Label position='insideBottom' dy={8} value='Ordered Time Index' />
+							<CartesianGrid strokeDasharray="4 4" />
+							<XAxis dataKey="i" tickFormatter={() => ''}>
+								<Label position="insideBottom" dy={8} value="Ordered Time Index" />
 							</XAxis>
 							<YAxis
 								label={{
@@ -112,8 +115,8 @@ export const DeckStatsScreen: React.FunctionComponent<DeckStatsScreenProps> = ({
 								}}
 							/>
 							<Line
-								type='monotone'
-								dataKey='median'
+								type="monotone"
+								dataKey="median"
 								dot={(dotProps) => <CustomizedDot {...dotProps} />}
 							/>
 						</LineChart>

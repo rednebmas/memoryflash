@@ -16,7 +16,7 @@ export const MidiInputsDropdown: React.FunctionComponent<MidiInputsDropdownProps
 	// const selectedOutputName = devices.find((input) => input.id === selectedOutputId)?.name;
 
 	return (
-		<div className='flex flex-row gap-4'>
+		<div className="flex flex-row gap-4">
 			{/* <Dropdown
 				label={selectedOutputName || 'No MIDI Output'}
 				items={outputs.map((device) => ({

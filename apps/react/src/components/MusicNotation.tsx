@@ -74,9 +74,10 @@ const createNotes = (
 
 const createTextNotes = (data: MultiSheetQuestion, stave: Stave) => {
 	return data.voices[0].stack.map((stackedNotes) => {
-		const emptyTextNote = new VF.TextNote({ text: '', duration: stackedNotes.duration }).setStave(
-			stave,
-		);
+		const emptyTextNote = new VF.TextNote({
+			text: '',
+			duration: stackedNotes.duration,
+		}).setStave(stave);
 		if (!stackedNotes.chordName) return emptyTextNote;
 		const chord = Chord.get(stackedNotes.chordName);
 		if (!chord.tonic) return emptyTextNote;
@@ -187,5 +188,5 @@ export const MusicNotation: React.FunctionComponent<MusicNotationProps> = ({
 		// }
 	}, [data, multiPartCardIndex, allNotesClassName, highlightClassName, hideChords]);
 
-	return <div className='svg-dark-mode' ref={divRef} id='output'></div>;
+	return <div className="svg-dark-mode" ref={divRef} id="output"></div>;
 };

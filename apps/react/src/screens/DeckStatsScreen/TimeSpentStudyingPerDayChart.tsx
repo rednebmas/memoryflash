@@ -38,9 +38,9 @@ export const TimeSpentChart: React.FC<TimeSpentChartProps> = ({
 		}));
 
 	return (
-		<div className='mt-8 flex flex-col gap-8 svg-dark-mode'>
+		<div className="mt-8 flex flex-col gap-8 svg-dark-mode">
 			<div>
-				<div className='text-black font-bold text-center'>Time Spent Studying per Day</div>
+				<div className="text-black font-bold text-center">Time Spent Studying per Day</div>
 				<BarChart
 					width={700}
 					height={300}
@@ -52,9 +52,9 @@ export const TimeSpentChart: React.FC<TimeSpentChartProps> = ({
 						bottom: 20,
 					}}
 				>
-					<CartesianGrid strokeDasharray='3 3' />
-					<XAxis dataKey='date'>
-						<Label position='insideBottom' dy={20} value='Date' />
+					<CartesianGrid strokeDasharray="3 3" />
+					<XAxis dataKey="date">
+						<Label position="insideBottom" dy={20} value="Date" />
 					</XAxis>
 					<YAxis
 						label={{
@@ -65,13 +65,13 @@ export const TimeSpentChart: React.FC<TimeSpentChartProps> = ({
 					/>
 					<Tooltip cursor={{ fill: 'rgba(0, 0, 0, 0.05)' }} />
 
-					<Bar dataKey='timeSpent' name='Time Spent (min)' fill='#8884d8' />
+					<Bar dataKey="timeSpent" name="Time Spent (min)" fill="#8884d8" />
 				</BarChart>
 			</div>
 			{/* Median Time Line Chart */}
 			{medianData.length > 3 && (
 				<div>
-					<div className='text-black font-bold text-center'>Best Median Time per Day</div>
+					<div className="text-black font-bold text-center">Best Median Time per Day</div>
 					<LineChart
 						width={700}
 						height={300}
@@ -83,9 +83,9 @@ export const TimeSpentChart: React.FC<TimeSpentChartProps> = ({
 							bottom: 20,
 						}}
 					>
-						<CartesianGrid strokeDasharray='3 3' />
-						<XAxis dataKey='date'>
-							<Label position='insideBottom' dy={10} value='Date' />
+						<CartesianGrid strokeDasharray="3 3" />
+						<XAxis dataKey="date">
+							<Label position="insideBottom" dy={10} value="Date" />
 						</XAxis>
 						<YAxis
 							label={{
@@ -96,10 +96,10 @@ export const TimeSpentChart: React.FC<TimeSpentChartProps> = ({
 						/>
 						<Tooltip />
 						<Line
-							type='monotone'
-							dataKey='median'
-							name='Best Median (s)'
-							stroke='#82ca9d'
+							type="monotone"
+							dataKey="median"
+							name="Best Median (s)"
+							stroke="#82ca9d"
 							dot={{ r: 3 }}
 						/>
 					</LineChart>
