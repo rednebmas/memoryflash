@@ -1,7 +1,6 @@
 name: Prettier Auto Format
 
 on:
-    pull_request:
     push:
 
 jobs:
