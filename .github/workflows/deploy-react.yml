@@ -15,13 +15,13 @@ jobs:
               with:
                   submodules: 'true'
                   token: ${{ secrets.WORKFLOW_SUBMODULE_PERSONAL_ACCESS_TOKEN }}
+            - name: Enable Corepack
+              run: corepack enable
             - name: install node
               uses: actions/setup-node@v3
               with:
                   node-version: 20
                   cache: 'yarn'
-            - name: Enable Corepack
-              run: corepack enable
             - name: yarn install
               run: yarn install
             - name: Authenticate on GCS
