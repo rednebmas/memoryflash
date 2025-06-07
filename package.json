@@ -5,7 +5,7 @@
 	"private": true,
 	"scripts": {
 		"dev": "concurrently \"yarn workspace MemoryFlashServer dev\" \"yarn workspace MemoryFlashReact dev\"",
-		"test": "echo 'no tests'"
+		"test": "yarn workspace MemoryFlashServer test && yarn workspace MemoryFlashReact test:screenshots"
 	},
 	"workspaces": [
 		"apps/*",
