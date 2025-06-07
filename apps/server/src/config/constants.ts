@@ -1,12 +1,11 @@
 import { SessionOptions } from 'express-session';
 import { oneDayInMillis, oneMinInMillis } from '../utils/dates';
 
-// Provide sensible defaults so tests can run without env vars
 export const APP_URL = process.env.APP_URL || 'http://localhost:3000';
 export const APP_DOMAIN = new URL(APP_URL).hostname;
 export const PORT = process.env.PORT || 3000;
 
-export const MONGO_URI = process.env.MONGO_URI || '';
+export const MONGO_URI = process.env.MONGO_URI as string;
 
 export const IS_PROD = process.env.NODE_ENV === 'production';
 export const IS_STAGING = process.env.NODE_ENV == 'staging';
