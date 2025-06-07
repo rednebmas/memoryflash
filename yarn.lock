@@ -1959,7 +1959,7 @@ __metadata:
     tonal: "npm:^6.0.0"
     typescript: "npm:^5.0.2"
     use-deep-compare-effect: "npm:^1.8.1"
-    vexflow: "github:rednebmas/vexflow#3199cca26a5322841192c02ee2267237a99b4806"
+    vexflow: "https://github.com/rednebmas/vexflow.git#3199cca26a5322841192c02ee2267237a99b4806"
     vite: "npm:5.1.1"
     webmidi: "npm:^3.1.8"
   languageName: unknown
@@ -6940,7 +6940,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vexflow@github:rednebmas/vexflow#3199cca26a5322841192c02ee2267237a99b4806":
+"vexflow@https://github.com/rednebmas/vexflow.git#3199cca26a5322841192c02ee2267237a99b4806":
   version: 4.2.7-sam.2
   resolution: "vexflow@https://github.com/rednebmas/vexflow.git#commit=3199cca26a5322841192c02ee2267237a99b4806"
   checksum: 10c0/5bc85f834e75e2d697dc24e3113c977abfaf35b69b7a083938be4e346865ab9716576588934ca11f2e500b3b925ae1b7142fbce853b7f49150d215b08f51b4fd
