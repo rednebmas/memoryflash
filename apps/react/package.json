@@ -28,7 +28,7 @@
 		"tailwindcss": "3.4.10",
 		"tonal": "^6.0.0",
 		"use-deep-compare-effect": "^1.8.1",
-		"vexflow": "https://github.com/rednebmas/vexflow.git#3199cca26a5322841192c02ee2267237a99b4806",
+		"vexflow": "https://codeload.github.com/rednebmas/vexflow/tar.gz/3199cca26a5322841192c02ee2267237a99b4806",
 		"webmidi": "^3.1.8"
 	},
 	"devDependencies": {
