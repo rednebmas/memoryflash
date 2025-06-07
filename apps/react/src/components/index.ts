@@ -6,3 +6,4 @@ export * from './SectionData';
 export * from './SectionHeader';
 export * from './SegmentHeader';
 export * from './graphics';
+export * from './MusicRecorder';
