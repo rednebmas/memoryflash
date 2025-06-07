@@ -16,7 +16,7 @@ export const Spinner: React.FunctionComponent<SpinnerProps> = ({
 		<div className={`flex justify-center ${className}`} role="status">
 			<svg
 				aria-hidden="true"
-				className={`${svgClassName} text-gray-200 animate-spin dark:text-gray-600 fill-blue-600`}
+				className={`${svgClassName} text-gray-200 animate-spin dark:text-gray-600 fill-blue-600 dark:fill-blue-500`}
 				viewBox="0 0 100 101"
 				fill="none"
 				xmlns="http://www.w3.org/2000/svg"
