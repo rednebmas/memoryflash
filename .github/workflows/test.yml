@@ -35,16 +35,11 @@ jobs:
               with:
                   mongodb-version: ${{ matrix.mongodb-version }}
 
-            - name: Run unit tests
-              run: yarn test
-              env:
-                  APP_URL: http://0.0.0.0:8008
-
             - name: Install Playwright browsers
               working-directory: apps/react
               run: npx playwright install --with-deps
 
-            - name: Run screenshot tests
-              run: yarn workspace MemoryFlashReact test:screenshots
+            - name: Run unit tests
+              run: yarn test
               env:
                   APP_URL: http://0.0.0.0:8008
