@@ -20,6 +20,8 @@ jobs:
               with:
                   node-version: 20
                   cache: 'yarn'
+            - name: Enable Corepack
+              run: corepack enable
             - name: yarn install
               run: yarn install
             - name: Authenticate on GCS

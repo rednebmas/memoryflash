@@ -20,6 +20,8 @@ jobs:
               with:
                   node-version: 20
                   cache: 'yarn'
+            - name: Enable Corepack
+              run: corepack enable
             - name: commits
               run: git log -15 --graph --pretty=format:'%h -%d %s (%cr) <%an>' --abbrev-commit
             - name: Authenticate on GCS

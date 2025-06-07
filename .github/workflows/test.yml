@@ -21,8 +21,8 @@ jobs:
                   node-version: ${{ matrix.node-version }}
                   cache: 'yarn'
 
-            - name: Install Yarn
-              run: npm install -g yarn
+            - name: Enable Corepack
+              run: corepack enable
 
             - name: Install dependencies
               run: yarn install
