@@ -15,14 +15,14 @@ jobs:
             - name: Check out code
               uses: actions/checkout@v3
 
+            - name: Enable Corepack
+              run: corepack enable
+
             - name: Set up Node.js
               uses: actions/setup-node@v3
               with:
                   node-version: ${{ matrix.node-version }}
                   cache: 'yarn'
-
-            - name: Install Yarn
-              run: npm install -g yarn
 
             - name: Install dependencies
               run: yarn install
