@@ -10,7 +10,7 @@ export const SignUpScreen: React.FunctionComponent<{}> = ({}) => {
 	const dispatch = useAppDispatch();
 	const navigate = useNavigate();
 
-	const { error } = useNetworkState('auth.signup');
+	const { isLoading, error } = useNetworkState('auth.signup');
 
 	const [firstName, setFirstName] = useState('');
 	const [email, setEmail] = useState('');
@@ -81,7 +81,9 @@ export const SignUpScreen: React.FunctionComponent<{}> = ({}) => {
 
 			<div className="text-red-600">{error}</div>
 
-			<Button type="submit">Sign Up</Button>
+			<Button type="submit" loading={isLoading}>
+				Sign Up
+			</Button>
 		</AuthForm>
 	);
 };

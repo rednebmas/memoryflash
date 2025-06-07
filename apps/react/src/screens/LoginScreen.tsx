@@ -70,10 +70,11 @@ export const LoginScreen: React.FunctionComponent<{}> = ({}) => {
 					</a>
 				</div>
 			</div>
-
 			<div className="text-red-600 ">{error}</div>
 
-			<Button type="submit">Login</Button>
+			<Button type="submit" loading={isLoading}>
+				Login
+			</Button>
 		</AuthForm>
 	);
 };
