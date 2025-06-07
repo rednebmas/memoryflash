@@ -1,18 +1,18 @@
 import { SessionOptions } from 'express-session';
 import { oneDayInMillis, oneMinInMillis } from '../utils/dates';
 
-export const APP_URL = process.env.APP_URL as string;
+export const APP_URL = process.env.APP_URL || 'http://localhost:3000';
 export const APP_DOMAIN = new URL(APP_URL).hostname;
 export const PORT = process.env.PORT || 3000;
 
-export const MONGO_URI = process.env.MONGO_URI!;
+export const MONGO_URI = process.env.MONGO_URI as string;
 
 export const IS_PROD = process.env.NODE_ENV === 'production';
 export const IS_STAGING = process.env.NODE_ENV == 'staging';
 export const IS_TEST = process.env.NODE_ENV == 'test';
 export const IS_DEV = !IS_PROD && !IS_STAGING && !IS_TEST;
 
-const SESSION_SECRET_KEY = process.env.SESSION_SECRET_KEY!;
+const SESSION_SECRET_KEY = process.env.SESSION_SECRET_KEY || 'test-secret';
 export const SESSION_OPTS: SessionOptions = {
 	cookie: {
 		domain: APP_DOMAIN,
