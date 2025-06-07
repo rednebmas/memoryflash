@@ -133,19 +133,19 @@ export const MusicNotation: React.FunctionComponent<MusicNotationProps> = ({
 		let vfNotes: VFNote[][] = [];
 		let allNotesGroup = context.openGroup();
 
-                let vfVoices = data.voices.map((voice) => {
-                        const notes = createNotes(
-                                voice,
-                                voice.staff === StaffEnum.Treble ? trebleStave! : bassStave!,
-                                allNotesClassName,
-                                highlightClassName,
-                                multiPartCardIndex,
-                                data._8va,
-                        );
-                        vfNotes.push(notes);
-                        const vfVoice = new VF.Voice({ num_beats: 4, beat_value: 4 })
-                                .setStrict(false)
-                                .addTickables(notes);
+		let vfVoices = data.voices.map((voice) => {
+			const notes = createNotes(
+				voice,
+				voice.staff === StaffEnum.Treble ? trebleStave! : bassStave!,
+				allNotesClassName,
+				highlightClassName,
+				multiPartCardIndex,
+				data._8va,
+			);
+			vfNotes.push(notes);
+			const vfVoice = new VF.Voice({ num_beats: 4, beat_value: 4 })
+				.setStrict(false)
+				.addTickables(notes);
 
 			VF.Accidental.applyAccidentals([vfVoice], data.key);
 
@@ -166,14 +166,14 @@ export const MusicNotation: React.FunctionComponent<MusicNotationProps> = ({
 		// const endNote = vfNotes[0][vfNotes[0].length - 1];
 		// }
 
-                if (!hideChords) {
-                        const textNotes = createTextNotes(data, topStave);
-                        const textVoice = new VF.Voice({ num_beats: 4, beat_value: 4 })
-                                .setStrict(false)
-                                .addTickables(textNotes);
-                        formatter.joinVoices([textVoice]);
-                        vfVoices.push(textVoice);
-                }
+		if (!hideChords) {
+			const textNotes = createTextNotes(data, topStave);
+			const textVoice = new VF.Voice({ num_beats: 4, beat_value: 4 })
+				.setStrict(false)
+				.addTickables(textNotes);
+			formatter.joinVoices([textVoice]);
+			vfVoices.push(textVoice);
+		}
 
 		formatter.formatToStave(vfVoices, topStave);
 		vfVoices.forEach((voice, i) => {
