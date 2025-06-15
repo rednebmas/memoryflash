@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { signUp } from 'MemoryFlashCore/src/redux/actions/sign-up-action';
 import { authSelector } from 'MemoryFlashCore/src/redux/selectors/authSelector';
 import { useNetworkState } from 'MemoryFlashCore/src/redux/selectors/useNetworkState';
@@ -84,6 +84,12 @@ export const SignUpScreen: React.FunctionComponent<{}> = ({}) => {
 			<Button type="submit" loading={isLoading}>
 				Sign Up
 			</Button>
+			<p className="mt-6 text-center text-sm text-gray-500">
+				Already have an account?{' '}
+				<Link to="/auth/login" className="font-semibold text-blue-600 hover:text-blue-500">
+					Log in
+				</Link>
+			</p>
 		</AuthForm>
 	);
 };
