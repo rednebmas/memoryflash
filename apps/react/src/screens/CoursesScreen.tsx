@@ -1,11 +1,12 @@
 import { PresentationChartLineIcon } from '@heroicons/react/24/outline';
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { Layout, SectionData, SectionHeader } from '../components';
+import { Layout, SectionData, SectionHeader, Button } from '../components';
 import { CircleHover } from '../components/CircleHover';
 import { BasicErrorCard } from '../components/ErrorCard';
 import { MidiInputsDropdown } from '../components/MidiInputsDropdown';
 import { Spinner } from '../components/Spinner';
+import { Link } from 'react-router-dom';
 import { getCourses } from 'MemoryFlashCore/src/redux/actions/get-courses-action';
 import { coursesSelector } from 'MemoryFlashCore/src/redux/selectors/coursesSelector';
 import { useNetworkState } from 'MemoryFlashCore/src/redux/selectors/useNetworkState';
@@ -34,6 +35,11 @@ export const CoursesScreen = () => {
 						};
 					})}
 				/>
+				<div className="pt-4 flex justify-center">
+					<Link to="/course/create" className="w-48">
+						<Button>Create Course</Button>
+					</Link>
+				</div>
 			</div>
 		</Layout>
 	);

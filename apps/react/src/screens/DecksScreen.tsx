@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
-import { Layout, SectionData, SectionHeader } from '../components';
+import { useParams, Link } from 'react-router-dom';
+import { Layout, SectionData, SectionHeader, Button } from '../components';
 import { BasicErrorCard } from '../components/ErrorCard';
 import { Spinner } from '../components/Spinner';
 import { getCourse } from 'MemoryFlashCore/src/redux/actions/get-course-action';
@@ -25,6 +25,7 @@ export const DecksScreen = () => {
 			parsingCourseId: state.courses.parsingCourse,
 		};
 	});
+	const userId = useAppSelector((state) => state.auth.user?._id);
 	const decks = useSelector(decksSelector);
 	const { isLoading, error } = useNetworkState('getCourse' + parsingCourseId);
 
@@ -61,6 +62,13 @@ export const DecksScreen = () => {
 					</div>
 				);
 			})}
+			{course && userId && course.userId === userId && (
+				<div className="pt-4 flex justify-center">
+					<Link to="/notation" className="w-48">
+						<Button>Create Deck</Button>
+					</Link>
+				</div>
+			)}
 		</Layout>
 	);
 };
