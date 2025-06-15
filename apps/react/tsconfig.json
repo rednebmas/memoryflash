@@ -21,6 +21,10 @@
 		"noUnusedParameters": false,
 		"noFallthroughCasesInSwitch": true
 	},
-	"include": ["src"],
+	"include": [
+		"src",
+		"tests/music-notation-eighth-test.tsx",
+		"tests/music-notation-half-quarter-test.tsx"
+	],
 	"references": [{ "path": "./tsconfig.node.json" }]
 }

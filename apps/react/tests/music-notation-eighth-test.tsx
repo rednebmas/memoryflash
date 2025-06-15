@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
-import { MusicNotation } from './components/MusicNotation';
-import './index.css';
+import { MusicNotation } from '../src/components/MusicNotation';
+import '../src/index.css';
 import { createStore } from 'MemoryFlashCore/src/redux/store';
 import { MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
@@ -19,17 +19,14 @@ const data: MultiSheetQuestion = {
 		{
 			staff: StaffEnum.Treble,
 			stack: [
-				{
-					notes: [
-						{ name: 'C', octave: 4 },
-						{ name: 'E', octave: 4 },
-						{ name: 'G', octave: 4 },
-					],
-					duration: 'h',
-					chordName: 'C',
-				},
-				{ notes: [{ name: 'D', octave: 4 }], duration: 'q' },
-				{ notes: [{ name: 'E', octave: 4 }], duration: 'q' },
+				{ notes: [{ name: 'C', octave: 4 }], duration: '8' },
+				{ notes: [{ name: 'D', octave: 4 }], duration: '8' },
+				{ notes: [{ name: 'E', octave: 4 }], duration: '8' },
+				{ notes: [{ name: 'F', octave: 4 }], duration: '8' },
+				{ notes: [{ name: 'G', octave: 4 }], duration: '8' },
+				{ notes: [{ name: 'A', octave: 4 }], duration: '8' },
+				{ notes: [{ name: 'B', octave: 4 }], duration: '8' },
+				{ notes: [{ name: 'C', octave: 5 }], duration: '8' },
 			],
 		},
 	],
