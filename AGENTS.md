@@ -8,6 +8,7 @@ This project prefers a highly componentized React codebase. When creating UI ele
 - **Formatting**: Code is formatted with Prettier using tabs. Run `npx prettier --write` before committing if available. No comments in Swift files.
 - **Testing**: After changes, run `yarn test` from the repository root.
 - **Type Checking**: Run `yarn workspace MemoryFlashReact build` to ensure there are no missing imports or type errors.
+- **Screenshots**: When adding new Playwright `.spec.ts` files, delete any generated `.png` snapshots before committing. Maintainers will upload them separately.
 
 Follow these guidelines to keep the codebase clean and maintainable.
 
