@@ -75,6 +75,13 @@ class ViewController: UIViewController, WKScriptMessageHandler {
         
         self.webView = webView
     }
+
+    func reloadWebView() {
+        if let url = URL(string: WEB_APP_URL) {
+            let request = URLRequest(url: url)
+            webView?.load(request)
+        }
+    }
     
     func sendMIDIMessageToWebView(data: [UInt8]) {
         let dataString = data.map { String($0) }.joined(separator: ",")
@@ -97,6 +104,11 @@ class ViewController: UIViewController, WKScriptMessageHandler {
     @IBAction func openSettings(_ sender: Any) {
         let settingsVC = SettingsViewController()
         settingsVC.midiManager = midiManager
+#if DEBUG
+        settingsVC.onServerChange = { [weak self] in
+            self?.reloadWebView()
+        }
+#endif
         settingsVC.modalPresentationStyle = .formSheet
         present(settingsVC, animated: true, completion: nil)
     }
