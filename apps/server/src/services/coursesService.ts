@@ -9,6 +9,12 @@ export async function getCourses(user: User) {
 	};
 }
 
+export async function createCourse(name: string) {
+	const course = new Course({ name, decks: [] });
+	await course.save();
+	return { course };
+}
+
 export async function getDecksForCourse(courseId: string, user: User) {
 	const course = await Course.findById(courseId);
 	const [decks, userDeckStats] = await Promise.all([

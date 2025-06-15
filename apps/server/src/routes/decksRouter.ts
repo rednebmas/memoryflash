@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { isAuthenticated } from '../middleware';
-import { getDeckForUser } from '../services/deckService';
+import { getDeckForUser, createDeck } from '../services/deckService';
 import { User } from 'MemoryFlashCore/src/types/User';
 import { getDeckStats } from '../services/statsService';
 
@@ -33,6 +33,16 @@ router.get('/:id/stats', isAuthenticated, async (req, res, next) => {
 				req.headers['user-time-zone'] as string,
 			),
 		);
+	} catch (error) {
+		next(error);
+	}
+});
+
+router.post('/', isAuthenticated, async (req, res, next) => {
+	try {
+		const { courseId, name } = req.body;
+		const result = await createDeck(courseId, name);
+		return res.json(result);
 	} catch (error) {
 		next(error);
 	}
