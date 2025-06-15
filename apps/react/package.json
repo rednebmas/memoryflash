@@ -10,7 +10,7 @@
 		"preview": "vite preview",
 		"test:screenshots": "playwright test",
 		"test:screenshots:update": "playwright test --update-snapshots",
-		"postinstall": "playwright install"
+		"postinstall": "./scripts/install-playwright.sh"
 	},
 	"dependencies": {
 		"@headlessui/react": "2.1.3",
