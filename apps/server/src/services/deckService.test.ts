@@ -9,7 +9,8 @@ import Attempt, { AttemptDoc } from '../models/Attempt';
 import { Card } from '../models/Card';
 import { DeckDoc } from '../models/Deck';
 import { User } from 'MemoryFlashCore/src/types/User';
-import { getDeckForUser } from './deckService';
+import { getDeckForUser, createDeck } from './deckService';
+import Course from '../models/Course';
 
 describe('getDeckForUser', () => {
 	let user: UserDoc,
@@ -92,5 +93,21 @@ describe('getDeckForUser', () => {
 		// Ensure the returned attempt is only for the specified user
 		const returnedUserId = result.attempts[0].userId.toString();
 		expect(returnedUserId).to.equal((user._id as ObjectId).toString());
+	});
+});
+
+describe('createDeck', () => {
+	setupDBConnectionForTesting();
+
+	it('creates a deck and associates it with a course', async () => {
+		const course = new Course({ name: 'New Course', decks: [] });
+		await course.save();
+
+		const { deck, course: updated } = await createDeck(course._id.toString(), 'New Deck');
+
+		expect(deck).to.have.property('name', 'New Deck');
+		const dbCourse = await Course.findById(course._id);
+		expect(dbCourse!.decks.map((d) => d.toString())).to.include(deck._id.toString());
+		expect(updated.decks.map((d) => d.toString())).to.include(deck._id.toString());
 	});
 });

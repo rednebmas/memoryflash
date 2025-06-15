@@ -54,6 +54,29 @@ export async function getDeckForUser(deckId: string, user: User) {
 	return { deck, cards, attempts, course, userDeckStats };
 }
 
+export async function createDeck(courseId: string, name: string) {
+	const course = await Course.findById(courseId);
+	if (!course) {
+		throw new Error('Course not found');
+	}
+
+	const deck = new Deck({
+		uid: name.toLowerCase().replace(/\s+/g, '-'),
+		name,
+		courseId,
+		section: 'Custom',
+		sectionSubtitle: '',
+		tags: [],
+	});
+
+	await deck.save();
+
+	course.decks.push(deck._id);
+	await course.save();
+
+	return { deck, course };
+}
+
 function deduplicateAttempts(attempts: AttemptDoc[]) {
 	const uniqueAttempts: AttemptDoc[] = [];
 
