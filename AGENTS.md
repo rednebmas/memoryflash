@@ -2,13 +2,13 @@
 
 This project prefers a highly componentized React codebase. When creating UI elements:
 
--   **Componentization**: Extract reusable JSX into components whenever possible. Keep components small and focused.
--   **File Organization**: Group related components together in folders (e.g., all input components live in `components/inputs`).
--   **Styling**: Use Tailwind CSS utility classes. Share common styling through base components rather than repeating class strings.
--   **Formatting**: Code is formatted with Prettier using tabs. Run `npx prettier --write` before committing if available. No comments in Swift files.
--   **Testing**: After changes, run `yarn test` from the repository root.
--   **Type Checking**: Run `yarn workspace MemoryFlashReact build` to ensure there are no missing imports or type errors.
--   **Screenshots**: When adding new Playwright `.spec.ts` files, delete any generated `.png` snapshots before committing. Maintainers will upload them separately.
+- **Componentization**: Extract reusable JSX into components whenever possible. Keep components small and focused.
+- **File Organization**: Group related components together in folders (e.g., all input components live in `components/inputs`).
+- **Styling**: Use Tailwind CSS utility classes. Share common styling through base components rather than repeating class strings.
+- **Formatting**: Code is formatted with Prettier using tabs. Run `npx prettier --write` before committing if available. No comments in Swift files.
+- **Testing**: After changes, run `yarn test` from the repository root.
+- **Type Checking**: Run `yarn workspace MemoryFlashReact build` to ensure there are no missing imports or type errors.
+- **Screenshots**: When adding new Playwright `.spec.ts` files, delete any generated `.png` snapshots before committing. Maintainers will upload them separately.
 
 Follow these guidelines to keep the codebase clean and maintainable.
 
