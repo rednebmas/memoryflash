@@ -4,10 +4,16 @@
 	"main": "index.js",
 	"license": "MIT",
 	"scripts": {
-		"build": "tsc"
+		"build": "tsc",
+		"test": "NODE_ENV=test mocha --timeout 10000 --require ts-node/register src/**/*.test.ts"
 	},
 	"devDependencies": {
+		"@types/chai": "^4.3.9",
+		"@types/mocha": "^10.0.3",
+		"chai": "^4.3.10",
 		"concurrently": "^9.0.1",
+		"mocha": "^10.2.0",
+		"ts-node": "^10.9.1",
 		"typescript": "^5.5.4"
 	},
 	"dependencies": {

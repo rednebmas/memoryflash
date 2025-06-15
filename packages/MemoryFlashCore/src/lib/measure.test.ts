@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { insertRestsToFillBars } from 'MemoryFlashCore/src/lib/measure';
-import { StackedNotes } from 'MemoryFlashCore/src/types/MultiSheetCard';
+import { insertRestsToFillBars } from './measure';
+import { StackedNotes } from '../types/MultiSheetCard';
 
 describe('insertRestsToFillBars', () => {
 	it('adds rest to fill last bar', () => {
