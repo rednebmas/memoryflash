@@ -64,10 +64,8 @@ class ViewController: UIViewController, WKScriptMessageHandler {
         #endif
         
         Autolayout.addAsSubview(webView, toParent: self.view, pinToParent: true)
-        
-//         if let url = URL(string: "https://mflash.riker.tech/") {
-//        if let url = URL(string: "https://velocitester.com/") {
-        if let url = URL(string: "http://sd-mbpr.local:5173/") {
+
+        if let url = URL(string: WEB_APP_URL) {
             let request = URLRequest(url: url)
             webView.load(request)
         }
@@ -91,6 +89,13 @@ class ViewController: UIViewController, WKScriptMessageHandler {
     
     @IBAction func openBluetoothMIDICentral(_ sender: Any) {
         midiManager.presentBluetoothMIDICentral(from: self)
+    }
+
+    @IBAction func openSettings(_ sender: Any) {
+        let settingsVC = SettingsViewController()
+        settingsVC.midiManager = midiManager
+        settingsVC.modalPresentationStyle = .formSheet
+        present(settingsVC, animated: true, completion: nil)
     }
     
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
