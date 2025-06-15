@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Layout } from '../components';
 import { MusicNotation } from '../components/MusicNotation';
 import { StackedNotes } from 'MemoryFlashCore/src/types/MultiSheetCard';
+import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
 import { majorKeys } from 'MemoryFlashCore/src/lib/notes';
 import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import usePrevious from '../utils/usePrevious';
@@ -9,6 +10,7 @@ import { Midi } from 'tonal';
 import { Select } from '../components/inputs';
 import { insertRestsToFillBars } from 'MemoryFlashCore/src/lib/measure';
 import { buildMultiSheetQuestion } from 'MemoryFlashCore/src/lib/notationBuilder';
+import { MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
 
 const NoteSettings: React.FC<{
 	keySig: string;
@@ -68,7 +70,13 @@ export const NotationInputScreen = () => {
 		return () => window.removeEventListener('keydown', onDown);
 	}, []);
 
-	const data = buildMultiSheetQuestion(insertRestsToFillBars(notes), keySig);
+	const filledNotes: StackedNotes[] = notes.length
+		? insertRestsToFillBars(notes)
+		: [{ notes: [], duration: 'w', rest: true }];
+
+	const data: MultiSheetQuestion = notes.length
+		? buildMultiSheetQuestion(filledNotes, keySig)
+		: { key: keySig, voices: [{ staff: StaffEnum.Treble, stack: filledNotes }] };
 
 	return (
 		<Layout subtitle="Notation Input" back="/">
