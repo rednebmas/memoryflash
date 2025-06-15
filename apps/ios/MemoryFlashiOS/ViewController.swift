@@ -11,10 +11,12 @@ import CoreAudioKit
 import WebKit
 
 class ViewController: UIViewController, WKScriptMessageHandler {
-    
+
     var midiManager: MIDIManager!
 
     var webView: WKWebView?
+
+    @IBOutlet weak var settingsButton: UIButton?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,6 +34,7 @@ class ViewController: UIViewController, WKScriptMessageHandler {
         let contentController = WKUserContentController()
         contentController.add(self, name: "midiHandler")
         contentController.add(self, name: "consoleHandler")
+        contentController.add(self, name: "openSettings")
 
         // Disable pinch to zoom & read console log messages
         if let disablePinchToZoomPath = Bundle.main.path(forResource: "Setup", ofType: "js"),
@@ -64,6 +67,7 @@ class ViewController: UIViewController, WKScriptMessageHandler {
         #endif
         
         Autolayout.addAsSubview(webView, toParent: self.view, pinToParent: true)
+        self.view.sendSubviewToBack(webView)
 
         if let url = URL(string: WEB_APP_URL) {
             let request = URLRequest(url: url)
@@ -101,6 +105,8 @@ class ViewController: UIViewController, WKScriptMessageHandler {
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         if message.name == "consoleHandler", let consoleMessage = message.body as? String {
             print("[JS] \(consoleMessage)")
+        } else if message.name == "openSettings" {
+            openSettings(self)
         } else {
             print("[MFflash] Recieved unknown message: \(message)")
         }

@@ -15,6 +15,10 @@ export const MidiInputsDropdown: React.FunctionComponent<MidiInputsDropdownProps
 	// const selectedOutputId = useAppSelector((state) => state.midi.selectedOutput);
 	// const selectedOutputName = devices.find((input) => input.id === selectedOutputId)?.name;
 
+	const openNativeSettings = () => {
+		(window as any).webkit?.messageHandlers?.openSettings?.postMessage('');
+	};
+
 	return (
 		<div className="flex flex-row gap-4">
 			{/* <Dropdown
@@ -28,6 +32,7 @@ export const MidiInputsDropdown: React.FunctionComponent<MidiInputsDropdownProps
 			/> */}
 			<Dropdown
 				label={selectedInputName || 'No MIDI Input'}
+				onButtonClick={openNativeSettings}
 				items={inputs.map((device) => ({
 					label: device.name,
 					onClick: () => {
