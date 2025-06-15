@@ -35,7 +35,7 @@ export const LoginScreen: React.FunctionComponent<{}> = ({}) => {
 				id="email"
 				label="Email address"
 				value={email}
-				onChange={(e) => setEmail(e.target.value)}
+                               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
 				required
 			/>
 
@@ -44,7 +44,7 @@ export const LoginScreen: React.FunctionComponent<{}> = ({}) => {
 				label="Password"
 				type="password"
 				value={password}
-				onChange={(e) => setPassword(e.target.value)}
+                               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
 				required
 				autoComplete="current-password"
 			/>

@@ -55,9 +55,12 @@ const createNotes = (
 	_8va?: boolean,
 ) => {
 	return voice.stack.map((stackedNotes, i) => {
+		const isRest = stackedNotes.rest;
 		const staveNote = new VF.StaveNote({
-			keys: stackedNotes.notes.map((note) => `${note.name}/${note.octave + (_8va ? 0 : 0)}`),
-			duration: stackedNotes.duration,
+			keys: isRest
+				? ['b/4']
+				: stackedNotes.notes.map((note) => `${note.name}/${note.octave + (_8va ? 0 : 0)}`),
+			duration: (isRest ? `${stackedNotes.duration}r` : stackedNotes.duration) as string,
 			clef: stave.getClef(),
 			auto_stem: true,
 		});

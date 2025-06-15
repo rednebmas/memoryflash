@@ -1,9 +1,9 @@
 import React from 'react';
 import { BaseInput, BaseInputProps } from './BaseInput';
 
-interface InputFieldProps extends BaseInputProps {
-	label: string;
-	id: string;
+export interface InputFieldProps extends BaseInputProps {
+        label: string;
+        id: string;
 }
 
 export const InputField: React.FC<InputFieldProps> = ({ label, id, ...props }) => (

@@ -34,7 +34,7 @@ export const SignUpScreen: React.FunctionComponent<{}> = ({}) => {
 				id="firstName"
 				label="First name"
 				value={firstName}
-				onChange={(e) => setFirstName(e.target.value)}
+                               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value)}
 				required
 				autoComplete="first-name"
 			/>
@@ -43,7 +43,7 @@ export const SignUpScreen: React.FunctionComponent<{}> = ({}) => {
 				id="email"
 				label="Email address"
 				value={email}
-				onChange={(e) => setEmail(e.target.value)}
+                               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
 				required
 			/>
 
@@ -52,7 +52,7 @@ export const SignUpScreen: React.FunctionComponent<{}> = ({}) => {
 				label="Password"
 				type="password"
 				value={password}
-				onChange={(e) => setPassword(e.target.value)}
+                               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
 				required
 				autoComplete="current-password"
 			/>
