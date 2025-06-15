@@ -12,3 +12,4 @@ yarn-error.log
 apps/MemoryFlashServer/.gitignore.swp
 apps/ios/MemoryFlashiOS.xcodeproj/xcuserdata/sam.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
 apps/ios/MemoryFlashiOS.xcodeproj/project.xcworkspace/xcuserdata/sam.xcuserdatad/UserInterfaceState.xcuserstate
+*.tsbuildinfo
