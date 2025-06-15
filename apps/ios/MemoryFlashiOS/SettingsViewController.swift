@@ -3,6 +3,10 @@ import CoreMIDI
 
 class SettingsViewController: UIViewController {
     var midiManager: MIDIManager?
+#if DEBUG
+    var serverLabel: UILabel?
+    var onServerChange: (() -> Void)?
+#endif
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -37,9 +41,15 @@ class SettingsViewController: UIViewController {
         stack.addArrangedSubview(versionLabel)
 
         #if DEBUG
-        let serverLabel = UILabel()
-        serverLabel.text = "Server: \(WEB_APP_URL)"
-        stack.addArrangedSubview(serverLabel)
+        let label = UILabel()
+        label.text = "Server: \(WEB_APP_URL)"
+        stack.addArrangedSubview(label)
+        serverLabel = label
+
+        let selector = UISegmentedControl(items: ["Dev", "Prod"])
+        selector.selectedSegmentIndex = WEB_APP_URL == Server.production.rawValue ? 1 : 0
+        selector.addTarget(self, action: #selector(changeServer), for: .valueChanged)
+        stack.addArrangedSubview(selector)
         #endif
 
         let midiButton = UIButton(type: .system)
@@ -57,4 +67,13 @@ class SettingsViewController: UIViewController {
             dismiss(animated: true, completion: nil)
         }
     }
+
+#if DEBUG
+    @objc func changeServer(_ sender: UISegmentedControl) {
+        let server: Server = sender.selectedSegmentIndex == 0 ? .development : .production
+        WEB_APP_URL = server.rawValue
+        serverLabel?.text = "Server: \(WEB_APP_URL)"
+        onServerChange?()
+    }
+#endif
 }
