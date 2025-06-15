@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
-import { MusicNotation } from './components/MusicNotation';
-import './index.css';
+import { MusicNotation } from '../src/components/MusicNotation';
+import '../src/index.css';
 import { createStore } from 'MemoryFlashCore/src/redux/store';
 import { MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
