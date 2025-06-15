@@ -1917,12 +1917,17 @@ __metadata:
   resolution: "MemoryFlashCore@workspace:packages/MemoryFlashCore"
   dependencies:
     "@reduxjs/toolkit": "npm:^2.1.0"
+    "@types/chai": "npm:^4.3.9"
+    "@types/mocha": "npm:^10.0.3"
     "@types/react-redux": "npm:^7.1.33"
     axios: "npm:^1.7.4"
     bson-objectid: "npm:^2.0.4"
+    chai: "npm:^4.3.10"
     concurrently: "npm:^9.0.1"
+    mocha: "npm:^10.2.0"
     mongoose: "npm:^8.6.0"
     tonal: "npm:^6.2.0"
+    ts-node: "npm:^10.9.1"
     typescript: "npm:^5.5.4"
     zod: "npm:^3.22.4"
   languageName: unknown
