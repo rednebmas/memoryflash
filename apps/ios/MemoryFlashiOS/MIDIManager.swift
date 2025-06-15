@@ -105,6 +105,17 @@ class MIDIManager {
             delegate?.midiManagerDidConnectToSources(self)
         }
     }
+
+    func connectedSourceNames() -> [String] {
+        return connectedSources.map { source -> String in
+            var nameRef: Unmanaged<CFString>?
+            if MIDIObjectGetStringProperty(source, kMIDIPropertyName, &nameRef) == noErr,
+               let name = nameRef?.takeRetainedValue() {
+                return String(name)
+            }
+            return "Unknown"
+        }
+    }
     
     func presentBluetoothMIDICentral(from viewController: UIViewController) {
         let btMidiVC = CABTMIDICentralViewController()

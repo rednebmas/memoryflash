@@ -28,6 +28,11 @@ export const MidiInputsDropdown: React.FunctionComponent<MidiInputsDropdownProps
 			/> */}
 			<Dropdown
 				label={selectedInputName || 'No MIDI Input'}
+				onButtonClick={(e) => {
+					// Open settings on iOS app
+					e?.preventDefault();
+					(window as any).webkit?.messageHandlers?.openSettings?.postMessage('');
+				}}
 				items={inputs.map((device) => ({
 					label: device.name,
 					onClick: () => {
