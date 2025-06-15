@@ -9,8 +9,8 @@ export async function getCourses(user: User) {
 	};
 }
 
-export async function createCourse(name: string) {
-	const course = new Course({ name, decks: [] });
+export async function createCourse(name: string, userId?: string) {
+	const course = new Course({ name, decks: [], userId });
 	await course.save();
 	return { course };
 }

@@ -4,6 +4,7 @@ import { Course as ICourse } from 'MemoryFlashCore/src/types/Course';
 export type CourseDoc = ICourse & Document;
 
 const courseSchema = new Schema<CourseDoc>({
+	userId: { type: Types.ObjectId, ref: 'User', required: false },
 	name: {
 		type: String,
 		required: true,

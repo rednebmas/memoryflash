@@ -54,7 +54,7 @@ export async function getDeckForUser(deckId: string, user: User) {
 	return { deck, cards, attempts, course, userDeckStats };
 }
 
-export async function createDeck(courseId: string, name: string) {
+export async function createDeck(courseId: string, name: string, userId?: string) {
 	const course = await Course.findById(courseId);
 	if (!course) {
 		throw new Error('Course not found');
@@ -64,6 +64,7 @@ export async function createDeck(courseId: string, name: string) {
 		uid: name.toLowerCase().replace(/\s+/g, '-'),
 		name,
 		courseId,
+		userId,
 		section: 'Custom',
 		sectionSubtitle: '',
 		tags: [],
