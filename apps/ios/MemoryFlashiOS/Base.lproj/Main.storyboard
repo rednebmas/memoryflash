@@ -24,12 +24,21 @@
                                     <action selector="openBluetoothMIDICentral:" destination="BYZ-38-t0r" eventType="touchUpInside" id="S1g-A2-LZJ"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="set-btn">
+                                <rect key="frame" x="333" y="20" width="50" height="30"/>
+                                <state key="normal" title="Settings"/>
+                                <connections>
+                                    <action selector="openSettings:" destination="BYZ-38-t0r" eventType="touchUpInside" id="set-action"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="3DM-0z-4uf" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="3d1-7q-1b0"/>
                             <constraint firstItem="3DM-0z-4uf" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="4DP-6V-OIU"/>
+                            <constraint firstItem="set-btn" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="20" id="set-top"/>
+                            <constraint firstItem="set-btn" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" constant="-20" id="set-trailing"/>
                         </constraints>
                     </view>
                 </viewController>
