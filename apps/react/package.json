@@ -9,7 +9,8 @@
 		"lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
 		"preview": "vite preview",
 		"test:screenshots": "playwright test",
-		"test:screenshots:update": "playwright test --update-snapshots"
+		"test:screenshots:update": "playwright test --update-snapshots",
+		"postinstall": "playwright install"
 	},
 	"dependencies": {
 		"@headlessui/react": "2.1.3",
