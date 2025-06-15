@@ -67,7 +67,6 @@ class ViewController: UIViewController, WKScriptMessageHandler {
         #endif
         
         Autolayout.addAsSubview(webView, toParent: self.view, pinToParent: true)
-        self.view.sendSubviewToBack(webView)
 
         if let url = URL(string: WEB_APP_URL) {
             let request = URLRequest(url: url)

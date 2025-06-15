@@ -10,7 +10,7 @@ interface DropdownItem {
 interface DropdownProps {
 	label: string;
 	items: DropdownItem[];
-	onButtonClick?: () => void;
+	onButtonClick?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent> | undefined) => void;
 }
 
 function classNames(...classes: string[]) {
