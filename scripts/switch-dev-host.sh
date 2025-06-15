@@ -28,7 +28,7 @@ echo "VITE_API_BASE_URL set to http://$HOST:3000 in apps/react/.env"
 
 cat > apps/server/.env <<EOF2
 APP_URL=http://$HOST:5173
-PORT=3333
+PORT=3000
 MONGO_URI=mongodb://localhost:27017/memoryflash
 SESSION_SECRET_KEY=${HOST}_secret
 EOF2
