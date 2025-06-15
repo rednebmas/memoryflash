@@ -4,7 +4,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { StudyScreen } from './components';
 import { MidiToRedux } from './components/MidiToRedux';
 import { AuthenticatedRoute } from './components/navigation/Routers';
-import { CoursesScreen } from './screens';
+import { CoursesScreen, NotationInputScreen } from './screens';
 import { AllDeckCardsScreen } from './screens/AllDeckCardsScreen';
 import { DecksScreen } from './screens/DecksScreen';
 import { LoginScreen } from './screens/LoginScreen';
@@ -36,6 +36,7 @@ export default function App() {
 						path="/account"
 						element={<AuthenticatedRoute screen={<AccountScreen />} />}
 					/>
+					<Route path="/notation" element={<NotationInputScreen />} />
 					<Route
 						path="/course/:courseId"
 						element={<AuthenticatedRoute screen={<DecksScreen />} />}
