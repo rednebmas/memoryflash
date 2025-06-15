@@ -1,16 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Layout } from '../components';
 import { MusicNotation } from '../components/MusicNotation';
 import { StackedNotes } from 'MemoryFlashCore/src/types/MultiSheetCard';
-import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
 import { majorKeys } from 'MemoryFlashCore/src/lib/notes';
 import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
-import usePrevious from '../utils/usePrevious';
-import { Midi } from 'tonal';
+import { MusicRecorder } from 'MemoryFlashCore/src/lib/MusicRecorder';
 import { Select } from '../components/inputs';
-import { insertRestsToFillBars } from 'MemoryFlashCore/src/lib/measure';
-import { buildMultiSheetQuestion } from 'MemoryFlashCore/src/lib/notationBuilder';
-import { MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
 
 const NoteSettings: React.FC<{
 	keySig: string;
@@ -45,38 +40,19 @@ export const NotationInputScreen = () => {
 	const [keySig, setKeySig] = useState(majorKeys[0]);
 	const [dur, setDur] = useState('q');
 
+	const recorderRef = useRef(new MusicRecorder('q'));
 	const midiNotes = useAppSelector((state) => state.midi.notes.map((n) => n.number));
-	const prevMidiNotes = usePrevious(midiNotes) || [];
 
 	useEffect(() => {
-		const added = midiNotes.filter((m) => !prevMidiNotes.includes(m));
-		if (added.length) {
-			const sheetNotes = added.map((m) => {
-				const name = Midi.midiToNoteName(m);
-				const match = name.match(/([A-G][#b]?)(\d+)/)!;
-				return { name: match[1], octave: parseInt(match[2]) };
-			});
-			setNotes((n) => [...n, { notes: sheetNotes, duration: dur as any }]);
-		}
-	}, [midiNotes, prevMidiNotes, dur]);
+		recorderRef.current.updateDuration(dur as any);
+	}, [dur]);
 
 	useEffect(() => {
-		const onDown = (e: KeyboardEvent) => {
-			if (e.key === 'Backspace') {
-				setNotes((n) => n.slice(0, -1));
-			}
-		};
-		window.addEventListener('keydown', onDown);
-		return () => window.removeEventListener('keydown', onDown);
-	}, []);
+		recorderRef.current.addMidiNotes(midiNotes);
+		setNotes([...recorderRef.current.notes]);
+	}, [midiNotes]);
 
-	const filledNotes: StackedNotes[] = notes.length
-		? insertRestsToFillBars(notes)
-		: [{ notes: [], duration: 'w', rest: true }];
-
-	const data: MultiSheetQuestion = notes.length
-		? buildMultiSheetQuestion(filledNotes, keySig)
-		: { key: keySig, voices: [{ staff: StaffEnum.Treble, stack: filledNotes }] };
+	const data = recorderRef.current.buildQuestion(keySig);
 
 	return (
 		<Layout subtitle="Notation Input" back="/">
