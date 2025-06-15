@@ -34,7 +34,7 @@ export const SignUpScreen: React.FunctionComponent<{}> = ({}) => {
 				id="firstName"
 				label="First name"
 				value={firstName}
-				onChange={(e) => setFirstName(e.target.value)}
+				onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value)}
 				required
 				autoComplete="first-name"
 			/>

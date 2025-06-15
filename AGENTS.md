@@ -7,6 +7,7 @@ This project prefers a highly componentized React codebase. When creating UI ele
 - **Styling**: Use Tailwind CSS utility classes. Share common styling through base components rather than repeating class strings.
 - **Formatting**: Code is formatted with Prettier using tabs. Run `npx prettier --write` before committing if available. No comments in Swift files.
 - **Testing**: After changes, run `yarn test` from the repository root.
+- **Type Checking**: Run `yarn workspace MemoryFlashReact build` to ensure there are no missing imports or type errors.
 
 Follow these guidelines to keep the codebase clean and maintainable.
 

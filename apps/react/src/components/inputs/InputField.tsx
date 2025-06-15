@@ -1,7 +1,7 @@
 import React from 'react';
 import { BaseInput, BaseInputProps } from './BaseInput';
 
-interface InputFieldProps extends BaseInputProps {
+export interface InputFieldProps extends BaseInputProps {
 	label: string;
 	id: string;
 }
