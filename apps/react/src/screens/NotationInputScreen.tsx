@@ -68,7 +68,7 @@ export const NotationInputScreen = () => {
 		return () => window.removeEventListener('keydown', onDown);
 	}, []);
 
-       const data = buildMultiSheetQuestion(insertRestsToFillBars(notes), keySig);
+	const data = buildMultiSheetQuestion(insertRestsToFillBars(notes), keySig);
 
 	return (
 		<Layout subtitle="Notation Input" back="/">
