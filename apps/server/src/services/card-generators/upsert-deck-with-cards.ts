@@ -1,5 +1,6 @@
 import { Card } from '../../models/Card';
 import { Deck } from '../../models/Deck';
+import Course from '../../models/Course';
 import { BaseAnswer, CardTypeBase, CardTypeEnum } from 'MemoryFlashCore/src/types/Cards';
 import { DeckWithoutGeneratedFields } from 'MemoryFlashCore/src/types/Deck';
 import { AnyBulkWriteOperation } from 'mongoose';
@@ -15,6 +16,12 @@ export async function upsertDeckWithCards<T extends CardTypeEnum, Q extends {}>(
 		await deckEntity.save();
 	} else {
 		await Deck.updateOne({ _id: deckEntity._id }, { $set: deck });
+	}
+
+	const course = await Course.findById(deck.courseId);
+	if (course && !course.decks.includes(deckEntity._id)) {
+		course.decks.push(deckEntity._id);
+		await course.save();
 	}
 
 	// Collect UIDs of the cards to keep

@@ -14,10 +14,11 @@ export async function seed() {
 	});
 	await user.save();
 
-	let course = new Course({ name: 'Intervals', decks: [] });
+	const course = new Course({ name: 'Intervals', decks: [] });
 	await course.save();
 
 	const { trebleSheetCards } = generateIntervalCards();
+
 	const { deck } = await upsertDeckWithCards(
 		{
 			uid: 'treble clef intervals',

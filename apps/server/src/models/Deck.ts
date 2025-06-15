@@ -5,6 +5,7 @@ export type DeckDoc = IDeck & Document;
 
 const DeckSchema = new Schema<DeckDoc>(
 	{
+		userId: { type: Schema.Types.ObjectId, ref: 'User', required: false },
 		uid: {
 			type: String,
 			required: true,
