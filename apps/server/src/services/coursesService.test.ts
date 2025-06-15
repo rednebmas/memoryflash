@@ -39,12 +39,9 @@ describe('System and user content retrieval', () => {
 
 	it('returns system and user decks', async () => {
 		const { user, deck } = await seed();
-		const course = await Course.findById(deck.courseId);
-		course!.decks.push(deck._id);
-		await course!.save();
-		await createDeck(course!._id.toString(), 'User Deck', user._id.toString());
+		await createDeck(deck.courseId.toString(), 'User Deck', user._id.toString());
 
-		const { decks } = await getDecksForCourse(course!._id.toString(), user.toJSON() as User);
+		const { decks } = await getDecksForCourse(deck.courseId.toString(), user.toJSON() as User);
 
 		expect(decks.length).to.equal(2);
 		const systemDecks = decks.filter((d) => !d.userId).length;
