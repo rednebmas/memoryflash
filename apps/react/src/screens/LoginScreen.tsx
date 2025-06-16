@@ -4,7 +4,7 @@ import { useAppDispatch } from 'MemoryFlashCore/src/redux/store';
 import { Link, useNavigate } from 'react-router-dom';
 import { useNetworkState } from 'MemoryFlashCore/src/redux/selectors/useNetworkState';
 import { useUpdateEffect } from '../utils/useUpdateEffect';
-import { AuthForm, EmailInput, InputField, Button, NativeSettingsButton } from '../components';
+import { AuthForm, EmailInput,InputField, PasswordInput, Button, NativeSettingsButton } from '../components';
 
 // Use:
 // https://tailwindui.com/components/application-ui/forms/sign-in-forms
@@ -49,6 +49,14 @@ export const LoginScreen: React.FunctionComponent<{}> = ({}) => {
 					required
 					autoComplete="current-password"
 				/>
+			<PasswordInput
+				id="password"
+				label="Password"
+				value={password}
+				onChange={(e) => setPassword(e.target.value)}
+				required
+				autoComplete="current-password"
+			/>
 
 				<div className="flex items-center justify-between">
 					<div className="flex items-center">

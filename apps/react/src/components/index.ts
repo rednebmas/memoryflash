@@ -9,5 +9,6 @@ export * from './graphics';
 export * from './AuthForm';
 export * from './inputs';
 export * from './Button';
-
 export * from './NativeSettingsButton';
+export * from './modals/Modal';
+export * from './modals/InputModal';

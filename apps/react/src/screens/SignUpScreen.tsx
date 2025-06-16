@@ -4,7 +4,7 @@ import { signUp } from 'MemoryFlashCore/src/redux/actions/sign-up-action';
 import { authSelector } from 'MemoryFlashCore/src/redux/selectors/authSelector';
 import { useNetworkState } from 'MemoryFlashCore/src/redux/selectors/useNetworkState';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
-import { AuthForm, EmailInput, InputField, Button, NativeSettingsButton } from '../components';
+import { AuthForm, EmailInput, InputField, PasswordInput, Button, NativeSettingsButton } from '../components';
 
 export const SignUpScreen: React.FunctionComponent<{}> = ({}) => {
 	const dispatch = useAppDispatch();
@@ -50,15 +50,14 @@ export const SignUpScreen: React.FunctionComponent<{}> = ({}) => {
 					required
 				/>
 
-				<InputField
-					id="password"
-					label="Password"
-					type="password"
-					value={password}
-					onChange={(e) => setPassword(e.target.value)}
-					required
-					autoComplete="current-password"
-				/>
+			<PasswordInput
+				id="password"
+				label="Password"
+				value={password}
+				onChange={(e) => setPassword(e.target.value)}
+				required
+				autoComplete="current-password"
+			/>
 
 				<div className="flex items-center justify-between">
 					<div className="flex items-center">
