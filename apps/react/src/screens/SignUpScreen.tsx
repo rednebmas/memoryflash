@@ -4,7 +4,7 @@ import { signUp } from 'MemoryFlashCore/src/redux/actions/sign-up-action';
 import { authSelector } from 'MemoryFlashCore/src/redux/selectors/authSelector';
 import { useNetworkState } from 'MemoryFlashCore/src/redux/selectors/useNetworkState';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
-import { AuthForm, EmailInput, InputField, Button } from '../components';
+import { AuthForm, EmailInput, PasswordInput, InputField, Button } from '../components';
 
 export const SignUpScreen: React.FunctionComponent<{}> = ({}) => {
 	const dispatch = useAppDispatch();
@@ -47,10 +47,9 @@ export const SignUpScreen: React.FunctionComponent<{}> = ({}) => {
 				required
 			/>
 
-			<InputField
+			<PasswordInput
 				id="password"
 				label="Password"
-				type="password"
 				value={password}
 				onChange={(e) => setPassword(e.target.value)}
 				required
