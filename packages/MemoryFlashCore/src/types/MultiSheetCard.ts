@@ -14,6 +14,8 @@ export type StackedNotes = {
 	chordName?: string;
 	rest?: boolean;
 };
+
+export type NoteDuration = StackedNotes['duration'];
 export type MultiSheetQuestion = {
 	_8va?: boolean;
 	key: string;
