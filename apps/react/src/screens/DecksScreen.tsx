@@ -1,13 +1,14 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { useParams, Link } from 'react-router-dom';
-import { Layout, SectionData, SectionHeader, Button } from '../components';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { Layout, SectionData, SectionHeader, Button, InputModal } from '../components';
 import { BasicErrorCard } from '../components/ErrorCard';
 import { Spinner } from '../components/Spinner';
 import { getCourse } from 'MemoryFlashCore/src/redux/actions/get-course-action';
 import { decksSelector } from 'MemoryFlashCore/src/redux/selectors/decksSelector';
 import { useNetworkState } from 'MemoryFlashCore/src/redux/selectors/useNetworkState';
 import { coursesActions } from 'MemoryFlashCore/src/redux/slices/coursesSlice';
+import { createDeck } from 'MemoryFlashCore/src/redux/actions/create-deck-action';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 
 export const DecksScreen = () => {
@@ -25,7 +26,9 @@ export const DecksScreen = () => {
 			parsingCourseId: state.courses.parsingCourse,
 		};
 	});
+	const navigate = useNavigate();
 	const user = useAppSelector((state) => state.auth.user);
+	const [isCreateOpen, setIsCreateOpen] = React.useState(false);
 	const decks = useSelector(decksSelector);
 	const { isLoading, error } = useNetworkState('getCourse' + parsingCourseId);
 
@@ -62,12 +65,23 @@ export const DecksScreen = () => {
 					</div>
 				);
 			})}
-			{course && user && (course as any).userId === user._id && (
-				<div className="pt-4 flex justify-center">
-					<Link to="/notation" className="w-48">
-						<Button>Create Deck</Button>
-					</Link>
-				</div>
+			{course && user && course.userId === user._id && (
+				<>
+					<div className="pt-4 flex justify-center">
+						<Button className="w-48" onClick={() => setIsCreateOpen(true)}>
+							Create Deck
+						</Button>
+					</div>
+					<InputModal
+						isOpen={isCreateOpen}
+						onClose={() => setIsCreateOpen(false)}
+						label="Deck name"
+						onSave={(val) => {
+							dispatch(createDeck(course._id, val));
+							navigate('/notation');
+						}}
+					/>
+				</>
 			)}
 		</Layout>
 	);

@@ -7,6 +7,7 @@ import { BasicErrorCard } from '../components/ErrorCard';
 import { MidiInputsDropdown } from '../components/MidiInputsDropdown';
 import { Spinner } from '../components/Spinner';
 import { getCourses } from 'MemoryFlashCore/src/redux/actions/get-courses-action';
+import { createCourse } from 'MemoryFlashCore/src/redux/actions/create-course-action';
 import { coursesSelector } from 'MemoryFlashCore/src/redux/selectors/coursesSelector';
 import { useNetworkState } from 'MemoryFlashCore/src/redux/selectors/useNetworkState';
 import { useAppDispatch } from 'MemoryFlashCore/src/redux/store';
@@ -44,7 +45,7 @@ export const CoursesScreen = () => {
 					isOpen={isCreateOpen}
 					onClose={() => setIsCreateOpen(false)}
 					label="Course name"
-					onSave={(val) => console.log('Create course', val)}
+					onSave={(val) => dispatch(createCourse(val))}
 				/>
 			</div>
 		</Layout>
