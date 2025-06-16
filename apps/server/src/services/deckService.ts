@@ -4,6 +4,9 @@ import Course from '../models/Course';
 import { Deck } from '../models/Deck';
 import { UserDeckStats } from '../models/UserDeckStats';
 import { User } from 'MemoryFlashCore/src/types/User';
+import { MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
+import { CardTypeEnum, AnswerType } from 'MemoryFlashCore/src/types/Cards';
+import { Types } from 'mongoose';
 
 export async function getDeckForUser(deckId: string, user: User) {
 	const [deck, cards, userDeckStats] = await Promise.all([
@@ -67,4 +70,31 @@ function deduplicateAttempts(attempts: AttemptDoc[]) {
 	}
 
 	return uniqueAttempts;
+}
+
+export async function createDeck(courseId: string, name: string) {
+	const deck = new Deck({
+		uid: `${name}-${Date.now()}`,
+		courseId,
+		name,
+		section: 'Custom',
+		sectionSubtitle: '',
+		tags: [],
+	});
+	await deck.save();
+	await Course.updateOne({ _id: courseId }, { $push: { decks: deck._id } });
+	return deck;
+}
+
+export async function addCardsToDeck(deckId: string, questions: MultiSheetQuestion[]) {
+	const now = Date.now();
+	const cards = questions.map((q, i) => ({
+		uid: `custom-${deckId}-${now}-${i}`,
+		deckId: new Types.ObjectId(deckId),
+		type: CardTypeEnum.MultiSheet,
+		question: q,
+		answer: { type: AnswerType.ExactMulti },
+	}));
+	await Card.insertMany(cards);
+	return cards;
 }

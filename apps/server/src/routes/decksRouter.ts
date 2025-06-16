@@ -1,10 +1,20 @@
 import { Router } from 'express';
 import { isAuthenticated } from '../middleware';
-import { getDeckForUser } from '../services/deckService';
+import { getDeckForUser, createDeck, addCardsToDeck } from '../services/deckService';
 import { User } from 'MemoryFlashCore/src/types/User';
 import { getDeckStats } from '../services/statsService';
 
 const router = Router();
+
+router.post('/', isAuthenticated, async (req, res, next) => {
+	try {
+		const { courseId, name } = req.body;
+		const deck = await createDeck(courseId, name);
+		return res.json({ deck });
+	} catch (error) {
+		next(error);
+	}
+});
 
 router.get('/:id', isAuthenticated, async (req, res, next) => {
 	try {
@@ -33,6 +43,16 @@ router.get('/:id/stats', isAuthenticated, async (req, res, next) => {
 				req.headers['user-time-zone'] as string,
 			),
 		);
+	} catch (error) {
+		next(error);
+	}
+});
+
+router.post('/:id/cards', isAuthenticated, async (req, res, next) => {
+	try {
+		const { questions } = req.body;
+		const cards = await addCardsToDeck(req.params.id, questions);
+		return res.json({ cards });
 	} catch (error) {
 		next(error);
 	}
