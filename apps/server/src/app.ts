@@ -6,7 +6,7 @@ import cors from 'cors';
 import express, { Express } from 'express';
 import session from 'express-session';
 import type { MongoClient } from 'mongodb';
-import { APP_URL, IS_PROD, SESSION_OPTS, passport } from './config';
+import { APP_DOMAIN, IS_PROD, SESSION_OPTS, passport } from './config';
 import { customErrorHandler } from './middleware';
 import { devSleep } from './middleware/devSleep';
 import { api } from './routes';
@@ -72,7 +72,7 @@ const initApp = async () => {
 		server.listen(PORT, async () => {
 			// seedData();
 			// generateIntervalDecks();
-			console.log(`Server is running on ${APP_URL}`);
+			console.log(`Server is running on http://${APP_DOMAIN}:${PORT}`);
 			// await Attempt.updateMany(
 			// 	{ timeTaken: { $gt: 60 } },
 			// 	{ $set: { timeTaken: 60 } },

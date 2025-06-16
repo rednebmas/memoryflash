@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { login } from 'MemoryFlashCore/src/redux/actions/login-action';
 import { useAppDispatch } from 'MemoryFlashCore/src/redux/store';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useNetworkState } from 'MemoryFlashCore/src/redux/selectors/useNetworkState';
 import { useUpdateEffect } from '../utils/useUpdateEffect';
-import { AuthForm, EmailInput, InputField, Button } from '../components';
+import { AuthForm, EmailInput, PasswordInput, Button } from '../components';
 
 // Use:
 // https://tailwindui.com/components/application-ui/forms/sign-in-forms
@@ -39,10 +39,9 @@ export const LoginScreen: React.FunctionComponent<{}> = ({}) => {
 				required
 			/>
 
-			<InputField
+			<PasswordInput
 				id="password"
 				label="Password"
-				type="password"
 				value={password}
 				onChange={(e) => setPassword(e.target.value)}
 				required
@@ -75,6 +74,15 @@ export const LoginScreen: React.FunctionComponent<{}> = ({}) => {
 			<Button type="submit" loading={isLoading}>
 				Login
 			</Button>
+			<p className="mt-6 text-center text-sm text-gray-500">
+				Not a member?{' '}
+				<Link
+					to="/auth/sign-up"
+					className="font-semibold text-blue-600 hover:text-blue-500"
+				>
+					Sign up
+				</Link>
+			</p>
 		</AuthForm>
 	);
 };

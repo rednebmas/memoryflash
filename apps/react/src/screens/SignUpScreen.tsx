@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { signUp } from 'MemoryFlashCore/src/redux/actions/sign-up-action';
 import { authSelector } from 'MemoryFlashCore/src/redux/selectors/authSelector';
 import { useNetworkState } from 'MemoryFlashCore/src/redux/selectors/useNetworkState';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
-import { AuthForm, EmailInput, InputField, Button } from '../components';
+import { AuthForm, EmailInput, PasswordInput, InputField, Button } from '../components';
 
 export const SignUpScreen: React.FunctionComponent<{}> = ({}) => {
 	const dispatch = useAppDispatch();
@@ -47,10 +47,9 @@ export const SignUpScreen: React.FunctionComponent<{}> = ({}) => {
 				required
 			/>
 
-			<InputField
+			<PasswordInput
 				id="password"
 				label="Password"
-				type="password"
 				value={password}
 				onChange={(e) => setPassword(e.target.value)}
 				required
@@ -84,6 +83,12 @@ export const SignUpScreen: React.FunctionComponent<{}> = ({}) => {
 			<Button type="submit" loading={isLoading}>
 				Sign Up
 			</Button>
+			<p className="mt-6 text-center text-sm text-gray-500">
+				Already have an account?{' '}
+				<Link to="/auth/login" className="font-semibold text-blue-600 hover:text-blue-500">
+					Log in
+				</Link>
+			</p>
 		</AuthForm>
 	);
 };
