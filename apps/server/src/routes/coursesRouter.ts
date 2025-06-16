@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { isAuthenticated } from '../middleware';
-import { getCourses, getDecksForCourse } from '../services/coursesService';
+import { getCourses, getDecksForCourse, createCourse } from '../services/coursesService';
 import { User } from 'MemoryFlashCore/src/types/User';
 
 const router = Router();
@@ -11,6 +11,15 @@ router.get('/', isAuthenticated, async (req, res, next) => {
 		return res.json({
 			courses,
 		});
+	} catch (error) {
+		next(error);
+	}
+});
+
+router.post('/', isAuthenticated, async (req, res, next) => {
+	try {
+		const course = await createCourse(req.body.name, (req.user as User)._id.toString());
+		return res.json({ course });
 	} catch (error) {
 		next(error);
 	}
