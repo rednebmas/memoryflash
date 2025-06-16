@@ -1,5 +1,5 @@
 import { Midi } from 'tonal';
-import { MultiSheetQuestion, StackedNotes } from '../types/MultiSheetCard';
+import { MultiSheetQuestion, StackedNotes, NoteDuration } from '../types/MultiSheetCard';
 import { StaffEnum } from '../types/Cards';
 import { insertRestsToFillBars } from './measure';
 import { buildMultiSheetQuestion } from './notationBuilder';
@@ -8,9 +8,9 @@ export class MusicRecorder {
 	public notes: StackedNotes[] = [];
 	private prevMidiNotes: number[] = [];
 
-	constructor(public duration: StackedNotes['duration'] = 'q') {}
+	constructor(public duration: NoteDuration = 'q') {}
 
-	updateDuration(dur: StackedNotes['duration']) {
+	updateDuration(dur: NoteDuration) {
 		this.duration = dur;
 	}
 

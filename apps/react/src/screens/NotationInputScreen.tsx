@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Layout } from '../components';
 import { MusicNotation } from '../components/MusicNotation';
-import { StackedNotes } from 'MemoryFlashCore/src/types/MultiSheetCard';
+import { StackedNotes, NoteDuration } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { majorKeys } from 'MemoryFlashCore/src/lib/notes';
 import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { MusicRecorder } from 'MemoryFlashCore/src/lib/MusicRecorder';
@@ -10,8 +10,8 @@ import { Select } from '../components/inputs';
 const NoteSettings: React.FC<{
 	keySig: string;
 	setKeySig: (k: string) => void;
-	dur: StackedNotes['duration'];
-	setDur: (d: StackedNotes['duration']) => void;
+	dur: NoteDuration;
+	setDur: (d: NoteDuration) => void;
 }> = ({ keySig, setKeySig, dur, setDur }) => (
 	<div className="flex gap-4 pb-4">
 		<label className="flex items-center gap-2">
@@ -24,10 +24,7 @@ const NoteSettings: React.FC<{
 		</label>
 		<label className="flex items-center gap-2">
 			Duration
-			<Select
-				value={dur}
-				onChange={(e) => setDur(e.target.value as StackedNotes['duration'])}
-			>
+			<Select value={dur} onChange={(e) => setDur(e.target.value as NoteDuration)}>
 				{['w', 'h', 'q', '8', '16'].map((d) => (
 					<option key={d} value={d}>
 						{d}
@@ -41,7 +38,7 @@ const NoteSettings: React.FC<{
 export const NotationInputScreen = () => {
 	const [notes, setNotes] = useState<StackedNotes[]>([]);
 	const [keySig, setKeySig] = useState(majorKeys[0]);
-	const [dur, setDur] = useState<StackedNotes['duration']>('q');
+	const [dur, setDur] = useState<NoteDuration>('q');
 
 	const recorderRef = useRef(new MusicRecorder('q'));
 	const midiNotes = useAppSelector((state) => state.midi.notes.map((n) => n.number));
