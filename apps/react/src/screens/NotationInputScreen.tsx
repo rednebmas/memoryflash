@@ -10,8 +10,8 @@ import { Select } from '../components/inputs';
 const NoteSettings: React.FC<{
 	keySig: string;
 	setKeySig: (k: string) => void;
-	dur: string;
-	setDur: (d: string) => void;
+	dur: StackedNotes['duration'];
+	setDur: (d: StackedNotes['duration']) => void;
 }> = ({ keySig, setKeySig, dur, setDur }) => (
 	<div className="flex gap-4 pb-4">
 		<label className="flex items-center gap-2">
@@ -24,7 +24,10 @@ const NoteSettings: React.FC<{
 		</label>
 		<label className="flex items-center gap-2">
 			Duration
-			<Select value={dur} onChange={(e) => setDur(e.target.value)}>
+			<Select
+				value={dur}
+				onChange={(e) => setDur(e.target.value as StackedNotes['duration'])}
+			>
 				{['w', 'h', 'q', '8', '16'].map((d) => (
 					<option key={d} value={d}>
 						{d}
@@ -38,13 +41,13 @@ const NoteSettings: React.FC<{
 export const NotationInputScreen = () => {
 	const [notes, setNotes] = useState<StackedNotes[]>([]);
 	const [keySig, setKeySig] = useState(majorKeys[0]);
-	const [dur, setDur] = useState('q');
+	const [dur, setDur] = useState<StackedNotes['duration']>('q');
 
 	const recorderRef = useRef(new MusicRecorder('q'));
 	const midiNotes = useAppSelector((state) => state.midi.notes.map((n) => n.number));
 
 	useEffect(() => {
-		recorderRef.current.updateDuration(dur as any);
+		recorderRef.current.updateDuration(dur);
 	}, [dur]);
 
 	useEffect(() => {
