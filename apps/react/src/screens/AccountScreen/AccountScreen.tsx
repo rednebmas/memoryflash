@@ -2,7 +2,7 @@
 import React from 'react';
 import { Layout } from '../../components';
 import { ProfileRow } from './ProfileRow';
-import { UpdateModal } from './UpdateModal';
+import { InputModal } from '../../components/modals/InputModal';
 import { useAppDispatch } from 'MemoryFlashCore/src/redux/store';
 import { logout } from 'MemoryFlashCore/src/redux/actions/logout-action';
 
@@ -86,7 +86,7 @@ export const AccountScreen: React.FC<AccountScreenProps> = () => {
 				</button>
 			</div>
 
-			<UpdateModal
+			<InputModal
 				isOpen={modalState.isOpen}
 				onClose={closeModal}
 				label={modalState.label}
