@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { shallowEqual } from 'react-redux';
 import { Layout } from '../components';
 import { MusicNotation } from '../components/MusicNotation';
 import { NoteDuration } from 'MemoryFlashCore/src/types/MultiSheetCard';
@@ -77,7 +78,10 @@ export const NotationInputScreen = () => {
 	const { deckId } = useDeckIdPath();
 
 	const recorderRef = useRef(new MusicRecorder('q'));
-	const midiNotes = useAppSelector((state) => state.midi.notes.map((n) => n.number));
+	const midiNotes = useAppSelector(
+		(state) => state.midi.notes.map((n) => n.number),
+		shallowEqual,
+	);
 
 	useEffect(() => {
 		recorderRef.current.updateDuration(dur);
