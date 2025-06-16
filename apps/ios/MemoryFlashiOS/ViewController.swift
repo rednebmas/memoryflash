@@ -45,6 +45,15 @@ class ViewController: UIViewController, WKScriptMessageHandler {
         } else {
             print("Failed to insert setup script")
         }
+
+#if DEBUG
+        if let debugPath = Bundle.main.path(forResource: "SetupDebug", ofType: "js"),
+           let debugString = try? String(contentsOfFile: debugPath, encoding: .utf8)
+        {
+            let debugScript = WKUserScript(source: debugString, injectionTime: .atDocumentStart, forMainFrameOnly: false)
+            contentController.addUserScript(debugScript)
+        }
+#endif
         
         // Load the MIDI polyfill
         if let polyfillPath = Bundle.main.path(forResource: "WebMIDIPolyfill", ofType: "js"),

@@ -1,0 +1,1 @@
+window.isIosDebugBuild = true;
