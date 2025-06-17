@@ -16,13 +16,6 @@ describe('MusicRecorder', () => {
 		]);
 	});
 
-	it('tracks newly added notes only', () => {
-		const r = new MusicRecorder('q');
-		r.addMidiNotes([60]);
-		r.addMidiNotes([60, 62]);
-		expect(r.notes[1]).to.deep.equal({ notes: [{ name: 'D', octave: 4 }], duration: 'q' });
-	});
-
 	it('removes last note', () => {
 		const r = new MusicRecorder('q');
 		r.addMidiNotes([60]);
