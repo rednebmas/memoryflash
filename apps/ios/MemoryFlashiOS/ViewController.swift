@@ -35,6 +35,14 @@ class ViewController: UIViewController, WKScriptMessageHandler {
         contentController.add(self, name: "midiHandler")
         contentController.add(self, name: "consoleHandler")
         contentController.add(self, name: "openSettings")
+#if DEBUG
+        let debugScript = WKUserScript(
+            source: "window.iosDebug = true;",
+            injectionTime: .atDocumentStart,
+            forMainFrameOnly: false
+        )
+        contentController.addUserScript(debugScript)
+#endif
 
         // Disable pinch to zoom & read console log messages
         if let disablePinchToZoomPath = Bundle.main.path(forResource: "Setup", ofType: "js"),
