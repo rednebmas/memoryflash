@@ -2,6 +2,10 @@ name: Unit Tests
 
 on: [pull_request]
 
+permissions:
+    contents: read
+    pull-requests: write
+
 jobs:
     test:
         runs-on: ubuntu-latest
@@ -43,3 +47,9 @@ jobs:
               run: yarn test
               env:
                   APP_URL: http://0.0.0.0:8008
+
+            - name: Comment screenshot diffs
+              if: failure() && github.event.pull_request
+              run: bash scripts/comment-screenshot-diffs.sh
+              env:
+                  GITHUB_TOKEN: ${{ github.token }}
