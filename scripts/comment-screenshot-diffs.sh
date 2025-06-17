@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
+set -x
 
 DIR="apps/react/test-results"
 
 if [ ! -d "$DIR" ]; then
-  echo "No screenshot results directory"
+  echo "No screenshot results directory: $DIR"
   exit 0
 fi
 
 mapfile -t IMAGES < <(find "$DIR" -name '*-diff.png')
+echo "Found diff images: ${IMAGES[*]}"
 
 if [ ${#IMAGES[@]} -eq 0 ]; then
   echo "No screenshot diffs found"
@@ -18,11 +20,13 @@ fi
 PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
 
 if [ -n "$PR_NUMBER" ] && [ "$PR_NUMBER" != "null" ]; then
+  echo "Creating comment on PR #$PR_NUMBER"
   COMMENT_JSON=$(gh api -X POST repos/"$GITHUB_REPOSITORY"/issues/"$PR_NUMBER"/comments -f body="Screenshot differences detected:") || {
     echo "Failed to post comment. Possibly due to permissions."
     exit 0
   }
   COMMENT_ID=$(echo "$COMMENT_JSON" | jq -r '.id')
+  echo "Comment ID: $COMMENT_ID"
 
   BODY="Screenshot differences detected:\n"
   COUNT=0
@@ -32,10 +36,18 @@ if [ -n "$PR_NUMBER" ] && [ "$PR_NUMBER" != "null" ]; then
     fi
     NAME=$(basename "$IMG")
     SIZE=$(stat -c%s "$IMG")
-  ATTACH=$(gh api -X POST repos/"$GITHUB_REPOSITORY"/issues/comments/"$COMMENT_ID"/attachments -f name="$NAME" -F size="$SIZE") || continue
+    echo "Uploading $NAME ($SIZE bytes)"
+    ATTACH=$(gh api -H "Accept: application/vnd.github+json" -X POST repos/"$GITHUB_REPOSITORY"/issues/"$PR_NUMBER"/comments/"$COMMENT_ID"/attachments -f name="$NAME" -F size="$SIZE") || {
+      echo "Failed to create attachment for $NAME"
+      continue
+    }
     UPLOAD_URL=$(echo "$ATTACH" | jq -r '.upload_url')
     URL=$(echo "$ATTACH" | jq -r '.url')
-    curl -sSfL -X PUT -H "Content-Type: image/png" --data-binary @"$IMG" "$UPLOAD_URL" || continue
+    echo "Upload URL: $UPLOAD_URL"
+    curl -v -X PUT -H "Content-Type: image/png" --data-binary @"$IMG" "$UPLOAD_URL" || {
+      echo "Failed to upload image data for $NAME"
+      continue
+    }
     BODY+="\n**$NAME**\n![$NAME]($URL)\n"
     COUNT=$((COUNT + 1))
   done
