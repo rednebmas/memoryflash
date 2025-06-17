@@ -11,3 +11,4 @@ export * from './inputs';
 export * from './Button';
 export * from './modals/Modal';
 export * from './modals/InputModal';
+export * from './CardContainer';
