@@ -77,8 +77,11 @@ export const DecksScreen = () => {
 						onClose={() => setIsCreateOpen(false)}
 						label="Deck name"
 						onSave={(val) => {
-							dispatch(createDeck(course._id, val));
-							navigate('/notation');
+							dispatch(
+								createDeck(course._id, val, {
+									successCb: (deck) => navigate(`/study/${deck._id}/notation`),
+								}),
+							);
 						}}
 					/>
 				</>
