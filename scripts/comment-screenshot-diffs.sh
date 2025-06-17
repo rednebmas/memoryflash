@@ -34,7 +34,9 @@ fi
 PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
 
 if [ -n "$PR_NUMBER" ] && [ "$PR_NUMBER" != "null" ]; then
-  gh api repos/"$GITHUB_REPOSITORY"/issues/"$PR_NUMBER"/comments -f body="$BODY"
+  if ! gh api repos/"$GITHUB_REPOSITORY"/issues/"$PR_NUMBER"/comments -f body="$BODY"; then
+    echo "Failed to post comment. Possibly due to permissions."
+  fi
 else
   echo "No pull request context; skipping comment"
 fi
