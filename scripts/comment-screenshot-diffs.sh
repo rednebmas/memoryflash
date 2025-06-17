@@ -15,7 +15,8 @@ if [ ${#IMAGES[@]} -eq 0 ]; then
   exit 0
 fi
 
-BODY="Screenshot differences detected:\n"
+BODY="Screenshot differences detected:
+"
 COUNT=0
 for IMG in "${IMAGES[@]}"; do
   if [ $COUNT -ge 5 ]; then
@@ -23,12 +24,16 @@ for IMG in "${IMAGES[@]}"; do
   fi
   NAME=$(basename "$IMG")
   ENCODED=$(base64 -w0 "$IMG")
-  BODY+="\n**$NAME**\n![$NAME](data:image/png;base64,$ENCODED)\n"
+  BODY+="
+**$NAME**
+![$NAME](data:image/png;base64,$ENCODED)
+"
   COUNT=$((COUNT + 1))
 done
 
 if [ ${#IMAGES[@]} -gt 5 ]; then
-  BODY+="\n...and $((${#IMAGES[@]} - 5)) more."
+  BODY+="
+...and $((${#IMAGES[@]} - 5)) more."
 fi
 
 PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
