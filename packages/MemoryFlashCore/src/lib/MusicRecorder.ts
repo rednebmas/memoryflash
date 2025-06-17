@@ -1,7 +1,7 @@
-import { Midi, Note } from 'tonal';
+import { Midi } from 'tonal';
 import { MultiSheetQuestion, StackedNotes, NoteDuration } from '../types/MultiSheetCard';
 import { StaffEnum } from '../types/Cards';
-import { insertRestsToFillBars, durationBeats } from './measure';
+import { insertRestsToFillBars } from './measure';
 import { buildMultiSheetQuestion } from './notationBuilder';
 
 export class MusicRecorder {
@@ -17,15 +17,12 @@ export class MusicRecorder {
 	addMidiNotes(midiNotes: number[]): void {
 		const added = midiNotes.filter((m) => !this.prevMidiNotes.includes(m));
 		if (added.length) {
-			const currentBeats = this.notes.reduce((sum, n) => sum + durationBeats[n.duration], 0);
-			const nextBeats = currentBeats + durationBeats[this.duration];
-			if (nextBeats <= 4) {
-				const sheetNotes = added.map((m) => {
-					const info = Note.get(Midi.midiToNoteName(m));
-					return { name: info.pc, octave: info.oct ?? 0 };
-				});
-				this.notes.push({ notes: sheetNotes, duration: this.duration });
-			}
+			const sheetNotes = added.map((m) => {
+				const name = Midi.midiToNoteName(m);
+				const match = name.match(/([A-G][#b]?)(\d+)/)!;
+				return { name: match[1], octave: parseInt(match[2]) };
+			});
+			this.notes.push({ notes: sheetNotes, duration: this.duration });
 		}
 		this.prevMidiNotes = midiNotes;
 	}
