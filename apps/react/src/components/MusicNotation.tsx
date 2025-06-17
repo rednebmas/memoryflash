@@ -55,7 +55,7 @@ const createNotes = (
 	_8va?: boolean,
 ) => {
 	return voice.stack.map((stackedNotes, i) => {
-		const isRest = stackedNotes.rest;
+		const isRest = stackedNotes.rest === true || stackedNotes.notes.length === 0;
 		const staveNote = new VF.StaveNote({
 			keys: isRest
 				? ['b/4']
