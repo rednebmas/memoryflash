@@ -1,6 +1,5 @@
 import { CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import React, { forwardRef } from 'react';
-import { CardContainer } from './CardContainer';
 import { CardWithAttempts } from 'MemoryFlashCore/src/redux/selectors/currDeckCardsWithAttempts';
 import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { CardTypeEnum, IntervalCard } from 'MemoryFlashCore/src/types/Cards';
@@ -44,9 +43,9 @@ export const FlashCard = forwardRef<HTMLDivElement, FlashCardProps>(
 		}
 
 		return (
-			<CardContainer
+			<div
 				ref={ref}
-				className={`flex flex-col justify-between items-center min-w-[15rem] h-60  m-4 ${className}`}
+				className={`card-container flex flex-col justify-between items-center min-w-[15rem] h-60  m-4 ${className}`}
 				style={{
 					opacity,
 					transition: 'opacity 0.5s ease',
@@ -61,7 +60,7 @@ export const FlashCard = forwardRef<HTMLDivElement, FlashCardProps>(
 					</span>
 				)}
 				<FlashCardIcons card={card} placement={placement} />
-			</CardContainer>
+			</div>
 		);
 	},
 );
