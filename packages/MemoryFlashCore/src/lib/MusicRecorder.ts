@@ -1,12 +1,13 @@
 import { Midi } from 'tonal';
 import { MultiSheetQuestion, StackedNotes, NoteDuration } from '../types/MultiSheetCard';
 import { StaffEnum } from '../types/Cards';
-import { insertRestsToFillBars } from './measure';
+import { insertRestsToFillBars, durationBeats } from './measure';
 import { buildMultiSheetQuestion } from './notationBuilder';
 
 export class MusicRecorder {
 	public notes: StackedNotes[] = [];
 	private prevMidiNotes: number[] = [];
+	private beatsPerBar = 4;
 
 	constructor(public duration: NoteDuration = 'q') {}
 
@@ -17,6 +18,12 @@ export class MusicRecorder {
 	addMidiNotes(midiNotes: number[]): void {
 		const added = midiNotes.filter((m) => !this.prevMidiNotes.includes(m));
 		if (added.length) {
+			const beatsSoFar = this.notes.reduce((sum, n) => sum + durationBeats[n.duration], 0);
+			const beats = durationBeats[this.duration];
+			if (beatsSoFar + beats > this.beatsPerBar) {
+				this.prevMidiNotes = midiNotes;
+				return;
+			}
 			const sheetNotes = added.map((m) => {
 				const name = Midi.midiToNoteName(m);
 				const match = name.match(/([A-G][#b]?)(\d+)/)!;
