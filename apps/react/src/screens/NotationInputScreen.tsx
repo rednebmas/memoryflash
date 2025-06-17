@@ -113,10 +113,19 @@ export const NotationInputScreen = () => {
 			/>
 			<div className="grid grid-cols-3 gap-4">
 				{previews.map((p, i) => (
-					<label key={i} className="flex flex-col items-center gap-2">
-						<input type="checkbox" checked={selected[i]} onChange={() => toggle(i)} />
+					<label
+						key={i}
+						className="bg-white rounded-2xl card-border py-3 px-5 flex flex-col items-center gap-2"
+					>
+						<div className="flex items-center gap-2">
+							<input
+								type="checkbox"
+								checked={selected[i]}
+								onChange={() => toggle(i)}
+							/>
+							<span className="text-gray-900 dark:text-gray-100">{majorKeys[i]}</span>
+						</div>
 						<MusicNotation data={p} />
-						<span>{majorKeys[i]}</span>
 					</label>
 				))}
 			</div>
