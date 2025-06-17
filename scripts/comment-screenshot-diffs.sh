@@ -32,7 +32,7 @@ if [ -n "$PR_NUMBER" ] && [ "$PR_NUMBER" != "null" ]; then
     fi
     NAME=$(basename "$IMG")
     SIZE=$(stat -c%s "$IMG")
-    ATTACH=$(gh api -X POST repos/"$GITHUB_REPOSITORY"/issues/"$PR_NUMBER"/comments/"$COMMENT_ID"/attachments -f name="$NAME" -F size="$SIZE") || continue
+  ATTACH=$(gh api -X POST repos/"$GITHUB_REPOSITORY"/issues/comments/"$COMMENT_ID"/attachments -f name="$NAME" -F size="$SIZE") || continue
     UPLOAD_URL=$(echo "$ATTACH" | jq -r '.upload_url')
     URL=$(echo "$ATTACH" | jq -r '.url')
     curl -sSfL -X PUT -H "Content-Type: image/png" --data-binary @"$IMG" "$UPLOAD_URL" || continue
