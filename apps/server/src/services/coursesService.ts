@@ -2,6 +2,7 @@ import Course from '../models/Course';
 import { Deck } from '../models/Deck';
 import { UserDeckStats } from '../models/UserDeckStats';
 import { User } from 'MemoryFlashCore/src/types/User';
+import { deleteDeckById } from './deckService';
 
 export async function createCourse(name: string, userId?: string) {
 	const course = new Course({ name, decks: [], userId });
@@ -28,4 +29,16 @@ export async function getDecksForCourse(courseId: string, user: User) {
 		userDeckStats,
 		course,
 	};
+}
+
+export async function renameCourse(courseId: string, name: string, userId: string) {
+	return Course.findOneAndUpdate({ _id: courseId, userId }, { name }, { new: true });
+}
+
+export async function deleteCourse(courseId: string, userId: string) {
+	const course = await Course.findOneAndDelete({ _id: courseId, userId });
+	if (!course) return;
+	for (const deckId of course.decks) {
+		await deleteDeckById(deckId.toString(), userId);
+	}
 }

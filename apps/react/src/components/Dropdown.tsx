@@ -8,7 +8,7 @@ interface DropdownItem {
 }
 
 interface DropdownProps {
-	label: string;
+	label: React.ReactNode;
 	items: DropdownItem[];
 	onButtonClick?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent> | undefined) => void;
 }
