@@ -104,6 +104,9 @@ export const NotationInputScreen = () => {
 
 	return (
 		<Layout subtitle="Notation Input" back="/">
+			<div id="test-fail" className="text-red-500">
+				Failing change
+			</div>
 			<NoteSettings keySig={keySig} setKeySig={setKeySig} dur={dur} setDur={setDur} />
 			<RangeSettings
 				lowest={lowest}
