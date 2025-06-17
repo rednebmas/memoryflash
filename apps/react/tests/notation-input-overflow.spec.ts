@@ -1,7 +1,5 @@
 import { test, expect } from '@playwright/test';
 
-// Regression test for measure overflow crash being fixed
-
 test('NotationInputScreen handles overflow input', async ({ page }) => {
 	let errors: string[] = [];
 	page.on('pageerror', (err) => errors.push(err.message));
