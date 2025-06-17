@@ -44,7 +44,7 @@ const midiSlice = createSlice({
 			}
 
 			console.log(
-				'[addNote] ',
+				'[midiSlice][addNote] ',
 				state.notes.map((n) => `${Midi.midiToNoteName(n.number)}`).join(', '),
 				`(${state.notes.map((n) => n.number).join(', ')})`,
 			);
@@ -60,7 +60,7 @@ const midiSlice = createSlice({
 			}
 
 			console.log(
-				'[removeNote] ',
+				'[midiSlice][removeNote] ',
 				state.notes.map((n) => `${Midi.midiToNoteName(n.number)}`).join(', '),
 				`(${state.notes.map((n) => n.number).join(', ')})`,
 			);

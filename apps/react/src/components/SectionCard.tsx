@@ -8,6 +8,7 @@ interface SectionCardProps {
 	link: string;
 	btnText: string;
 	className?: string;
+	menu?: React.ReactNode;
 }
 
 export const SectionCard: React.FC<SectionCardProps> = ({
@@ -16,12 +17,14 @@ export const SectionCard: React.FC<SectionCardProps> = ({
 	className,
 	subTitle,
 	link,
+	menu,
 }) => {
 	return (
 		<Card
 			className={`w-44 h-44 ${className}`}
-			contentContainerClassName="justify-between items-center"
+			contentContainerClassName="justify-between items-center relative"
 		>
+			{menu && <div className="absolute top-2 right-2">{menu}</div>}
 			<div className="text-center">
 				<div className="text-sm font-medium">{title}</div>
 				{subTitle && <div className="text-[0.6rem]">{subTitle}</div>}

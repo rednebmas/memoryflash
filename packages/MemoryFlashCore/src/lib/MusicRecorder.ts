@@ -1,11 +1,12 @@
 import { Midi } from 'tonal';
 import { MultiSheetQuestion, StackedNotes, NoteDuration } from '../types/MultiSheetCard';
 import { StaffEnum } from '../types/Cards';
-import { insertRestsToFillBars } from './measure';
 import { buildMultiSheetQuestion } from './notationBuilder';
+import { durationBeats, insertRestsToFillBars } from './measure';
 
 export class MusicRecorder {
 	public notes: StackedNotes[] = [];
+	private _maxBeats = 4;
 	private prevMidiNotes: number[] = [];
 
 	constructor(public duration: NoteDuration = 'q') {}
@@ -15,6 +16,13 @@ export class MusicRecorder {
 	}
 
 	addMidiNotes(midiNotes: number[]): void {
+		// Do we have max beats?
+		const beatsSoFar = this.notes.reduce((sum, n) => sum + durationBeats[n.duration], 0);
+		const beats = durationBeats[this.duration];
+		if (beatsSoFar + beats > this._maxBeats) {
+			return;
+		}
+
 		const added = midiNotes.filter((m) => !this.prevMidiNotes.includes(m));
 		if (added.length) {
 			const sheetNotes = added.map((m) => {
@@ -24,7 +32,6 @@ export class MusicRecorder {
 			});
 			this.notes.push({ notes: sheetNotes, duration: this.duration });
 		}
-		this.prevMidiNotes = midiNotes;
 	}
 
 	removeLast(): void {
@@ -33,7 +40,6 @@ export class MusicRecorder {
 
 	reset(): void {
 		this.notes = [];
-		this.prevMidiNotes = [];
 	}
 
 	get filledNotes(): StackedNotes[] {
@@ -43,9 +49,22 @@ export class MusicRecorder {
 	}
 
 	buildQuestion(key: string): MultiSheetQuestion {
-		const filled = this.filledNotes;
-		return this.notes.length
-			? buildMultiSheetQuestion(filled, key)
-			: { key, voices: [{ staff: StaffEnum.Treble, stack: filled }] };
+		// No recorded notes: default to single whole rest on treble
+		if (this.notes.length === 0) {
+			return {
+				key,
+				voices: [
+					{ staff: StaffEnum.Treble, stack: [{ notes: [], duration: 'w', rest: true }] },
+				],
+			};
+		}
+
+		// Split notes by staff, then fill rests per voice separately
+		const { voices } = buildMultiSheetQuestion(this.notes, key);
+		const filledVoices = voices.map((v) => ({
+			...v,
+			stack: insertRestsToFillBars(v.stack),
+		}));
+		return { key, voices: filledVoices };
 	}
 }

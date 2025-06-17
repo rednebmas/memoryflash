@@ -1,6 +1,12 @@
 import { Router } from 'express';
 import { isAuthenticated } from '../middleware';
-import { getDeckForUser, createDeck, addCardsToDeck } from '../services/deckService';
+import {
+	getDeckForUser,
+	createDeck,
+	addCardsToDeck,
+	renameDeck,
+	deleteDeckById,
+} from '../services/deckService';
 import { User } from 'MemoryFlashCore/src/types/User';
 import { getDeckStats } from '../services/statsService';
 
@@ -53,6 +59,28 @@ router.post('/:id/cards', isAuthenticated, async (req, res, next) => {
 		const { questions } = req.body;
 		const cards = await addCardsToDeck(req.params.id, questions);
 		return res.json({ cards });
+	} catch (error) {
+		next(error);
+	}
+});
+
+router.patch('/:id', isAuthenticated, async (req, res, next) => {
+	try {
+		const deck = await renameDeck(
+			req.params.id,
+			req.body.name,
+			(req.user as User)._id.toString(),
+		);
+		return res.json({ deck });
+	} catch (error) {
+		next(error);
+	}
+});
+
+router.delete('/:id', isAuthenticated, async (req, res, next) => {
+	try {
+		await deleteDeckById(req.params.id, (req.user as User)._id.toString());
+		return res.json({});
 	} catch (error) {
 		next(error);
 	}

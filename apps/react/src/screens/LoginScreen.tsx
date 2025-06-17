@@ -4,7 +4,7 @@ import { useAppDispatch } from 'MemoryFlashCore/src/redux/store';
 import { Link, useNavigate } from 'react-router-dom';
 import { useNetworkState } from 'MemoryFlashCore/src/redux/selectors/useNetworkState';
 import { useUpdateEffect } from '../utils/useUpdateEffect';
-import { AuthForm, EmailInput, PasswordInput, Button } from '../components';
+import { AuthForm, EmailInput, PasswordInput, Button, Checkbox } from '../components';
 
 // Use:
 // https://tailwindui.com/components/application-ui/forms/sign-in-forms
@@ -50,12 +50,7 @@ export const LoginScreen: React.FunctionComponent<{}> = ({}) => {
 
 			<div className="flex items-center justify-between">
 				<div className="flex items-center">
-					<input
-						id="remember-me"
-						type="checkbox"
-						className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600"
-						defaultChecked
-					/>
+					<Checkbox id="remember-me" defaultChecked />
 					<label
 						htmlFor="remember-me"
 						className="ml-3 block text-sm leading-6 text-gray-900"
