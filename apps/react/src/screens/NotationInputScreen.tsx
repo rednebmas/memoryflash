@@ -10,6 +10,7 @@ import { Select } from '../components/inputs';
 import { questionsForAllMajorKeys } from 'MemoryFlashCore/src/lib/multiKeyTransposer';
 import { addCardsToDeck } from 'MemoryFlashCore/src/redux/actions/add-cards-to-deck';
 import { Button } from '../components/Button';
+import { CardContainer } from '../components/CardContainer';
 import { useDeckIdPath } from './useDeckIdPath';
 
 const NoteSettings: React.FC<{
@@ -111,21 +112,22 @@ export const NotationInputScreen = () => {
 				highest={highest}
 				setHighest={setHighest}
 			/>
-			<div className="grid grid-cols-3 gap-4">
+			<div className="flex flex-col items-center gap-4">
 				{previews.map((p, i) => (
-					<label
-						key={i}
-						className="bg-white rounded-2xl card-border py-3 px-5 flex flex-col items-center gap-2"
-					>
-						<div className="flex items-center gap-2">
-							<input
-								type="checkbox"
-								checked={selected[i]}
-								onChange={() => toggle(i)}
-							/>
-							<span className="text-gray-900 dark:text-gray-100">{majorKeys[i]}</span>
-						</div>
-						<MusicNotation data={p} />
+					<label key={i} className="flex flex-col items-center gap-2">
+						<CardContainer className="flex flex-col items-center gap-2 w-[24rem]">
+							<div className="flex items-center gap-2">
+								<input
+									type="checkbox"
+									checked={selected[i]}
+									onChange={() => toggle(i)}
+								/>
+								<span className="text-gray-900 dark:text-gray-100">
+									{majorKeys[i]}
+								</span>
+							</div>
+							<MusicNotation data={p} />
+						</CardContainer>
 					</label>
 				))}
 			</div>

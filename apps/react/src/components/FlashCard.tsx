@@ -5,6 +5,7 @@ import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { CardTypeEnum, IntervalCard } from 'MemoryFlashCore/src/types/Cards';
 import { MultiSheetCardQuestion } from './FlashCards/MultiSheetCardQuestion';
 import { Pill } from './Pill';
+import { CardContainer } from './CardContainer';
 
 type Placement = 'cur' | 'scheduled' | 'answered';
 
@@ -43,9 +44,9 @@ export const FlashCard = forwardRef<HTMLDivElement, FlashCardProps>(
 		}
 
 		return (
-			<div
+			<CardContainer
 				ref={ref}
-				className={`bg-white rounded-2xl card-border py-3 px-5 flex flex-col justify-between items-center min-w-[15rem] h-60  m-4 ${className}`}
+				className={`flex flex-col justify-between items-center min-w-[15rem] h-60  m-4 ${className}`}
 				style={{
 					opacity,
 					transition: 'opacity 0.5s ease',
@@ -60,7 +61,7 @@ export const FlashCard = forwardRef<HTMLDivElement, FlashCardProps>(
 					</span>
 				)}
 				<FlashCardIcons card={card} placement={placement} />
-			</div>
+			</CardContainer>
 		);
 	},
 );
