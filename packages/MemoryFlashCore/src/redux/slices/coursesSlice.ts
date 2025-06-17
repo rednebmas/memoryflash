@@ -18,6 +18,7 @@ const coursesSlice = createSlice({
 	initialState,
 	reducers: {
 		upsert: coursesAdapter.upsertMany,
+		remove: coursesAdapter.removeOne,
 		setParsingCourse(state, action: PayloadAction<string>) {
 			state.parsingCourse = action.payload;
 		},

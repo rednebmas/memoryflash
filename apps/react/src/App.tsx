@@ -36,7 +36,10 @@ export default function App() {
 						path="/account"
 						element={<AuthenticatedRoute screen={<AccountScreen />} />}
 					/>
-					<Route path="/notation" element={<NotationInputScreen />} />
+					<Route
+						path="/study/:deckId/notation"
+						element={<AuthenticatedRoute screen={<NotationInputScreen />} />}
+					/>
 					<Route
 						path="/course/:courseId"
 						element={<AuthenticatedRoute screen={<DecksScreen />} />}

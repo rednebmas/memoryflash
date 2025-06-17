@@ -5,6 +5,7 @@ export const SectionData: React.FC<{
 		title: string;
 		subTitle?: string;
 		link: string;
+		menu?: React.ReactNode;
 	}[];
 	btnText: string;
 }> = ({ items, btnText }) => {
@@ -17,6 +18,7 @@ export const SectionData: React.FC<{
 					subTitle={item.subTitle}
 					link={item.link}
 					btnText={btnText}
+					menu={item.menu}
 				/>
 			))}
 		</div>

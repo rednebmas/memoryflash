@@ -1,10 +1,11 @@
-import { ChevronLeftIcon } from '@heroicons/react/24/outline';
+import { ChevronLeftIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { CircleHover } from './CircleHover';
 import { MidiInputsDropdown } from './MidiInputsDropdown';
 import { AccountNavButton } from './navigation/AccountNavButton';
+import { isIOSDebug } from '../utils/isIOSDebug';
 
 interface LayoutProps {
 	children: React.ReactNode;
@@ -25,6 +26,13 @@ export const Layout: React.FC<LayoutProps> = ({
 }) => {
 	const navigate = useNavigate();
 	const location = useLocation();
+	const iosDebug = isIOSDebug();
+	const rightContent = right || (
+		<>
+			<AccountNavButton />
+			<MidiInputsDropdown />
+		</>
+	);
 
 	return (
 		<div className="mx-auto h-screen w-full flex flex-col overflow-scroll " onScroll={onScroll}>
@@ -48,11 +56,11 @@ export const Layout: React.FC<LayoutProps> = ({
 					<span className="text-xs">{subtitle}</span>
 				</div>
 				<div className="flex flex-row-reverse items-center gap-3">
-					{right || (
-						<>
-							<AccountNavButton />
-							<MidiInputsDropdown />
-						</>
+					{rightContent}
+					{iosDebug && (
+						<CircleHover onClick={() => window.location.reload()}>
+							<ArrowPathIcon className="w-6 h-6 stroke-2" />
+						</CircleHover>
 					)}
 				</div>
 			</div>
