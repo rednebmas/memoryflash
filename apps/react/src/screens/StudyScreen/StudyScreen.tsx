@@ -1,4 +1,4 @@
-import { ListBulletIcon, PresentationChartLineIcon } from '@heroicons/react/24/outline';
+import { ListBulletIcon, PresentationChartLineIcon, PlusIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { CircleHover } from '../../components/CircleHover';
@@ -44,6 +44,7 @@ export const StudyScreen = () => {
 	const course = useAppSelector((state) =>
 		deck?.courseId ? state.courses.entities[deck.courseId] : undefined,
 	);
+	const user = useAppSelector((state) => state.auth.user);
 
 	const timeSinceCardStart = () => (currStartTime > 0 ? (Date.now() - currStartTime) / 1000 : 0);
 
@@ -137,6 +138,11 @@ export const StudyScreen = () => {
 					<CircleHover link={`list`}>
 						<ListBulletIcon className="w-6 h-6 stroke-2" />
 					</CircleHover>
+					{course && user && course.userId === user._id && (
+						<CircleHover link={`/study/${deckId}/notation`}>
+							<PlusIcon className="w-6 h-6 stroke-2" />
+						</CircleHover>
+					)}
 					<MidiInputsDropdown />
 					<AccountNavButton />
 				</div>
