@@ -16,6 +16,7 @@ const decksSlice = createSlice({
 	initialState,
 	reducers: {
 		upsert: deckAdapter.upsertMany,
+		remove: deckAdapter.removeOne,
 	},
 });
 

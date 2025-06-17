@@ -86,6 +86,35 @@ export async function createDeck(courseId: string, name: string) {
 	return deck;
 }
 
+export async function renameDeck(deckId: string, name: string, userId: string) {
+	const deck = await Deck.findById(deckId);
+	if (!deck) return null;
+	const course = await Course.findById(deck.courseId);
+	if (course?.userId?.toString() !== userId) return null;
+	deck.name = name;
+	await deck.save();
+	return deck;
+}
+
+export async function deleteDeckById(deckId: string, userId: string) {
+	const deck = await Deck.findById(deckId);
+	if (!deck) return;
+	const course = await Course.findById(deck.courseId);
+	if (course?.userId?.toString() !== userId) return;
+	await Deck.deleteOne({ _id: deckId });
+
+	await Course.updateOne({ _id: deck.courseId }, { $pull: { decks: deck._id } });
+
+	const cards = await Card.find({ deckId: deck._id });
+	const cardIds = cards.map((c) => c._id);
+
+	await Promise.all([
+		Card.deleteMany({ deckId: deck._id }),
+		Attempt.deleteMany({ cardId: { $in: cardIds } }),
+		UserDeckStats.deleteMany({ deckId: deck._id }),
+	]);
+}
+
 export async function addCardsToDeck(deckId: string, questions: MultiSheetQuestion[]) {
 	const now = Date.now();
 	const cards = questions.map((q, i) => ({
