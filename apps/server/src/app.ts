@@ -6,7 +6,7 @@ import cors from 'cors';
 import express, { Express } from 'express';
 import session from 'express-session';
 import type { MongoClient } from 'mongodb';
-import { APP_DOMAIN, IS_PROD, SESSION_OPTS, passport } from './config';
+import { APP_DOMAIN, IS_PROD, SESSION_OPTS, APP_URL, passport } from './config';
 import { customErrorHandler } from './middleware';
 import { devSleep } from './middleware/devSleep';
 import { api } from './routes';
@@ -30,7 +30,10 @@ const setupMiddlewaresAndRoutes = (server: Express, dbClient: MongoClient) => {
 
 	const corsOrigins: (string | RegExp)[] = [];
 	server.use(express.json());
-	corsOrigins.push(/.*/);
+	if (!IS_PROD) {
+		corsOrigins.push(/.*/);
+	}
+	corsOrigins.push(APP_URL);
 	server.use(
 		cors({
 			origin: corsOrigins,
