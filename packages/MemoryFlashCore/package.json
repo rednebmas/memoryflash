@@ -21,7 +21,7 @@
 		"@types/react-redux": "^7.1.33",
 		"axios": "^1.8.2",
 		"bson-objectid": "^2.0.4",
-		"mongoose": "^8.6.0",
+		"mongoose": "^8.16.0",
 		"tonal": "^6.2.0",
 		"zod": "^3.22.4"
 	}

@@ -49,7 +49,6 @@ const UserSchema = new Schema<UserDoc>(
 	{
 		toJSON: {
 			transform: (_, ret: Partial<UserDoc>) => {
-				delete ret.__v;
 				delete ret.createdAt;
 				delete ret.updatedAt;
 				delete ret.passwordHash;
