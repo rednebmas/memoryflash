@@ -112,10 +112,10 @@ export const NotationInputScreen = () => {
 				highest={highest}
 				setHighest={setHighest}
 			/>
-			<div className="flex flex-col items-center gap-4">
+			<div className="flex flex-col items-center gap-5">
 				{previews.map((p, i) => (
 					<label key={i} className="flex flex-col items-center gap-2">
-						<div className="card-container flex flex-col items-center gap-2 w-[24rem]">
+						<div className="card-container flex flex-col items-center gap-2 w-[26rem]">
 							<div className="flex items-center gap-2">
 								<Checkbox checked={selected[i]} onChange={() => toggle(i)} />
 								<span className="text-gray-900 dark:text-gray-100">
