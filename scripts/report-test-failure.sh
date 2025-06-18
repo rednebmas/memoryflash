@@ -38,8 +38,9 @@ lines=(
   ""
 )
 
-# Map each prefix to its actual and diff paths
-declare -A actual_paths diff_paths
+# Map each prefix to its actual, expected, and diff paths
+declare -A actual_paths expected_paths diff_paths
+# actual + diff come from uploaded files
 for f in "${files[@]}"; do
   base="$(basename "$f")"
   if [[ "$base" == *-actual.png ]]; then
@@ -50,25 +51,42 @@ for f in "${files[@]}"; do
     diff_paths["$prefix"]="$f"
   fi
 done
+# expected snapshots live alongside tests
+while IFS= read -r -d '' f; do
+  base="$(basename "$f")"
+  prefix="${base%.png}"
+  expected_paths["$prefix"]="$f"
+done < <(find apps/react/tests -name '*.png' -print0)
 
-# Render a two-column table per test
+# Render per-test table in rows with images in second column
 for prefix in "${!actual_paths[@]}"; do
    actual_path="${actual_paths[$prefix]}"
    diff_path="${diff_paths[$prefix]:-}"
+   expected_path="${expected_paths[$prefix]:-}"
    actual_file="$(basename "$actual_path")"
    diff_file="$(basename "$diff_path")"
+   expected_file="$(basename "$expected_path")"
    actual_url="$URL_PREFIX$actual_file"
    diff_url="$URL_PREFIX$diff_file"
+  # if expected file present, upload it too
+  if [ -n "$expected_path" ]; then
+    gsutil cp "$expected_path" "$DEST" >/dev/null
+    expected_url="$URL_PREFIX$expected_file"
+  else
+    expected_url=""
+  fi
 
-  # Append per-test Markdown lines
+  # Append per-test table with rows, images in second column
   lines+=(
     "---"
     ""
     "#### $prefix"
     ""
-    "| Actual | Diff |"
-    "| :----: | :---: |"
-    "| [![actual]($actual_url)]($actual_url) | [![diff]($diff_url)]($diff_url) |"
+    "| | Screenshot |"
+    "| :- | :-: |"
+    "| **Actual** | [![actual]($actual_url)]($actual_url) |"
+    "| **Expected** | [![expected]($expected_url)]($expected_url) |"
+    "| **Diff** | [![diff]($diff_url)]($diff_url) |"
     ""
     '```bash'
     "npx jest -t \"$prefix\""
