@@ -11,7 +11,15 @@ const data: MultiSheetQuestion = {
 		{
 			staff: StaffEnum.Bass,
 			stack: [
-				{ notes: [{ name: 'C', octave: 2 }], duration: 'q' },
+				{
+					notes: [
+						{ name: 'C', octave: 2 },
+						{ name: 'E', octave: 2 },
+						{ name: 'G', octave: 2 },
+					],
+					duration: 'q',
+					chordName: 'C',
+				},
 				{ notes: [{ name: 'D', octave: 2 }], duration: 'q' },
 				{ notes: [{ name: 'E', octave: 2 }], duration: 'q' },
 				{ notes: [{ name: 'F', octave: 2 }], duration: 'q' },
