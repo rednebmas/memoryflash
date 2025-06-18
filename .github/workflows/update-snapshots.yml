@@ -1,0 +1,42 @@
+name: Update Screenshot Snapshots
+
+on:
+    workflow_dispatch:
+    schedule:
+        - cron: '0 2 * * MON'
+
+jobs:
+    update-snapshots:
+        name: Update Playwright Image Snapshots
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+        steps:
+            - name: Check out repository
+              uses: actions/checkout@v3
+              with:
+                  token: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Enable Corepack
+              run: corepack enable
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 20.x
+                  cache: yarn
+
+            - name: Install dependencies
+              run: yarn install
+
+            - name: Update Playwright snapshots
+              working-directory: apps/react
+              run: yarn test:screenshots:update
+
+            - name: Commit and push updated snapshots
+              run: |
+                  git config user.name "github-actions[bot]"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
+                  git add apps/react/__image_snapshots__/**/* || true
+                  git commit -m "chore: update Playwright screenshot snapshots" || echo "No changes to commit"
+                  git push origin HEAD:main
