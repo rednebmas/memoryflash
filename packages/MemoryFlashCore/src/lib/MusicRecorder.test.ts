@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { MusicRecorder } from './MusicRecorder';
+import { StaffEnum } from '../types/Cards';
 
 describe('MusicRecorder', () => {
 	it('converts midi numbers to sheet notes', () => {
@@ -75,5 +76,24 @@ describe('MusicRecorder', () => {
 				duration: 'q',
 			},
 		]);
+	});
+
+	it('adds rests to the opposite clef when alternating notes', () => {
+		const r = new MusicRecorder('q');
+		r.addMidiNotes([60]);
+		r.addMidiNotes([]);
+		r.addMidiNotes([48]);
+		r.addMidiNotes([]);
+		r.addMidiNotes([60]);
+		r.addMidiNotes([]);
+		r.addMidiNotes([48]);
+		r.addMidiNotes([]);
+
+		const q = r.buildQuestion('C');
+		const treble = q.voices.find((v) => v.staff === StaffEnum.Treble)!.stack;
+		const bass = q.voices.find((v) => v.staff === StaffEnum.Bass)!.stack;
+
+		expect(treble.map((n) => n.rest || false)).to.deep.equal([false, true, false, true]);
+		expect(bass.map((n) => n.rest || false)).to.deep.equal([true, false, true, false]);
 	});
 });
