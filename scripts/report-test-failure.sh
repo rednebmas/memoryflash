@@ -78,7 +78,8 @@ while IFS= read -r -d '' f; do
 done < <(find apps/react/tests -name '*.png' -print0)
 
 # Render per-test table in rows with images in second column
-for prefix in "${!actual_paths[@]}"; do
+readarray -t sorted_prefixes < <(printf '%s\n' "${!actual_paths[@]}" | sort)
+for prefix in "${sorted_prefixes[@]}"; do
    actual_path="${actual_paths[$prefix]}"
    diff_path="${diff_paths[$prefix]:-}"
    expected_path="${expected_paths[$prefix]:-}"
