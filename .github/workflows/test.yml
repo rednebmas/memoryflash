@@ -6,6 +6,9 @@ jobs:
     test:
         name: Test
         runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            pull-requests: write
 
         strategy:
             matrix:
@@ -41,6 +44,25 @@ jobs:
               run: npx playwright install --with-deps
 
             - name: Run unit tests
+              id: tests
               run: yarn test
+              continue-on-error: true
               env:
                   APP_URL: http://0.0.0.0:8008
+
+            - name: Authenticate on GCS
+              if: steps.tests.outcome == 'failure'
+              uses: google-github-actions/auth@v2
+              with:
+                  credentials_json: ${{ secrets.GCP_MFLASH_PROD_JSON_KEY }}
+
+            - name: Upload screenshots and comment
+              if: steps.tests.outcome == 'failure'
+              run: ./scripts/report-test-failure.sh
+              env:
+                  PR_NUMBER: ${{ github.event.pull_request.number }}
+                  GITHUB_TOKEN: ${{ github.token }}
+
+            - name: Fail workflow if tests failed
+              if: steps.tests.outcome == 'failure'
+              run: exit 1
