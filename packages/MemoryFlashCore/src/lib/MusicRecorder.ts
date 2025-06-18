@@ -20,32 +20,18 @@ export class MusicRecorder {
 		const beatsSoFar = this.notes.reduce((sum, n) => sum + durationBeats[n.duration], 0);
 		const beats = durationBeats[this.duration];
 		if (beatsSoFar + beats > this._maxBeats) {
-			this.prevMidiNotes = midiNotes;
 			return;
 		}
 
-		const wasHolding = this.prevMidiNotes.length > 0;
-		const isHolding = midiNotes.length > 0;
 		const added = midiNotes.filter((m) => !this.prevMidiNotes.includes(m));
-
-		const toSheet = (nums: number[]) =>
-			nums.map((m) => {
+		if (added.length) {
+			const sheetNotes = added.map((m) => {
 				const name = Midi.midiToNoteName(m);
 				const match = name.match(/([A-G][#b]?)(\d+)/)!;
 				return { name: match[1], octave: parseInt(match[2]) };
 			});
-
-		if (!wasHolding && isHolding) {
-			this.notes.push({ notes: toSheet(midiNotes), duration: this.duration });
-		} else if (wasHolding && isHolding && added.length && this.notes.length) {
-			const current = this.notes[this.notes.length - 1];
-			const existing = new Set(current.notes.map((n) => `${n.name}${n.octave}`));
-			for (const n of toSheet(added)) {
-				if (!existing.has(`${n.name}${n.octave}`)) current.notes.push(n);
-			}
+			this.notes.push({ notes: sheetNotes, duration: this.duration });
 		}
-
-		this.prevMidiNotes = midiNotes;
 	}
 
 	removeLast(): void {
