@@ -88,10 +88,6 @@ for prefix in "${!actual_paths[@]}"; do
     "| **Expected** | [![expected]($expected_url)]($expected_url) |"
     "| **Diff** | [![diff]($diff_url)]($diff_url) |"
     ""
-    '```bash'
-    "npx jest -t \"$prefix\""
-    "open \"$actual_path\""
-    '```'
     ""
   )
 done
