@@ -22,7 +22,7 @@ const data: MultiSheetQuestion = {
 				},
 				{ notes: [{ name: 'D', octave: 2 }], duration: 'q' },
 				{ notes: [{ name: 'E', octave: 2 }], duration: 'q' },
-				{ notes: [{ name: 'F', octave: 2 }], duration: 'q' },
+				{ notes: [], duration: 'q', rest: true },
 			],
 		},
 	],
