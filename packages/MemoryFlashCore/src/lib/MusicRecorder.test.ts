@@ -28,6 +28,16 @@ describe('MusicRecorder', () => {
 		expect(r.filledNotes).to.deep.equal([{ notes: [], duration: 'w', rest: true }]);
 	});
 
+	it('only records newly pressed notes', () => {
+		const r = new MusicRecorder('q');
+		r.addMidiNotes([60]);
+		r.addMidiNotes([60, 64]);
+		expect(r.notes).to.deep.equal([
+			{ notes: [{ name: 'C', octave: 4 }], duration: 'q' },
+			{ notes: [{ name: 'E', octave: 4 }], duration: 'q' },
+		]);
+	});
+
 	it('ignores notes beyond one measure', () => {
 		const r = new MusicRecorder('q');
 		for (const n of [60, 62, 64, 65, 67]) {

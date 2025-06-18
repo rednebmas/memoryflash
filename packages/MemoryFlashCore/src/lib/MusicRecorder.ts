@@ -16,22 +16,21 @@ export class MusicRecorder {
 	}
 
 	addMidiNotes(midiNotes: number[]): void {
-		// Do we have max beats?
+		const added = midiNotes.filter((m) => !this.prevMidiNotes.includes(m));
+		this.prevMidiNotes = [...midiNotes];
+
+		if (!added.length) return;
+
 		const beatsSoFar = this.notes.reduce((sum, n) => sum + durationBeats[n.duration], 0);
 		const beats = durationBeats[this.duration];
-		if (beatsSoFar + beats > this._maxBeats) {
-			return;
-		}
+		if (beatsSoFar + beats > this._maxBeats) return;
 
-		const added = midiNotes.filter((m) => !this.prevMidiNotes.includes(m));
-		if (added.length) {
-			const sheetNotes = added.map((m) => {
-				const name = Midi.midiToNoteName(m);
-				const match = name.match(/([A-G][#b]?)(\d+)/)!;
-				return { name: match[1], octave: parseInt(match[2]) };
-			});
-			this.notes.push({ notes: sheetNotes, duration: this.duration });
-		}
+		const sheetNotes = added.map((m) => {
+			const name = Midi.midiToNoteName(m);
+			const match = name.match(/([A-G][#b]?)(\d+)/)!;
+			return { name: match[1], octave: parseInt(match[2]) };
+		});
+		this.notes.push({ notes: sheetNotes, duration: this.duration });
 	}
 
 	removeLast(): void {
