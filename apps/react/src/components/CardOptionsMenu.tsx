@@ -1,6 +1,7 @@
 import { EllipsisVerticalIcon } from '@heroicons/react/24/outline';
 import React from 'react';
 import Dropdown from './Dropdown';
+import { CircleHover } from './CircleHover';
 import { InputModal } from './modals/InputModal';
 import { ConfirmModal } from './modals/ConfirmModal';
 
@@ -25,7 +26,12 @@ export const CardOptionsMenu: React.FC<CardOptionsMenuProps> = ({
 	return (
 		<>
 			<Dropdown
-				label={<EllipsisVerticalIcon className="w-5 h-5" />}
+				label={
+					<CircleHover>
+						<EllipsisVerticalIcon className="w-5 h-5" />
+					</CircleHover>
+				}
+				chevron={false}
 				items={[
 					{
 						label: 'Rename',

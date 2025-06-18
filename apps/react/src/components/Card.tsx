@@ -14,7 +14,7 @@ export const Card: React.FC<CardProps> = ({
 	style,
 }) => {
 	return (
-		<div className={`overflow-hidden bg-white shadow sm:rounded-lg ${className}`}>
+		<div className={`overflow-visible bg-white shadow sm:rounded-lg ${className}`}>
 			<div
 				className={`px-4 py-5 sm:p-6 h-full flex flex-col ${contentContainerClassName}`}
 				style={style}
