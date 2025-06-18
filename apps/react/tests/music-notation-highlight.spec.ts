@@ -1,5 +1,4 @@
-import { test, expect } from '@playwright/test';
-import { screenshotOpts } from './helpers';
+import { test, expect, screenshotOpts } from './helpers';
 
 test.describe('highlight notes', () => {
 	for (const index of [1, 2, 3, 4]) {
