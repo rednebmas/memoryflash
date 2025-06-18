@@ -1,6 +1,6 @@
 import { test as base, expect, Page } from '@playwright/test';
 
-export const screenshotOpts = { maxDiffPixelRatio: 0.015 };
+export const screenshotOpts = { maxDiffPixels: 32 };
 
 // If the font does/doesn't load can cause small differences making tests more flaky
 const blockFonts = process.env.BLOCK_REMOTE_FONTS === 'true';
