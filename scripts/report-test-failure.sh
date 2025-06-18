@@ -3,6 +3,7 @@ set -euo pipefail
 
 BUCKET="mflash-github-test-reports"
 RESULTS_DIR="apps/react/test-results"
+REPORT_DIR="apps/react/playwright-report"
 
 # Authenticate for GCS
 gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS"
@@ -25,10 +26,18 @@ COMMIT_SHA="${COMMIT_SHA:-${GITHUB_SHA:-$(git rev-parse HEAD)}}"
 TIMESTAMP=$(date +%s)
 DEST="gs://$BUCKET/${COMMIT_SHA}-${TIMESTAMP}/"
 
+URL_PREFIX="https://storage.googleapis.com/$BUCKET/${COMMIT_SHA}-${TIMESTAMP}/"
+
 echo "Uploading screenshots to $DEST"
 gsutil -m cp "${files[@]}" "$DEST" >/dev/null
 
-URL_PREFIX="https://storage.googleapis.com/$BUCKET/${COMMIT_SHA}-${TIMESTAMP}/"
+# Upload Playwright report if available
+REPORT_URL=""
+if [ -d "$REPORT_DIR" ]; then
+  echo "Uploading Playwright report"
+  gsutil -m cp -r "$REPORT_DIR" "$DEST" >/dev/null
+  REPORT_URL="${URL_PREFIX}${REPORT_DIR##*/}/index.html"
+fi
 
 BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
 WORKFLOW_URL="https://github.com/${GITHUB_REPOSITORY}/actions/workflows/update-snapshots.yml?ref=${BRANCH}"
@@ -40,6 +49,13 @@ lines=(
   "Below is a gallery of each test’s **actual** vs **diff**. Click to view full-size or run locally:"
   ""
 )
+
+if [ -n "$REPORT_URL" ]; then
+  lines+=(
+    "View the full Playwright report [here]($REPORT_URL)."
+    ""
+  )
+fi
 
 # Map each prefix to its actual, expected, and diff paths
 declare -A actual_paths expected_paths diff_paths
