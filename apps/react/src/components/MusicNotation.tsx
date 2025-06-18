@@ -63,6 +63,7 @@ const createNotes = (
 			duration: (isRest ? `${stackedNotes.duration}r` : stackedNotes.duration) as string,
 			clef: stave.getClef(),
 			auto_stem: true,
+			align_center: isRest && stackedNotes.duration === 'w',
 		});
 		staveNote.setStave(stave);
 		if (allNotesClassName) {
