@@ -45,10 +45,6 @@ jobs:
               with:
                   mongodb-version: ${{ matrix.mongodb-version }}
 
-            - name: Install Playwright browsers
-              working-directory: apps/react
-              run: npx playwright install --with-deps
-
             - name: Run unit tests
               id: tests
               run: yarn test
