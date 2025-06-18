@@ -1,5 +1,4 @@
-import { test, expect } from '@playwright/test';
-import { screenshotOpts } from './helpers';
+import { test, expect, screenshotOpts } from './helpers';
 
 test('MusicNotation rests screenshot', async ({ page }) => {
 	await page.goto('/tests/music-notation-rest-test.html');
