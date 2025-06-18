@@ -5,8 +5,9 @@ export function buildMultiSheetQuestion(notes: StackedNotes[], key: string): Mul
 	const treble: StackedNotes[] = [];
 	const bass: StackedNotes[] = [];
 	for (const n of notes) {
-		const octave = n.notes[0]?.octave ?? 0;
-		if (octave >= 4) treble.push(n);
+		const octaves = n.notes.map((note) => note.octave);
+		const minOctave = octaves.length ? Math.min(...octaves) : 0;
+		if (minOctave >= 4) treble.push(n);
 		else bass.push(n);
 	}
 	const voices: Voice[] = [];
