@@ -34,6 +34,9 @@ jobs:
             - name: Run tsc
               uses: icrawl/action-tsc@v1
 
+            - name: Build React app
+              run: yarn workspace MemoryFlashReact build
+
             - name: Start MongoDB
               uses: supercharge/mongodb-github-action@1.8.0
               with:
