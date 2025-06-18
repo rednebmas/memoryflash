@@ -1,6 +1,7 @@
 import { EllipsisVerticalIcon } from '@heroicons/react/24/outline';
 import React from 'react';
-import Dropdown from './Dropdown';
+import { Menu, MenuButton } from '@headlessui/react';
+import { DropdownMenu, DropdownItem } from './DropdownMenu';
 import { CircleHover } from './CircleHover';
 import { InputModal } from './modals/InputModal';
 import { ConfirmModal } from './modals/ConfirmModal';
@@ -23,32 +24,31 @@ export const CardOptionsMenu: React.FC<CardOptionsMenuProps> = ({
 	const [isRenameOpen, setIsRenameOpen] = React.useState(false);
 	const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
 
+	const items: DropdownItem[] = [
+		{
+			label: 'Rename',
+			onClick: () => {
+				if (itemName !== undefined) setIsRenameOpen(true);
+				else onRename('');
+			},
+		},
+		{
+			label: 'Delete',
+			onClick: () => {
+				if (itemName !== undefined) setIsDeleteOpen(true);
+				else onDelete();
+			},
+		},
+	];
+
 	return (
 		<>
-			<Dropdown
-				label={
-					<CircleHover>
-						<EllipsisVerticalIcon className="w-5 h-5" />
-					</CircleHover>
-				}
-				chevron={false}
-				items={[
-					{
-						label: 'Rename',
-						onClick: () => {
-							if (itemName !== undefined) setIsRenameOpen(true);
-							else onRename('');
-						},
-					},
-					{
-						label: 'Delete',
-						onClick: () => {
-							if (itemName !== undefined) setIsDeleteOpen(true);
-							else onDelete();
-						},
-					},
-				]}
-			/>
+			<Menu as="div" className="relative inline-block text-left">
+				<MenuButton as={CircleHover}>
+					<EllipsisVerticalIcon className="w-5 h-5" />
+				</MenuButton>
+				<DropdownMenu items={items} />
+			</Menu>
 			{itemName !== undefined && (
 				<>
 					<InputModal
