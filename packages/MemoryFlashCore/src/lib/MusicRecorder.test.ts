@@ -32,7 +32,48 @@ describe('MusicRecorder', () => {
 		const r = new MusicRecorder('q');
 		for (const n of [60, 62, 64, 65, 67]) {
 			r.addMidiNotes([n]);
+			r.addMidiNotes([]); // release
 		}
 		expect(r.notes.length).to.equal(4);
+	});
+
+	it('records new stack only after notes released', () => {
+		const r = new MusicRecorder('q');
+		r.addMidiNotes([60]);
+		r.addMidiNotes([60, 64]);
+		r.addMidiNotes([64]);
+		r.addMidiNotes([]);
+		r.addMidiNotes([65]);
+		expect(r.notes).to.deep.equal([
+			{
+				notes: [
+					{ name: 'C', octave: 4 },
+					{ name: 'E', octave: 4 },
+				],
+				duration: 'q',
+			},
+			{
+				notes: [{ name: 'F', octave: 4 }],
+				duration: 'q',
+			},
+		]);
+	});
+
+	it('stacks additional notes until released', () => {
+		const r = new MusicRecorder('q');
+		r.addMidiNotes([60]);
+		r.addMidiNotes([60, 64]);
+		r.addMidiNotes([60, 64, 67]);
+		r.addMidiNotes([]);
+		expect(r.notes).to.deep.equal([
+			{
+				notes: [
+					{ name: 'C', octave: 4 },
+					{ name: 'E', octave: 4 },
+					{ name: 'G', octave: 4 },
+				],
+				duration: 'q',
+			},
+		]);
 	});
 });
