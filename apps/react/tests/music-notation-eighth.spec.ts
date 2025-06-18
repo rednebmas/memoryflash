@@ -1,8 +1,9 @@
-import { test, expect, screenshotOpts } from './helpers';
+import { test, captureScreenshot } from './helpers';
 
 test('MusicNotation eighth notes screenshot', async ({ page }) => {
-	await page.goto('/tests/music-notation-eighth-test.html');
-	const output = page.locator('#output');
-	await output.waitFor();
-	await expect(output).toHaveScreenshot('music-notation-eighth.png', screenshotOpts);
+	await captureScreenshot(
+		page,
+		'/tests/music-notation-eighth-test.html',
+		'music-notation-eighth.png',
+	);
 });

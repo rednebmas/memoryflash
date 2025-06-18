@@ -1,12 +1,13 @@
-import { test, expect, screenshotOpts } from './helpers';
+import { test, captureScreenshot } from './helpers';
 
 test.describe('highlight notes', () => {
 	for (const index of [1, 2, 3, 4]) {
 		test(`highlight note ${index}`, async ({ page }) => {
-			await page.goto(`/tests/music-notation-test.html?index=${index}`);
-			const output = page.locator('#output');
-			await output.waitFor();
-			await expect(output).toHaveScreenshot(`highlight-${index}.png`, screenshotOpts);
+			await captureScreenshot(
+				page,
+				`/tests/music-notation-test.html?index=${index}`,
+				`highlight-${index}.png`,
+			);
 		});
 	}
 });
