@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useReducer } from 'react';
 import { shallowEqual } from 'react-redux';
 import { Layout } from '../components';
 import { MusicNotation } from '../components/MusicNotation';
@@ -6,7 +6,8 @@ import { NoteDuration } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { majorKeys, notes as allNotes } from 'MemoryFlashCore/src/lib/notes';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { MusicRecorder } from 'MemoryFlashCore/src/lib/MusicRecorder';
-import { Select } from '../components/inputs';
+import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
+import { Select, DurationSelect } from '../components/inputs';
 import { questionsForAllMajorKeys } from 'MemoryFlashCore/src/lib/multiKeyTransposer';
 import { addCardsToDeck } from 'MemoryFlashCore/src/redux/actions/add-cards-to-deck';
 import { Button } from '../components/Button';
@@ -16,9 +17,11 @@ import { useDeckIdPath } from './useDeckIdPath';
 const NoteSettings: React.FC<{
 	keySig: string;
 	setKeySig: (k: string) => void;
-	dur: NoteDuration;
-	setDur: (d: NoteDuration) => void;
-}> = ({ keySig, setKeySig, dur, setDur }) => (
+	trebleDuration: NoteDuration;
+	setTrebleDuration: (d: NoteDuration) => void;
+	bassDuration: NoteDuration;
+	setBassDuration: (d: NoteDuration) => void;
+}> = ({ keySig, setKeySig, trebleDuration, setTrebleDuration, bassDuration, setBassDuration }) => (
 	<div className="flex gap-4 pb-4">
 		<label className="flex items-center gap-2">
 			Key
@@ -28,16 +31,12 @@ const NoteSettings: React.FC<{
 				))}
 			</Select>
 		</label>
-		<label className="flex items-center gap-2">
-			Duration
-			<Select value={dur} onChange={(e) => setDur(e.target.value as NoteDuration)}>
-				{['w', 'h', 'q', '8', '16'].map((d) => (
-					<option key={d} value={d}>
-						{d}
-					</option>
-				))}
-			</Select>
-		</label>
+		<DurationSelect
+			label="Treble Duration"
+			value={trebleDuration}
+			onChange={setTrebleDuration}
+		/>
+		<DurationSelect label="Bass Duration" value={bassDuration} onChange={setBassDuration} />
 	</div>
 );
 
@@ -70,7 +69,7 @@ const RangeSettings: React.FC<{
 
 export const NotationInputScreen = () => {
 	const [keySig, setKeySig] = useState(majorKeys[0]);
-	const [dur, setDur] = useState<NoteDuration>('q');
+	const [, forceUpdate] = useReducer((n) => n + 1, 0);
 	const [lowest, setLowest] = useState('C3');
 	const [highest, setHighest] = useState('C5');
 	const [selected, setSelected] = useState<boolean[]>(() => majorKeys.map(() => true));
@@ -78,15 +77,11 @@ export const NotationInputScreen = () => {
 	const dispatch = useAppDispatch();
 	const { deckId } = useDeckIdPath();
 
-	const recorderRef = useRef(new MusicRecorder('q'));
+	const recorderRef = useRef(new MusicRecorder('q', 'q'));
 	const midiNotes = useAppSelector(
 		(state) => state.midi.notes.map((n) => n.number),
 		shallowEqual,
 	);
-
-	useEffect(() => {
-		recorderRef.current.updateDuration(dur);
-	}, [dur]);
 
 	useEffect(() => {
 		recorderRef.current.addMidiNotes(midiNotes);
@@ -105,7 +100,20 @@ export const NotationInputScreen = () => {
 
 	return (
 		<Layout subtitle="Notation Input" back="/">
-			<NoteSettings keySig={keySig} setKeySig={setKeySig} dur={dur} setDur={setDur} />
+			<NoteSettings
+				keySig={keySig}
+				setKeySig={setKeySig}
+				trebleDuration={recorderRef.current.trebleDuration}
+				setTrebleDuration={(d) => {
+					recorderRef.current.updateDuration(d, StaffEnum.Treble);
+					forceUpdate();
+				}}
+				bassDuration={recorderRef.current.bassDuration}
+				setBassDuration={(d) => {
+					recorderRef.current.updateDuration(d, StaffEnum.Bass);
+					forceUpdate();
+				}}
+			/>
 			<RangeSettings
 				lowest={lowest}
 				setLowest={setLowest}

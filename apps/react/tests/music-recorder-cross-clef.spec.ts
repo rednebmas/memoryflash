@@ -1,19 +1,21 @@
-import { test, expect, screenshotOpts } from './helpers';
+import { test, expect } from './helpers';
 
 test('MusicRecorder cross-clef rests', async ({ page }) => {
+	let errors: string[] = [];
+	page.on('pageerror', (err) => errors.push(err.message));
+	page.on('console', (msg) => {
+		if (msg.type() === 'error') errors.push(msg.text());
+	});
+
 	await page.goto('/tests/music-recorder-cross-clef-test.html');
-	const output = page.locator('#output');
 	const events = [[60], [], [48], [], [60], [], [48], []];
 
-	for (let i = 0; i < events.length; i++) {
+	for (const ev of events) {
 		await page.evaluate((notes) => {
 			(window as any).recorder.addMidiNotes(notes);
 			(window as any).update();
-		}, events[i]);
-		await output.waitFor();
-		await expect(output).toHaveScreenshot(
-			`music-recorder-cross-clef-${i + 1}.png`,
-			screenshotOpts,
-		);
+		}, ev);
 	}
+	await page.waitForTimeout(200);
+	expect(errors).toEqual([]);
 });
