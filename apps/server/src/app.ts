@@ -35,6 +35,7 @@ const setupMiddlewaresAndRoutes = (server: Express, dbClient: MongoClient) => {
 	}
 	corsOrigins.push(APP_URL);
 	corsOrigins.push(FRONT_END_URL);
+	console.log(`CORS Origins: [${corsOrigins.join(', ')}]`);
 	server.use(
 		cors({
 			origin: corsOrigins,
