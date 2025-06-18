@@ -97,7 +97,7 @@ done
 
 lines+=(
   "---"
-  "To update all screenshot snapshots, [run the Update Screenshot Snapshots workflow]($WORKFLOW_URL)."
+  "To update all screenshot snapshots, [run the Update Screenshot Test PNGs workflow]($WORKFLOW_URL)."
   ""
 )
 

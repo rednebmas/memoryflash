@@ -13,7 +13,8 @@ jobs:
             - name: Check out repository
               uses: actions/checkout@v3
               with:
-                  token: ${{ secrets.GITHUB_TOKEN }}
+                  # use the PAT here instead of GITHUB_TOKEN to make CI trigger work
+                  token: ${{ secrets.MFLASH_CI_TRIGGER_TOKEN}}
 
             - name: Enable Corepack
               run: corepack enable
@@ -32,6 +33,9 @@ jobs:
               run: yarn test:screenshots:update
 
             - name: Commit and push updated snapshots
+              env:
+                  # expose the PAT for the push
+                  PAT: ${{ secrets.MFLASH_CI_TRIGGER_TOKEN}}
               run: |
                   git config user.name "github-actions[bot]"
                   git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -39,4 +43,5 @@ jobs:
                   git commit -m "chore: update Playwright screenshot snapshots" || echo "No changes to commit"
                   BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
                   echo "Pushing updates to branch: $BRANCH"
-                  git push origin HEAD:"$BRANCH"
+                  # push over HTTPS using the PAT so GitHub treats it like a normal user push
+                  git push https://x-access-token:${PAT}@github.com/${{ github.repository }} HEAD:"$BRANCH"
