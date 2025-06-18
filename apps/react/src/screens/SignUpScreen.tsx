@@ -4,7 +4,7 @@ import { signUp } from 'MemoryFlashCore/src/redux/actions/sign-up-action';
 import { authSelector } from 'MemoryFlashCore/src/redux/selectors/authSelector';
 import { useNetworkState } from 'MemoryFlashCore/src/redux/selectors/useNetworkState';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
-import { AuthForm, EmailInput, PasswordInput, InputField, Button } from '../components';
+import { AuthForm, EmailInput, PasswordInput, InputField, Button, Checkbox } from '../components';
 
 export const SignUpScreen: React.FunctionComponent<{}> = ({}) => {
 	const dispatch = useAppDispatch();
@@ -58,12 +58,7 @@ export const SignUpScreen: React.FunctionComponent<{}> = ({}) => {
 
 			<div className="flex items-center justify-between">
 				<div className="flex items-center">
-					<input
-						id="remember-me"
-						type="checkbox"
-						className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600"
-						defaultChecked
-					/>
+					<Checkbox id="remember-me" defaultChecked />
 					<label
 						htmlFor="remember-me"
 						className="ml-3 block text-sm leading-6 text-gray-900"

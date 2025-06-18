@@ -45,7 +45,7 @@ export const FlashCard = forwardRef<HTMLDivElement, FlashCardProps>(
 		return (
 			<div
 				ref={ref}
-				className={`bg-white rounded-2xl card-border py-3 px-5 flex flex-col justify-between items-center min-w-[15rem] h-60  m-4 ${className}`}
+				className={`card-container flex flex-col justify-between items-center min-w-[15rem] h-60  m-4 ${className}`}
 				style={{
 					opacity,
 					transition: 'opacity 0.5s ease',
