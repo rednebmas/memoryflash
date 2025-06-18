@@ -37,6 +37,9 @@ jobs:
             - name: Build React app
               run: yarn workspace MemoryFlashReact build
 
+            - name: Build server
+              run: yarn workspace MemoryFlashServer build
+
             - name: Start MongoDB
               uses: supercharge/mongodb-github-action@1.8.0
               with:
