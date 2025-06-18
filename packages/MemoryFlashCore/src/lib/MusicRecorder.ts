@@ -1,4 +1,4 @@
-import { Midi } from 'tonal';
+import { Midi, Note } from 'tonal';
 import { MultiSheetQuestion, StackedNotes, NoteDuration } from '../types/MultiSheetCard';
 import { StaffEnum } from '../types/Cards';
 import { buildMultiSheetQuestion } from './notationBuilder';
@@ -9,7 +9,10 @@ export class MusicRecorder {
 	private _maxBeats = 4;
 	private prevMidiNotes: number[] = [];
 
-	constructor(public duration: NoteDuration = 'q') {}
+	constructor(
+		public duration: NoteDuration = 'q',
+		public splitNote = 'C4',
+	) {}
 
 	updateDuration(dur: NoteDuration) {
 		this.duration = dur;
@@ -74,7 +77,8 @@ export class MusicRecorder {
 		}
 
 		// Split notes by staff, then fill rests per voice separately
-		const { voices } = buildMultiSheetQuestion(this.notes, key);
+		const splitMidi = Note.midi(this.splitNote)!;
+		const { voices } = buildMultiSheetQuestion(this.notes, key, splitMidi);
 		const filledVoices = voices.map((v) => ({
 			...v,
 			stack: insertRestsToFillBars(v.stack),
