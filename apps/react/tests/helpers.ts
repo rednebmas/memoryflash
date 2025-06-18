@@ -15,8 +15,6 @@ export const test = base.extend<{ page: Page }>({
 	},
 });
 
-export { expect };
-
 export async function captureScreenshot(
 	page: Page,
 	url: string,
@@ -28,3 +26,5 @@ export async function captureScreenshot(
 	await output.waitFor();
 	await expect(output).toHaveScreenshot(name, screenshotOpts);
 }
+
+export { expect };
