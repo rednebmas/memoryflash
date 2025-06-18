@@ -30,9 +30,13 @@ gsutil -m cp "${files[@]}" "$DEST" >/dev/null
 
 URL_PREFIX="https://storage.googleapis.com/$BUCKET/${COMMIT_SHA}-${TIMESTAMP}/"
 
-# Build Markdown body
-body="### 🔴 Test Failures Detected\n\n"
-body+="Below is a gallery of each test’s **actual** vs **diff**. Click to view full-size or run locally:\n\n"
+# Build Markdown body using an array for cleaner multi-line assembly
+lines=(
+  "### 🔴 Test Failures Detected"
+  ""
+  "Below is a gallery of each test’s **actual** vs **diff**. Click to view full-size or run locally:"
+  ""
+)
 
 # Map each prefix to its actual and diff paths
 declare -A actual_paths diff_paths
@@ -49,23 +53,33 @@ done
 
 # Render a two-column table per test
 for prefix in "${!actual_paths[@]}"; do
-  actual_path="${actual_paths[$prefix]}"
-  diff_path="${diff_paths[$prefix]:-}"
-  actual_file="$(basename "$actual_path")"
-  diff_file="$(basename "$diff_path")"
-  actual_url="$URL_PREFIX$actual_file"
-  diff_url="$URL_PREFIX$diff_file"
+   actual_path="${actual_paths[$prefix]}"
+   diff_path="${diff_paths[$prefix]:-}"
+   actual_file="$(basename "$actual_path")"
+   diff_file="$(basename "$diff_path")"
+   actual_url="$URL_PREFIX$actual_file"
+   diff_url="$URL_PREFIX$diff_file"
 
-  body+="---\n\n"
-  body+="#### ${prefix}\n\n"
-  body+="| Actual | Diff |\n"
-  body+="| :----: | :---: |\n"
-  body+="| [![actual](${actual_url})](${actual_url}) | [![diff](${diff_url})](${diff_url}) |\n\n"
-  body+="\`\`\`bash\n"
-  body+="npx jest -t \"${prefix}\"\n"
-  body+="open \"$actual_path\"\n"
-  body+="\`\`\`\n\n"
+  # Append per-test Markdown lines
+  lines+=(
+    "---"
+    ""
+    "#### $prefix"
+    ""
+    "| Actual | Diff |"
+    "| :----: | :---: |"
+    "| [![actual]($actual_url)]($actual_url) | [![diff]($diff_url)]($diff_url) |"
+    ""
+    '```bash'
+    "npx jest -t \"$prefix\""
+    "open \"$actual_path\""
+    '```'
+    ""
+  )
 done
+
+# Join all lines into the body
+body=$(printf "%s\n" "${lines[@]}")
 
 # Post to PR if applicable
 if [ -n "${PR_NUMBER:-}" ]; then
