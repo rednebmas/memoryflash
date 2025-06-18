@@ -4,6 +4,8 @@ set -euo pipefail
 BUCKET="mflash-github-test-reports"
 RESULTS_DIR="apps/react/test-results"
 
+gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+
 if [ ! -d "$RESULTS_DIR" ]; then
 echo "No test-results directory"
 exit 0
