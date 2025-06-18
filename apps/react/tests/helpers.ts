@@ -1,1 +1,1 @@
-export const screenshotOpts = { maxDiffPixelRatio: 0.005 };
+export const screenshotOpts = { maxDiffPixelRatio: 0.0 };
