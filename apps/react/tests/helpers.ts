@@ -16,3 +16,15 @@ export const test = base.extend<{ page: Page }>({
 });
 
 export { expect };
+
+export async function captureScreenshot(
+	page: Page,
+	url: string,
+	name: string,
+	selector = '#output',
+) {
+	await page.goto(url);
+	const output = page.locator(selector);
+	await output.waitFor();
+	await expect(output).toHaveScreenshot(name, screenshotOpts);
+}
