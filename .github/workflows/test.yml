@@ -49,6 +49,24 @@ jobs:
               working-directory: apps/react
               run: npx playwright install --with-deps
 
+            - name: Update Playwright snapshots
+              working-directory: apps/react
+              run: yarn test:screenshots:update
+
+            - name: Commit and push updated snapshots
+              env:
+                  # expose the PAT for the push
+                  PAT: ${{ secrets.MFLASH_CI_TRIGGER_TOKEN}}
+              run: |
+                  git config user.name "github-actions[bot]"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
+                  git add apps/react/tests/*-snapshots/* || true
+                  git commit -m "chore: update Playwright screenshot snapshots" || echo "No changes to commit"
+                  BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
+                  echo "Pushing updates to branch: $BRANCH"
+                  # push over HTTPS using the PAT so GitHub treats it like a normal user push
+                  git push https://x-access-token:${PAT}@github.com/${{ github.repository }} HEAD:"$BRANCH"
+
             - name: Run unit tests
               id: tests
               run: yarn test
