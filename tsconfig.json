@@ -3,7 +3,7 @@
 	"compilerOptions": {
 		"baseUrl": ".",
 		"paths": {
-			"MemoryFlashCore/*": ["packages/MemoryFlashCore/src/*"]
+			"MemoryFlashCore/*": ["packages/MemoryFlashCore/dist/*"]
 		},
 		"moduleResolution": "node"
 	},

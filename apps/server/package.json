@@ -8,7 +8,7 @@
 		"dev": "nodemon src/app.ts",
 		"format": "prettier --write \"src/**/*.{ts,json}\"",
 		"lint": "eslint src/**/*.ts",
-		"start:prod": "node dist/app.js",
+		"start:prod": "node -r ts-node/register dist/app.js",
 		"test": "NODE_ENV=test mocha --timeout 10000 --require ts-node/register --require dotenv/config src/**/*.test.ts",
 		"test:watch": "nodemon --ext ts --exec 'yarn test'"
 	},
@@ -27,7 +27,8 @@
 		"passport": "^0.7.0",
 		"passport-local": "^1.0.0",
 		"tonal": "^6.2.0",
-		"winston": "^3.11.0"
+		"winston": "^3.11.0",
+		"ts-node": "^10.9.1"
 	},
 	"devDependencies": {
 		"@types/bcrypt": "^5.0.2",
@@ -51,7 +52,6 @@
 		"mongodb-memory-server": "^10.0.0",
 		"nodemon": "^3.0.1",
 		"prettier": "^3.0.3",
-		"ts-node": "^10.9.1",
 		"typescript": "^5.2.2"
 	},
 	"husky": {
