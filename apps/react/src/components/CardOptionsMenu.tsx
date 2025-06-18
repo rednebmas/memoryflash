@@ -44,8 +44,10 @@ export const CardOptionsMenu: React.FC<CardOptionsMenuProps> = ({
 	return (
 		<>
 			<Menu as="div" className="relative inline-block text-left">
-				<MenuButton as={CircleHover}>
-					<EllipsisVerticalIcon className="w-5 h-5" />
+				<MenuButton className="focus:outline-none">
+					<CircleHover>
+						<EllipsisVerticalIcon className="w-5 h-5" />
+					</CircleHover>
 				</MenuButton>
 				<DropdownMenu items={items} />
 			</Menu>
