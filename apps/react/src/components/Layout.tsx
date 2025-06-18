@@ -6,6 +6,7 @@ import { CircleHover } from './CircleHover';
 import { MidiInputsDropdown } from './MidiInputsDropdown';
 import { AccountNavButton } from './navigation/AccountNavButton';
 import { isIOSDebug } from '../utils/isIOSDebug';
+import { ConsoleErrorsButton } from './ConsoleErrorsButton';
 
 interface LayoutProps {
 	children: React.ReactNode;
@@ -58,9 +59,12 @@ export const Layout: React.FC<LayoutProps> = ({
 				<div className="flex flex-row-reverse items-center gap-3">
 					{rightContent}
 					{iosDebug && (
-						<CircleHover onClick={() => window.location.reload()}>
-							<ArrowPathIcon className="w-6 h-6 stroke-2" />
-						</CircleHover>
+						<>
+							<ConsoleErrorsButton />
+							<CircleHover onClick={() => window.location.reload()}>
+								<ArrowPathIcon className="w-6 h-6 stroke-2" />
+							</CircleHover>
+						</>
 					)}
 				</div>
 			</div>
