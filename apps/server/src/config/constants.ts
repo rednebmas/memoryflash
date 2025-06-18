@@ -2,6 +2,7 @@ import { SessionOptions } from 'express-session';
 import { oneDayInMillis, oneMinInMillis } from '../utils/dates';
 
 export const APP_URL = process.env.APP_URL || 'http://localhost:3000';
+export const FRONT_END_URL = process.env.FRONT_END_URL || APP_URL;
 export const APP_DOMAIN = new URL(APP_URL).hostname;
 export const PORT = process.env.PORT || 3000;
 
