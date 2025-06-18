@@ -30,7 +30,6 @@ const CardSchema = new Schema<CardDoc>(
 	{
 		toJSON: {
 			transform: (_, ret: Partial<CardDoc>) => {
-				delete ret.__v;
 				delete ret.updatedAt;
 			},
 		},

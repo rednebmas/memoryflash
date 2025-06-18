@@ -28,7 +28,6 @@ const DeckSchema = new Schema<DeckDoc>(
 	{
 		toJSON: {
 			transform: (_, ret: Partial<DeckDoc>) => {
-				delete ret.__v;
 				delete ret.updatedAt;
 			},
 		},

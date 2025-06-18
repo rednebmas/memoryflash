@@ -23,7 +23,6 @@ const ForgotPasswordSchema = new Schema<ForgotPasswordDoc>(
 	{
 		toJSON: {
 			transform: (_, ret: Partial<ForgotPasswordDoc>) => {
-				delete ret.__v;
 				delete ret.updatedAt;
 			},
 		},

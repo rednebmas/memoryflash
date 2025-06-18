@@ -30,7 +30,6 @@ const UserDeckStatsSchema = new Schema<UserDeckStatsDoc>(
 	{
 		toJSON: {
 			transform: (_, ret: Partial<UserDeckStatsDoc>) => {
-				delete ret.__v;
 				delete ret.updatedAt;
 			},
 		},
