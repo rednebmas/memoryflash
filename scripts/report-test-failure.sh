@@ -30,6 +30,9 @@ gsutil -m cp "${files[@]}" "$DEST" >/dev/null
 
 URL_PREFIX="https://storage.googleapis.com/$BUCKET/${COMMIT_SHA}-${TIMESTAMP}/"
 
+BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
+WORKFLOW_URL="https://github.com/${GITHUB_REPOSITORY}/actions/workflows/update-snapshots.yml?ref=${BRANCH}"
+
 # Build Markdown body using an array for cleaner multi-line assembly
 lines=(
   "### 🔴 Test Failures Detected"
@@ -91,6 +94,12 @@ for prefix in "${!actual_paths[@]}"; do
     ""
   )
 done
+
+lines+=(
+  "---"
+  "To update all screenshot snapshots, [run the Update Screenshot Snapshots workflow]($WORKFLOW_URL)."
+  ""
+)
 
 # Join all lines into the body
 body=$(printf "%s\n" "${lines[@]}")
