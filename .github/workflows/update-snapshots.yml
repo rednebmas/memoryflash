@@ -1,4 +1,4 @@
-name: Update Screenshot Snapshots
+name: Update Screenshot Test PNGs
 
 on:
     workflow_dispatch:
