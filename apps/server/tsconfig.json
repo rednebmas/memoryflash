@@ -11,7 +11,8 @@
 		"noUnusedParameters": false,
 		"outDir": "./dist",
 		"paths": {
-			"*": ["node_modules/*"]
+			"*": ["node_modules/*"],
+			"MemoryFlashCore/*": ["../../packages/MemoryFlashCore/dist/*"]
 		},
 		"rootDir": "./src",
 		"skipLibCheck": true,
