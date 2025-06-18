@@ -15,13 +15,6 @@ jobs:
               with:
                   token: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Debug current Git branch
-              run: |
-                  echo "Current branch: $(git rev-parse --abbrev-ref HEAD)"
-                  echo "GITHUB_REF=${GITHUB_REF}"
-                  echo "GITHUB_HEAD_REF=${GITHUB_HEAD_REF}"
-                  echo "GITHUB_BASE_REF=${GITHUB_BASE_REF}"
-
             - name: Enable Corepack
               run: corepack enable
 
@@ -44,4 +37,6 @@ jobs:
                   git config user.email "github-actions[bot]@users.noreply.github.com"
                   git add apps/react/tests/*-snapshots/* || true
                   git commit -m "chore: update Playwright screenshot snapshots" || echo "No changes to commit"
-                  git push origin HEAD:main
+                  BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
+                  echo "Pushing updates to branch: $BRANCH"
+                  git push origin HEAD:"$BRANCH"
