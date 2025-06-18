@@ -1,7 +1,7 @@
 import { Document, model, Schema } from 'mongoose';
-import { UserDeckStatsType } from 'MemoryFlashCore/src/types/UserDeckStats';
+import { UserDeckStatsMongo } from 'MemoryFlashCore/src/types/UserDeckStats';
 
-export type UserDeckStatsDoc = UserDeckStatsType & Document;
+export type UserDeckStatsDoc = UserDeckStatsMongo & Document;
 
 const UserDeckStatsSchema = new Schema<UserDeckStatsDoc>(
 	{
