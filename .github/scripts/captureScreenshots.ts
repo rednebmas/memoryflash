@@ -2,8 +2,7 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import { chromium } from 'playwright';
 import { login } from './login';
-
-const repoRoot = path.resolve(__dirname, '..', '..');
+import { repoRoot } from './constants';
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
@@ -94,6 +93,8 @@ async function run(): Promise<void> {
 		try {
 			if (step.action === 'goto') {
 				await page.goto(step.url);
+				await page.waitForLoadState('networkidle');
+				await page.waitForTimeout(1000);
 			} else if (step.action === 'click') {
 				await page.click(step.selector);
 			} else if (step.action === 'fill') {
@@ -101,6 +102,8 @@ async function run(): Promise<void> {
 			} else if (step.action === 'login') {
 				await login(page);
 			} else if (step.action === 'screenshot') {
+				await page.waitForLoadState('networkidle');
+				await page.waitForTimeout(1000);
 				const screenshotPath = path.join(resultsDir, step.name);
 				console.log(`Capturing screenshot ${screenshotPath}`);
 				await page.screenshot({ path: screenshotPath });
