@@ -14,7 +14,7 @@ import { addCardsToDeck } from 'MemoryFlashCore/src/redux/actions/add-cards-to-d
 import { setPresentationMode } from 'MemoryFlashCore/src/redux/actions/set-presentation-mode';
 import { CardTypeEnum } from 'MemoryFlashCore/src/types/Cards';
 import { Button } from '../components/Button';
-import { Checkbox } from '../components/inputs';
+import { KeySelector } from '../components/KeySelector';
 import { useDeckIdPath } from './useDeckIdPath';
 
 const NoteSettings: React.FC<{
@@ -112,6 +112,8 @@ export const NotationInputScreen = () => {
 	const data = recorderRef.current.buildQuestion(keySig);
 	const previews = questionsForAllMajorKeys(data, lowest, highest);
 	const toggle = (i: number) => setSelected((prev) => prev.map((v, idx) => (idx === i ? !v : v)));
+	const selectAll = () => setSelected(majorKeys.map(() => true));
+	const selectNone = () => setSelected(majorKeys.map(() => false));
 
 	const handleAdd = () => {
 		if (deckId) {
@@ -143,6 +145,12 @@ export const NotationInputScreen = () => {
 				highest={highest}
 				setHighest={setHighest}
 			/>
+			<KeySelector
+				selected={selected}
+				toggle={toggle}
+				selectAll={selectAll}
+				selectNone={selectNone}
+			/>
 			<div className="flex flex-col gap-4 pb-4 items-start">
 				<div className="flex items-center gap-2">
 					<span>Card Type</span>
@@ -159,17 +167,12 @@ export const NotationInputScreen = () => {
 			</div>
 			<div className="flex flex-col items-center gap-5">
 				{previews.map((p, i) => (
-					<label key={i} className="flex flex-col items-center gap-2">
+					<div key={i} className="flex flex-col items-center gap-2">
 						<div className="card-container flex flex-col items-center gap-2 w-[26rem]">
-							<div className="flex items-center gap-2">
-								<Checkbox checked={selected[i]} onChange={() => toggle(i)} />
-								<span className="text-gray-900 dark:text-gray-100">
-									{majorKeys[i]}
-								</span>
-							</div>
+							<span className="text-gray-900 dark:text-gray-100">{majorKeys[i]}</span>
 							<MusicNotation data={p} />
 						</div>
-					</label>
+					</div>
 				))}
 			</div>
 			<div className="pt-4 flex justify-center">
