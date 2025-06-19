@@ -2,8 +2,7 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import { chromium } from 'playwright';
 import { login } from './login';
-
-const repoRoot = path.resolve(__dirname, '..', '..');
+import { repoRoot } from './constants';
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
