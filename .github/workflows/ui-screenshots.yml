@@ -74,7 +74,7 @@ jobs:
 
             - name: Upload screenshots and comment
               if: steps.plan.outputs.exists == 'true'
-              run: ./scripts/report-test-failure.sh
+              run: ./scripts/upload-plan-screenshots.sh
               env:
                   PR_NUMBER: ${{ github.event.pull_request.number }}
                   GITHUB_TOKEN: ${{ github.token }}
