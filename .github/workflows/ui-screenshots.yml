@@ -1,0 +1,79 @@
+name: Diff-based UI Screenshots
+
+on:
+    pull_request:
+        types: [opened, synchronize, reopened]
+    workflow_dispatch:
+
+jobs:
+    screenshots:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            pull-requests: write
+        steps:
+            - uses: actions/checkout@v3
+
+            - name: Enable Corepack
+              run: corepack enable
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 20.x
+                  cache: 'yarn'
+
+            - name: Install dependencies
+              run: yarn install
+
+            - name: Check for plan file
+              id: plan
+              run: |
+                  if [ -f ui-plan.md ]; then
+                    echo "exists=true" >> "$GITHUB_OUTPUT"
+                  else
+                    echo "exists=false" >> "$GITHUB_OUTPUT"
+                  fi
+
+            - name: Build React app
+              if: steps.plan.outputs.exists == 'true'
+              run: yarn workspace MemoryFlashReact build
+
+            - name: Build server
+              if: steps.plan.outputs.exists == 'true'
+              run: yarn workspace MemoryFlashServer build
+
+            - name: Start MongoDB
+              if: steps.plan.outputs.exists == 'true'
+              uses: supercharge/mongodb-github-action@1.8.0
+              with:
+                  mongodb-version: '6.0'
+
+            - name: Start app servers
+              if: steps.plan.outputs.exists == 'true'
+              env:
+                  MONGO_URI: mongodb://localhost:27017/memoryflash
+                  APP_URL: http://localhost:8009
+                  FRONT_END_URL: http://localhost:8009
+              run: |
+                  yarn workspace MemoryFlashServer start:prod &
+                  yarn workspace MemoryFlashReact preview --port 8009 &
+                  timeout 60 bash -c 'until nc -z localhost 8009; do sleep 2; done'
+                  timeout 60 bash -c 'until nc -z localhost 3000; do sleep 2; done'
+
+            - name: Capture screenshots
+              if: steps.plan.outputs.exists == 'true'
+              run: node --loader ts-node/esm .github/scripts/captureScreenshots.ts
+
+            - name: Authenticate on GCS
+              if: steps.plan.outputs.exists == 'true'
+              uses: google-github-actions/auth@v2
+              with:
+                  credentials_json: ${{ secrets.GCP_MFLASH_PROD_JSON_KEY }}
+
+            - name: Upload screenshots and comment
+              if: steps.plan.outputs.exists == 'true'
+              run: ./scripts/report-test-failure.sh
+              env:
+                  PR_NUMBER: ${{ github.event.pull_request.number }}
+                  GITHUB_TOKEN: ${{ github.token }}
