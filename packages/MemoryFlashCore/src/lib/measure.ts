@@ -22,7 +22,7 @@ const beatsToDurations: [number, Duration][] = [
 	[0.0625, '64'],
 ];
 
-function createRestDurations(beats: number): StackedNotes[] {
+export function createRestDurations(beats: number): StackedNotes[] {
 	const result: StackedNotes[] = [];
 	for (const [value, dur] of beatsToDurations) {
 		while (beats >= value - 1e-9) {

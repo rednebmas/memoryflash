@@ -1,19 +1,14 @@
 # Guidelines for MemoryFlash Contributors
 
-This project prefers a highly componentized React codebase. When creating UI elements:
+This project prefers a highly componentized React codebase that avoids duplicate code.
 
-- **Componentization**: Extract reusable JSX into components whenever possible. Keep components small and focused.
-- **File Organization**: Group related components together in folders (e.g., all input components live in `components/inputs`).
-- **Styling**: Use Tailwind CSS utility classes. Share common styling through base components rather than repeating class strings.
-  When `ui-plan.md` exists, the workflow `.github/workflows/ui-screenshots.yml` will build the app, run `ts-node` on `.github/scripts/captureScreenshots.ts`, and upload the resulting screenshots to the pull request using `scripts/upload-plan-screenshots.sh`.
-- **Testing**: After changes, run `yarn test` from the repository root.
-- **Type Checking**: Run `yarn workspace MemoryFlashReact build` to ensure there are no missing imports or type errors.
-- **Screenshots**: When adding new Playwright `.spec.ts` files, delete any generated `.png` snapshots before committing. Maintainers will upload them separately.
+-   **Componentization**: Extract reusable JSX into components whenever possible. Keep components small and focused refactoring them as needed.
+-   **File Organization**: Group related components together in folders
+-   **Styling**: Use Tailwind CSS utility classes. Share common styling through base components rather than repeating class strings.
+-   **Formatting**: Code is formatted with Prettier using tabs. Run `npx prettier --write` before committing. Don't add comments to code unless absolutely necessary.
+-   **Testing**: After changes, run `yarn test:codex` from the repository root to ensure all tests pass.
 
 Follow these guidelines to keep the codebase clean and maintainable.
-
-For the iOS project, do not add comments to Swift source files. Keep the code
-self-explanatory.
 
 ## LLM Screenshot Workflow
 
@@ -31,5 +26,3 @@ Example plan format:
 ```
 
 When `ui-plan.md` exists, the workflow `.github/workflows/ui-screenshots.yml` will build the app, run `ts-node` on `.github/scripts/captureScreenshots.ts`, and upload the resulting screenshots to the pull request.
-
-The screenshot runner looks for a standard login fixture at `test-fixtures/session-cookies.json`. Include a `{"action": "login"}` step in your plan and the runner will inject these cookies automatically. If any selector in the plan fails, the runner queries the `o4mini-high` model with the current page HTML to guess an updated selector.

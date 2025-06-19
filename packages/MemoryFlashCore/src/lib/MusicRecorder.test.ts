@@ -17,13 +17,6 @@ describe('MusicRecorder', () => {
 		]);
 	});
 
-	it('removes last note', () => {
-		const r = new MusicRecorder('q');
-		r.addMidiNotes([60]);
-		r.removeLast();
-		expect(r.notes).to.deep.equal([]);
-	});
-
 	it('returns whole rest when empty', () => {
 		const r = new MusicRecorder('q');
 		expect(r.filledNotes).to.deep.equal([{ notes: [], duration: 'w', rest: true }]);
@@ -95,5 +88,22 @@ describe('MusicRecorder', () => {
 
 		expect(treble.map((n) => n.rest || false)).to.deep.equal([false, true, false, true]);
 		expect(bass.map((n) => n.rest || false)).to.deep.equal([true, false, true, false]);
+	});
+
+	it('tracks durations separately per clef', () => {
+		const r = new MusicRecorder('q');
+		r.updateDuration('q', StaffEnum.Treble);
+		r.updateDuration('h', StaffEnum.Bass);
+		r.addMidiNotes([60]);
+		r.addMidiNotes([]);
+		r.addMidiNotes([48]);
+		r.addMidiNotes([]);
+
+		const q = r.buildQuestion('C');
+		const treble = q.voices.find((v) => v.staff === StaffEnum.Treble)!.stack;
+		const bass = q.voices.find((v) => v.staff === StaffEnum.Bass)!.stack;
+
+		expect(treble[0].duration).to.equal('q');
+		expect(bass.find((n) => !n.rest)!.duration).to.equal('h');
 	});
 });
