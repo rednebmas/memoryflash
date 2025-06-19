@@ -21,7 +21,7 @@ export const NotationInputScreen = () => {
 	const dispatch = useAppDispatch();
 	const { deckId } = useDeckIdPath();
 
-	const recorderRef = useRef(new MusicRecorder('q'));
+	const recorderRef = useRef(new MusicRecorder('q', 'C4', 'q', bars));
 	const midiNotes = useAppSelector(
 		(state) => state.midi.notes.map((n) => n.number),
 		shallowEqual,
@@ -34,6 +34,11 @@ export const NotationInputScreen = () => {
 	useEffect(() => {
 		recorderRef.current.updateDuration(settings.bassDur, StaffEnum.Bass);
 	}, [settings.bassDur]);
+
+	useEffect(() => {
+		recorderRef.current.setBars(bars);
+		recorderRef.current.reset();
+	}, [bars]);
 
 	useEffect(() => {
 		recorderRef.current.addMidiNotes(midiNotes);

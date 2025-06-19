@@ -22,6 +22,7 @@ export class MusicRecorder {
 	public splitNote: string;
 
 	private _maxBeats = 4;
+	private bars = 1;
 	private prevMidiNotes: number[] = [];
 	private currentBeat = 0;
 	private staff: Record<StaffKey, StaffState>;
@@ -30,12 +31,19 @@ export class MusicRecorder {
 		trebleDuration: NoteDuration = 'q',
 		splitNote = 'C4',
 		bassDuration: NoteDuration = 'q',
+		bars = 1,
 	) {
 		this.splitNote = splitNote;
+		this.setBars(bars);
 		this.staff = {
 			[StaffEnum.Treble]: { events: [], beats: 0, duration: trebleDuration },
 			[StaffEnum.Bass]: { events: [], beats: 0, duration: bassDuration },
 		};
+	}
+
+	setBars(bars: number): void {
+		this.bars = bars;
+		this._maxBeats = bars * 4;
 	}
 
 	updateDuration(dur: NoteDuration, staff?: StaffEnum): void {
