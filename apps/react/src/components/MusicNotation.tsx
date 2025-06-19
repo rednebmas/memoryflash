@@ -191,6 +191,21 @@ export const MusicNotation: React.FunctionComponent<MusicNotationProps> = ({
 			voice.draw(context, stave);
 		});
 
+		const firstWidth = 370;
+		const extraWidth = 300;
+		for (let i = 1; i < bars; i++) {
+			const x = firstWidth + (i - 1) * extraWidth;
+			if (trebleStave) {
+				new VF.Barline(VF.Barline.type.SINGLE)
+					.setContext(context)
+					.setX(x)
+					.draw(trebleStave);
+			}
+			if (bassStave) {
+				new VF.Barline(VF.Barline.type.SINGLE).setContext(context).setX(x).draw(bassStave);
+			}
+		}
+
 		context.closeGroup();
 		allNotesGroup.classList.add('music-notation-notes');
 
