@@ -64,7 +64,7 @@ jobs:
 
             - name: Capture screenshots
               if: steps.plan.outputs.exists == 'true'
-              run: node --loader ts-node/esm .github/scripts/captureScreenshots.ts
+              run: yarn ts-node .github/scripts/captureScreenshots.ts
 
             - name: Authenticate on GCS
               if: steps.plan.outputs.exists == 'true'
