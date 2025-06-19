@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Stave, Vex, Note as VFNote } from 'vexflow';
+import { Stave, Vex, Note as VFNote, RenderContext } from 'vexflow';
 import { MultiSheetQuestion, Voice } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { calcBars } from 'MemoryFlashCore/src/lib/calcBars';
 import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
@@ -122,9 +122,15 @@ const createTextNotes = (data: MultiSheetQuestion, stave: Stave) => {
 	});
 };
 
-const drawBarLines = (context: any, bars: number, trebleStave?: Stave, bassStave?: Stave) => {
+const drawBarLines = (
+	context: RenderContext,
+	bars: number,
+	trebleStave?: Stave,
+	bassStave?: Stave,
+) => {
+	const startX = trebleStave?.getNoteStartX() ?? bassStave?.getNoteStartX() ?? 0;
 	for (let i = 1; i < bars; i++) {
-		const x = FIRST_BAR_WIDTH + (i - 1) * EXTRA_BAR_WIDTH;
+		const x = startX + FIRST_BAR_WIDTH + (i - 1) * EXTRA_BAR_WIDTH;
 		if (trebleStave) {
 			new VF.Barline(VF.Barline.type.SINGLE).setContext(context).setX(x).draw(trebleStave);
 		}
