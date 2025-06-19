@@ -2,6 +2,8 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import { chromium } from 'playwright';
 
+const repoRoot = path.resolve(__dirname, '..', '..');
+
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 interface BaseStep {
@@ -36,7 +38,9 @@ interface LoginStep extends BaseStep {
 type Step = GotoStep | ClickStep | FillStep | ScreenshotStep | LoginStep;
 
 async function loadCookies(page: any): Promise<void> {
-	const cookiePath = process.env.SESSION_COOKIES_PATH || 'test-fixtures/session-cookies.json';
+	const cookiePath =
+		process.env.SESSION_COOKIES_PATH ||
+		path.join(repoRoot, 'test-fixtures', 'session-cookies.json');
 	try {
 		console.log(`Loading cookies from ${cookiePath}`);
 		const data = await fs.readFile(cookiePath, 'utf8');
@@ -91,8 +95,8 @@ async function loadSteps(planPath: string): Promise<Step[]> {
 
 async function run(): Promise<void> {
 	console.log('Starting screenshot capture');
-	const steps = await loadSteps('ui-plan.md');
-	const resultsDir = path.join('apps', 'react', 'test-results');
+	const steps = await loadSteps(path.join(repoRoot, 'ui-plan.md'));
+	const resultsDir = path.join(repoRoot, 'apps', 'react', 'test-results');
 	await fs.mkdir(resultsDir, { recursive: true });
 
 	console.log('Launching headless browser');
