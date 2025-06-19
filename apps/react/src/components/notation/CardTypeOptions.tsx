@@ -6,14 +6,20 @@ import { SettingsSection } from './SettingsSection';
 interface CardTypeOptionsProps {
 	cardType: 'Sheet Music' | 'Text Prompt';
 	textPrompt: string;
+	preview: boolean;
 	onChange: (
-		changes: Partial<{ cardType: 'Sheet Music' | 'Text Prompt'; textPrompt: string }>,
+		changes: Partial<{
+			cardType: 'Sheet Music' | 'Text Prompt';
+			textPrompt: string;
+			preview: boolean;
+		}>,
 	) => void;
 }
 
 export const CardTypeOptions: React.FC<CardTypeOptionsProps> = ({
 	cardType,
 	textPrompt,
+	preview,
 	onChange,
 }) => (
 	<SettingsSection title="Card Type">
@@ -23,12 +29,23 @@ export const CardTypeOptions: React.FC<CardTypeOptionsProps> = ({
 				<CardTypeDropdown value={cardType} onChange={(v) => onChange({ cardType: v })} />
 			</div>
 			{cardType === 'Text Prompt' && (
-				<InputField
-					id="text-prompt"
-					label="Prompt Text"
-					value={textPrompt}
-					onChange={(e) => onChange({ textPrompt: e.target.value })}
-				/>
+				<>
+					<InputField
+						id="text-prompt"
+						label="Prompt Text"
+						value={textPrompt}
+						onChange={(e) => onChange({ textPrompt: e.target.value })}
+					/>
+					<label className="flex items-center gap-2">
+						<input
+							type="checkbox"
+							className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600"
+							checked={preview}
+							onChange={(e) => onChange({ preview: e.target.checked })}
+						/>
+						<span>Preview</span>
+					</label>
+				</>
 			)}
 		</div>
 	</SettingsSection>

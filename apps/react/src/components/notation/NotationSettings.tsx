@@ -42,6 +42,7 @@ export const NotationSettings: React.FC<NotationSettingsProps> = ({ onChange }) 
 			<CardTypeOptions
 				cardType={state.cardType}
 				textPrompt={state.textPrompt}
+				preview={state.preview}
 				onChange={update}
 			/>
 		</div>

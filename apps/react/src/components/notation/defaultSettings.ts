@@ -10,6 +10,7 @@ export interface NotationSettingsState {
 	selected: boolean[];
 	cardType: 'Sheet Music' | 'Text Prompt';
 	textPrompt: string;
+	preview: boolean;
 }
 
 export const defaultSettings: NotationSettingsState = {
@@ -21,4 +22,5 @@ export const defaultSettings: NotationSettingsState = {
 	selected: majorKeys.map(() => true),
 	cardType: 'Sheet Music',
 	textPrompt: '',
+	preview: false,
 };

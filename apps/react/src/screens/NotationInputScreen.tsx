@@ -59,7 +59,12 @@ export const NotationInputScreen = () => {
 	return (
 		<Layout subtitle="Notation Input" back="/">
 			<NotationSettings onChange={setSettings} />
-			<NotationPreviewList previews={previews} />
+			<NotationPreviewList
+				previews={previews}
+				cardType={settings.cardType}
+				textPrompt={settings.textPrompt}
+				previewTextCard={settings.preview}
+			/>
 			<div className="pt-4 flex justify-center">
 				<Button onClick={handleAdd}>Add Card</Button>
 			</div>
