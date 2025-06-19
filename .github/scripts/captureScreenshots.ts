@@ -1,5 +1,5 @@
-import fs from 'fs/promises';
-import path from 'path';
+import * as fs from 'fs/promises';
+import * as path from 'path';
 import { chromium } from 'playwright';
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
