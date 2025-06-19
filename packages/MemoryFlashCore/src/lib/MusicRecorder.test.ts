@@ -31,6 +31,24 @@ describe('MusicRecorder', () => {
 		expect(r.notes.length).to.equal(4);
 	});
 
+	it('records two measures when configured', () => {
+		const r = new MusicRecorder('q', 'C4', 'q', 2);
+		for (const n of [60, 62, 64, 65, 67, 69, 71, 72]) {
+			r.addMidiNotes([n]);
+			r.addMidiNotes([]);
+		}
+		expect(r.notes.length).to.equal(8);
+	});
+
+	it('ignores notes beyond two measures', () => {
+		const r = new MusicRecorder('q', 'C4', 'q', 2);
+		for (const n of [60, 62, 64, 65, 67, 69, 71, 72, 74]) {
+			r.addMidiNotes([n]);
+			r.addMidiNotes([]);
+		}
+		expect(r.notes.length).to.equal(8);
+	});
+
 	it('records new stack only after notes released', () => {
 		const r = new MusicRecorder('q');
 		r.addMidiNotes([60]);
