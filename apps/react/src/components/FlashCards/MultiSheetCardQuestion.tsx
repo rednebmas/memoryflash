@@ -3,7 +3,10 @@ import { QuestionRender } from '..';
 import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { MultiSheetCard } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { MusicNotation } from '../MusicNotation';
-import { PresentationModeStartCard } from 'MemoryFlashCore/src/types/PresentationMode';
+import {
+	PresentationModeStartCard,
+	PresentationModeText,
+} from 'MemoryFlashCore/src/types/PresentationMode';
 
 export const MultiSheetCardQuestion: React.FC<QuestionRender> = ({ card, placement }) => {
 	const c = card as MultiSheetCard;
@@ -51,6 +54,14 @@ export const MultiSheetCardQuestion: React.FC<QuestionRender> = ({ card, placeme
 					{presentationModeData.textAbove}
 				</span>
 				<span className="pt-3">{c.question.voices[0].stack[0].chordName}</span>
+				<div className="mb-auto">{CorrectDots(c, multiPartCardIndex, placement)}</div>
+			</div>
+		);
+	} else if (activePresentationModeId === 'Text Prompt') {
+		const pm = activePresentationMode as PresentationModeText;
+		return (
+			<div className="flex flex-col items-center justify-center text-center gap-2">
+				<span className="pt-3">{pm.text}</span>
 				<div className="mb-auto">{CorrectDots(c, multiPartCardIndex, placement)}</div>
 			</div>
 		);

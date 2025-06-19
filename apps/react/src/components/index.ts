@@ -14,3 +14,5 @@ export * from './modals/InputModal';
 export * from './modals/ConfirmModal';
 export * from './CardOptionsMenu';
 export * from './ConsoleErrorsButton';
+export * from './KeySelector';
+export * from './notation';

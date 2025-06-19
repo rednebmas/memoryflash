@@ -1,88 +1,23 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { shallowEqual } from 'react-redux';
-import { Layout } from '../components';
-import { MusicNotation } from '../components/MusicNotation';
-import { NoteDuration } from 'MemoryFlashCore/src/types/MultiSheetCard';
-import { majorKeys, notes as allNotes } from 'MemoryFlashCore/src/lib/notes';
+import { Layout, Button } from '../components';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { MusicRecorder } from 'MemoryFlashCore/src/lib/MusicRecorder';
 import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
-import { Select, DurationSelect } from '../components/inputs';
 import { questionsForAllMajorKeys } from 'MemoryFlashCore/src/lib/multiKeyTransposer';
 import { addCardsToDeck } from 'MemoryFlashCore/src/redux/actions/add-cards-to-deck';
-import { Button } from '../components/Button';
-import { Checkbox } from '../components/inputs';
+import { setPresentationMode } from 'MemoryFlashCore/src/redux/actions/set-presentation-mode';
+import { CardTypeEnum } from 'MemoryFlashCore/src/types/Cards';
 import { useDeckIdPath } from './useDeckIdPath';
-
-const NoteSettings: React.FC<{
-	keySig: string;
-	setKeySig: (k: string) => void;
-	trebleDur: NoteDuration;
-	setTrebleDur: (d: NoteDuration) => void;
-	bassDur: NoteDuration;
-	setBassDur: (d: NoteDuration) => void;
-}> = ({ keySig, setKeySig, trebleDur, setTrebleDur, bassDur, setBassDur }) => (
-	<div className="flex gap-4 pb-4">
-		<label className="flex items-center gap-2">
-			Key
-			<Select value={keySig} onChange={(e) => setKeySig(e.target.value)}>
-				{majorKeys.map((k) => (
-					<option key={k}>{k}</option>
-				))}
-			</Select>
-		</label>
-		<label className="flex items-center gap-2">
-			Treble
-			<DurationSelect
-				value={trebleDur}
-				onChange={(e) => setTrebleDur(e.target.value as NoteDuration)}
-			/>
-		</label>
-		<label className="flex items-center gap-2">
-			Bass
-			<DurationSelect
-				value={bassDur}
-				onChange={(e) => setBassDur(e.target.value as NoteDuration)}
-			/>
-		</label>
-	</div>
-);
-
-const RangeSettings: React.FC<{
-	lowest: string;
-	setLowest: (n: string) => void;
-	highest: string;
-	setHighest: (n: string) => void;
-}> = ({ lowest, setLowest, highest, setHighest }) => {
-	const options = allNotes.flatMap((n) =>
-		[3, 4, 5, 6].map((o) => <option key={`${n}${o}`}>{`${n}${o}`}</option>),
-	);
-	return (
-		<div className="flex gap-4 pb-4">
-			<label className="flex items-center gap-2">
-				Lowest
-				<Select value={lowest} onChange={(e) => setLowest(e.target.value)}>
-					{options}
-				</Select>
-			</label>
-			<label className="flex items-center gap-2">
-				Highest
-				<Select value={highest} onChange={(e) => setHighest(e.target.value)}>
-					{options}
-				</Select>
-			</label>
-		</div>
-	);
-};
+import {
+	NotationSettings,
+	NotationSettingsState,
+	defaultSettings,
+	NotationPreviewList,
+} from '../components/notation';
 
 export const NotationInputScreen = () => {
-	const [keySig, setKeySig] = useState(majorKeys[0]);
-	const [trebleDur, setTrebleDur] = useState<NoteDuration>('q');
-	const [bassDur, setBassDur] = useState<NoteDuration>('q');
-	const [lowest, setLowest] = useState('C3');
-	const [highest, setHighest] = useState('C5');
-	const [selected, setSelected] = useState<boolean[]>(() => majorKeys.map(() => true));
-
+	const [settings, setSettings] = useState<NotationSettingsState>(defaultSettings);
 	const dispatch = useAppDispatch();
 	const { deckId } = useDeckIdPath();
 
@@ -93,59 +28,38 @@ export const NotationInputScreen = () => {
 	);
 
 	useEffect(() => {
-		recorderRef.current.updateDuration(trebleDur, StaffEnum.Treble);
-	}, [trebleDur]);
+		recorderRef.current.updateDuration(settings.trebleDur, StaffEnum.Treble);
+	}, [settings.trebleDur]);
 
 	useEffect(() => {
-		recorderRef.current.updateDuration(bassDur, StaffEnum.Bass);
-	}, [bassDur]);
+		recorderRef.current.updateDuration(settings.bassDur, StaffEnum.Bass);
+	}, [settings.bassDur]);
 
 	useEffect(() => {
 		recorderRef.current.addMidiNotes(midiNotes);
 	}, [midiNotes]);
 
-	const data = recorderRef.current.buildQuestion(keySig);
-	const previews = questionsForAllMajorKeys(data, lowest, highest);
-	const toggle = (i: number) => setSelected((prev) => prev.map((v, idx) => (idx === i ? !v : v)));
+	const data = recorderRef.current.buildQuestion(settings.keySig);
+	const previews = questionsForAllMajorKeys(data, settings.lowest, settings.highest);
 
 	const handleAdd = () => {
 		if (deckId) {
-			const toAdd = previews.filter((_, i) => selected[i]);
+			let toAdd = previews.filter((_, i) => settings.selected[i]);
+			if (settings.cardType === 'Text Prompt') {
+				toAdd = toAdd.map((q) => ({
+					...q,
+					presentationModes: [{ id: 'Text Prompt', text: settings.textPrompt }],
+				}));
+				dispatch(setPresentationMode(CardTypeEnum.MultiSheet, 'Text Prompt'));
+			}
 			dispatch(addCardsToDeck(deckId, toAdd));
 		}
 	};
 
 	return (
 		<Layout subtitle="Notation Input" back="/">
-			<NoteSettings
-				keySig={keySig}
-				setKeySig={setKeySig}
-				trebleDur={trebleDur}
-				setTrebleDur={setTrebleDur}
-				bassDur={bassDur}
-				setBassDur={setBassDur}
-			/>
-			<RangeSettings
-				lowest={lowest}
-				setLowest={setLowest}
-				highest={highest}
-				setHighest={setHighest}
-			/>
-			<div className="flex flex-col items-center gap-5">
-				{previews.map((p, i) => (
-					<label key={i} className="flex flex-col items-center gap-2">
-						<div className="card-container flex flex-col items-center gap-2 w-[26rem]">
-							<div className="flex items-center gap-2">
-								<Checkbox checked={selected[i]} onChange={() => toggle(i)} />
-								<span className="text-gray-900 dark:text-gray-100">
-									{majorKeys[i]}
-								</span>
-							</div>
-							<MusicNotation data={p} />
-						</div>
-					</label>
-				))}
-			</div>
+			<NotationSettings onChange={setSettings} />
+			<NotationPreviewList previews={previews} />
 			<div className="pt-4 flex justify-center">
 				<Button onClick={handleAdd}>Add Card</Button>
 			</div>

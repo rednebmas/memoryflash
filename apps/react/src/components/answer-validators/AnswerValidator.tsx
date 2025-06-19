@@ -23,6 +23,7 @@ export const AnswerValidator: React.FC<{ card: Card | undefined }> = ({ card }) 
 				case 'Chords':
 				case 'Key Signature Only':
 				case 'First Chord Only':
+				case 'Text Prompt':
 					return <UnExactMultiAnswerValidator card={card} />;
 				default:
 					return <ExactMultiAnswerValidator card={card} />;
