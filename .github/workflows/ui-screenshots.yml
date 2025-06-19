@@ -64,7 +64,7 @@ jobs:
 
             - name: Capture screenshots
               if: steps.plan.outputs.exists == 'true'
-              run: yarn workspace MemoryFlashServer run ts-node .github/scripts/captureScreenshots.ts
+              run: yarn workspace MemoryFlashServer run ts-node ../../.github/scripts/captureScreenshots.ts
 
             - name: Authenticate on GCS
               if: steps.plan.outputs.exists == 'true'
