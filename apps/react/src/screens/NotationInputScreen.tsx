@@ -7,9 +7,12 @@ import { majorKeys, notes as allNotes } from 'MemoryFlashCore/src/lib/notes';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { MusicRecorder } from 'MemoryFlashCore/src/lib/MusicRecorder';
 import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
-import { Select, DurationSelect } from '../components/inputs';
+import { Select, DurationSelect, InputField } from '../components/inputs';
+import { CardTypeDropdown } from '../components/CardTypeDropdown';
 import { questionsForAllMajorKeys } from 'MemoryFlashCore/src/lib/multiKeyTransposer';
 import { addCardsToDeck } from 'MemoryFlashCore/src/redux/actions/add-cards-to-deck';
+import { setPresentationMode } from 'MemoryFlashCore/src/redux/actions/set-presentation-mode';
+import { CardTypeEnum } from 'MemoryFlashCore/src/types/Cards';
 import { Button } from '../components/Button';
 import { Checkbox } from '../components/inputs';
 import { useDeckIdPath } from './useDeckIdPath';
@@ -82,6 +85,8 @@ export const NotationInputScreen = () => {
 	const [lowest, setLowest] = useState('C3');
 	const [highest, setHighest] = useState('C5');
 	const [selected, setSelected] = useState<boolean[]>(() => majorKeys.map(() => true));
+	const [textPrompt, setTextPrompt] = useState('');
+	const [cardType, setCardType] = useState<'Sheet Music' | 'Text Prompt'>('Sheet Music');
 
 	const dispatch = useAppDispatch();
 	const { deckId } = useDeckIdPath();
@@ -110,7 +115,14 @@ export const NotationInputScreen = () => {
 
 	const handleAdd = () => {
 		if (deckId) {
-			const toAdd = previews.filter((_, i) => selected[i]);
+			let toAdd = previews.filter((_, i) => selected[i]);
+			if (cardType === 'Text Prompt') {
+				toAdd = toAdd.map((q) => ({
+					...q,
+					presentationModes: [{ id: 'Text Prompt', text: textPrompt }],
+				}));
+				dispatch(setPresentationMode(CardTypeEnum.MultiSheet, 'Text Prompt'));
+			}
 			dispatch(addCardsToDeck(deckId, toAdd));
 		}
 	};
@@ -131,6 +143,20 @@ export const NotationInputScreen = () => {
 				highest={highest}
 				setHighest={setHighest}
 			/>
+			<div className="flex flex-col gap-4 pb-4 items-start">
+				<div className="flex items-center gap-2">
+					<span>Card Type</span>
+					<CardTypeDropdown value={cardType} onChange={setCardType} />
+				</div>
+				{cardType === 'Text Prompt' && (
+					<InputField
+						id="text-prompt"
+						label="Prompt Text"
+						value={textPrompt}
+						onChange={(e) => setTextPrompt(e.target.value)}
+					/>
+				)}
+			</div>
 			<div className="flex flex-col items-center gap-5">
 				{previews.map((p, i) => (
 					<label key={i} className="flex flex-col items-center gap-2">
