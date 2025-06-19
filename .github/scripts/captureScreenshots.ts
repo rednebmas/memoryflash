@@ -38,7 +38,6 @@ interface LoginStep extends BaseStep {
 
 type Step = GotoStep | ClickStep | FillStep | ScreenshotStep | LoginStep;
 
-
 async function querySelectorFromLLM(html: string, desired: string): Promise<string | null> {
 	if (!OPENAI_API_KEY) return null;
 	try {
@@ -99,8 +98,8 @@ async function run(): Promise<void> {
 				await page.click(step.selector);
 			} else if (step.action === 'fill') {
 				await page.fill(step.selector, step.value ?? '');
-                        } else if (step.action === 'login') {
-                                await login(page);
+			} else if (step.action === 'login') {
+				await login(page);
 			} else if (step.action === 'screenshot') {
 				const screenshotPath = path.join(resultsDir, step.name);
 				console.log(`Capturing screenshot ${screenshotPath}`);
