@@ -15,6 +15,9 @@ interface MusicNotationProps {
 
 const VF = Vex.Flow;
 
+const FIRST_BAR_WIDTH = 370;
+const EXTRA_BAR_WIDTH = 300;
+
 const setupRendererAndStave = (div: HTMLDivElement, data: MultiSheetQuestion) => {
 	const treble = !!data.voices.find((e) => e.staff === StaffEnum.Treble);
 	const bass = !!data.voices.find((e) => e.staff === StaffEnum.Bass);
@@ -22,7 +25,7 @@ const setupRendererAndStave = (div: HTMLDivElement, data: MultiSheetQuestion) =>
 	const renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
 	const context = renderer.getContext();
 	const bars = calcBars(data);
-	const width = 370 + (bars - 1) * 300;
+	const width = FIRST_BAR_WIDTH + (bars - 1) * EXTRA_BAR_WIDTH;
 	const height = treble && bass ? 250 : 160;
 
 	renderer.resize(width + 2, height);
@@ -119,6 +122,18 @@ const createTextNotes = (data: MultiSheetQuestion, stave: Stave) => {
 	});
 };
 
+const drawBarLines = (context: any, bars: number, trebleStave?: Stave, bassStave?: Stave) => {
+	for (let i = 1; i < bars; i++) {
+		const x = FIRST_BAR_WIDTH + (i - 1) * EXTRA_BAR_WIDTH;
+		if (trebleStave) {
+			new VF.Barline(VF.Barline.type.SINGLE).setContext(context).setX(x).draw(trebleStave);
+		}
+		if (bassStave) {
+			new VF.Barline(VF.Barline.type.SINGLE).setContext(context).setX(x).draw(bassStave);
+		}
+	}
+};
+
 export const MusicNotation: React.FunctionComponent<MusicNotationProps> = ({
 	data,
 	allNotesClassName,
@@ -191,20 +206,7 @@ export const MusicNotation: React.FunctionComponent<MusicNotationProps> = ({
 			voice.draw(context, stave);
 		});
 
-		const firstWidth = 370;
-		const extraWidth = 300;
-		for (let i = 1; i < bars; i++) {
-			const x = firstWidth + (i - 1) * extraWidth;
-			if (trebleStave) {
-				new VF.Barline(VF.Barline.type.SINGLE)
-					.setContext(context)
-					.setX(x)
-					.draw(trebleStave);
-			}
-			if (bassStave) {
-				new VF.Barline(VF.Barline.type.SINGLE).setContext(context).setX(x).draw(bassStave);
-			}
-		}
+		drawBarLines(context, bars, trebleStave, bassStave);
 
 		context.closeGroup();
 		allNotesGroup.classList.add('music-notation-notes');
