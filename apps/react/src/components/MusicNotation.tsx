@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
-import { Stave, Vex, Note as VFNote } from 'vexflow';
+import { Stave, Vex, Note as VFNote, RenderContext } from 'vexflow';
 import { MultiSheetQuestion, Voice } from 'MemoryFlashCore/src/types/MultiSheetCard';
+import { calcBars } from 'MemoryFlashCore/src/lib/calcBars';
 import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { Chord } from 'tonal';
 import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
@@ -14,13 +15,17 @@ interface MusicNotationProps {
 
 const VF = Vex.Flow;
 
+const FIRST_BAR_WIDTH = 370;
+const EXTRA_BAR_WIDTH = 300;
+
 const setupRendererAndStave = (div: HTMLDivElement, data: MultiSheetQuestion) => {
 	const treble = !!data.voices.find((e) => e.staff === StaffEnum.Treble);
 	const bass = !!data.voices.find((e) => e.staff === StaffEnum.Bass);
 
 	const renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
 	const context = renderer.getContext();
-	const width = 370;
+	const bars = calcBars(data);
+	const width = FIRST_BAR_WIDTH + (bars - 1) * EXTRA_BAR_WIDTH;
 	const height = treble && bass ? 250 : 160;
 
 	renderer.resize(width + 2, height);
@@ -117,6 +122,24 @@ const createTextNotes = (data: MultiSheetQuestion, stave: Stave) => {
 	});
 };
 
+const drawBarLines = (
+	context: RenderContext,
+	bars: number,
+	trebleStave?: Stave,
+	bassStave?: Stave,
+) => {
+	const startX = trebleStave?.getNoteStartX() ?? bassStave?.getNoteStartX() ?? 0;
+	for (let i = 1; i < bars; i++) {
+		const x = startX + FIRST_BAR_WIDTH + (i - 1) * EXTRA_BAR_WIDTH;
+		if (trebleStave) {
+			new VF.Barline(VF.Barline.type.SINGLE).setContext(context).setX(x).draw(trebleStave);
+		}
+		if (bassStave) {
+			new VF.Barline(VF.Barline.type.SINGLE).setContext(context).setX(x).draw(bassStave);
+		}
+	}
+};
+
 export const MusicNotation: React.FunctionComponent<MusicNotationProps> = ({
 	data,
 	allNotesClassName,
@@ -130,7 +153,7 @@ export const MusicNotation: React.FunctionComponent<MusicNotationProps> = ({
 		const div = divRef.current;
 		if (!div) return;
 		div.innerHTML = '';
-
+		const bars = calcBars(data);
 		const { bassStave, trebleStave, context } = setupRendererAndStave(div, data);
 		const topStave = trebleStave || bassStave!;
 
@@ -148,7 +171,9 @@ export const MusicNotation: React.FunctionComponent<MusicNotationProps> = ({
 				data._8va,
 			);
 			vfNotes.push(notes);
-			const vfVoice = new VF.Voice({ num_beats: 4, beat_value: 4 }).addTickables(notes);
+			const vfVoice = new VF.Voice({ num_beats: bars * 4, beat_value: 4 }).addTickables(
+				notes,
+			);
 
 			VF.Accidental.applyAccidentals([vfVoice], data.key);
 
@@ -171,7 +196,9 @@ export const MusicNotation: React.FunctionComponent<MusicNotationProps> = ({
 
 		if (!hideChords) {
 			const textNotes = createTextNotes(data, topStave);
-			const textVoice = new VF.Voice({ num_beats: 4, beat_value: 4 }).addTickables(textNotes);
+			const textVoice = new VF.Voice({ num_beats: bars * 4, beat_value: 4 }).addTickables(
+				textNotes,
+			);
 			formatter.joinVoices([textVoice]);
 			vfVoices.push(textVoice);
 		}
@@ -184,6 +211,8 @@ export const MusicNotation: React.FunctionComponent<MusicNotationProps> = ({
 			}
 			voice.draw(context, stave);
 		});
+
+		drawBarLines(context, bars, trebleStave, bassStave);
 
 		context.closeGroup();
 		allNotesGroup.classList.add('music-notation-notes');

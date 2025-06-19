@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store'
 import { MusicRecorder } from 'MemoryFlashCore/src/lib/MusicRecorder';
 import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
 import { Select, DurationSelect } from '../components/inputs';
+import { NumberInput } from '../components/inputs';
 import { questionsForAllMajorKeys } from 'MemoryFlashCore/src/lib/multiKeyTransposer';
 import { addCardsToDeck } from 'MemoryFlashCore/src/redux/actions/add-cards-to-deck';
 import { Button } from '../components/Button';
@@ -75,18 +76,36 @@ const RangeSettings: React.FC<{
 	);
 };
 
+const BarsSetting: React.FC<{ bars: number; setBars: (n: number) => void }> = ({
+	bars,
+	setBars,
+}) => (
+	<div className="pb-4">
+		<label className="flex items-center gap-2">
+			Bars
+			<NumberInput
+				className="w-16"
+				min={1}
+				value={bars}
+				onChange={(e) => setBars(parseInt(e.target.value, 10) || 1)}
+			/>
+		</label>
+	</div>
+);
+
 export const NotationInputScreen = () => {
 	const [keySig, setKeySig] = useState(majorKeys[0]);
 	const [trebleDur, setTrebleDur] = useState<NoteDuration>('q');
 	const [bassDur, setBassDur] = useState<NoteDuration>('q');
 	const [lowest, setLowest] = useState('C3');
 	const [highest, setHighest] = useState('C5');
+	const [bars, setBars] = useState(1);
 	const [selected, setSelected] = useState<boolean[]>(() => majorKeys.map(() => true));
 
 	const dispatch = useAppDispatch();
 	const { deckId } = useDeckIdPath();
 
-	const recorderRef = useRef(new MusicRecorder('q'));
+	const recorderRef = useRef(new MusicRecorder('q', 'C4', 'q', bars));
 	const midiNotes = useAppSelector(
 		(state) => state.midi.notes.map((n) => n.number),
 		shallowEqual,
@@ -99,6 +118,11 @@ export const NotationInputScreen = () => {
 	useEffect(() => {
 		recorderRef.current.updateDuration(bassDur, StaffEnum.Bass);
 	}, [bassDur]);
+
+	useEffect(() => {
+		recorderRef.current.setBars(bars);
+		recorderRef.current.reset();
+	}, [bars]);
 
 	useEffect(() => {
 		recorderRef.current.addMidiNotes(midiNotes);
@@ -131,6 +155,7 @@ export const NotationInputScreen = () => {
 				highest={highest}
 				setHighest={setHighest}
 			/>
+			<BarsSetting bars={bars} setBars={setBars} />
 			<div className="flex flex-col items-center gap-5">
 				{previews.map((p, i) => (
 					<label key={i} className="flex flex-col items-center gap-2">
