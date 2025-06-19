@@ -25,12 +25,12 @@ interface FillStep extends BaseStep {
 }
 
 interface ScreenshotStep extends BaseStep {
-        action: 'screenshot';
-        name: string;
+	action: 'screenshot';
+	name: string;
 }
 
 interface LoginStep extends BaseStep {
-        action: 'login';
+	action: 'login';
 }
 
 type Step = GotoStep | ClickStep | FillStep | ScreenshotStep | LoginStep;
@@ -96,24 +96,24 @@ async function run(): Promise<void> {
 	await fs.mkdir(resultsDir, { recursive: true });
 
 	console.log('Launching headless browser');
-        const browser = await chromium.launch();
-        const page = await browser.newPage();
+	const browser = await chromium.launch();
+	const page = await browser.newPage();
 
 	for (const step of steps) {
 		console.log('Executing step', step);
 		try {
-                        if (step.action === 'goto') {
-                                await page.goto(step.url);
-                        } else if (step.action === 'click') {
-                                await page.click(step.selector);
-                        } else if (step.action === 'fill') {
-                                await page.fill(step.selector, step.value ?? '');
-                        } else if (step.action === 'login') {
-                                await loadCookies(page);
-                        } else if (step.action === 'screenshot') {
-                                const screenshotPath = path.join(resultsDir, step.name);
-                                console.log(`Capturing screenshot ${screenshotPath}`);
-                                await page.screenshot({ path: screenshotPath });
+			if (step.action === 'goto') {
+				await page.goto(step.url);
+			} else if (step.action === 'click') {
+				await page.click(step.selector);
+			} else if (step.action === 'fill') {
+				await page.fill(step.selector, step.value ?? '');
+			} else if (step.action === 'login') {
+				await loadCookies(page);
+			} else if (step.action === 'screenshot') {
+				const screenshotPath = path.join(resultsDir, step.name);
+				console.log(`Capturing screenshot ${screenshotPath}`);
+				await page.screenshot({ path: screenshotPath });
 			}
 		} catch (err) {
 			console.error('Error executing step', step, err);
