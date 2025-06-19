@@ -1,6 +1,7 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { chromium } from 'playwright';
+import { login } from './login';
 
 const repoRoot = path.resolve(__dirname, '..', '..');
 
@@ -37,20 +38,6 @@ interface LoginStep extends BaseStep {
 
 type Step = GotoStep | ClickStep | FillStep | ScreenshotStep | LoginStep;
 
-async function loadCookies(page: any): Promise<void> {
-	const cookiePath =
-		process.env.SESSION_COOKIES_PATH ||
-		path.join(repoRoot, 'test-fixtures', 'session-cookies.json');
-	try {
-		console.log(`Loading cookies from ${cookiePath}`);
-		const data = await fs.readFile(cookiePath, 'utf8');
-		const cookies = JSON.parse(data);
-		await page.context().addCookies(cookies);
-		console.log('Cookies added');
-	} catch {
-		// ignore if file missing
-	}
-}
 
 async function querySelectorFromLLM(html: string, desired: string): Promise<string | null> {
 	if (!OPENAI_API_KEY) return null;
@@ -112,8 +99,8 @@ async function run(): Promise<void> {
 				await page.click(step.selector);
 			} else if (step.action === 'fill') {
 				await page.fill(step.selector, step.value ?? '');
-			} else if (step.action === 'login') {
-				await loadCookies(page);
+                        } else if (step.action === 'login') {
+                                await login(page);
 			} else if (step.action === 'screenshot') {
 				const screenshotPath = path.join(resultsDir, step.name);
 				console.log(`Capturing screenshot ${screenshotPath}`);
