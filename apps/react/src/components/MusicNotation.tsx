@@ -15,8 +15,7 @@ interface MusicNotationProps {
 
 const VF = Vex.Flow;
 
-const FIRST_BAR_WIDTH = 370;
-const EXTRA_BAR_WIDTH = 300;
+const BAR_WIDTH = 300;
 
 const setupRendererAndStave = (div: HTMLDivElement, data: MultiSheetQuestion) => {
 	const treble = !!data.voices.find((e) => e.staff === StaffEnum.Treble);
@@ -25,7 +24,7 @@ const setupRendererAndStave = (div: HTMLDivElement, data: MultiSheetQuestion) =>
 	const renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
 	const context = renderer.getContext();
 	const bars = calcBars(data);
-	const width = FIRST_BAR_WIDTH + (bars - 1) * EXTRA_BAR_WIDTH;
+	const width = BAR_WIDTH * bars;
 	const height = treble && bass ? 250 : 160;
 
 	renderer.resize(width + 2, height);
@@ -130,7 +129,7 @@ const drawBarLines = (
 ) => {
 	const startX = trebleStave?.getNoteStartX() ?? bassStave?.getNoteStartX() ?? 0;
 	for (let i = 1; i < bars; i++) {
-		const x = startX + FIRST_BAR_WIDTH + (i - 1) * EXTRA_BAR_WIDTH;
+		const x = BAR_WIDTH * i;
 		if (trebleStave) {
 			new VF.Barline(VF.Barline.type.SINGLE).setContext(context).setX(x).draw(trebleStave);
 		}
