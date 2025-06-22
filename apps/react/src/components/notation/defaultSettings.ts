@@ -19,7 +19,7 @@ export const defaultSettings: NotationSettingsState = {
 	bassDur: 'q',
 	lowest: 'C3',
 	highest: 'C5',
-	selected: majorKeys.map(() => true),
+	selected: [true, ...new Array(majorKeys.length - 1).fill(false)],
 	cardType: 'Sheet Music',
 	textPrompt: '',
 	preview: false,
