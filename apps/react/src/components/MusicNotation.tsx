@@ -1,10 +1,34 @@
 import React, { useEffect, useRef } from 'react';
-import { Stave, Vex, Note as VFNote, RenderContext } from 'vexflow';
+import {
+	Stave,
+	StaveNote,
+	TextNote,
+	Voice as VFVoice,
+	Renderer,
+	Formatter,
+	Accidental,
+	Barline,
+} from 'vexflow';
 import { MultiSheetQuestion, Voice } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { calcBars } from 'MemoryFlashCore/src/lib/calcBars';
+import { durationBeats } from 'MemoryFlashCore/src/lib/measure';
 import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { Chord } from 'tonal';
 import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
+
+const VF = {
+	Stave,
+	StaveNote,
+	TextNote,
+	Voice: VFVoice,
+	Renderer,
+	Formatter,
+	Accidental,
+	Barline,
+};
+
+const BAR_WIDTH = 300;
+const BEATS_PER_MEASURE = 4;
 
 interface MusicNotationProps {
 	data: MultiSheetQuestion;
@@ -13,213 +37,154 @@ interface MusicNotationProps {
 	hideChords?: boolean;
 }
 
-const VF = Vex.Flow;
+type IndexedSn = { sn: Voice['stack'][0]; idx: number };
 
-const BAR_WIDTH = 300;
-
-const setupRendererAndStave = (div: HTMLDivElement, data: MultiSheetQuestion) => {
-	const treble = !!data.voices.find((e) => e.staff === StaffEnum.Treble);
-	const bass = !!data.voices.find((e) => e.staff === StaffEnum.Bass);
-
-	const renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
-	const context = renderer.getContext();
-	const bars = calcBars(data);
-	const width = BAR_WIDTH * bars;
-	const height = treble && bass ? 250 : 160;
-
-	renderer.resize(width + 2, height);
-
-	let trebleStave: Stave | undefined;
-	if (treble) {
-		trebleStave = new VF.Stave(0, 20, width)
-			.addClef('treble')
-			.addTimeSignature('4/4')
-			.addKeySignature(data.key);
-		trebleStave.setContext(context).draw();
+// Split a flat stack into measures of up to BEATS_PER_MEASURE beats
+function splitMeasures(indexed: IndexedSn[]) {
+	const measures: IndexedSn[][] = [];
+	let current: IndexedSn[] = [];
+	let sum = 0;
+	for (const item of indexed) {
+		const dur = durationBeats[item.sn.duration];
+		if (sum + dur > BEATS_PER_MEASURE) {
+			measures.push(current);
+			current = [];
+			sum = 0;
+		}
+		current.push(item);
+		sum += dur;
 	}
+	measures.push(current);
+	return measures;
+}
 
-	let bassStave: Stave | undefined;
-	if (bass) {
-		bassStave = new VF.Stave(0, treble ? 120 : 20, width)
-			.addClef('bass')
-			.addTimeSignature('4/4')
-			.addKeySignature(data.key);
-		bassStave.setContext(context).draw();
-	}
-
-	return { trebleStave, bassStave, context, width, height };
-};
-
-const createNotes = (
-	voice: Voice,
-	stave: Stave,
-	allNotesClassName: string | undefined,
-	highlightNotesClassName: string | undefined,
-	multiPartCardIndex: number,
-	_8va?: boolean,
-) => {
-	return voice.stack.map((stackedNotes, i) => {
-		const isRest = stackedNotes.rest === true || stackedNotes.notes.length === 0;
-		const restKey = voice.staff === StaffEnum.Bass ? 'd/3' : 'b/4';
-		const staveNote = new VF.StaveNote({
-			keys: isRest
-				? [restKey]
-				: stackedNotes.notes.map((note) => `${note.name}/${note.octave + (_8va ? 0 : 0)}`),
-			duration: (isRest ? `${stackedNotes.duration}r` : stackedNotes.duration) as string,
-			clef: stave.getClef(),
-			auto_stem: true,
-			align_center: isRest && stackedNotes.duration === 'w',
-		});
-		staveNote.setStave(stave);
-		if (allNotesClassName) {
-			staveNote.addClass(allNotesClassName);
-		}
-		if (i < multiPartCardIndex && highlightNotesClassName) {
-			staveNote.addClass(highlightNotesClassName);
-		}
-		return staveNote;
-	});
-};
-
-const createTextNotes = (data: MultiSheetQuestion, stave: Stave) => {
-	return data.voices[0].stack.map((stackedNotes) => {
-		const emptyTextNote = new VF.TextNote({
-			text: '',
-			duration: stackedNotes.duration,
-		}).setStave(stave);
-		if (!stackedNotes.chordName) return emptyTextNote;
-		const chord = Chord.get(stackedNotes.chordName);
-		if (!chord.tonic) return emptyTextNote;
-
-		let text: string = chord.tonic.replace('b', '♭').replace('#', '♯');
-		let superscript: string = '';
-		switch (chord.type) {
-			case 'minor seventh':
-				text += 'm';
-				superscript = '7';
-				break;
-			case 'dominant seventh':
-				superscript = '7';
-				break;
-			case 'major seventh':
-				superscript = '∆7';
-				break;
-			default:
-				text = chord.symbol;
-				break;
-		}
-
-		return new VF.TextNote({
-			text,
-			superscript,
-			font: { family: 'FreeSerif' },
-			duration: stackedNotes.duration,
-		})
-			.setJustification(VF.TextNote.Justification.CENTER)
-			.setLine(-1)
-			.setStave(stave);
-	});
-};
-
-const drawBarLines = (
-	context: RenderContext,
-	bars: number,
-	trebleStave?: Stave,
-	bassStave?: Stave,
-) => {
-	const startX = trebleStave?.getNoteStartX() ?? bassStave?.getNoteStartX() ?? 0;
-	for (let i = 1; i < bars; i++) {
-		const x = BAR_WIDTH * i;
-		if (trebleStave) {
-			new VF.Barline(VF.Barline.type.SINGLE).setContext(context).setX(x).draw(trebleStave);
-		}
-		if (bassStave) {
-			new VF.Barline(VF.Barline.type.SINGLE).setContext(context).setX(x).draw(bassStave);
-		}
-	}
-};
-
-export const MusicNotation: React.FunctionComponent<MusicNotationProps> = ({
+export const MusicNotation: React.FC<MusicNotationProps> = ({
 	data,
 	allNotesClassName,
 	highlightClassName,
 	hideChords,
 }) => {
 	const divRef = useRef<HTMLDivElement>(null);
-	const multiPartCardIndex = useAppSelector((state) => state.scheduler.multiPartCardIndex);
+	const multiPartCardIndex = useAppSelector((s) => s.scheduler.multiPartCardIndex);
 
 	useEffect(() => {
 		const div = divRef.current;
 		if (!div) return;
 		div.innerHTML = '';
+
 		const bars = calcBars(data);
-		const { bassStave, trebleStave, context } = setupRendererAndStave(div, data);
-		const topStave = trebleStave || bassStave!;
+		const width = BAR_WIDTH * bars;
+		const trebleOn = data.voices.some((v) => v.staff === StaffEnum.Treble);
+		const bassOn = data.voices.some((v) => v.staff === StaffEnum.Bass);
+		const height = trebleOn && bassOn ? 250 : 160;
 
-		let formatter = new VF.Formatter();
-		let vfNotes: VFNote[][] = [];
-		let allNotesGroup = context.openGroup();
+		const renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
+		renderer.resize(width + 2, height);
+		const ctx = renderer.getContext();
 
-		let vfVoices = data.voices.map((voice) => {
-			const notes = createNotes(
-				voice,
-				voice.staff === StaffEnum.Treble ? trebleStave! : bassStave!,
-				allNotesClassName,
-				highlightClassName,
-				multiPartCardIndex,
-				data._8va,
-			);
-			vfNotes.push(notes);
-			const vfVoice = new VF.Voice({ num_beats: bars * 4, beat_value: 4 }).addTickables(
-				notes,
-			);
+		// Prepare per-voice, per-measure stacks
+		const voiceIndexed = data.voices.map((v) => v.stack.map((sn, idx) => ({ sn, idx })));
+		const measuresByVoice = voiceIndexed.map(splitMeasures);
+		const chordMeasures = measuresByVoice[0];
 
-			VF.Accidental.applyAccidentals([vfVoice], data.key);
+		for (let bar = 0; bar < bars; bar++) {
+			const x = bar * BAR_WIDTH;
+			const isFirstBar = bar === 0;
 
-			formatter.joinVoices([vfVoice]);
-			return vfVoice;
-		});
+			const drawStaff = (staffType: StaffEnum, y: number) => {
+				const stave = new VF.Stave(x, y, BAR_WIDTH);
+				if (isFirstBar) {
+					stave
+						.addClef(staffType === StaffEnum.Treble ? 'treble' : 'bass')
+						.addTimeSignature('4/4')
+						.addKeySignature(data.key);
+				}
+				stave.setContext(ctx).draw();
 
-		// if (data._8va) {
-		// const textBracket = new VF.TextBracket({
-		// 	start: vfNotes[0][0],
-		// 	stop: vfNotes[0][2],
-		// 	// stop: vfNotes[0][vfNotes[0].length - 1],
-		// 	text: '8',
-		// 	superscript: 'va',
-		// 	position: VF.TextBracketPosition.BOTTOM,
-		// });
-		// const startNote = vfNotes[0][0];
-		// const endNote = vfNotes[0][vfNotes[0].length - 1];
-		// }
+				// Notes/rests for this bar & voice
+				const vIdx = data.voices.findIndex((v) => v.staff === staffType);
+				const stack = measuresByVoice[vIdx][bar] || [];
+				const notes = stack.map(({ sn, idx }) => {
+					const isRest = sn.rest || sn.notes.length === 0;
+					const restKey = staffType === StaffEnum.Bass ? 'd/3' : 'b/4';
+					const keys = isRest ? [restKey] : sn.notes.map((n) => `${n.name}/${n.octave}`);
+					const dur = (isRest ? `${sn.duration}r` : sn.duration) as string;
+					const note = new VF.StaveNote({
+						keys,
+						duration: dur,
+						clef: stave.getClef(),
+						auto_stem: true,
+						align_center: isRest && sn.duration === 'w',
+					}).setStave(stave);
 
-		if (!hideChords) {
-			const textNotes = createTextNotes(data, topStave);
-			const textVoice = new VF.Voice({ num_beats: bars * 4, beat_value: 4 }).addTickables(
-				textNotes,
-			);
-			formatter.joinVoices([textVoice]);
-			vfVoices.push(textVoice);
+					if (allNotesClassName) note.addClass(allNotesClassName);
+					if (idx < multiPartCardIndex && highlightClassName)
+						note.addClass(highlightClassName);
+
+					return note;
+				});
+
+				// Space and draw the notes
+				VF.Formatter.FormatAndDraw(ctx, stave, notes);
+
+				// --- CHORD TEXT (fixed): wrap in a Voice, format, then draw ---
+				if (!hideChords && staffType === StaffEnum.Treble) {
+					const textNotes = (chordMeasures[bar] || []).map(({ sn }) => {
+						if (!sn.chordName) {
+							return new VF.TextNote({ text: '', duration: sn.duration }).setStave(
+								stave,
+							);
+						}
+						const c = Chord.get(sn.chordName);
+						let sym = c.tonic ? c.tonic.replace('b', '♭').replace('#', '♯') : '';
+						let sup = '';
+						switch (c.type) {
+							case 'minor seventh':
+								sym += 'm';
+								sup = '7';
+								break;
+							case 'dominant seventh':
+								sup = '7';
+								break;
+							case 'major seventh':
+								sym = '∆7';
+								break;
+							default:
+								sym = c.symbol || sym;
+						}
+						return new VF.TextNote({
+							text: sym,
+							superscript: sup,
+							duration: sn.duration,
+							font: { family: 'FreeSerif' },
+						})
+							.setJustification(VF.TextNote.Justification.CENTER)
+							.setLine(-1)
+							.setStave(stave);
+					});
+
+					const textVoice = new VF.Voice({
+						num_beats: BEATS_PER_MEASURE,
+						beat_value: 4,
+					}).addTickables(textNotes);
+
+					const textFormatter = new VF.Formatter();
+					textFormatter.joinVoices([textVoice]);
+					textFormatter.formatToStave([textVoice], stave);
+					textVoice.draw(ctx, stave);
+				}
+
+				// Draw barline at end of this measure
+				new VF.Barline(VF.Barline.type.SINGLE)
+					.setContext(ctx)
+					.setX(x + BAR_WIDTH)
+					.draw(stave);
+			};
+
+			if (trebleOn) drawStaff(StaffEnum.Treble, 20);
+			if (bassOn) drawStaff(StaffEnum.Bass, trebleOn ? 120 : 20);
 		}
-
-		formatter.formatToStave(vfVoices, topStave);
-		vfVoices.forEach((voice, i) => {
-			let stave = topStave;
-			if (data.voices[i]?.staff === StaffEnum.Bass && bassStave) {
-				stave = bassStave;
-			}
-			voice.draw(context, stave);
-		});
-
-		drawBarLines(context, bars, trebleStave, bassStave);
-
-		context.closeGroup();
-		allNotesGroup.classList.add('music-notation-notes');
-
-		// if (data._8va) {
-		// 	textBracket.setContext(context).draw();
-		// }
 	}, [data, multiPartCardIndex, allNotesClassName, highlightClassName, hideChords]);
 
-	return <div className="svg-dark-mode" ref={divRef} id="output"></div>;
+	return <div className="svg-dark-mode" ref={divRef} />;
 };
