@@ -3,6 +3,8 @@ import { QuestionRender } from '..';
 import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { MultiSheetCard } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { MusicNotation } from '../MusicNotation';
+import { ProgressDots } from './ProgressDots';
+import { TextCardPrompt } from './TextCardPrompt';
 import {
 	PresentationModeStartCard,
 	PresentationModeText,
@@ -24,6 +26,10 @@ export const MultiSheetCardQuestion: React.FC<QuestionRender> = ({ card, placeme
 		return null;
 	}
 
+	const total = c.question.voices[0].stack.length;
+	const correctCount =
+		placement === 'answered' ? total : placement === 'cur' ? multiPartCardIndex : 0;
+
 	if (activePresentationModeId.startsWith('Sheet Music')) {
 		return (
 			<span>
@@ -43,7 +49,9 @@ export const MultiSheetCardQuestion: React.FC<QuestionRender> = ({ card, placeme
 					{presentationModeData.textAbove}
 				</span>
 				<span className="pt-3">{c.question.key}</span>
-				<div className="mb-auto">{CorrectDots(c, multiPartCardIndex, placement)}</div>
+				<div className="mb-auto">
+					<ProgressDots total={total} correctCount={correctCount} />
+				</div>
 			</div>
 		);
 	} else if (activePresentationModeId === 'First Chord Only') {
@@ -54,17 +62,14 @@ export const MultiSheetCardQuestion: React.FC<QuestionRender> = ({ card, placeme
 					{presentationModeData.textAbove}
 				</span>
 				<span className="pt-3">{c.question.voices[0].stack[0].chordName}</span>
-				<div className="mb-auto">{CorrectDots(c, multiPartCardIndex, placement)}</div>
+				<div className="mb-auto">
+					<ProgressDots total={total} correctCount={correctCount} />
+				</div>
 			</div>
 		);
 	} else if (activePresentationModeId === 'Text Prompt') {
 		const pm = activePresentationMode as PresentationModeText;
-		return (
-			<div className="flex flex-col items-center justify-center text-center gap-2">
-				<span className="pt-3">{pm.text}</span>
-				<div className="mb-auto">{CorrectDots(c, multiPartCardIndex, placement)}</div>
-			</div>
-		);
+		return <TextCardPrompt text={pm.text} total={total} correctCount={correctCount} />;
 	} else if (activePresentationModeId === 'Chords') {
 		const chords = c.question.voices[0].stack.map((s) => s.chordName);
 		return (
@@ -92,24 +97,3 @@ export const MultiSheetCardQuestion: React.FC<QuestionRender> = ({ card, placeme
 
 	return null;
 };
-
-function CorrectDots(c: MultiSheetCard, multiPartCardIndex: number, placement: string) {
-	return (
-		<span className="flex gap-4 justify-center pt-5">
-			{c.question.voices[0].stack.map((_, i) => {
-				const correct =
-					(i < multiPartCardIndex && placement === 'cur') || placement === 'answered';
-				return (
-					<span
-						key={i}
-						className={clsx({
-							'w-4 h-4 rounded-lg transition': true,
-							'bg-green-500 ring-2 ring-green-300': correct,
-							'bg-gray-300': !correct,
-						})}
-					></span>
-				);
-			})}
-		</span>
-	);
-}
