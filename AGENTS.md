@@ -5,6 +5,7 @@ This project prefers a highly componentized React codebase that avoids duplicate
 - **Componentization**: Extract reusable JSX into components whenever possible. Keep components small and focused refactoring them as needed.
 - **File Organization**: Group related components together in folders
 - **Styling**: Use Tailwind CSS utility classes. Share common styling through base components rather than repeating class strings.
+- **Code Size**: Keep individual functions under 25 lines. Keep files under 150 lines when possible. If code grows larger, refactor into smaller components to keep it readable, maintainable, and elegant.
 - **Formatting**: Code is formatted with Prettier using tabs. Run `npx prettier --write` before committing. Don't add comments to code unless absolutely necessary.
 - **Testing**: After changes, run `yarn test:codex` from the repository root to ensure all tests pass.
 
