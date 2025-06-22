@@ -7,6 +7,7 @@ export interface NotationSettingsState {
 	bassDur: NoteDuration;
 	lowest: string;
 	highest: string;
+	bars: number;
 	selected: boolean[];
 	cardType: 'Sheet Music' | 'Text Prompt';
 	textPrompt: string;
@@ -19,6 +20,7 @@ export const defaultSettings: NotationSettingsState = {
 	bassDur: 'q',
 	lowest: 'C3',
 	highest: 'C5',
+	bars: 1,
 	selected: majorKeys.map(() => true),
 	cardType: 'Sheet Music',
 	textPrompt: '',

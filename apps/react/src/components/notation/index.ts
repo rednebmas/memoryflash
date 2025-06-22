@@ -5,3 +5,4 @@ export * from './CardTypeOptions';
 export * from './SettingsSection';
 export * from './NotationPreviewList';
 export * from './defaultSettings';
+export * from './BarsSetting';
