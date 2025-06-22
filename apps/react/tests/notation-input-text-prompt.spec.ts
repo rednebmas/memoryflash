@@ -19,7 +19,7 @@ test('NotationInputScreen text prompt card type', async ({ page }) => {
 	await page.waitForTimeout(200);
 	await page.evaluate(() => {
 		window.scrollTo(0, 0);
-		document.querySelector('.overflow-scroll')?.scrollTo(0, 0);
+		document.querySelector('.overflow-scroll')?.scrollTo(0, 300);
 	});
 
 	expect(errors).toEqual([]);
