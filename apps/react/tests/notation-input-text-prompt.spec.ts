@@ -17,7 +17,10 @@ test('NotationInputScreen text prompt card type', async ({ page }) => {
 	await page.getByRole('menuitem', { name: 'Text Prompt' }).click();
 	await page.fill('#text-prompt', 'Hotel California verse');
 	await page.waitForTimeout(200);
-	await page.evaluate(() => window.scrollTo(0, 0));
+	await page.evaluate(() => {
+		window.scrollTo(0, 0);
+		document.querySelector('.overflow-scroll')?.scrollTo(0, 300);
+	});
 
 	expect(errors).toEqual([]);
 	await expect(output).toHaveScreenshot('notation-input-text-prompt.png', screenshotOpts);
