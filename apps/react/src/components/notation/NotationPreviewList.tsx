@@ -1,6 +1,6 @@
 import React from 'react';
 import { MusicNotation } from '../MusicNotation';
-import { TextPromptPreview } from './TextPromptPreview';
+import { TextCardPrompt } from '../FlashCards/TextCardPrompt';
 
 interface NotationPreviewListProps {
 	previews: any[];
@@ -20,10 +20,7 @@ export const NotationPreviewList: React.FC<NotationPreviewListProps> = ({
 			<div key={i} className="flex flex-col items-center gap-2">
 				<div className="card-container flex flex-col items-center gap-2 w-[26rem]">
 					{previewTextCard && cardType === 'Text Prompt' ? (
-						<TextPromptPreview
-							text={textPrompt ?? ''}
-							count={p.voices[0].stack.length}
-						/>
+						<TextCardPrompt text={textPrompt ?? ''} total={p.voices[0].stack.length} />
 					) : (
 						<MusicNotation data={p} />
 					)}
