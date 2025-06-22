@@ -1,6 +1,6 @@
 import React from 'react';
 import { CardTypeDropdown } from '../CardTypeDropdown';
-import { InputField } from '../inputs';
+import { InputField, Checkbox } from '../inputs';
 import { SettingsSection } from './SettingsSection';
 
 interface CardTypeOptionsProps {
@@ -37,9 +37,7 @@ export const CardTypeOptions: React.FC<CardTypeOptionsProps> = ({
 						onChange={(e) => onChange({ textPrompt: e.target.value })}
 					/>
 					<label className="flex items-center gap-2">
-						<input
-							type="checkbox"
-							className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600"
+						<Checkbox
 							checked={preview}
 							onChange={(e) => onChange({ preview: e.target.checked })}
 						/>
