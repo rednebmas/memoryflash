@@ -40,11 +40,12 @@ export const NotationInputScreen = () => {
 	}, [midiNotes]);
 
 	const data = recorderRef.current.buildQuestion(settings.keySig);
-	const previews = questionsForAllMajorKeys(data, settings.lowest, settings.highest);
+	const previewsAll = questionsForAllMajorKeys(data, settings.lowest, settings.highest);
+	const previews = previewsAll.filter((_, i) => settings.selected[i]);
 
 	const handleAdd = () => {
 		if (deckId) {
-			let toAdd = previews.filter((_, i) => settings.selected[i]);
+			let toAdd = previews;
 			if (settings.cardType === 'Text Prompt') {
 				toAdd = toAdd.map((q) => ({
 					...q,

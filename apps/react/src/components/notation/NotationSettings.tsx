@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { KeySelector } from '../KeySelector';
+import { majorKeys } from 'MemoryFlashCore/src/lib/notes';
 import { defaultSettings, NotationSettingsState } from './defaultSettings';
 import { NoteSettings } from './NoteSettings';
 import { SettingsSection } from './SettingsSection';
@@ -18,7 +19,16 @@ export const NotationSettings: React.FC<NotationSettingsProps> = ({ onChange }) 
 	}, [state]);
 
 	const update = (changes: Partial<NotationSettingsState>) =>
-		setState((prev) => ({ ...prev, ...changes }));
+		setState((prev) => {
+			const next: NotationSettingsState = { ...prev, ...changes };
+			if (changes.keySig) {
+				const idx = majorKeys.indexOf(changes.keySig);
+				const sel = [...next.selected];
+				sel[idx] = true;
+				next.selected = sel;
+			}
+			return next;
+		});
 
 	return (
 		<div className="space-y-4">
@@ -32,11 +42,8 @@ export const NotationSettings: React.FC<NotationSettingsProps> = ({ onChange }) 
 			<SettingsSection title="Keys">
 				<KeySelector
 					selected={state.selected}
-					toggle={(i) =>
-						update({ selected: state.selected.map((v, idx) => (idx === i ? !v : v)) })
-					}
-					selectAll={() => update({ selected: state.selected.map(() => true) })}
-					selectNone={() => update({ selected: state.selected.map(() => false) })}
+					currentIndex={majorKeys.indexOf(state.keySig)}
+					onChange={(selected) => update({ selected })}
 				/>
 			</SettingsSection>
 			<CardTypeOptions
