@@ -5,7 +5,7 @@ import { CircleHover } from '../../components/CircleHover';
 import { FlashCard } from '../../components/FlashCard';
 import { Layout } from '../../components/Layout';
 import { MidiInputsDropdown } from '../../components/MidiInputsDropdown';
-import { Spinner } from '../../components/Spinner';
+import { StudyScreenEmptyState } from './StudyScreenEmptyState';
 import { AnswerValidator } from '../../components/answer-validators/AnswerValidator';
 import { Keyboard } from '../../components/keyboard/KeyBoard';
 import { getDeck } from 'MemoryFlashCore/src/redux/actions/get-deck-action';
@@ -149,6 +149,7 @@ export const StudyScreen = () => {
 			}
 			subtitle={course && deck && `${course?.name} · ${deck?.name}`}
 		>
+			<StudyScreenEmptyState />
 			<div className="flex flex-1" ref={cardContainerRef}>
 				<div
 					className="flex items-center"
@@ -157,7 +158,6 @@ export const StudyScreen = () => {
 						transition: 'transform 0.5s ease',
 					}}
 				>
-					<Spinner show={cards.length === 0} />
 					{cards.map((card, i) => (
 						<FlashCard
 							ref={(el) => (cardRefs.current[i] = el!)}

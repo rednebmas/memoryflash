@@ -21,7 +21,7 @@ export const defaultSettings: NotationSettingsState = {
 	lowest: 'C3',
 	highest: 'C5',
 	bars: 1,
-	selected: majorKeys.map(() => true),
+	selected: [true, ...new Array(majorKeys.length - 1).fill(false)],
 	cardType: 'Sheet Music',
 	textPrompt: '',
 	preview: false,
