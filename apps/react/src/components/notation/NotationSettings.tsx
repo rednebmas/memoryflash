@@ -6,6 +6,7 @@ import { NoteSettings } from './NoteSettings';
 import { SettingsSection } from './SettingsSection';
 import { RangeSettings } from './RangeSettings';
 import { CardTypeOptions } from './CardTypeOptions';
+import { BarsSetting } from './BarsSetting';
 
 interface NotationSettingsProps {
 	onChange: (settings: NotationSettingsState) => void;
@@ -39,6 +40,7 @@ export const NotationSettings: React.FC<NotationSettingsProps> = ({ onChange }) 
 				onChange={update}
 			/>
 			<RangeSettings lowest={state.lowest} highest={state.highest} onChange={update} />
+			<BarsSetting bars={state.bars} setBars={(n) => update({ bars: n })} />
 			<SettingsSection title="Keys">
 				<KeySelector
 					selected={state.selected}
