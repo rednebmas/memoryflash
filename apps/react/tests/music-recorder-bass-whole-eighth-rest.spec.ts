@@ -2,7 +2,7 @@ import { test, expect, screenshotOpts } from './helpers';
 
 test('MusicRecorder bass whole with treble eighth rest then notes', async ({ page }) => {
 	await page.goto('/tests/music-recorder-bass-whole-eighth-rest-test.html');
-	const output = page.locator('#output');
+	const output = page.locator('#root');
 
 	const treble = [[60], [], [62], [], [64], [], [65], []];
 

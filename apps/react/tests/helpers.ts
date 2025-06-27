@@ -15,12 +15,7 @@ export const test = base.extend<{ page: Page }>({
 	},
 });
 
-export async function captureScreenshot(
-	page: Page,
-	url: string,
-	name: string,
-	selector = '#output',
-) {
+export async function captureScreenshot(page: Page, url: string, name: string, selector = '#root') {
 	await page.goto(url);
 	const output = page.locator(selector);
 	await output.waitFor();
