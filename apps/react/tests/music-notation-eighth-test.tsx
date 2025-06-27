@@ -12,7 +12,7 @@ const data: MultiSheetQuestion = {
 			staff: StaffEnum.Treble,
 			stack: [
 				{ notes: [{ name: 'C', octave: 4 }], duration: '8' },
-				{ notes: [{ name: 'Db', octave: 4 }], duration: '8' },
+				{ notes: [{ name: 'G', octave: 4 }], duration: '8' },
 				{ notes: [{ name: 'E', octave: 4 }], duration: '8' },
 				{ notes: [{ name: 'F', octave: 4 }], duration: '8' },
 				{ notes: [{ name: 'G', octave: 4 }], duration: '8' },
