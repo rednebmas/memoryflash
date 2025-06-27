@@ -125,7 +125,9 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 				});
 
 				// Space and draw the notes
-				VF.Formatter.FormatAndDraw(ctx, stave, notes);
+				if (notes.length) {
+					VF.Formatter.FormatAndDraw(ctx, stave, notes);
+				}
 
 				// --- CHORD TEXT (fixed): wrap in a Voice, format, then draw ---
 				if (!hideChords && staffType === StaffEnum.Treble) {
@@ -163,15 +165,17 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 							.setStave(stave);
 					});
 
-					const textVoice = new VF.Voice({
-						num_beats: BEATS_PER_MEASURE,
-						beat_value: 4,
-					}).addTickables(textNotes);
+					if (textNotes.length) {
+						const textVoice = new VF.Voice({
+							num_beats: BEATS_PER_MEASURE,
+							beat_value: 4,
+						}).addTickables(textNotes);
 
-					const textFormatter = new VF.Formatter();
-					textFormatter.joinVoices([textVoice]);
-					textFormatter.formatToStave([textVoice], stave);
-					textVoice.draw(ctx, stave);
+						const textFormatter = new VF.Formatter();
+						textFormatter.joinVoices([textVoice]);
+						textFormatter.formatToStave([textVoice], stave);
+						textVoice.draw(ctx, stave);
+					}
 				}
 
 				// Draw barline at end of this measure
