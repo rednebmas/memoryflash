@@ -124,7 +124,7 @@ body=$(printf "%s\n" "${lines[@]}")
 if [ -n "${PR_NUMBER:-}" ]; then
   existing_comment_id=$(gh api \
     "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" \
-    --jq '.[] | select(.user.login=="github-actions[bot]" and .body | contains("Test Failures Detected")) | .id' \
+    --jq '.[] | select(.user.login=="github-actions[bot]" and (.body | contains("Test Failures Detected"))) | .id' \
     | head -n 1)
 
   body_link="### 🔴 Test Failures Detected\n\n"
