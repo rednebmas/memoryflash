@@ -26,7 +26,7 @@ export const schedule =
 		if (getState().scheduler.nextCards.length > 12) return;
 
 		let cards = currDeckWithCorrectAttemptsSortedArray(getState());
-		let cardsWithNoAttempts = shuffleArray(cards.filter((card) => card.attempts.length === 0));
+		let cardsWithNoAttempts = cards.filter((card) => card.attempts.length === 0);
 		let cardsWithAttempts = cards.filter((card) => card.attempts.length > 0);
 		let medianTimeTaken = calculateMedian(
 			cardsWithAttempts.map((c) => c.attempts[0]?.timeTaken),
