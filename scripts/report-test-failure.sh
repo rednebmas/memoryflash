@@ -121,7 +121,22 @@ lines+=(
 # Join all lines into the body
 body=$(printf "%s\n" "${lines[@]}")
 
-# Post to PR if applicable
 if [ -n "${PR_NUMBER:-}" ]; then
-  gh pr comment "$PR_NUMBER" --body "$body"
+  existing_comment_id=$(gh api \
+    "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" \
+    --jq '.[] | select(.user.login=="github-actions[bot]" and .body | contains("Test Failures Detected")) | .id' \
+    | head -n 1)
+
+  body_link="### 🔴 Test Failures Detected\n\n"
+  if [ -n "$REPORT_URL" ]; then
+    body_link+="View the full Playwright report [here]($REPORT_URL)."
+  fi
+
+  if [ -n "$existing_comment_id" ]; then
+    gh api \
+      "repos/${GITHUB_REPOSITORY}/issues/comments/${existing_comment_id}" \
+      -X PATCH -F body="$body_link"
+  else
+    gh pr comment "$PR_NUMBER" --body "$body"
+  fi
 fi
