@@ -2,7 +2,7 @@ import { test, expect, screenshotOpts } from './helpers';
 
 test('MusicRecorder cross-clef rests', async ({ page }) => {
 	await page.goto('/tests/music-recorder-cross-clef-test.html');
-	const output = page.locator('#output');
+	const output = page.locator('#root');
 	const events = [[60], [], [48], [], [60], [], [48], []];
 
 	for (let i = 0; i < events.length; i++) {

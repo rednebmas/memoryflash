@@ -2,7 +2,7 @@ import { test, expect, screenshotOpts } from './helpers';
 
 test('MusicRecorder two measures screenshot', async ({ page }) => {
 	await page.goto('/tests/music-recorder-two-measures-test.html');
-	const output = page.locator('#output');
+	const output = page.locator('#root');
 	const events = [60, 62, 64, 65, 67, 69, 71, 72, 74];
 	for (const m of events) {
 		await page.evaluate((n) => {
