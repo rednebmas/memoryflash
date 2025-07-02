@@ -9,6 +9,7 @@ import {
 	Accidental,
 	Barline,
 } from 'vexflow';
+import { majorKey, minorKey } from '@tonaljs/key';
 import { MultiSheetQuestion, Voice } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { calcBars } from 'MemoryFlashCore/src/lib/calcBars';
 import { durationBeats } from 'MemoryFlashCore/src/lib/measure';
@@ -87,6 +88,12 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 		const measuresByVoice = voiceIndexed.map(splitMeasures);
 		const chordMeasures = measuresByVoice[0];
 
+		const diatonic = new Set(
+			data.key.endsWith('m')
+				? minorKey(data.key.slice(0, -1)).natural.scale
+				: majorKey(data.key).scale,
+		);
+
 		for (let bar = 0; bar < bars; bar++) {
 			const x = bar * BAR_WIDTH;
 			const isFirstBar = bar === 0;
@@ -119,8 +126,11 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 
 					if (!isRest) {
 						sn.notes.forEach((n, i) => {
-							const accidental = n.name.slice(1);
-							if (accidental) note.addModifier(new VF.Accidental(accidental), i);
+							let accidental = n.name.slice(1);
+							if (!diatonic.has(n.name)) {
+								if (!accidental) accidental = 'n';
+								note.addModifier(new VF.Accidental(accidental), i);
+							}
 						});
 					}
 
