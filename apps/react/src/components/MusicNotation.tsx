@@ -117,6 +117,13 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 						align_center: isRest && sn.duration === 'w',
 					}).setStave(stave);
 
+					if (!isRest) {
+						sn.notes.forEach((n, i) => {
+							const accidental = n.name.slice(1);
+							if (accidental) note.addModifier(new VF.Accidental(accidental), i);
+						});
+					}
+
 					if (allNotesClassName) note.addClass(allNotesClassName);
 					if (idx < multiPartCardIndex && highlightClassName)
 						note.addClass(highlightClassName);
