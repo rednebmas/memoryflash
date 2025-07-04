@@ -50,7 +50,7 @@ describe('MusicRecorder', () => {
 		expect(r.notes.length).to.equal(8);
 	});
 
-	it('records new stack only after notes released', () => {
+	it('records notes on press and starts a new stack after release', () => {
 		const r = new MusicRecorder('q');
 		r.addMidiNotes([60]);
 		r.addMidiNotes([60, 64]);
@@ -127,11 +127,10 @@ describe('MusicRecorder', () => {
 		expect(bass.find((n) => !n.rest)!.duration).to.equal('h');
 	});
 
-	it('records chords across clefs when notes added sequentially', () => {
+	it('records chords across clefs on key press', () => {
 		const r = new MusicRecorder('q');
 		r.addMidiNotes([48]);
 		r.addMidiNotes([48, 60]);
-		r.addMidiNotes([]);
 		expect(r.notes).to.deep.equal([
 			{
 				notes: [
@@ -141,5 +140,6 @@ describe('MusicRecorder', () => {
 				duration: 'q',
 			},
 		]);
+		r.addMidiNotes([]);
 	});
 });
