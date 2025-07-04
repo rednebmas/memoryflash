@@ -5,6 +5,7 @@ import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { CardTypeEnum, IntervalCard } from 'MemoryFlashCore/src/types/Cards';
 import { MultiSheetCardQuestion } from './FlashCards/MultiSheetCardQuestion';
 import { Pill } from './Pill';
+import { FlashCardEditButton } from './FlashCardEditButton';
 
 type Placement = 'cur' | 'scheduled' | 'answered';
 
@@ -13,6 +14,7 @@ interface FlashCardProps {
 	placement: Placement;
 	className?: string;
 	opacity?: number;
+	showEdit?: boolean;
 }
 
 export interface QuestionRender {
@@ -35,7 +37,7 @@ let QuestionComponentMap: { [cardType: string]: React.FC<QuestionRender> } = {
 };
 
 export const FlashCard = forwardRef<HTMLDivElement, FlashCardProps>(
-	({ card, className, opacity, placement }, ref) => {
+	({ card, className, opacity, placement, showEdit }, ref) => {
 		const QuestionComponent = QuestionComponentMap[card.type];
 		if (!QuestionComponent) {
 			console.error('No question component found for card type', card.type);
@@ -45,12 +47,13 @@ export const FlashCard = forwardRef<HTMLDivElement, FlashCardProps>(
 		return (
 			<div
 				ref={ref}
-				className={`card-container flex flex-col justify-between items-center min-w-[15rem] h-60  m-4 ${className}`}
+				className={`relative card-container flex flex-col justify-between items-center min-w-[15rem] h-60  m-4 ${className}`}
 				style={{
 					opacity,
 					transition: 'opacity 0.5s ease',
 				}}
 			>
+				<FlashCardEditButton card={card} show={showEdit} />
 				<div className="text-4xl font-medium flex flex-1 justify-center items-center">
 					<QuestionComponent card={card} placement={placement} />
 				</div>

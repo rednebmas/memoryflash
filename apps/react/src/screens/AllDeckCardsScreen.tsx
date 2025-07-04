@@ -34,14 +34,13 @@ export const AllDeckCardsScreen: React.FunctionComponent<AllDeckCardsScreenProps
 			<div className="flex flex-col items-center">
 				<div className="mb-4">{deck.length} cards</div>
 				{deck.map((card, i) => (
-					<div className="inline-block">
-						<FlashCard
-							placement={'cur'}
-							key={card._id + i}
-							card={card}
-							className={`card-shadow-2`}
-						/>
-					</div>
+					<FlashCard
+						key={card._id + i}
+						placement={'cur'}
+						card={card}
+						className={`card-shadow-2`}
+						showEdit
+					/>
 				))}
 			</div>
 		</Layout>
