@@ -25,5 +25,6 @@ test('NotationInputScreen edit flow', async ({ page }) => {
 	}, cardPayload);
 
 	await expect(page.getByRole('button', { name: 'Update Card' })).toHaveText('Update Card');
+	await expect(page.getByRole('button', { name: 'Reset' })).toBeVisible();
 	expect(errors).toEqual([]);
 });

@@ -85,6 +85,10 @@ export const NotationInputScreen = () => {
 		}
 	};
 
+	const handleReset = () => {
+		recorderRef.current.reset();
+	};
+
 	const error = updateError || addError;
 
 	return (
@@ -97,7 +101,8 @@ export const NotationInputScreen = () => {
 				previewTextCard={settings.preview}
 			/>
 			<BasicErrorCard error={error} />
-			<div className="pt-4 flex justify-center">
+			<div className="pt-4 flex justify-center gap-3">
+				<Button onClick={handleReset}>Reset</Button>
 				<Button
 					onClick={cardId ? handleUpdate : handleAdd}
 					loading={cardId ? isUpdating : isAdding}
