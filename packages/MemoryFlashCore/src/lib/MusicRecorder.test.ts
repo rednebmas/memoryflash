@@ -6,6 +6,7 @@ describe('MusicRecorder', () => {
 	it('converts midi numbers to sheet notes', () => {
 		const r = new MusicRecorder('q');
 		r.addMidiNotes([60, 64]);
+		r.addMidiNotes([]);
 		expect(r.notes).to.deep.equal([
 			{
 				notes: [
@@ -56,6 +57,7 @@ describe('MusicRecorder', () => {
 		r.addMidiNotes([64]);
 		r.addMidiNotes([]);
 		r.addMidiNotes([65]);
+		r.addMidiNotes([]);
 		expect(r.notes).to.deep.equal([
 			{
 				notes: [
@@ -123,5 +125,21 @@ describe('MusicRecorder', () => {
 
 		expect(treble[0].duration).to.equal('q');
 		expect(bass.find((n) => !n.rest)!.duration).to.equal('h');
+	});
+
+	it('records chords across clefs when notes added sequentially', () => {
+		const r = new MusicRecorder('q');
+		r.addMidiNotes([48]);
+		r.addMidiNotes([48, 60]);
+		r.addMidiNotes([]);
+		expect(r.notes).to.deep.equal([
+			{
+				notes: [
+					{ name: 'C', octave: 4 },
+					{ name: 'C', octave: 3 },
+				],
+				duration: 'q',
+			},
+		]);
 	});
 });
