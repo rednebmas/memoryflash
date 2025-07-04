@@ -124,4 +124,25 @@ describe('MusicRecorder', () => {
 		expect(treble[0].duration).to.equal('q');
 		expect(bass.find((n) => !n.rest)!.duration).to.equal('h');
 	});
+
+	it('records cross-clef chord built sequentially', () => {
+		const r = new MusicRecorder('q');
+		r.addMidiNotes([36]);
+		r.addMidiNotes([36, 48]);
+		r.addMidiNotes([36, 48, 60]);
+		r.addMidiNotes([36, 48, 60, 72]);
+		r.addMidiNotes([]);
+
+		expect(r.notes).to.deep.equal([
+			{
+				notes: [
+					{ name: 'C', octave: 2 },
+					{ name: 'C', octave: 3 },
+					{ name: 'C', octave: 4 },
+					{ name: 'C', octave: 5 },
+				],
+				duration: 'q',
+			},
+		]);
+	});
 });

@@ -25,6 +25,7 @@ export class MusicRecorder {
 	private bars = 1;
 	private prevMidiNotes: number[] = [];
 	private currentBeat = 0;
+	private currentEventStart = 0;
 	private staff: Record<StaffKey, StaffState>;
 
 	constructor(
@@ -34,6 +35,7 @@ export class MusicRecorder {
 		bars = 1,
 	) {
 		this.splitNote = splitNote;
+		this.currentEventStart = 0;
 		this.setBars(bars);
 		this.staff = {
 			[StaffEnum.Treble]: { events: [], beats: 0, duration: trebleDuration },
@@ -85,7 +87,27 @@ export class MusicRecorder {
 	private rebuildNotes() {
 		const all = [...this.staff[StaffEnum.Treble].events, ...this.staff[StaffEnum.Bass].events];
 		all.sort((a, b) => a.start - b.start);
-		this.notes = all.map((e) => ({ notes: [...e.notes], duration: e.duration }));
+		const merged: StackedNotes[] = [];
+		let lastStart = -1;
+		let lastDur: NoteDuration | '' = '';
+		for (const e of all) {
+			if (e.start === lastStart && e.duration === lastDur) {
+				const prevStack = merged[merged.length - 1];
+				const existing = new Set(prevStack.notes.map((n) => `${n.name}${n.octave}`));
+				for (const n of e.notes) {
+					if (!existing.has(`${n.name}${n.octave}`)) prevStack.notes.push(n);
+				}
+			} else {
+				merged.push({ notes: [...e.notes], duration: e.duration });
+				lastStart = e.start;
+				lastDur = e.duration;
+			}
+			const current = merged[merged.length - 1];
+			current.notes.sort(
+				(a, b) => Note.midi(`${a.name}${a.octave}`)! - Note.midi(`${b.name}${b.octave}`)!,
+			);
+		}
+		this.notes = merged;
 	}
 
 	addMidiNotes(midiNotes: number[]): void {
@@ -102,6 +124,7 @@ export class MusicRecorder {
 			const treble = midiNotes.filter(isTreble);
 			const bass = midiNotes.filter((m) => !isTreble(m));
 			const start = this.currentBeat;
+			this.currentEventStart = start;
 			let recorded = false;
 			if (treble.length)
 				recorded = this.addEvent(StaffEnum.Treble, treble, start) || recorded;
@@ -114,9 +137,31 @@ export class MusicRecorder {
 				);
 			}
 		} else if (wasHolding && isHolding && added.length) {
-			if (trebleAdded.length) this.appendNotes(StaffEnum.Treble, trebleAdded);
-			if (bassAdded.length) this.appendNotes(StaffEnum.Bass, bassAdded);
-			if (trebleAdded.length || bassAdded.length) this.rebuildNotes();
+			let changed = false;
+			if (trebleAdded.length) {
+				const trebleState = this.staff[StaffEnum.Treble];
+				const last = trebleState.events[trebleState.events.length - 1];
+				if (!last || last.start !== this.currentEventStart) {
+					changed =
+						this.addEvent(StaffEnum.Treble, trebleAdded, this.currentEventStart) ||
+						changed;
+				} else {
+					this.appendNotes(StaffEnum.Treble, trebleAdded);
+					changed = true;
+				}
+			}
+			if (bassAdded.length) {
+				const bassState = this.staff[StaffEnum.Bass];
+				const last = bassState.events[bassState.events.length - 1];
+				if (!last || last.start !== this.currentEventStart) {
+					changed =
+						this.addEvent(StaffEnum.Bass, bassAdded, this.currentEventStart) || changed;
+				} else {
+					this.appendNotes(StaffEnum.Bass, bassAdded);
+					changed = true;
+				}
+			}
+			if (changed) this.rebuildNotes();
 		}
 
 		this.prevMidiNotes = midiNotes;
@@ -136,6 +181,7 @@ export class MusicRecorder {
 		this.notes = [];
 		this.prevMidiNotes = [];
 		this.currentBeat = 0;
+		this.currentEventStart = 0;
 	}
 
 	get filledNotes(): StackedNotes[] {
