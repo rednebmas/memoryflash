@@ -22,4 +22,41 @@ export async function captureScreenshot(page: Page, url: string, name: string, s
 	await expect(output).toHaveScreenshot(name, screenshotOpts);
 }
 
+export async function captureAndCompareScreenshot(
+	page: Page,
+	url: string,
+	name: string,
+	selector = '#root',
+	interactions: (() => Promise<void>)[] = [],
+) {
+	await page.goto(url);
+	const output = page.locator(selector);
+	await output.waitFor();
+
+	for (const interaction of interactions) {
+		await interaction();
+	}
+
+	await expect(output).toHaveScreenshot(name, screenshotOpts);
+}
+
+export async function setupTest(page: Page, url: string, onError: (errors: string[]) => void) {
+	const errors: string[] = [];
+	page.on('pageerror', (err) => errors.push(err.message));
+	page.on('console', (msg) => {
+		if (msg.type() === 'error') errors.push(msg.text());
+	});
+
+	await page.goto(url);
+
+	onError(errors);
+}
+
+export async function addMidiNotes(page: Page, notes: number[]) {
+	await page.evaluate((notes) => {
+		(window as any).recorder.addMidiNotes(notes);
+		(window as any).update();
+	}, notes);
+}
+
 export { expect };
