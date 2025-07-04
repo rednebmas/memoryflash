@@ -59,4 +59,21 @@ export async function addMidiNotes(page: Page, notes: number[]) {
 	}, notes);
 }
 
+export async function updateRecorderDuration(page: Page, duration: string, clef: string) {
+	await page.evaluate(
+		(args) => {
+			(window as any).recorder.updateDuration(args.duration, args.clef);
+			(window as any).update();
+		},
+		{ duration, clef },
+	);
+}
+
+export async function resetRecorderBeat(page: Page) {
+	await page.evaluate(() => {
+		(window as any).recorder.currentBeat = 0;
+		(window as any).update();
+	});
+}
+
 export { expect };
