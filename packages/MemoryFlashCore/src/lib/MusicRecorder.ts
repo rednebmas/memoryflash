@@ -162,6 +162,8 @@ export class MusicRecorder {
 				}
 			}
 			if (changed) this.rebuildNotes();
+		} else if (wasHolding && !isHolding) {
+			this.currentEventStart = this.currentBeat;
 		}
 
 		this.prevMidiNotes = midiNotes;
