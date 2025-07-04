@@ -11,11 +11,13 @@ test('cross clef chord input', async ({ page }) => {
 	const output = page.locator('#root');
 	await output.waitFor();
 
-	const press = async (midi: number) =>
-		page.evaluate(
+	const press = async (midi: number) => {
+		await page.evaluate(
 			(n) => (window as any).store.dispatch({ type: 'midi/addNote', payload: n }),
 			midi,
 		);
+		await page.waitForTimeout(50);
+	};
 	const release = async (midi: number) =>
 		page.evaluate(
 			(n) => (window as any).store.dispatch({ type: 'midi/removeNote', payload: n }),
