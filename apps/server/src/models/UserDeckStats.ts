@@ -26,6 +26,10 @@ const UserDeckStatsSchema = new Schema<UserDeckStatsDoc>(
 			type: Schema.Types.Mixed,
 			default: [],
 		},
+		hiddenCardIds: {
+			type: [String],
+			default: [],
+		},
 	},
 	{
 		toJSON: {

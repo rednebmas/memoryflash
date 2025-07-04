@@ -127,3 +127,22 @@ export async function addCardsToDeck(deckId: string, questions: MultiSheetQuesti
 	await Card.insertMany(cards);
 	return cards;
 }
+
+export async function updateHiddenCards(deckId: string, userId: string, hiddenCardIds: string[]) {
+	let stats = await UserDeckStats.findOne({ userId, deckId });
+	if (!stats) {
+		stats = new UserDeckStats({
+			userId,
+			deckId,
+			attempts: {},
+			medianTimeTaken: 0,
+			medianHistory: [],
+			hiddenCardIds,
+		});
+		await stats.save();
+	} else {
+		stats.hiddenCardIds = hiddenCardIds;
+		await stats.save();
+	}
+	return stats;
+}

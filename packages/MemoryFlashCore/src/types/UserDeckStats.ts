@@ -11,6 +11,7 @@ export type UserDeckStatsType = {
 	};
 	medianTimeTaken: number;
 	medianHistory: MedianHistory;
+	hiddenCardIds: string[];
 	createdAt: Date;
 	updatedAt: Date;
 };
