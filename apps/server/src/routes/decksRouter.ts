@@ -6,6 +6,7 @@ import {
 	addCardsToDeck,
 	renameDeck,
 	deleteDeckById,
+	updateHiddenCards,
 } from '../services/deckService';
 import { User } from 'MemoryFlashCore/src/types/User';
 import { getDeckStats } from '../services/statsService';
@@ -72,6 +73,19 @@ router.patch('/:id', isAuthenticated, async (req, res, next) => {
 			(req.user as User)._id.toString(),
 		);
 		return res.json({ deck });
+	} catch (error) {
+		next(error);
+	}
+});
+
+router.patch('/:id/hidden-cards', isAuthenticated, async (req, res, next) => {
+	try {
+		const stats = await updateHiddenCards(
+			req.params.id,
+			(req.user as User)._id.toString(),
+			req.body.hiddenCardIds || [],
+		);
+		return res.json({ stats });
 	} catch (error) {
 		next(error);
 	}

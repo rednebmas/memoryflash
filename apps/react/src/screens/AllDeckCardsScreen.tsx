@@ -3,7 +3,7 @@ import { FlashCard, Layout } from '../components';
 import { BasicErrorCard } from '../components/ErrorCard';
 import { Spinner } from '../components/Spinner';
 import { getDeck } from 'MemoryFlashCore/src/redux/actions/get-deck-action';
-import { currDeckWithCorrectAttemptsSortedArray } from 'MemoryFlashCore/src/redux/selectors/currDeckCardsWithAttempts';
+import { currDeckAllWithCorrectAttemptsSortedArray } from 'MemoryFlashCore/src/redux/selectors/currDeckCardsWithAttempts';
 import { useNetworkState } from 'MemoryFlashCore/src/redux/selectors/useNetworkState';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { useDeckIdPath } from './useDeckIdPath';
@@ -13,7 +13,7 @@ interface AllDeckCardsScreenProps {}
 export const AllDeckCardsScreen: React.FunctionComponent<AllDeckCardsScreenProps> = ({}) => {
 	const dispatch = useAppDispatch();
 	const { deckId } = useDeckIdPath();
-	const deck = useAppSelector(currDeckWithCorrectAttemptsSortedArray);
+	const deck = useAppSelector(currDeckAllWithCorrectAttemptsSortedArray);
 
 	const { isLoading, error } = useNetworkState('getDeck' + deckId);
 
