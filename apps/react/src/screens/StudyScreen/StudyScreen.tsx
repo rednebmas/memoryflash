@@ -160,12 +160,13 @@ export const StudyScreen = () => {
 				>
 					{cards.map((card, i) => (
 						<FlashCard
+							key={card._id + i}
 							ref={(el) => (cardRefs.current[i] = el!)}
 							placement={i === index ? 'cur' : i < index ? 'answered' : 'scheduled'}
-							key={card._id + i}
 							card={card}
 							className={`card-shadow-2 ${cardOpactity(i)}`}
 							opacity={cardOpactity(i)}
+							showEdit={user && (card as any).userId === user._id && i === index}
 						/>
 					))}
 				</div>

@@ -5,6 +5,7 @@ import { authRouter } from './authRoute';
 import { decksRouter } from './decksRouter';
 import { coursesRouter } from './coursesRouter';
 import { attemptsRouter } from './attemptsRoute';
+import { cardsRouter } from './cardsRouter';
 
 const router = Router();
 
@@ -17,6 +18,7 @@ router.use('/auth', authRouter);
 router.use('/decks', decksRouter);
 router.use('/courses', coursesRouter);
 router.use('/attempts', attemptsRouter);
+router.use('/cards', cardsRouter);
 router.use(notFound);
 
 export { router as api };
