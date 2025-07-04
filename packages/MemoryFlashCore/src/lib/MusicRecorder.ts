@@ -25,6 +25,8 @@ export class MusicRecorder {
 	private bars = 1;
 	private prevMidiNotes: number[] = [];
 	private currentBeat = 0;
+	private activeStart: number | null = null;
+	private activeStaffs: Partial<Record<StaffKey, boolean>> = {};
 	private staff: Record<StaffKey, StaffState>;
 
 	constructor(
@@ -85,7 +87,19 @@ export class MusicRecorder {
 	private rebuildNotes() {
 		const all = [...this.staff[StaffEnum.Treble].events, ...this.staff[StaffEnum.Bass].events];
 		all.sort((a, b) => a.start - b.start);
-		this.notes = all.map((e) => ({ notes: [...e.notes], duration: e.duration }));
+		const merged: { start: number; notes: SheetNote[]; duration: NoteDuration }[] = [];
+		for (const e of all) {
+			const last = merged[merged.length - 1];
+			if (last && last.start === e.start && last.duration === e.duration) {
+				const existing = new Set(last.notes.map((n) => `${n.name}${n.octave}`));
+				for (const n of e.notes) {
+					if (!existing.has(`${n.name}${n.octave}`)) last.notes.push(n);
+				}
+			} else {
+				merged.push({ start: e.start, notes: [...e.notes], duration: e.duration });
+			}
+		}
+		this.notes = merged.map((e) => ({ notes: e.notes, duration: e.duration }));
 	}
 
 	addMidiNotes(midiNotes: number[]): void {
@@ -99,24 +113,45 @@ export class MusicRecorder {
 		const bassAdded = added.filter((m) => !isTreble(m));
 
 		if (!wasHolding && isHolding) {
+			this.activeStart = this.currentBeat;
+			this.activeStaffs = {};
 			const treble = midiNotes.filter(isTreble);
 			const bass = midiNotes.filter((m) => !isTreble(m));
-			const start = this.currentBeat;
 			let recorded = false;
-			if (treble.length)
-				recorded = this.addEvent(StaffEnum.Treble, treble, start) || recorded;
-			if (bass.length) recorded = this.addEvent(StaffEnum.Bass, bass, start) || recorded;
-			if (recorded) {
-				this.rebuildNotes();
-				this.currentBeat = Math.max(
-					this.staff[StaffEnum.Treble].beats,
-					this.staff[StaffEnum.Bass].beats,
-				);
+			if (treble.length) {
+				recorded = this.addEvent(StaffEnum.Treble, treble, this.activeStart) || recorded;
+				this.activeStaffs[StaffEnum.Treble] = true;
 			}
+			if (bass.length) {
+				recorded = this.addEvent(StaffEnum.Bass, bass, this.activeStart) || recorded;
+				this.activeStaffs[StaffEnum.Bass] = true;
+			}
+			if (recorded) this.rebuildNotes();
 		} else if (wasHolding && isHolding && added.length) {
-			if (trebleAdded.length) this.appendNotes(StaffEnum.Treble, trebleAdded);
-			if (bassAdded.length) this.appendNotes(StaffEnum.Bass, bassAdded);
+			if (trebleAdded.length) {
+				if (this.activeStaffs[StaffEnum.Treble]) {
+					this.appendNotes(StaffEnum.Treble, trebleAdded);
+				} else if (this.activeStart !== null) {
+					if (this.addEvent(StaffEnum.Treble, trebleAdded, this.activeStart))
+						this.activeStaffs[StaffEnum.Treble] = true;
+				}
+			}
+			if (bassAdded.length) {
+				if (this.activeStaffs[StaffEnum.Bass]) {
+					this.appendNotes(StaffEnum.Bass, bassAdded);
+				} else if (this.activeStart !== null) {
+					if (this.addEvent(StaffEnum.Bass, bassAdded, this.activeStart))
+						this.activeStaffs[StaffEnum.Bass] = true;
+				}
+			}
 			if (trebleAdded.length || bassAdded.length) this.rebuildNotes();
+		} else if (wasHolding && !isHolding) {
+			this.currentBeat = Math.max(
+				this.staff[StaffEnum.Treble].beats,
+				this.staff[StaffEnum.Bass].beats,
+			);
+			this.activeStart = null;
+			this.activeStaffs = {};
 		}
 
 		this.prevMidiNotes = midiNotes;
@@ -135,6 +170,8 @@ export class MusicRecorder {
 		};
 		this.notes = [];
 		this.prevMidiNotes = [];
+		this.activeStart = null;
+		this.activeStaffs = {};
 		this.currentBeat = 0;
 	}
 
