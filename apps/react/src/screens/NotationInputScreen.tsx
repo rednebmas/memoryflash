@@ -1,14 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { shallowEqual } from 'react-redux';
 import { Layout, Button } from '../components';
+import { BasicErrorCard } from '../components/ErrorCard';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { MusicRecorder } from 'MemoryFlashCore/src/lib/MusicRecorder';
 import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
 import { questionsForAllMajorKeys } from 'MemoryFlashCore/src/lib/multiKeyTransposer';
 import { addCardsToDeck } from 'MemoryFlashCore/src/redux/actions/add-cards-to-deck';
+import { updateCard } from 'MemoryFlashCore/src/redux/actions/update-card-action';
 import { setPresentationMode } from 'MemoryFlashCore/src/redux/actions/set-presentation-mode';
 import { CardTypeEnum } from 'MemoryFlashCore/src/types/Cards';
 import { useDeckIdPath } from './useDeckIdPath';
+import { useNetworkState } from 'MemoryFlashCore/src/redux/selectors/useNetworkState';
+import { useParams } from 'react-router-dom';
 import {
 	NotationSettings,
 	NotationSettingsState,
@@ -20,12 +24,25 @@ export const NotationInputScreen = () => {
 	const [settings, setSettings] = useState<NotationSettingsState>(defaultSettings);
 	const dispatch = useAppDispatch();
 	const { deckId } = useDeckIdPath();
+	const { cardId } = useParams();
+	const card = useAppSelector((state) => (cardId ? state.cards.entities[cardId] : undefined));
+	const { isLoading: isUpdating, error: updateError } = useNetworkState('updateCard');
+	const { isLoading: isAdding, error: addError } = useNetworkState('addCardsToDeck');
 
 	const recorderRef = useRef(new MusicRecorder('q', 'C4', 'q', defaultSettings.bars));
 	const midiNotes = useAppSelector(
 		(state) => state.midi.notes.map((n) => n.number),
 		shallowEqual,
 	);
+
+	useEffect(() => {
+		if (card && card.type === CardTypeEnum.MultiSheet) {
+			setSettings((prev) => ({
+				...prev,
+				keySig: card.question.key,
+			}));
+		}
+	}, [card]);
 
 	useEffect(() => {
 		recorderRef.current.updateDuration(settings.trebleDur, StaffEnum.Treble);
@@ -62,6 +79,14 @@ export const NotationInputScreen = () => {
 		}
 	};
 
+	const handleUpdate = () => {
+		if (cardId && previews[0]) {
+			dispatch(updateCard(cardId, previews[0], settings.cardType, settings.textPrompt));
+		}
+	};
+
+	const error = updateError || addError;
+
 	return (
 		<Layout subtitle="Notation Input" back="/">
 			<NotationSettings onChange={setSettings} />
@@ -71,8 +96,14 @@ export const NotationInputScreen = () => {
 				textPrompt={settings.textPrompt}
 				previewTextCard={settings.preview}
 			/>
+			<BasicErrorCard error={error} />
 			<div className="pt-4 flex justify-center">
-				<Button onClick={handleAdd}>Add Card</Button>
+				<Button
+					onClick={cardId ? handleUpdate : handleAdd}
+					loading={cardId ? isUpdating : isAdding}
+				>
+					{cardId ? 'Update Card' : 'Add Card'}
+				</Button>
 			</div>
 		</Layout>
 	);
