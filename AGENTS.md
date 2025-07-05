@@ -13,3 +13,20 @@ This project prefers a highly componentized React codebase that avoids duplicate
 - **Type Safety**: Avoid casting to `any`.
 
 Follow these guidelines to keep the codebase clean and maintainable.
+
+## LLM Screenshot Workflow
+
+When you want Codex to capture UI screenshots, instruct it to create a file named `ui-plan.md` at the repository root. Codex should consider the UI changes it introduced and write a Markdown plan describing how to navigate to the updated screens. The plan must include a fenced `json` block listing the steps for Playwright to execute.
+
+Example plan format:
+
+```json
+[
+	{ "action": "goto", "url": "/" },
+	{ "action": "screenshot", "name": "home.png" },
+	{ "action": "click", "selector": "text=Login" },
+	{ "action": "screenshot", "name": "login.png" }
+]
+```
+
+When `ui-plan.md` exists, the workflow `.github/workflows/ui-screenshots.yml` will build the app, run `ts-node` on `.github/scripts/captureScreenshots.ts`, and upload the resulting screenshots to the pull request.
