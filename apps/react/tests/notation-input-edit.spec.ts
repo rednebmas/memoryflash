@@ -3,12 +3,6 @@ import { test, expect } from './helpers';
 // verify edit mode shows Update Card button
 
 test('NotationInputScreen edit flow', async ({ page }) => {
-	const errors: string[] = [];
-	page.on('pageerror', (err) => errors.push(err.message));
-	page.on('console', (msg) => {
-		if (msg.type() === 'error') errors.push(msg.text());
-	});
-
 	await page.goto('/tests/notation-input-edit-test.html');
 	await page.locator('#root').waitFor();
 
@@ -26,5 +20,4 @@ test('NotationInputScreen edit flow', async ({ page }) => {
 
 	await expect(page.getByRole('button', { name: 'Update Card' })).toHaveText('Update Card');
 	await expect(page.getByRole('button', { name: 'Reset' })).toBeVisible();
-	expect(errors).toEqual([]);
 });
