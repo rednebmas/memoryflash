@@ -1,22 +1,14 @@
-import { test, expect, screenshotOpts } from './helpers';
+import { test, expect, screenshotOpts, runRecorderEvents } from './helpers';
 
 test('MusicRecorder bass whole with treble quarters', async ({ page }) => {
-	await page.goto('/tests/music-recorder-bass-whole-quarter-test.html');
-	const output = page.locator('#root');
-
 	const treble = [[60], [], [62], [], [64], [], [65], []];
 
-	for (let i = 0; i < treble.length; i++) {
-		await page.evaluate((notes) => {
-			(window as any).recorder.addMidiNotes(notes);
-			(window as any).update();
-		}, treble[i]);
-		await output.waitFor();
-		await expect(output).toHaveScreenshot(
-			`music-recorder-bass-whole-quarter-${i + 1}.png`,
-			screenshotOpts,
-		);
-	}
+	const output = await runRecorderEvents(
+		page,
+		'/tests/music-recorder-bass-whole-quarter-test.html',
+		treble,
+		'music-recorder-bass-whole-quarter',
+	);
 
 	await page.evaluate(() => {
 		(window as any).recorder.currentBeat = 0;
