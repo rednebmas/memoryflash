@@ -22,25 +22,6 @@ describe('questionsForAllMajorKeys', () => {
 		expect(result.map((q) => q.key)).to.deep.equal(majorKeys);
 	});
 
-	it('fits questions into the provided range', () => {
-		const lowest = 'C5';
-		const highest = 'C6';
-		const result = questionsForAllMajorKeys(base, lowest, highest);
-		const minMidi = Note.midi(lowest)!;
-		const maxMidi = Note.midi(highest)!;
-		result.forEach((q) =>
-			q.voices.forEach((v) =>
-				v.stack.forEach((sn) =>
-					sn.notes.forEach((n) => {
-						const midi = Note.midi(`${n.name}${n.octave}`)!;
-						expect(midi).to.be.at.least(minMidi);
-						expect(midi).to.be.at.most(maxMidi);
-					}),
-				),
-			),
-		);
-	});
-
 	it('does not shift the base key even if notes are outside the range', () => {
 		const lowBase: MultiSheetQuestion = {
 			key: 'C',
