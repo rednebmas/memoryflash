@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { shallowEqual } from 'react-redux';
 import { Layout, Button } from '../components';
 import { BasicErrorCard } from '../components/ErrorCard';
@@ -57,11 +57,15 @@ export const NotationInputScreen = () => {
 		recorderRef.current.reset();
 	}, [settings.bars]);
 
-	useEffect(() => {
-		recorderRef.current.addMidiNotes(midiNotes);
-	}, [midiNotes]);
+	const prevMidiNotesRef = useRef<number[]>([]);
 
-	const data = recorderRef.current.buildQuestion(settings.keySig);
+	const data = useMemo(() => {
+		if (!shallowEqual(prevMidiNotesRef.current, midiNotes)) {
+			recorderRef.current.addMidiNotes(midiNotes);
+			prevMidiNotesRef.current = [...midiNotes]; // Copy to store content
+		}
+		return recorderRef.current.buildQuestion(settings.keySig);
+	}, [midiNotes, settings.keySig]);
 	const previewsAll = questionsForAllMajorKeys(data, settings.lowest, settings.highest);
 	const previews = previewsAll.filter((_, i) => settings.selected[i]);
 

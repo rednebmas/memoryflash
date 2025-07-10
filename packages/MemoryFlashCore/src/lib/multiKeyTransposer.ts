@@ -57,7 +57,7 @@ function shiftQuestion(question: MultiSheetQuestion, octaves: number): MultiShee
 	};
 }
 
-export function fitQuestionToRange(
+export function chooseBestOctave(
 	question: MultiSheetQuestion,
 	lowest: string,
 	highest: string,
@@ -65,18 +65,33 @@ export function fitQuestionToRange(
 	let q = JSON.parse(JSON.stringify(question)) as MultiSheetQuestion;
 	const minMidi = Note.midi(lowest)!;
 	const maxMidi = Note.midi(highest)!;
-	let { min, max } = questionMinMaxMidi(q);
-	while (min < minMidi) {
-		q = shiftQuestion(q, 1);
-		min += 12;
-		max += 12;
+	const center = (minMidi + maxMidi) / 2;
+
+	const midis: number[] = [];
+	question.voices.forEach((v) =>
+		v.stack.forEach((sn) =>
+			sn.notes.forEach((n) => {
+				const midi = Note.midi(`${n.name}${n.octave}`);
+				if (midi != null) midis.push(midi);
+			}),
+		),
+	);
+
+	if (!midis.length) return q;
+
+	let bestShift = 0;
+	let bestScore = Infinity;
+	for (let shift = -3; shift <= 3; shift++) {
+		const shiftedMidis = midis.map((m) => m + 12 * shift);
+		const avg = shiftedMidis.reduce((a, b) => a + b, 0) / midis.length;
+		const score = Math.abs(avg - center);
+		if (score < bestScore) {
+			bestScore = score;
+			bestShift = shift;
+		}
 	}
-	while (max > maxMidi) {
-		q = shiftQuestion(q, -1);
-		min -= 12;
-		max -= 12;
-	}
-	return q;
+
+	return shiftQuestion(q, bestShift);
 }
 
 export function questionsForAllMajorKeys(
@@ -84,7 +99,10 @@ export function questionsForAllMajorKeys(
 	lowest: string,
 	highest: string,
 ): MultiSheetQuestion[] {
+	const baseKey = base.key;
 	return majorKeys.map((key) =>
-		fitQuestionToRange(transposeQuestion(base, key), lowest, highest),
+		key === baseKey
+			? transposeQuestion(base, key) // No octave choice for base—keep input pitches exact
+			: chooseBestOctave(transposeQuestion(base, key), lowest, highest),
 	);
 }
