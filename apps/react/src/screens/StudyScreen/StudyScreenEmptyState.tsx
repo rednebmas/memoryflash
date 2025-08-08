@@ -25,7 +25,7 @@ export const StudyScreenEmptyState: React.FC = () => {
 			{!isLoading &&
 				(isOwner ? (
 					<Link to={`/study/${deckId}/notation`} className="w-full flex justify-center">
-						<Button className="w-48">Add Cards</Button>
+						<Button className="w-auto px-6">Add Cards</Button>
 					</Link>
 				) : (
 					<div className="text-center text-gray-500 w-full">This deck has no cards.</div>
