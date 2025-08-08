@@ -6,6 +6,6 @@ const getEnv = (viteVariable: string, nodeVariable: string) => {
 	}
 };
 
-export const API_BASE_URL = getEnv('VITE_API_BASE_URL', 'API_BASE_URL');
+export const API_BASE_URL = getEnv('VITE_API_BASE_URL', 'API_BASE_URL') || 'http://localhost:3333';
 
 export const IS_PRODUCTION = getEnv('MODE', 'NODE_ENV') === 'production';
