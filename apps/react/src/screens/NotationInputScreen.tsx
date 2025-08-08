@@ -73,7 +73,7 @@ export const NotationInputScreen = () => {
 		if (deckId) {
 			let toAdd = previews;
 			if (settings.cardType === 'Text Prompt') {
-				toAdd = toAdd.map((q) => ({
+				toAdd = previews.map((q) => ({
 					...q,
 					presentationModes: [{ id: 'Text Prompt', text: settings.textPrompt }],
 				}));

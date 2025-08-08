@@ -21,12 +21,11 @@ export const NotationSettings: React.FC<NotationSettingsProps> = ({ onChange }) 
 
 	const update = (changes: Partial<NotationSettingsState>) =>
 		setState((prev) => {
-			const next: NotationSettingsState = { ...prev, ...changes };
+			let next: NotationSettingsState = { ...prev, ...changes };
 			if (changes.keySig) {
 				const idx = majorKeys.indexOf(changes.keySig);
-				const sel = [...next.selected];
-				sel[idx] = true;
-				next.selected = sel;
+				// select only the new key, deselect others
+				next.selected = next.selected.map((_, i) => i === idx);
 			}
 			return next;
 		});
