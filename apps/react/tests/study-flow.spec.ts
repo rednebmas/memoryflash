@@ -35,7 +35,7 @@ test('end-to-end: login, seed pop course, open first deck, study renders', async
 	await page.goto(`/study/${firstDeckId}`);
 
 	// Wait for the study page to load and look for the study interface
-	await expect(page.getByText(/tooLongTime:/)).toBeVisible({ timeout: 10000 });
+	await expect(page.getByText(/Sheet Music w\/ Chords/)).toBeVisible({ timeout: 10000 });
 
 	// Take a screenshot of the study screen
 	const studyScreenContent = page.locator('#root');
