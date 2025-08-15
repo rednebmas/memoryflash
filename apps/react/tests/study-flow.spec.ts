@@ -21,6 +21,15 @@ async function uiLogin(page: any, email: string, password: string) {
 }
 
 test('end-to-end: login, seed pop course, open first deck, study renders', async ({ page }) => {
+	// Override Math.random to make the scheduler deterministic for screenshot testing
+	await page.addInitScript(() => {
+		let seed = 12345; // Fixed seed for deterministic results
+		Math.random = () => {
+			const x = Math.sin(seed++) * 10000;
+			return x - Math.floor(x);
+		};
+	});
+
 	// Seed the data first (this creates the user account)
 	const seedResp = await page.request.post('http://localhost:3333/test/seed');
 	expect(seedResp.ok()).toBeTruthy();
