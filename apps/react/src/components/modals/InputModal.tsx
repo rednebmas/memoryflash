@@ -36,6 +36,9 @@ export const InputModal: React.FC<InputModalProps> = ({
 						label={label}
 						value={val}
 						onChange={(e) => setVal(e.target.value)}
+						onKeyDown={(e) => {
+							if (e.key === 'Enter') handle();
+						}}
 					/>
 				</div>
 			</div>
