@@ -19,7 +19,7 @@
 	"dependencies": {
 		"@reduxjs/toolkit": "^2.1.0",
 		"@types/react-redux": "^7.1.33",
-		"axios": "^1.8.2",
+		"axios": "^1.11.0",
 		"bson-objectid": "^2.0.4",
 		"mongoose": "^8.16.0",
 		"tonal": "^6.2.0",
