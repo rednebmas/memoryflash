@@ -6,6 +6,7 @@ import { decksRouter } from './decksRouter';
 import { coursesRouter } from './coursesRouter';
 import { attemptsRouter } from './attemptsRoute';
 import { cardsRouter } from './cardsRouter';
+import { testRouter } from './testRouter';
 
 const router = Router();
 
@@ -19,6 +20,11 @@ router.use('/decks', decksRouter);
 router.use('/courses', coursesRouter);
 router.use('/attempts', attemptsRouter);
 router.use('/cards', cardsRouter);
+
+if (process.env.USE_MEMORY_DB === 'true') {
+	router.use('/test', testRouter);
+}
+
 router.use(notFound);
 
 export { router as api };
