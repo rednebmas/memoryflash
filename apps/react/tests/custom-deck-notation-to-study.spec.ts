@@ -9,7 +9,9 @@ test('Create custom deck, add simple card, then study', async ({ page }) => {
 	await page.getByRole('button', { name: 'Create Course' }).click();
 	await page.fill('#input-modal', 'My Test Course');
 	const [createCourseResp] = await Promise.all([
-		page.waitForResponse((r) => r.url().endsWith('/courses') && r.request().method() === 'POST'),
+		page.waitForResponse(
+			(r) => r.url().endsWith('/courses') && r.request().method() === 'POST',
+		),
 		page.getByRole('button', { name: 'Save' }).click(),
 	]);
 	expect(createCourseResp.ok()).toBeTruthy();
@@ -31,7 +33,9 @@ test('Create custom deck, add simple card, then study', async ({ page }) => {
 	await page.waitForURL(new RegExp(`/study/${deckId}/notation`));
 
 	const [addResp] = await Promise.all([
-		page.waitForResponse((r) => r.url().includes(`/decks/${deckId}/cards`) && r.request().method() === 'POST'),
+		page.waitForResponse(
+			(r) => r.url().includes(`/decks/${deckId}/cards`) && r.request().method() === 'POST',
+		),
 		page.getByRole('button', { name: 'Add Card' }).click(),
 	]);
 	expect(addResp.ok()).toBeTruthy();
