@@ -61,3 +61,31 @@ export async function runRecorderEvents(
 }
 
 export { expect };
+
+export async function stubMathRandom(page: Page, seedStart = 12345) {
+	await page.addInitScript((seed) => {
+		let s = seed;
+		Math.random = () => {
+			const x = Math.sin(s++) * 10000;
+			return x - Math.floor(x);
+		};
+	}, seedStart);
+}
+
+export async function seedTestData(page: Page) {
+	const res = await page.request.post('http://localhost:3333/test/seed');
+	expect(res.ok()).toBeTruthy();
+	return res.json();
+}
+
+export async function uiLogin(page: Page, email: string, password: string) {
+	await page.goto('/auth/login');
+	await page.fill('#email', email);
+	await page.fill('#password', password);
+	const [response] = await Promise.all([
+		page.waitForResponse((r) => r.url().includes('/auth/log-in')),
+		page.click('button:has-text("Login")'),
+	]);
+	if (response.status() !== 200) throw new Error(`Login failed: ${await response.text()}`);
+	await page.waitForURL((url) => !url.toString().includes('/auth/login'), { timeout: 5000 });
+}
