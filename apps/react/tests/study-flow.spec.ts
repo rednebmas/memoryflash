@@ -1,7 +1,7 @@
-import { test, expect, seedTestData, uiLogin, stubMathRandom } from './helpers';
+import { test, expect, seedTestData, uiLogin, initDeterministicEnv } from './helpers';
 
 test('end-to-end: login, seed pop course, open first deck, study renders', async ({ page }) => {
-	await stubMathRandom(page);
+	await initDeterministicEnv(page);
 
 	const seedJson = await seedTestData(page);
 	const firstDeckId = seedJson.decks?.[0]?._id;
