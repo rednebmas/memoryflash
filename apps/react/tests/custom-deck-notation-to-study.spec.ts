@@ -1,4 +1,11 @@
-import { test, expect, screenshotOpts, uiLogin, seedTestData, initDeterministicEnv } from './helpers';
+import {
+	test,
+	expect,
+	screenshotOpts,
+	uiLogin,
+	seedTestData,
+	initDeterministicEnv,
+} from './helpers';
 
 test('Create custom deck, add simple card, then study', async ({ page }) => {
 	await initDeterministicEnv(page);

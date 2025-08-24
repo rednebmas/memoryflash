@@ -73,17 +73,17 @@ export async function stubMathRandom(page: Page, seedStart = 12345) {
 }
 
 export async function seedTestData(page: Page) {
-    const res = await page.request.post('http://localhost:3333/test/seed');
-    expect(res.ok()).toBeTruthy();
-    const json: any = await res.json();
-    if (Array.isArray(json?.decks)) {
-        json.decks = [...json.decks].sort((a, b) => {
-            const an = (a?.name as string) || (a?.uid as string) || '';
-            const bn = (b?.name as string) || (b?.uid as string) || '';
-            return an < bn ? -1 : an > bn ? 1 : 0;
-        });
-    }
-    return json;
+	const res = await page.request.post('http://localhost:3333/test/seed');
+	expect(res.ok()).toBeTruthy();
+	const json: any = await res.json();
+	if (Array.isArray(json?.decks)) {
+		json.decks = [...json.decks].sort((a, b) => {
+			const an = (a?.name as string) || (a?.uid as string) || '';
+			const bn = (b?.name as string) || (b?.uid as string) || '';
+			return an < bn ? -1 : an > bn ? 1 : 0;
+		});
+	}
+	return json;
 }
 
 export async function uiLogin(page: Page, email: string, password: string) {
