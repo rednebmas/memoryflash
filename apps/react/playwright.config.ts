@@ -2,7 +2,7 @@ import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
 	testDir: './tests',
-	snapshotPathTemplate: '{testDir}/{testFilePath}-snapshots/{arg}{ext}',
+	snapshotPathTemplate: '{testDir}/{testFilePath}-snapshots/{platform}/{arg}{ext}',
 	webServer: [
 		{
 			command:
@@ -19,6 +19,8 @@ export default defineConfig({
 	use: {
 		baseURL: 'http://localhost:4173',
 		screenshot: 'only-on-failure',
+		viewport: { width: 1280, height: 800 },
+		deviceScaleFactor: 1,
 	},
 	reporter: [['html', { open: 'never' }]],
 });
