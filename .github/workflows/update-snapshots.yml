@@ -6,12 +6,16 @@ on:
 jobs:
     update-snapshots:
         name: Update Playwright Image Snapshots
-        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                os: [ubuntu-latest, macos-latest]
+            max-parallel: 1
+        runs-on: ${{ matrix.os }}
         permissions:
             contents: write
         steps:
             - name: Check out repository
-              uses: actions/checkout@v3
+              uses: actions/checkout@v4
               with:
                   # use the PAT here instead of GITHUB_TOKEN to make CI trigger work
                   token: ${{ secrets.MFLASH_CI_TRIGGER_TOKEN}}
@@ -20,16 +24,22 @@ jobs:
               run: corepack enable
 
             - name: Set up Node.js
-              uses: actions/setup-node@v3
+              uses: actions/setup-node@v4
               with:
                   node-version: 20.x
                   cache: yarn
 
             - name: Install dependencies
-              run: yarn install
+              run: yarn install --immutable
+
+            - name: Install Playwright browsers
+              working-directory: apps/react
+              run: npx playwright install --with-deps
 
             - name: Update Playwright snapshots
               working-directory: apps/react
+              env:
+                  BLOCK_REMOTE_FONTS: 'true'
               run: yarn test:screenshots:update
 
             - name: Commit and push updated snapshots
@@ -40,8 +50,10 @@ jobs:
                   git config user.name "github-actions[bot]"
                   git config user.email "github-actions[bot]@users.noreply.github.com"
                   git add apps/react/tests/*-snapshots/* || true
-                  git commit -m "chore: update Playwright screenshot snapshots" || echo "No changes to commit"
+                  git commit -m "chore: update Playwright screenshot snapshots (${{ matrix.os }})" || echo "No changes to commit"
                   BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
                   echo "Pushing updates to branch: $BRANCH"
+                  # rebase to avoid non-fast-forward across matrix runs
+                  git pull --rebase || true
                   # push over HTTPS using the PAT so GitHub treats it like a normal user push
-                  git push https://x-access-token:${PAT}@github.com/${{ github.repository }} HEAD:"$BRANCH"
+                  git push https://x-access-token:${PAT}@github.com/${{ github.repository }} HEAD:"$BRANCH" || true
