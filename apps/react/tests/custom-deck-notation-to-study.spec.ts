@@ -50,7 +50,9 @@ test('Create custom deck, add simple card, then study', async ({ page }) => {
 		[],
 		[72],
 		[],
-	]);
+	],
+ );
+
 
 	const [addResp] = await Promise.all([
 		page.waitForResponse(

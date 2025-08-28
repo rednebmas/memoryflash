@@ -25,7 +25,7 @@ export const test = base.extend<{ page: Page }>({
 		}
 
 		await page.addInitScript(() => {
-			(window as any).__E2E__ = true;
+			(window as any).__TEST_ENV__ = true;
 		});
 
 		await use(page);
@@ -52,27 +52,25 @@ export async function runRecorderEvents(
 	const output = page.locator('#root');
 
 	for (let i = 0; i < events.length; i++) {
-		await page.evaluate((n) => {
-			const w: any = window as any;
-			if (w.recorder && typeof w.update === 'function') {
-				w.recorder.addMidiNotes(n);
-				w.update();
-				return;
-			}
-			if (w.store && w.store.dispatch) {
-				const curr: number[] = (w.store.getState()?.midi?.notes || []).map(
-					(x: any) => x.number,
-				);
-				const toAdd = n.filter((m) => !curr.includes(m));
-				const toRemove = curr.filter((m) => !n.includes(m));
-				for (const m of toAdd) w.store.dispatch({ type: 'midi/addNote', payload: m });
-				for (const m of toRemove) w.store.dispatch({ type: 'midi/removeNote', payload: m });
-			}
-		}, events[i]);
+		const notes = events[i] ?? [];
+
+		// Press all notes for this step
+		await page.evaluate((ns) => {
+			const dispatch = (window as any).store.dispatch;
+			for (const n of ns) dispatch({ type: 'midi/addNote', payload: n });
+		}, notes);
+
+		// Allow React/Redux to propagate the change before releasing
+		await page.waitForTimeout(0);
+
+		// Release all notes for this step
+		await page.evaluate((ns) => {
+			const dispatch = (window as any).store.dispatch;
+			for (const n of ns) dispatch({ type: 'midi/removeNote', payload: n });
+		}, notes);
+
 		await output.waitFor();
-		if (prefix) {
-			await expect(output).toHaveScreenshot(`${prefix}-${i + 1}.png`, screenshotOpts);
-		}
+		if (prefix) await expect(output).toHaveScreenshot(`${prefix}-${i + 1}.png`, screenshotOpts);
 		if (afterStep) await afterStep(i);
 	}
 
@@ -142,13 +140,4 @@ export async function initDeterministicEnv(page: Page, seed = 12345) {
 			headers: { ...response.headers(), 'content-type': 'application/json' },
 		});
 	});
-}
-
-export async function pressMidi(page: Page, midi: number) {
-	await page.evaluate((n) => {
-		(window as any).store.dispatch({ type: 'midi/addNote', payload: n });
-	}, midi);
-	await page.evaluate((n) => {
-		(window as any).store.dispatch({ type: 'midi/removeNote', payload: n });
-	}, midi);
 }
