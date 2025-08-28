@@ -24,6 +24,10 @@ export const test = base.extend<{ page: Page }>({
 			await page.route('https://fonts.gstatic.com/**', (route) => route.abort());
 		}
 
+		await page.addInitScript(() => {
+			(window as any).__TEST_ENV__ = true;
+		});
+
 		await use(page);
 
 		expect(errors).toEqual([]);
@@ -41,19 +45,32 @@ export async function runRecorderEvents(
 	page: Page,
 	url: string,
 	events: number[][],
-	prefix: string,
+	prefix?: string,
 	afterStep?: (index: number) => Promise<void> | void,
 ) {
 	await page.goto(url);
 	const output = page.locator('#root');
 
 	for (let i = 0; i < events.length; i++) {
-		await page.evaluate((n) => {
-			(window as any).recorder.addMidiNotes(n);
-			(window as any).update();
-		}, events[i]);
+		const notes = events[i] ?? [];
+
+		// Press all notes for this step
+		await page.evaluate((ns) => {
+			const dispatch = (window as any).store.dispatch;
+			for (const n of ns) dispatch({ type: 'midi/addNote', payload: n });
+		}, notes);
+
+		// Allow React/Redux to propagate the change before releasing
+		await page.waitForTimeout(0);
+
+		// Release all notes for this step
+		await page.evaluate((ns) => {
+			const dispatch = (window as any).store.dispatch;
+			for (const n of ns) dispatch({ type: 'midi/removeNote', payload: n });
+		}, notes);
+
 		await output.waitFor();
-		await expect(output).toHaveScreenshot(`${prefix}-${i + 1}.png`, screenshotOpts);
+		if (prefix) await expect(output).toHaveScreenshot(`${prefix}-${i + 1}.png`, screenshotOpts);
 		if (afterStep) await afterStep(i);
 	}
 

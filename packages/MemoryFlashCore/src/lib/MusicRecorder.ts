@@ -195,6 +195,14 @@ export class MusicRecorder {
 		return insertRestsToFillBars(stack);
 	}
 
+	get totalBeatsRecorded(): number {
+		return Math.max(this.staff[StaffEnum.Treble].beats, this.staff[StaffEnum.Bass].beats);
+	}
+
+	hasFullMeasure(): boolean {
+		return this.totalBeatsRecorded >= this._maxBeats;
+	}
+
 	buildQuestion(key: string): MultiSheetQuestion {
 		if (
 			!this.staff[StaffEnum.Treble].events.length &&

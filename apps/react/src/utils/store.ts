@@ -15,10 +15,16 @@ export const loadWebReudxStatePromise = rdxPersist
 	.rehydrate()
 	.then(async (preloadedState) => {
 		store = createStore(preloadedState, persistStore);
+		if ((window as any)?.__TEST_ENV__) {
+			(window as any).store = store;
+		}
 	})
 	.catch((err) => {
 		console.log('Error loading redux state', err);
 		store = createStore(undefined, persistStore);
+		if ((window as any)?.__TEST_ENV__) {
+			(window as any).store = store;
+		}
 	})
 	.finally(() => {
 		console.log('Redux store loaded');

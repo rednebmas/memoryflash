@@ -142,4 +142,16 @@ describe('MusicRecorder', () => {
 		]);
 		r.addMidiNotes([]);
 	});
+
+	it('exposes totalBeatsRecorded and hasFullMeasure helpers', () => {
+		const r = new MusicRecorder('q');
+		expect(r.totalBeatsRecorded).to.equal(0);
+		expect(r.hasFullMeasure()).to.equal(false);
+		for (const n of [60, 62, 64, 65]) {
+			r.addMidiNotes([n]);
+			r.addMidiNotes([]);
+		}
+		expect(r.totalBeatsRecorded).to.equal(4);
+		expect(r.hasFullMeasure()).to.equal(true);
+	});
 });

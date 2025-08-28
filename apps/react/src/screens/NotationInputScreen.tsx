@@ -71,6 +71,7 @@ export const NotationInputScreen = () => {
 
 	const handleAdd = () => {
 		if (deckId) {
+			if (!recorderRef.current.hasFullMeasure()) return;
 			let toAdd = previews;
 			if (settings.cardType === 'Text Prompt') {
 				toAdd = previews.map((q) => ({
@@ -78,6 +79,12 @@ export const NotationInputScreen = () => {
 					presentationModes: [{ id: 'Text Prompt', text: settings.textPrompt }],
 				}));
 				dispatch(setPresentationMode(CardTypeEnum.MultiSheet, 'Text Prompt'));
+			} else {
+				toAdd = previews.map((q) => ({
+					...q,
+					presentationModes: [{ id: 'Sheet Music' }],
+				}));
+				dispatch(setPresentationMode(CardTypeEnum.MultiSheet, 'Sheet Music'));
 			}
 			dispatch(addCardsToDeck(deckId, toAdd));
 		}
@@ -109,6 +116,7 @@ export const NotationInputScreen = () => {
 				<Button onClick={handleReset}>Reset</Button>
 				<Button
 					onClick={cardId ? handleUpdate : handleAdd}
+					disabled={!cardId && !recorderRef.current.hasFullMeasure()}
 					loading={cardId ? isUpdating : isAdding}
 				>
 					{cardId ? 'Update Card' : 'Add Card'}

@@ -20,6 +20,15 @@ export function renderApp(
 	);
 	(window as any).store = store;
 
+	const recorder = (window as any).recorder;
+	if (recorder) {
+		store.subscribe(() => {
+			const notes = store.getState().midi.notes.map((n) => n.number);
+			recorder.addMidiNotes(notes);
+			(window as any).update?.();
+		});
+	}
+
 	ReactDOM.createRoot(document.getElementById(rootId)!).render(
 		<React.StrictMode>
 			<Provider store={store}>{element}</Provider>
