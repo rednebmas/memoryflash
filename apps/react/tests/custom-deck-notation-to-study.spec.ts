@@ -1,11 +1,4 @@
-import {
-	test,
-	expect,
-	screenshotOpts,
-	uiLogin,
-	seedTestData,
-	initDeterministicEnv,
-} from './helpers';
+import { test, expect, screenshotOpts, uiLogin, seedTestData, initDeterministicEnv, runRecorderEvents } from './helpers';
 
 test('Create custom deck, add simple card, then study', async ({ page }) => {
 	await initDeterministicEnv(page);
@@ -39,6 +32,13 @@ test('Create custom deck, add simple card, then study', async ({ page }) => {
 	expect(deckId).toBeTruthy();
 	await page.waitForURL(new RegExp(`/study/${deckId}/notation`));
 
+	// Input a full measure: C4, E4, G4, C5 (quarter notes)
+	await runRecorderEvents(
+		page,
+		`/study/${deckId}/notation`,
+		[[60], [], [64], [], [67], [], [72], []],
+	);
+
 	const [addResp] = await Promise.all([
 		page.waitForResponse(
 			(r) => r.url().includes(`/decks/${deckId}/cards`) && r.request().method() === 'POST',
@@ -51,4 +51,13 @@ test('Create custom deck, add simple card, then study', async ({ page }) => {
 	const output = page.locator('#root');
 	await output.waitFor();
 	await expect(output).toHaveScreenshot('custom-deck-notation-to-study.png', screenshotOpts);
+
+	// Open list view and capture screenshot
+	await page.click('a[href="list"], a[href$="/list"]');
+	await page.waitForURL(new RegExp(`/study/${deckId}/list`));
+	await output.waitFor();
+	await expect(output).toHaveScreenshot('custom-deck-notation-to-study-list.png', screenshotOpts);
+
+	// Cleanup any remaining routes to avoid teardown errors
+	await page.unrouteAll({ behavior: 'ignoreErrors' });
 });

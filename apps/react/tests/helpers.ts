@@ -24,6 +24,10 @@ export const test = base.extend<{ page: Page }>({
 			await page.route('https://fonts.gstatic.com/**', (route) => route.abort());
 		}
 
+		await page.addInitScript(() => {
+			(window as any).__E2E__ = true;
+		});
+
 		await use(page);
 
 		expect(errors).toEqual([]);
@@ -41,7 +45,7 @@ export async function runRecorderEvents(
 	page: Page,
 	url: string,
 	events: number[][],
-	prefix: string,
+	prefix?: string,
 	afterStep?: (index: number) => Promise<void> | void,
 ) {
 	await page.goto(url);
@@ -49,11 +53,24 @@ export async function runRecorderEvents(
 
 	for (let i = 0; i < events.length; i++) {
 		await page.evaluate((n) => {
-			(window as any).recorder.addMidiNotes(n);
-			(window as any).update();
+			const w: any = window as any;
+			if (w.recorder && typeof w.update === 'function') {
+				w.recorder.addMidiNotes(n);
+				w.update();
+				return;
+			}
+			if (w.store && w.store.dispatch) {
+				const curr: number[] = (w.store.getState()?.midi?.notes || []).map((x: any) => x.number);
+				const toAdd = n.filter((m) => !curr.includes(m));
+				const toRemove = curr.filter((m) => !n.includes(m));
+				for (const m of toAdd) w.store.dispatch({ type: 'midi/addNote', payload: m });
+				for (const m of toRemove) w.store.dispatch({ type: 'midi/removeNote', payload: m });
+			}
 		}, events[i]);
 		await output.waitFor();
-		await expect(output).toHaveScreenshot(`${prefix}-${i + 1}.png`, screenshotOpts);
+		if (prefix) {
+			await expect(output).toHaveScreenshot(`${prefix}-${i + 1}.png`, screenshotOpts);
+		}
 		if (afterStep) await afterStep(i);
 	}
 
@@ -123,4 +140,13 @@ export async function initDeterministicEnv(page: Page, seed = 12345) {
 			headers: { ...response.headers(), 'content-type': 'application/json' },
 		});
 	});
+}
+
+export async function pressMidi(page: Page, midi: number) {
+	await page.evaluate((n) => {
+		(window as any).store.dispatch({ type: 'midi/addNote', payload: n });
+	}, midi);
+	await page.evaluate((n) => {
+		(window as any).store.dispatch({ type: 'midi/removeNote', payload: n });
+	}, midi);
 }

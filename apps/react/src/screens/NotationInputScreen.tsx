@@ -71,6 +71,7 @@ export const NotationInputScreen = () => {
 
 	const handleAdd = () => {
 		if (deckId) {
+			if (!recorderRef.current.hasFullMeasure()) return;
 			let toAdd = previews;
 			if (settings.cardType === 'Text Prompt') {
 				toAdd = previews.map((q) => ({
@@ -115,6 +116,7 @@ export const NotationInputScreen = () => {
 				<Button onClick={handleReset}>Reset</Button>
 				<Button
 					onClick={cardId ? handleUpdate : handleAdd}
+					disabled={!cardId && !recorderRef.current.hasFullMeasure()}
 					loading={cardId ? isUpdating : isAdding}
 				>
 					{cardId ? 'Update Card' : 'Add Card'}
