@@ -78,6 +78,12 @@ export const NotationInputScreen = () => {
 					presentationModes: [{ id: 'Text Prompt', text: settings.textPrompt }],
 				}));
 				dispatch(setPresentationMode(CardTypeEnum.MultiSheet, 'Text Prompt'));
+			} else {
+				toAdd = previews.map((q) => ({
+					...q,
+					presentationModes: [{ id: 'Sheet Music' }],
+				}));
+				dispatch(setPresentationMode(CardTypeEnum.MultiSheet, 'Sheet Music'));
 			}
 			dispatch(addCardsToDeck(deckId, toAdd));
 		}
