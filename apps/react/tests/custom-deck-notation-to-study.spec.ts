@@ -1,4 +1,12 @@
-import { test, expect, screenshotOpts, uiLogin, seedTestData, initDeterministicEnv, runRecorderEvents } from './helpers';
+import {
+	test,
+	expect,
+	screenshotOpts,
+	uiLogin,
+	seedTestData,
+	initDeterministicEnv,
+	runRecorderEvents,
+} from './helpers';
 
 test('Create custom deck, add simple card, then study', async ({ page }) => {
 	await initDeterministicEnv(page);
@@ -33,11 +41,16 @@ test('Create custom deck, add simple card, then study', async ({ page }) => {
 	await page.waitForURL(new RegExp(`/study/${deckId}/notation`));
 
 	// Input a full measure: C4, E4, G4, C5 (quarter notes)
-	await runRecorderEvents(
-		page,
-		`/study/${deckId}/notation`,
-		[[60], [], [64], [], [67], [], [72], []],
-	);
+	await runRecorderEvents(page, `/study/${deckId}/notation`, [
+		[60],
+		[],
+		[64],
+		[],
+		[67],
+		[],
+		[72],
+		[],
+	]);
 
 	const [addResp] = await Promise.all([
 		page.waitForResponse(

@@ -60,7 +60,9 @@ export async function runRecorderEvents(
 				return;
 			}
 			if (w.store && w.store.dispatch) {
-				const curr: number[] = (w.store.getState()?.midi?.notes || []).map((x: any) => x.number);
+				const curr: number[] = (w.store.getState()?.midi?.notes || []).map(
+					(x: any) => x.number,
+				);
 				const toAdd = n.filter((m) => !curr.includes(m));
 				const toRemove = curr.filter((m) => !n.includes(m));
 				for (const m of toAdd) w.store.dispatch({ type: 'midi/addNote', payload: m });

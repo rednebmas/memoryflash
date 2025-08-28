@@ -196,10 +196,7 @@ export class MusicRecorder {
 	}
 
 	get totalBeatsRecorded(): number {
-		return Math.max(
-			this.staff[StaffEnum.Treble].beats,
-			this.staff[StaffEnum.Bass].beats,
-		);
+		return Math.max(this.staff[StaffEnum.Treble].beats, this.staff[StaffEnum.Bass].beats);
 	}
 
 	hasFullMeasure(): boolean {
