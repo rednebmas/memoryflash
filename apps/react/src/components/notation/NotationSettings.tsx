@@ -43,7 +43,6 @@ export const NotationSettings: React.FC<NotationSettingsProps> = ({ onChange }) 
 			<SettingsSection title="Keys">
 				<KeySelector
 					selected={state.selected}
-					currentIndex={majorKeys.indexOf(state.keySig)}
 					onChange={(selected) => update({ selected })}
 				/>
 			</SettingsSection>
