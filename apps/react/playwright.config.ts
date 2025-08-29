@@ -3,6 +3,14 @@ import { defineConfig } from '@playwright/test';
 export default defineConfig({
 	testDir: './tests',
 	snapshotPathTemplate: '{testDir}/{testFilePath}-snapshots/{arg}{ext}',
+	expect: {
+		toHaveScreenshot: {
+			maxDiffPixels: 64,
+			animations: 'disabled',
+			caret: 'hide',
+			scale: 'css',
+		},
+	},
 	webServer: [
 		{
 			command:
@@ -19,6 +27,11 @@ export default defineConfig({
 	use: {
 		baseURL: 'http://localhost:4173',
 		screenshot: 'only-on-failure',
+		viewport: { width: 1280, height: 720 },
+		deviceScaleFactor: 1,
+		colorScheme: 'light',
+		locale: 'en-US',
+		hasTouch: false,
 	},
 	reporter: [['html', { open: 'never' }]],
 });
