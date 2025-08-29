@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import type { MongoClient } from 'mongodb';
 import { MONGO_URI } from '../config/constants';
 
@@ -9,6 +8,7 @@ export const connectDB = async (): Promise<MongoClient> => {
 		let res: typeof mongoose;
 		if (useMemory) {
 			console.log('Starting MongoMemoryServer...');
+			const { MongoMemoryServer } = await import('mongodb-memory-server');
 			const mongod = await MongoMemoryServer.create();
 			const uri = mongod.getUri();
 			res = await mongoose.connect(uri);
