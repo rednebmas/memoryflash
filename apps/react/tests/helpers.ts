@@ -43,13 +43,16 @@ export async function captureScreenshot(page: Page, url: string, name: string, s
 
 export async function runRecorderEvents(
 	page: Page,
-	url: string,
+	url: string | undefined,
 	events: number[][],
 	prefix?: string,
 	afterStep?: (index: number) => Promise<void> | void,
 ) {
-	await page.goto(url);
+	if (url) {
+		await page.goto(url);
+	}
 	const output = page.locator('#root');
+	await output.waitFor();
 
 	for (let i = 0; i < events.length; i++) {
 		const notes = events[i] ?? [];

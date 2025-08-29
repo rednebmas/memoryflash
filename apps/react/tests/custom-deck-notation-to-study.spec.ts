@@ -42,13 +42,13 @@ test('Create custom deck, add simple card, then study', async ({ page }) => {
 
 	// Input a full measure: C4, E4, G4, C5 (quarter notes)
 	await runRecorderEvents(page, `/study/${deckId}/notation`, [
-		[60],
+		[45, 48, 52, 55, 72],
 		[],
-		[64],
+		[69, 71],
 		[],
 		[67],
 		[],
-		[72],
+		[64],
 		[],
 	]);
 
@@ -70,6 +70,22 @@ test('Create custom deck, add simple card, then study', async ({ page }) => {
 	await page.waitForURL(new RegExp(`/study/${deckId}/list`));
 	await output.waitFor();
 	await expect(output).toHaveScreenshot('custom-deck-notation-to-study-list.png', screenshotOpts);
+
+	// Go back to study screen and test the card
+	await page.goto(`/study/${deckId}`);
+	// wait until the words "Sheet Music" appear
+	await page.getByText('Sheet Music', { exact: true }).waitFor();
+
+	await runRecorderEvents(page, undefined, [
+		[45, 48, 52, 55, 72],
+		[],
+		[69, 71],
+		[],
+		[67],
+		[],
+		[64],
+		[],
+	], 'custom-deck-notation-to-study-midi-step');
 
 	// Cleanup any remaining routes to avoid teardown errors
 	await page.unrouteAll({ behavior: 'ignoreErrors' });
