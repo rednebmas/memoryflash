@@ -1,6 +1,11 @@
 import { test as base, expect, Page } from '@playwright/test';
 
-export const screenshotOpts = { maxDiffPixels: 64, animations: 'disabled' as const, caret: 'hide' as const, scale: 'css' as const };
+export const screenshotOpts = {
+	maxDiffPixels: 64,
+	animations: 'disabled' as const,
+	caret: 'hide' as const,
+	scale: 'css' as const,
+};
 
 // If the font does/doesn't load can cause small differences making tests more flaky
 const blockFonts = process.env.BLOCK_REMOTE_FONTS === 'true';
