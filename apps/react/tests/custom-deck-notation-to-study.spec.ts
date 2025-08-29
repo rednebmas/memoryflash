@@ -76,16 +76,12 @@ test('Create custom deck, add simple card, then study', async ({ page }) => {
 	// wait until the words "Sheet Music" appear
 	await page.getByText('Sheet Music', { exact: true }).waitFor();
 
-	await runRecorderEvents(page, undefined, [
-		[45, 48, 52, 55, 72],
-		[],
-		[69, 71],
-		[],
-		[67],
-		[],
-		[64],
-		[],
-	], 'custom-deck-notation-to-study-midi-step');
+	await runRecorderEvents(
+		page,
+		undefined,
+		[[45, 48, 52, 55, 72], [], [69, 71], [], [67], [], [64], []],
+		'custom-deck-notation-to-study-midi-step',
+	);
 
 	// Cleanup any remaining routes to avoid teardown errors
 	await page.unrouteAll({ behavior: 'ignoreErrors' });
