@@ -79,7 +79,7 @@ test('Create custom deck, add simple card, then study', async ({ page }) => {
 	await runRecorderEvents(
 		page,
 		undefined,
-		[[45, 48, 52, 55, 72], [], [69, 71], [], [67], [], [64], []],
+		[[45, 48, 52, 55, 72], [], [69, 71], [], [67], [], [64]],
 		'custom-deck-notation-to-study-midi-step',
 	);
 

@@ -24,7 +24,7 @@ export const ExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _car
 	const getNotesForPart = (index: number) => {
 		const partNotes = filterNullOrUndefined(
 			card.question.voices
-				.flatMap((voice) => voice.stack[index].notes)
+				.flatMap((voice) => voice.stack[index]?.notes ?? [])
 				.map((note) => Note.midi(note.name + note.octave)),
 		);
 		return partNotes;
