@@ -1,0 +1,10 @@
+[
+	{
+		"name": "sid",
+		"value": "SESSION_ID",
+		"domain": "localhost",
+		"path": "/",
+		"httpOnly": true,
+		"secure": false
+	}
+]
