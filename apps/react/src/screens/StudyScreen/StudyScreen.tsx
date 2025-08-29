@@ -23,6 +23,7 @@ import { QuestionPresentationModePills } from './QuestionPresentationModePills';
 import Timer from './Timer';
 import useWindowResize from './useWindowResize';
 import { AccountNavButton } from '../../components/navigation/AccountNavButton';
+import { IS_TEST_ENV } from '../../utils/constants';
 
 export const StudyScreen = () => {
 	const dispatch = useAppDispatch();
@@ -174,17 +175,20 @@ export const StudyScreen = () => {
 			<div>
 				<QuestionPresentationModePills card={cards[index]} />
 				<Keyboard />
-				<div className="text-center text-xs">
-					tooLongTime: {tooLongTime.toFixed(0)}s, bpm: {bpm}, median: {median.toFixed(1)}
-					s, goal: {goalTime.toFixed(1)}s, timeSinceStart:{' '}
-					<Timer
-						className={clsx(
-							'font-serif',
-							timeSinceCardStart() > tooLongTime && 'text-green-300',
-						)}
-						startTime={currStartTime}
-					/>
-				</div>
+				{!IS_TEST_ENV && (
+					<div className="text-center text-xs">
+						tooLongTime: {tooLongTime.toFixed(0)}s, bpm: {bpm}, median:{' '}
+						{median.toFixed(1)}
+						s, goal: {goalTime.toFixed(1)}s, timeSinceStart:{' '}
+						<Timer
+							className={clsx(
+								'font-serif',
+								timeSinceCardStart() > tooLongTime && 'text-green-300',
+							)}
+							startTime={currStartTime}
+						/>
+					</div>
+				)}
 			</div>
 			<AnswerValidator card={cards[index]} />
 		</Layout>

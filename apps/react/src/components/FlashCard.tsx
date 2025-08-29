@@ -1,13 +1,14 @@
-import { CheckIcon, XMarkIcon, EyeSlashIcon, EyeIcon } from '@heroicons/react/24/outline';
-import React, { forwardRef } from 'react';
-import { CardWithAttempts } from 'MemoryFlashCore/src/redux/selectors/currDeckCardsWithAttempts';
-import { useAppSelector, useAppDispatch } from 'MemoryFlashCore/src/redux/store';
+import { CheckIcon, EyeIcon, EyeSlashIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { updateHiddenCards } from 'MemoryFlashCore/src/redux/actions/update-hidden-cards-action';
+import { CardWithAttempts } from 'MemoryFlashCore/src/redux/selectors/currDeckCardsWithAttempts';
+import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { CardTypeEnum, IntervalCard } from 'MemoryFlashCore/src/types/Cards';
+import React, { forwardRef } from 'react';
+import { IS_TEST_ENV } from '../utils/constants';
+import { CircleHover } from './CircleHover';
+import { FlashCardEditButton } from './FlashCardEditButton';
 import { MultiSheetCardQuestion } from './FlashCards/MultiSheetCardQuestion';
 import { Pill } from './Pill';
-import { FlashCardEditButton } from './FlashCardEditButton';
-import { CircleHover } from './CircleHover';
 
 type Placement = 'cur' | 'scheduled' | 'answered';
 
@@ -84,7 +85,7 @@ export const FlashCard = forwardRef<HTMLDivElement, FlashCardProps>(
 				<div className="text-4xl font-medium flex flex-1 justify-center items-center">
 					<QuestionComponent card={card} placement={placement} />
 				</div>
-				{card?.attempts?.length > 0 && (
+				{!IS_TEST_ENV && card?.attempts?.length > 0 && (
 					<span className="text-xs text-gray-600">
 						{card.attempts[0].timeTaken.toFixed(1)}s
 					</span>
