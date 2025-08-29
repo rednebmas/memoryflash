@@ -177,7 +177,8 @@ export const StudyScreen = () => {
 				<Keyboard />
 				{!IS_TEST_ENV && (
 					<div className="text-center text-xs">
-						tooLongTime: {tooLongTime.toFixed(0)}s, bpm: {bpm}, median: {median.toFixed(1)}
+						tooLongTime: {tooLongTime.toFixed(0)}s, bpm: {bpm}, median:{' '}
+						{median.toFixed(1)}
 						s, goal: {goalTime.toFixed(1)}s, timeSinceStart:{' '}
 						<Timer
 							className={clsx(
