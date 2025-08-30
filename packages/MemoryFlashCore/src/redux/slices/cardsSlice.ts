@@ -14,6 +14,7 @@ const cardsSlice = createSlice({
 	initialState,
 	reducers: {
 		upsert: cardAdapter.upsertMany,
+		remove: cardAdapter.removeOne,
 	},
 });
 

@@ -36,10 +36,11 @@ export const AllDeckCardsScreen: React.FunctionComponent<AllDeckCardsScreenProps
 				{deck.map((card, i) => (
 					<FlashCard
 						key={card._id + i}
-						placement={'cur'}
+						placement="cur"
 						card={card}
-						className={`card-shadow-2`}
+						className="card-shadow-2"
 						showEdit
+						showDelete
 					/>
 				))}
 			</div>
