@@ -12,12 +12,14 @@ test('NotationInputScreen E major G# rendering', async ({ page }) => {
 	await page.waitForTimeout(100);
 
 	// Simulate pressing G#4 (MIDI note 68)
-	const events = [[68]];
+	const events = [[64],[68], [67]];
 	await runRecorderEvents(page, undefined, events);
 
 	// Wait a bit for rendering
-	await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-	await page.waitForTimeout(200);
+	await page.evaluate(() => {
+		window.scrollTo(0, 0);
+		document.querySelector('.overflow-scroll')?.scrollTo(0, 300);
+	});
 
 	await expect(output).toHaveScreenshot('notation-input-e-major-g-sharp.png', screenshotOpts);
 });
