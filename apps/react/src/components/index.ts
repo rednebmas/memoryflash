@@ -16,3 +16,4 @@ export * from './CardOptionsMenu';
 export * from './ConsoleErrorsButton';
 export * from './KeySelector';
 export * from './notation';
+export * from './StudyHintBanner';

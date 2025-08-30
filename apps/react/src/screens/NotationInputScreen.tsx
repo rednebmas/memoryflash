@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { shallowEqual } from 'react-redux';
-import { Layout, Button } from '../components';
+import { Layout, Button, StudyHintBanner } from '../components';
 import { BasicErrorCard } from '../components/ErrorCard';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { MusicRecorder } from 'MemoryFlashCore/src/lib/MusicRecorder';
@@ -122,6 +122,7 @@ export const NotationInputScreen = () => {
 					{cardId ? 'Update Card' : 'Add Card'}
 				</Button>
 			</div>
+			<StudyHintBanner />
 		</Layout>
 	);
 };
