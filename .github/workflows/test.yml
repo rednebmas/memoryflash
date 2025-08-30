@@ -51,6 +51,7 @@ jobs:
               continue-on-error: true
               env:
                   APP_URL: http://0.0.0.0:8008
+                  BLOCK_REMOTE_FONTS: true
 
             - name: Authenticate on GCS
               if: steps.tests.outcome == 'failure'
