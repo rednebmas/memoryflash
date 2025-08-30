@@ -12,7 +12,7 @@ test('NotationInputScreen E major G# rendering', async ({ page }) => {
 	await page.waitForTimeout(100);
 
 	// Simulate pressing G#4 (MIDI note 68)
-	const events = [[64],[68], [67]];
+	const events = [[64], [68], [67]];
 	await runRecorderEvents(page, undefined, events);
 
 	// Wait a bit for rendering

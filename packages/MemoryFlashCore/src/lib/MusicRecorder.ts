@@ -193,7 +193,10 @@ export class MusicRecorder {
 				stack.push(...createRestDurations(e.start - beat));
 				beat = e.start;
 			}
-			stack.push({ notes: e.notes.map((m) => this.toSheetNote(m, key)), duration: e.duration });
+			stack.push({
+				notes: e.notes.map((m) => this.toSheetNote(m, key)),
+				duration: e.duration,
+			});
 			beat = e.start + durationBeats[e.duration];
 		}
 		return insertRestsToFillBars(stack);

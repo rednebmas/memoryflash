@@ -114,7 +114,9 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 				const notes = stack.map(({ sn, idx }) => {
 					const isRest = sn.rest || sn.notes.length === 0;
 					const restKey = staffType === StaffEnum.Bass ? 'd/3' : 'b/4';
-					const keys = isRest ? [restKey] : sn.notes.map((n) => `${n.name.charAt(0)}/${n.octave}`);
+					const keys = isRest
+						? [restKey]
+						: sn.notes.map((n) => `${n.name.charAt(0)}/${n.octave}`);
 					const dur = (isRest ? `${sn.duration}r` : sn.duration) as string;
 					const note = new VF.StaveNote({
 						keys,
