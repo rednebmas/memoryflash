@@ -7,6 +7,7 @@ import React, { forwardRef } from 'react';
 import { IS_TEST_ENV } from '../utils/constants';
 import { CircleHover } from './CircleHover';
 import { FlashCardEditButton } from './FlashCardEditButton';
+import { FlashCardDeleteButton } from './FlashCardDeleteButton';
 import { MultiSheetCardQuestion } from './FlashCards/MultiSheetCardQuestion';
 import { Pill } from './Pill';
 
@@ -18,6 +19,7 @@ interface FlashCardProps {
 	className?: string;
 	opacity?: number;
 	showEdit?: boolean;
+	showDelete?: boolean;
 }
 
 export interface QuestionRender {
@@ -64,7 +66,7 @@ const HideCardButton: React.FC<{ card: CardWithAttempts }> = ({ card }) => {
 };
 
 export const FlashCard = forwardRef<HTMLDivElement, FlashCardProps>(
-	({ card, className, opacity, placement, showEdit }, ref) => {
+	({ card, className, opacity, placement, showEdit, showDelete }, ref) => {
 		const QuestionComponent = QuestionComponentMap[card.type];
 		if (!QuestionComponent) {
 			console.error('No question component found for card type', card.type);
@@ -81,6 +83,7 @@ export const FlashCard = forwardRef<HTMLDivElement, FlashCardProps>(
 				}}
 			>
 				<FlashCardEditButton card={card} show={showEdit} />
+				<FlashCardDeleteButton card={card} show={showDelete} />
 				<HideCardButton card={card} />
 				<div className="text-4xl font-medium flex flex-1 justify-center items-center">
 					<QuestionComponent card={card} placement={placement} />

@@ -16,6 +16,7 @@ const attemptsSlice = createSlice({
 	initialState,
 	reducers: {
 		upsert: attemptsAdapter.upsertMany,
+		removeMany: attemptsAdapter.removeMany,
 	},
 });
 

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { isAuthenticated } from '../middleware';
-import { updateCard } from '../services/cardService';
+import { deleteCard, updateCard } from '../services/cardService';
 import { User } from 'MemoryFlashCore/src/types/User';
 
 const router = Router();
@@ -13,6 +13,15 @@ router.patch('/:id', isAuthenticated, async (req, res, next) => {
 			(req.user as User)._id.toString(),
 		);
 		return res.json({ card });
+	} catch (error) {
+		next(error);
+	}
+});
+
+router.delete('/:id', isAuthenticated, async (req, res, next) => {
+	try {
+		await deleteCard(req.params.id, (req.user as User)._id.toString());
+		return res.json({});
 	} catch (error) {
 		next(error);
 	}
