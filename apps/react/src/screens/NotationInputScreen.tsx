@@ -103,7 +103,7 @@ export const NotationInputScreen = () => {
 	const error = updateError || addError;
 
 	return (
-		<Layout subtitle="Notation Input" back="/">
+		<Layout subtitle="Notation Input">
 			<NotationSettings onChange={setSettings} />
 			<NotationPreviewList
 				previews={previews}
