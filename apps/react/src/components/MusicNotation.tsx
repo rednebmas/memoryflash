@@ -114,7 +114,7 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 				const notes = stack.map(({ sn, idx }) => {
 					const isRest = sn.rest || sn.notes.length === 0;
 					const restKey = staffType === StaffEnum.Bass ? 'd/3' : 'b/4';
-					const keys = isRest ? [restKey] : sn.notes.map((n) => `${n.name}/${n.octave}`);
+					const keys = isRest ? [restKey] : sn.notes.map((n) => `${n.name.charAt(0)}/${n.octave}`);
 					const dur = (isRest ? `${sn.duration}r` : sn.duration) as string;
 					const note = new VF.StaveNote({
 						keys,
@@ -126,10 +126,11 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 
 					if (!isRest) {
 						sn.notes.forEach((n, i) => {
-							let accidental = n.name.slice(1);
+							const accidental = n.name.slice(1);
 							if (!diatonic.has(n.name)) {
-								if (!accidental) accidental = 'n';
-								note.addModifier(new VF.Accidental(accidental), i);
+								let toAdd = accidental;
+								if (!toAdd) toAdd = 'n';
+								note.addModifier(new VF.Accidental(toAdd), i);
 							}
 						});
 					}
