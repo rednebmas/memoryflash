@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+	font-family: 'Inter';
+	src: url('/fonts/Inter-VariableFont_opszwght.ttf') format('truetype');
+	font-weight: 100 900;
+	font-style: normal;
+	font-display: swap;
+}
+
+html {
+	font-family: 'Inter', sans-serif;
+}
+
 * {
 	box-sizing: border-box;
 }
@@ -13,7 +25,6 @@ body,
 	width: 100vw;
 	height: 100vh;
 	margin: 0 auto;
-	/* font-family: 'Jost', sans-serif; */
 }
 
 .card-border {
