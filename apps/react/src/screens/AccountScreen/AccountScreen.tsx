@@ -3,18 +3,24 @@ import React from 'react';
 import { Layout } from '../../components';
 import { ProfileRow } from './ProfileRow';
 import { InputModal } from '../../components/modals/InputModal';
-import { useAppDispatch } from 'MemoryFlashCore/src/redux/store';
+import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { logout } from 'MemoryFlashCore/src/redux/actions/logout-action';
 
 interface AccountScreenProps {}
 
 export const AccountScreen: React.FC<AccountScreenProps> = () => {
 	const dispatch = useAppDispatch();
+	const user = useAppSelector((s) => s.auth.user);
 	const [profileData, setProfileData] = React.useState({
-		firstName: 'Sam',
-		lastName: 'Bender',
-		email: 'tom.cook@example.com',
+		firstName: user?.firstName ?? '',
+		lastName: user?.lastName ?? '',
 	});
+
+	React.useEffect(() => {
+		if (user) {
+			setProfileData({ firstName: user.firstName, lastName: user.lastName });
+		}
+	}, [user]);
 
 	const [modalState, setModalState] = React.useState({
 		isOpen: false,
@@ -70,7 +76,7 @@ export const AccountScreen: React.FC<AccountScreenProps> = () => {
 										openModal('lastName', 'Last name', profileData.lastName)
 									}
 								/>
-								<ProfileRow label="Email address" value={profileData.email} />
+								<ProfileRow label="Email address" value={user?.email ?? ''} />
 							</dl>
 						</div>
 					</div>
