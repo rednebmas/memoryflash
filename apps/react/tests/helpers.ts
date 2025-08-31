@@ -144,3 +144,31 @@ export async function initDeterministicEnv(page: Page, seed = 12345) {
 		});
 	});
 }
+
+export async function createCourse(page: Page, name: string) {
+	await page.goto('/');
+	await page.getByRole('button', { name: 'Create Course' }).click();
+	await page.fill('#input-modal', name);
+	const [response] = await Promise.all([
+		page.waitForResponse(
+			(r) => r.url().endsWith('/courses') && r.request().method() === 'POST',
+		),
+		page.getByRole('button', { name: 'Save' }).click(),
+	]);
+	expect(response.ok()).toBeTruthy();
+	const { course } = await response.json();
+	return course?._id as string;
+}
+
+export async function createDeck(page: Page, courseId: string, name: string) {
+	await page.goto(`/course/${courseId}`);
+	await page.getByRole('button', { name: 'Create Deck' }).click();
+	await page.fill('#input-modal', name);
+	const [response] = await Promise.all([
+		page.waitForResponse((r) => r.url().endsWith('/decks') && r.request().method() === 'POST'),
+		page.getByRole('button', { name: 'Save' }).click(),
+	]);
+	expect(response.ok()).toBeTruthy();
+	const { deck } = await response.json();
+	return deck?._id as string;
+}
