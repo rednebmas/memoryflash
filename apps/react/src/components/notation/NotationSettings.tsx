@@ -37,7 +37,12 @@ export const NotationSettings: React.FC<NotationSettingsProps> = ({ settings, on
 				bassDur={settings.bassDur}
 				onChange={update}
 			/>
-			<RangeSettings lowest={settings.lowest} highest={settings.highest} onChange={update} />
+			<CardTypeOptions
+				cardType={settings.cardType}
+				textPrompt={settings.textPrompt}
+				preview={settings.preview}
+				onChange={update}
+			/>
 			<BarsSetting bars={settings.bars} setBars={(n) => update({ bars: n })} />
 			<SettingsSection
 				title="Transpositions"
@@ -45,18 +50,19 @@ export const NotationSettings: React.FC<NotationSettingsProps> = ({ settings, on
 				collapsedByDefault={true}
 				hintText={!hasTranspositions ? 'No transpositions' : undefined}
 			>
-				<TranspositionSelector
-					selected={settings.selected}
-					onChange={(selected) => update({ selected })}
-					currentKeySig={settings.keySig}
-				/>
+				<div className="space-y-4">
+					<RangeSettings
+						lowest={settings.lowest}
+						highest={settings.highest}
+						onChange={update}
+					/>
+					<TranspositionSelector
+						selected={settings.selected}
+						onChange={(selected) => update({ selected })}
+						currentKeySig={settings.keySig}
+					/>
+				</div>
 			</SettingsSection>
-			<CardTypeOptions
-				cardType={settings.cardType}
-				textPrompt={settings.textPrompt}
-				preview={settings.preview}
-				onChange={update}
-			/>
 		</div>
 	);
 };
