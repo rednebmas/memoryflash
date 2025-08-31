@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store'
 import { MusicRecorder } from 'MemoryFlashCore/src/lib/MusicRecorder';
 import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
 import { questionsForAllMajorKeys } from 'MemoryFlashCore/src/lib/multiKeyTransposer';
+import { majorKeys } from 'MemoryFlashCore/src/lib/notes';
 import { addCardsToDeck } from 'MemoryFlashCore/src/redux/actions/add-cards-to-deck';
 import { updateCard } from 'MemoryFlashCore/src/redux/actions/update-card-action';
 import { setPresentationMode } from 'MemoryFlashCore/src/redux/actions/set-presentation-mode';
@@ -37,9 +38,16 @@ export const NotationInputScreen = () => {
 
 	useEffect(() => {
 		if (card && card.type === CardTypeEnum.MultiSheet) {
+			const text = card.question.presentationModes?.find((p) => p.id === 'Text Prompt');
+			const idx = majorKeys.indexOf(card.question.key);
 			setSettings((prev) => ({
 				...prev,
 				keySig: card.question.key,
+				selected: majorKeys.map((_, i) => i === idx),
+				cardType: text ? 'Text Prompt' : 'Sheet Music',
+				textPrompt: text?.text || '',
+				// If editing a Text Prompt card, default to previewing the text prompt
+				preview: !!text,
 			}));
 		}
 	}, [card]);
@@ -62,10 +70,16 @@ export const NotationInputScreen = () => {
 	const data = useMemo(() => {
 		if (!shallowEqual(prevMidiNotesRef.current, midiNotes)) {
 			recorderRef.current.addMidiNotes(midiNotes);
-			prevMidiNotesRef.current = [...midiNotes]; // Copy to store content
+			prevMidiNotesRef.current = [...midiNotes];
+		}
+		if (recorderRef.current.totalBeatsRecorded > 0) {
+			return recorderRef.current.buildQuestion(settings.keySig);
+		}
+		if (card && card.type === CardTypeEnum.MultiSheet) {
+			return card.question;
 		}
 		return recorderRef.current.buildQuestion(settings.keySig);
-	}, [midiNotes, settings.keySig]);
+	}, [midiNotes, settings.keySig, card]);
 	const previewsAll = questionsForAllMajorKeys(data, settings.lowest, settings.highest);
 	const previews = previewsAll.filter((_, i) => settings.selected[i]);
 
@@ -104,7 +118,7 @@ export const NotationInputScreen = () => {
 
 	return (
 		<Layout subtitle="Notation Input">
-			<NotationSettings onChange={setSettings} />
+			<NotationSettings settings={settings} onChange={setSettings} />
 			<NotationPreviewList
 				previews={previews}
 				cardType={settings.cardType}
