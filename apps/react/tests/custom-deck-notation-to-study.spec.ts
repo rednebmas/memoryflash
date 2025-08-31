@@ -6,6 +6,8 @@ import {
 	seedTestData,
 	initDeterministicEnv,
 	runRecorderEvents,
+	createCourse,
+	createDeck,
 } from './helpers';
 
 test('Create custom deck, add notation and text cards, then study', async ({ page }) => {
@@ -13,31 +15,8 @@ test('Create custom deck, add notation and text cards, then study', async ({ pag
 	await seedTestData(page);
 	await uiLogin(page, 't@example.com', 'Testing123!');
 
-	await page.goto('/');
-	await page.getByRole('button', { name: 'Create Course' }).click();
-	await page.fill('#input-modal', 'My Test Course');
-	const [createCourseResp] = await Promise.all([
-		page.waitForResponse(
-			(r) => r.url().endsWith('/courses') && r.request().method() === 'POST',
-		),
-		page.getByRole('button', { name: 'Save' }).click(),
-	]);
-	expect(createCourseResp.ok()).toBeTruthy();
-	const { course } = await createCourseResp.json();
-	const courseId = course?._id as string | undefined;
-	expect(courseId).toBeTruthy();
-
-	await page.goto(`/course/${courseId}`);
-	await page.getByRole('button', { name: 'Create Deck' }).click();
-	await page.fill('#input-modal', 'My Deck');
-	const [createDeckResp] = await Promise.all([
-		page.waitForResponse((r) => r.url().endsWith('/decks') && r.request().method() === 'POST'),
-		page.getByRole('button', { name: 'Save' }).click(),
-	]);
-	expect(createDeckResp.ok()).toBeTruthy();
-	const { deck } = await createDeckResp.json();
-	const deckId = (deck?._id as string) || undefined;
-	expect(deckId).toBeTruthy();
+	const courseId = await createCourse(page, 'My Test Course');
+	const deckId = await createDeck(page, courseId, 'My Deck');
 	await page.waitForURL(new RegExp(`/study/${deckId}/notation`));
 
 	// Input a full measure: C4, E4, G4, C5 (quarter notes)
