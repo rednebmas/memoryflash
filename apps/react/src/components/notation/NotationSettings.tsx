@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { KeySelector } from '../KeySelector';
 import { majorKeys } from 'MemoryFlashCore/src/lib/notes';
-import { defaultSettings, NotationSettingsState } from './defaultSettings';
+import { NotationSettingsState } from './defaultSettings';
 import { NoteSettings } from './NoteSettings';
 import { SettingsSection } from './SettingsSection';
 import { RangeSettings } from './RangeSettings';
@@ -9,47 +9,40 @@ import { CardTypeOptions } from './CardTypeOptions';
 import { BarsSetting } from './BarsSetting';
 
 interface NotationSettingsProps {
+	settings: NotationSettingsState;
 	onChange: (settings: NotationSettingsState) => void;
 }
 
-export const NotationSettings: React.FC<NotationSettingsProps> = ({ onChange }) => {
-	const [state, setState] = useState<NotationSettingsState>(defaultSettings);
-
-	useEffect(() => {
-		onChange(state);
-	}, [state]);
-
-	const update = (changes: Partial<NotationSettingsState>) =>
-		setState((prev) => {
-			let next: NotationSettingsState = { ...prev, ...changes };
-			if (changes.keySig) {
-				const idx = majorKeys.indexOf(changes.keySig);
-				// select only the new key, deselect others
-				next.selected = next.selected.map((_, i) => i === idx);
-			}
-			return next;
-		});
+export const NotationSettings: React.FC<NotationSettingsProps> = ({ settings, onChange }) => {
+	const update = (changes: Partial<NotationSettingsState>) => {
+		let next: NotationSettingsState = { ...settings, ...changes };
+		if (changes.keySig) {
+			const idx = majorKeys.indexOf(changes.keySig);
+			next.selected = next.selected.map((_, i) => i === idx);
+		}
+		onChange(next);
+	};
 
 	return (
 		<div className="space-y-4">
 			<NoteSettings
-				keySig={state.keySig}
-				trebleDur={state.trebleDur}
-				bassDur={state.bassDur}
+				keySig={settings.keySig}
+				trebleDur={settings.trebleDur}
+				bassDur={settings.bassDur}
 				onChange={update}
 			/>
-			<RangeSettings lowest={state.lowest} highest={state.highest} onChange={update} />
-			<BarsSetting bars={state.bars} setBars={(n) => update({ bars: n })} />
+			<RangeSettings lowest={settings.lowest} highest={settings.highest} onChange={update} />
+			<BarsSetting bars={settings.bars} setBars={(n) => update({ bars: n })} />
 			<SettingsSection title="Keys">
 				<KeySelector
-					selected={state.selected}
+					selected={settings.selected}
 					onChange={(selected) => update({ selected })}
 				/>
 			</SettingsSection>
 			<CardTypeOptions
-				cardType={state.cardType}
-				textPrompt={state.textPrompt}
-				preview={state.preview}
+				cardType={settings.cardType}
+				textPrompt={settings.textPrompt}
+				preview={settings.preview}
 				onChange={update}
 			/>
 		</div>

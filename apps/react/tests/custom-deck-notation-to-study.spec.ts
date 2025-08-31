@@ -96,6 +96,15 @@ test('Create custom deck, add notation and text cards, then study', async ({ pag
 	await page.getByText(promptText, { exact: true }).waitFor();
 	await expect(output).toHaveScreenshot('custom-deck-notation-to-study-list.png', screenshotOpts);
 
+	// Edit text card and ensure it loads with existing data
+	await page
+		.locator('.card-container', { hasText: promptText })
+		.locator('a[href*="/edit/"]')
+		.click();
+	await page.waitForURL(new RegExp(`/study/${deckId}/edit/`));
+	await expect(page.getByRole('button', { name: 'Text Prompt' })).toBeVisible();
+	await expect(page.locator('#text-prompt')).toHaveValue(promptText);
+
 	// Go back to study screen and test the card
 	await page.goto(`/study/${deckId}`);
 	// Wait for the page to load
