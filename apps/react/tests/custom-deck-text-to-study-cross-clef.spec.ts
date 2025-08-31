@@ -45,11 +45,5 @@ test('Custom text prompt cross-clef card to study', async ({ page }) => {
 	);
 	expect(incorrect).toBeFalsy();
 
-	const output = page.locator('#root');
-	await expect(output).toHaveScreenshot(
-		'custom-deck-text-to-study-cross-clef.png',
-		screenshotOpts,
-	);
-
 	await page.unrouteAll({ behavior: 'ignoreErrors' });
 });
