@@ -23,7 +23,8 @@ export const UnExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _c
 	const getChromaNotesForPart = (index: number): number[] => {
 		return card.question.voices
 			.flatMap((voice) => voice.stack[index]?.notes ?? [])
-			.map((note) => Note.chroma(note.name + note.octave));
+			.map((note) => Note.chroma(note.name + note.octave))
+			.sort((a, b) => a - b);
 	};
 
 	const answerPartNotesChroma = getChromaNotesForPart(multiPartCardIndex);
