@@ -55,7 +55,7 @@ export const schedule =
 		// If you don't, irt results in scenarios, especially in the beginning of a deck, where you
 		//  can get the same below median card on repeat.
 		let totalCardsToSchedule = 4;
-		let repetitions = 3;
+		let repetitions = 2;
 
 		let scheduledCards: string[] = [];
 
