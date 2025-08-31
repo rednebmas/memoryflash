@@ -1,5 +1,5 @@
 import React from 'react';
-import { KeySelector } from '../KeySelector';
+import { TranspositionSelector } from '../TranspositionSelector';
 import { majorKeys } from 'MemoryFlashCore/src/lib/notes';
 import { NotationSettingsState } from './defaultSettings';
 import { NoteSettings } from './NoteSettings';
@@ -33,10 +33,11 @@ export const NotationSettings: React.FC<NotationSettingsProps> = ({ settings, on
 			/>
 			<RangeSettings lowest={settings.lowest} highest={settings.highest} onChange={update} />
 			<BarsSetting bars={settings.bars} setBars={(n) => update({ bars: n })} />
-			<SettingsSection title="Keys">
-				<KeySelector
+			<SettingsSection title="Transpositions">
+				<TranspositionSelector
 					selected={settings.selected}
 					onChange={(selected) => update({ selected })}
+					currentKeySig={settings.keySig}
 				/>
 			</SettingsSection>
 			<CardTypeOptions
