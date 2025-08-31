@@ -118,24 +118,33 @@ export const NotationInputScreen = () => {
 
 	return (
 		<Layout subtitle="Notation Input">
-			<NotationSettings settings={settings} onChange={setSettings} />
-			<NotationPreviewList
-				previews={previews}
-				cardType={settings.cardType}
-				textPrompt={settings.textPrompt}
-				previewTextCard={settings.preview}
-			/>
-			<BasicErrorCard error={error} />
-			<div className="pt-4 flex justify-center gap-3">
-				<Button onClick={handleReset}>Reset</Button>
-				<Button
-					onClick={cardId ? handleUpdate : handleAdd}
-					disabled={!cardId && !recorderRef.current.hasFullMeasure()}
-					loading={cardId ? isUpdating : isAdding}
-				>
-					{cardId ? 'Update Card' : 'Add Card'}
-				</Button>
+			<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+				<div>
+					<NotationSettings settings={settings} onChange={setSettings} />
+				</div>
+				<div className="flex flex-col justify-center items-center min-h-[400px] space-y-6">
+					<NotationPreviewList
+						previews={previews}
+						cardType={settings.cardType}
+						textPrompt={settings.textPrompt}
+						previewTextCard={settings.preview}
+					/>
+					<div className="w-full max-w-xs">
+						<div className="grid grid-cols-2 gap-3">
+							<Button onClick={handleReset} className="w-full">Reset</Button>
+							<Button
+								onClick={cardId ? handleUpdate : handleAdd}
+								disabled={!cardId && !recorderRef.current.hasFullMeasure()}
+								loading={cardId ? isUpdating : isAdding}
+								className="w-full"
+							>
+								{cardId ? 'Update Card' : 'Add Card'}
+							</Button>
+						</div>
+					</div>
+				</div>
 			</div>
+			<BasicErrorCard error={error} />
 		</Layout>
 	);
 };
