@@ -46,6 +46,8 @@ export const NotationInputScreen = () => {
 				selected: majorKeys.map((_, i) => i === idx),
 				cardType: text ? 'Text Prompt' : 'Sheet Music',
 				textPrompt: text?.text || '',
+				// If editing a Text Prompt card, default to previewing the text prompt
+				preview: !!text,
 			}));
 		}
 	}, [card]);

@@ -104,6 +104,14 @@ test('Create custom deck, add notation and text cards, then study', async ({ pag
 	await page.waitForURL(new RegExp(`/study/${deckId}/edit/`));
 	await expect(page.getByRole('button', { name: 'Text Prompt' })).toBeVisible();
 	await expect(page.locator('#text-prompt')).toHaveValue(promptText);
+	await page.evaluate(() => {
+		window.scrollTo(0, 0);
+		document.querySelector('.overflow-scroll')?.scrollTo(0, 600);
+	});
+	await expect(output).toHaveScreenshot(
+		'custom-deck-notation-to-study-notation-input-edit.png',
+		screenshotOpts,
+	);
 
 	// Go back to study screen and test the card
 	await page.goto(`/study/${deckId}`);
