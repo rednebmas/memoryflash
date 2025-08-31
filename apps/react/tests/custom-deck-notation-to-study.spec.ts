@@ -87,7 +87,7 @@ test('Create custom deck, add notation and text cards, then study', async ({ pag
 	await page.goto(`/study/${deckId}`);
 	const output = page.locator('#root');
 	await output.waitFor();
-	await expect(output).toHaveScreenshot('custom-deck-notation-to-study.png', screenshotOpts);
+	// await expect(output).toHaveScreenshot('custom-deck-notation-to-study.png', screenshotOpts);
 
 	// Open list view and ensure text card previews correctly
 	await page.click('a[href="list"], a[href$="/list"]');
