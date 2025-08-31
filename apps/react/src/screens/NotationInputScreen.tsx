@@ -131,7 +131,9 @@ export const NotationInputScreen = () => {
 					/>
 					<div className="w-full max-w-xs">
 						<div className="grid grid-cols-2 gap-3">
-							<Button onClick={handleReset} className="w-full">Reset</Button>
+							<Button onClick={handleReset} className="w-full">
+								Reset
+							</Button>
 							<Button
 								onClick={cardId ? handleUpdate : handleAdd}
 								disabled={!cardId && !recorderRef.current.hasFullMeasure()}
