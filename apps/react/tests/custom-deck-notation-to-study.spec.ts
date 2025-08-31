@@ -62,8 +62,8 @@ test('Create custom deck, add notation and text cards, then study', async ({ pag
 
 	// Add a text-based flashcard
 	await page.getByRole('button', { name: 'Reset' }).click();
-	await page.getByRole('button', { name: 'Sheet Music' }).click();
-	await page.getByRole('button', { name: 'Text Prompt' }).click();
+	await page.locator('button:has-text("Sheet Music")').click();
+	await page.getByRole('menuitem', { name: 'Text Prompt' }).click();
 	const promptText = 'Test Prompt';
 	await page.fill('#text-prompt', promptText);
 	await runRecorderEvents(page, undefined, [
@@ -97,8 +97,8 @@ test('Create custom deck, add notation and text cards, then study', async ({ pag
 
 	// Go back to study screen and test the card
 	await page.goto(`/study/${deckId}`);
-	// wait until the words "Sheet Music" appear
-	await page.getByText('Sheet Music', { exact: true }).waitFor();
+	// Wait for the page to load
+	await page.locator('.card-container').first().waitFor();
 
 	await runRecorderEvents(
 		page,
