@@ -118,13 +118,19 @@ export const NotationInputScreen = () => {
 
 	return (
 		<Layout subtitle="Notation Input">
-			<NotationSettings settings={settings} onChange={setSettings} />
-			<NotationPreviewList
-				previews={previews}
-				cardType={settings.cardType}
-				textPrompt={settings.textPrompt}
-				previewTextCard={settings.preview}
-			/>
+			<div className="flex flex-col gap-4 md:flex-row">
+				<div className="md:w-1/2">
+					<NotationSettings settings={settings} onChange={setSettings} />
+				</div>
+				<div className="md:w-1/2">
+					<NotationPreviewList
+						previews={previews}
+						cardType={settings.cardType}
+						textPrompt={settings.textPrompt}
+						previewTextCard={settings.preview}
+					/>
+				</div>
+			</div>
 			<BasicErrorCard error={error} />
 			<div className="pt-4 flex justify-center gap-3">
 				<Button onClick={handleReset}>Reset</Button>
