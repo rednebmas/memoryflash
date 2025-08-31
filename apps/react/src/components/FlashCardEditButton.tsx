@@ -1,6 +1,6 @@
 import { PencilSquareIcon } from '@heroicons/react/24/outline';
-import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { CardWithAttempts } from 'MemoryFlashCore/src/redux/selectors/currDeckCardsWithAttempts';
+import { useIsCardOwner } from '../utils/useIsCardOwner';
 import { CircleHover } from './CircleHover';
 
 interface FlashCardEditButtonProps {
@@ -9,9 +9,8 @@ interface FlashCardEditButtonProps {
 }
 
 export const FlashCardEditButton: React.FC<FlashCardEditButtonProps> = ({ card, show }) => {
-	const user = useAppSelector((state) => state.auth.user);
-
-	if (!show || !user || (card as any).userId !== user._id) return null;
+	const isOwner = useIsCardOwner(card);
+	if (!show || !isOwner) return null;
 
 	return (
 		<div className="absolute right-1 top-1">
