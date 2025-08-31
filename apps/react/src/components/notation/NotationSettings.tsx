@@ -23,6 +23,12 @@ export const NotationSettings: React.FC<NotationSettingsProps> = ({ settings, on
 		onChange(next);
 	};
 
+	// Determine if transpositions are selected (more than just the current key signature)
+	const currentKeyIdx = majorKeys.indexOf(settings.keySig);
+	const hasTranspositions = settings.selected.some(
+		(selected, i) => selected && i !== currentKeyIdx,
+	);
+
 	return (
 		<div className="space-y-4">
 			<NoteSettings
@@ -33,7 +39,12 @@ export const NotationSettings: React.FC<NotationSettingsProps> = ({ settings, on
 			/>
 			<RangeSettings lowest={settings.lowest} highest={settings.highest} onChange={update} />
 			<BarsSetting bars={settings.bars} setBars={(n) => update({ bars: n })} />
-			<SettingsSection title="Transpositions">
+			<SettingsSection
+				title="Transpositions"
+				collapsible={true}
+				collapsedByDefault={true}
+				hintText={!hasTranspositions ? 'No transpositions' : undefined}
+			>
 				<TranspositionSelector
 					selected={settings.selected}
 					onChange={(selected) => update({ selected })}
