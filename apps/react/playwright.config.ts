@@ -3,6 +3,7 @@ import { defineConfig } from '@playwright/test';
 export default defineConfig({
 	testDir: './tests',
 	snapshotPathTemplate: '{testDir}/{testFilePath}-snapshots/{arg}{ext}',
+	workers: 1, // Run tests sequentially to avoid session conflicts
 	webServer: [
 		{
 			command:
