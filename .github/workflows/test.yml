@@ -53,6 +53,10 @@ jobs:
                   APP_URL: http://0.0.0.0:8008
                   BLOCK_REMOTE_FONTS: true
 
+            - name: Check for unused snapshots
+              if: steps.tests.outcome == 'success'
+              run: yarn test:snapshots:check
+
             - name: Authenticate on GCS
               if: steps.tests.outcome == 'failure'
               uses: google-github-actions/auth@v2
