@@ -34,10 +34,11 @@ export const SectionCard: React.FC<SectionCardProps> = ({
 				{subTitle && <div className="text-[0.6rem]">{subTitle}</div>}
 			</div>
 
-			<Link className="w-full" to={link}>
-				<button className="rounded-md w-full bg-blue-500 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ">
-					{btnText}
-				</button>
+			<Link
+				className="rounded-md w-full bg-blue-500 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 text-center"
+				to={link}
+			>
+				{btnText}
 			</Link>
 		</Card>
 	);
