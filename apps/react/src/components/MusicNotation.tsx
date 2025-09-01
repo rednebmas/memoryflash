@@ -8,6 +8,7 @@ import {
 	Formatter,
 	Accidental,
 	Barline,
+	StaveTie,
 } from 'vexflow';
 import { majorKey, minorKey } from '@tonaljs/key';
 import { MultiSheetQuestion, Voice } from 'MemoryFlashCore/src/types/MultiSheetCard';
@@ -26,6 +27,7 @@ const VF = {
 	Formatter,
 	Accidental,
 	Barline,
+	StaveTie,
 };
 
 const BAR_WIDTH = 300;
@@ -143,10 +145,39 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 
 					return note;
 				});
+				// Determine ties for consecutive identical notes
+				const ties = [] as { first: StaveNote; last: StaveNote; indices: number[] }[];
+				for (let i = 0; i < stack.length - 1; i++) {
+					const a = stack[i].sn;
+					const b = stack[i + 1].sn;
+					if (a.rest || b.rest) continue;
+					if (a.notes.length !== b.notes.length) continue;
+					const same = a.notes.every(
+						(n, idx2) =>
+							n.name === b.notes[idx2].name && n.octave === b.notes[idx2].octave,
+					);
+					if (same) {
+						ties.push({
+							first: notes[i],
+							last: notes[i + 1],
+							indices: a.notes.map((_, idx2) => idx2),
+						});
+					}
+				}
 
 				// Space and draw the notes
 				if (notes.length) {
 					VF.Formatter.FormatAndDraw(ctx, stave, notes);
+					ties.forEach((t) =>
+						new VF.StaveTie({
+							first_note: t.first,
+							last_note: t.last,
+							first_indices: t.indices,
+							last_indices: t.indices,
+						})
+							.setContext(ctx)
+							.draw(),
+					);
 				}
 
 				// --- CHORD TEXT (fixed): wrap in a Voice, format, then draw ---
