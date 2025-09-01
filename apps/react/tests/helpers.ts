@@ -73,7 +73,8 @@ export async function runRecorderEvents(
 		}, notes);
 
 		await output.waitFor();
-		if (prefix && notes.length > 0) await expect(output).toHaveScreenshot(`${prefix}-${i + 1}.png`, screenshotOpts);
+		if (prefix && notes.length > 0)
+			await expect(output).toHaveScreenshot(`${prefix}-${i + 1}.png`, screenshotOpts);
 		if (afterStep) await afterStep(i);
 	}
 
