@@ -7,7 +7,6 @@ import { schedulerActions } from 'MemoryFlashCore/src/redux/slices/schedulerSlic
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { Card } from 'MemoryFlashCore/src/types/Cards';
 import { MultiSheetCard } from 'MemoryFlashCore/src/types/MultiSheetCard';
- 
 
 export const UnExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _card }) => {
 	const card = _card as MultiSheetCard;
@@ -20,8 +19,6 @@ export const UnExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _c
 	const multiPartCardIndex = useAppSelector((state) => state.scheduler.multiPartCardIndex);
 
 	const [wrongIndex, setWrongIndex] = useState(-1);
-
-
 
 	const getChromaNotesForPart = (index: number): number[] => {
 		return card.question.voices
@@ -77,7 +74,7 @@ export const UnExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _c
 				dispatch(midiActions.waitUntilEmpty());
 				dispatch(schedulerActions.incrementMultiPartCardIndex());
 			}
-		} 
+		}
 	}, [onNotesChroma, answerPartNotesChroma, waitingUntilEmpty]);
 
 	return null;
