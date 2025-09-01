@@ -1,5 +1,6 @@
 import { cardsActions } from '../slices/cardsSlice';
 import { attemptsActions } from '../slices/attemptsSlice';
+import { schedulerActions } from '../slices/schedulerSlice';
 import { AppThunk } from '../store';
 import { networkCallWithReduxState } from '../util/networkStateHelper';
 
@@ -13,5 +14,6 @@ export const deleteCard =
 				.map((a) => a!._id);
 			dispatch(attemptsActions.removeMany(ids));
 			dispatch(cardsActions.remove(cardId));
+			dispatch(schedulerActions.removeCard(cardId));
 		});
 	};

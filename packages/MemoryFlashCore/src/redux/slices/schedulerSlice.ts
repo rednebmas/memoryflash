@@ -75,6 +75,13 @@ const schedulerSlice = createSlice({
 				state.nextCards.unshift(action.payload);
 			}
 		},
+		removeCard(state, action: PayloadAction<string>) {
+			state.nextCards = state.nextCards.filter((id) => id !== action.payload);
+			state.answeredCards = state.answeredCards.filter((id) => id !== action.payload);
+			if (state.currCard === action.payload) {
+				pickupNextCard(state);
+			}
+		},
 		dequeueNextCard,
 	},
 });
