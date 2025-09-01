@@ -24,5 +24,5 @@ export default {
 			secondary: ['Futura', ...defaultTheme.fontFamily.sans],
 		},
 	},
-	plugins: [require('@tailwindcss/forms')],
+	plugins: [require('@tailwindcss/forms'), require('@tailwindcss/typography')],
 };
