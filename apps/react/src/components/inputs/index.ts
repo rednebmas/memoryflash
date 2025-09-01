@@ -1,5 +1,7 @@
 export * from './BaseInput';
+export * from './BaseTextArea';
 export * from './InputField';
+export * from './TextAreaField';
 export * from './EmailInput';
 export * from './PasswordInput';
 export * from './Select';
