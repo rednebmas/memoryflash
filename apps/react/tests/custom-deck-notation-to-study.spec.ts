@@ -19,11 +19,11 @@ test('Create custom deck, add notation and text cards, then study', async ({ pag
 	const deckId = await createDeck(page, courseId, 'My Deck');
 	await page.waitForURL(new RegExp(`/study/${deckId}/notation`));
 
-	// Input a full measure: C4, E4, G4, C5 (quarter notes)
+	// Input a full measure with shuffled order per chord
 	await runRecorderEvents(page, `/study/${deckId}/notation`, [
-		[45, 48, 52, 55, 72],
+		[72, 55, 45, 52, 48],
 		[],
-		[69, 71],
+		[71, 69],
 		[],
 		[67],
 		[],
@@ -46,9 +46,9 @@ test('Create custom deck, add notation and text cards, then study', async ({ pag
 	const promptText = 'Test Prompt';
 	await page.fill('#text-prompt', promptText);
 	await runRecorderEvents(page, undefined, [
-		[45, 48, 52, 55, 72],
+		[72, 55, 45, 52, 48],
 		[],
-		[69, 71],
+		[71, 69],
 		[],
 		[67],
 		[],
@@ -100,8 +100,31 @@ test('Create custom deck, add notation and text cards, then study', async ({ pag
 	await runRecorderEvents(
 		page,
 		undefined,
-		[[45, 48, 52, 55, 72], [], [69, 71], [], [67], [], [64]],
+		[[72, 55, 45, 52, 48], [], [71, 69], [], [67], [], [64]],
 		'custom-deck-notation-to-study-midi-step',
+	);
+
+	// Navigate to the list and delete the first (notation) card
+	await page.click('a[href="list"], a[href$="/list"]');
+	await page.waitForURL(new RegExp(`/study/${deckId}/list`));
+	await page.locator('.card-container').first().locator('.absolute.right-1.bottom-1').click();
+	const [deleteResp3] = await Promise.all([
+		page.waitForResponse(
+			(r) => r.url().includes('/cards/') && r.request().method() === 'DELETE',
+		),
+		page.getByRole('button', { name: 'Delete' }).click(),
+	]);
+	expect(deleteResp3.ok()).toBeTruthy();
+	await expect(page.locator('.card-container')).toHaveCount(1);
+
+	// Go back to study and answer the remaining text-based card
+	await page.goto(`/study/${deckId}`);
+	await page.locator('.card-container').first().waitFor();
+	await runRecorderEvents(
+		page,
+		undefined,
+		[[72, 55, 45, 52, 48], [], [71, 69], [], [67], [], [64]],
+		'custom-deck-text-to-study-midi-step',
 	);
 
 	// Cleanup any remaining routes to avoid teardown errors

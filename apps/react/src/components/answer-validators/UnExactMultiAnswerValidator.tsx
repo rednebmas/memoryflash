@@ -41,7 +41,9 @@ export const UnExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _c
 	};
 
 	useDeepCompareEffect(() => {
-		if (waitingUntilEmpty) return;
+		if (waitingUntilEmpty) {
+			return;
+		}
 
 		// Allow restarting from the first index if the first part is played after an incorrect attempt
 		if (
@@ -49,7 +51,6 @@ export const UnExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _c
 			wrongIndex === multiPartCardIndex &&
 			areArraysEqual(onNotesChroma, firstPartNotesChroma)
 		) {
-			console.log('[scheduler] Restarting from the first part');
 			dispatch(schedulerActions.startFromBeginningOfCurrentCard());
 			setWrongIndex(-1);
 			return;
@@ -65,19 +66,9 @@ export const UnExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _c
 			}
 		}
 
-		// Check order correctness
-		if (!areArraysEqual(onNotesChroma, answerPartNotesChroma.slice(0, onNotesChroma.length))) {
-			console.log(
-				'[UnExactMultiAnswerValidator] Incorrect order: ',
-				onNotesChroma,
-				answerPartNotesChroma,
-			);
-			return;
-		}
-
-		if (onNotesChroma.length === answerPartNotesChroma.length) {
+		const partComplete = onNotesChroma.length === answerPartNotesChroma.length;
+		if (partComplete) {
 			if (multiPartCardIndex === card.question.voices[0].stack.length - 1) {
-				console.log('Correct card!');
 				dispatch(recordAttempt(true));
 			} else {
 				dispatch(midiActions.waitUntilEmpty());
