@@ -69,7 +69,7 @@ export class MusicRecorder {
 	private addEvent(staff: StaffEnum, midi: number[], start: number) {
 		const state = this.staff[staff as StaffKey];
 		const beats = durationBeats[state.duration];
-		if (state.beats + beats > this._maxBeats) return false;
+		if (start + beats > this._maxBeats) return false;
 		state.events.push({ start, notes: [...midi], duration: state.duration });
 		state.beats = start + beats;
 		return true;
