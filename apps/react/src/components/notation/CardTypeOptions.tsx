@@ -25,7 +25,6 @@ export const CardTypeOptions: React.FC<CardTypeOptionsProps> = ({
 	<SettingsSection title="Card Type">
 		<div className="flex flex-col gap-4 items-start">
 			<div className="flex items-center gap-2">
-				<span>Card Type</span>
 				<CardTypeDropdown value={cardType} onChange={(v) => onChange({ cardType: v })} />
 			</div>
 			{cardType === 'Text Prompt' && (

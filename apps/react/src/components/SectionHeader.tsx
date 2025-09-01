@@ -20,7 +20,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
 	onToggle,
 }) => {
 	return (
-		<div className="flex space-x-1">
+		<div className="flex space-x-1 -mt-1">
 			{Icon && (
 				<div className="flex">
 					<Icon />
@@ -28,7 +28,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
 			)}
 			<div className="flex flex-col flex-1">
 				<div className="flex items-center justify-between">
-					<div className="text-xs font-medium">{title}</div>
+					<div className="text-xs font-medium text-gray-500">{title}</div>
 					{collapsible && (
 						<CircleHover onClick={onToggle}>
 							<ChevronDownIcon

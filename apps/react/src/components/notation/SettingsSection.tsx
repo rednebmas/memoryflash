@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { SectionHeader } from '../SectionHeader';
+import { Card } from '../Card';
 
 interface SettingsSectionProps {
 	title: string;
@@ -25,7 +26,7 @@ export const SettingsSection: React.FC<SettingsSectionProps> = ({
 	};
 
 	return (
-		<div className="border rounded-md p-4 space-y-2">
+		<Card className="w-full" contentContainerClassName="space-y-2">
 			<SectionHeader
 				title={title}
 				text={isCollapsed && hintText ? hintText : undefined}
@@ -34,6 +35,6 @@ export const SettingsSection: React.FC<SettingsSectionProps> = ({
 				onToggle={toggleCollapsed}
 			/>
 			{!isCollapsed && <div>{children}</div>}
-		</div>
+		</Card>
 	);
 };
