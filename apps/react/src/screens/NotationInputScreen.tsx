@@ -23,13 +23,13 @@ import {
 
 export const NotationInputScreen = () => {
 	const [settings, setSettings] = useState<NotationSettingsState>(defaultSettings);
+	const [resetCount, setResetCount] = useState(0);
 	const dispatch = useAppDispatch();
 	const { deckId } = useDeckIdPath();
 	const { cardId } = useParams();
 	const card = useAppSelector((state) => (cardId ? state.cards.entities[cardId] : undefined));
 	const { isLoading: isUpdating, error: updateError } = useNetworkState('updateCard');
 	const { isLoading: isAdding, error: addError } = useNetworkState('addCardsToDeck');
-
 	const recorderRef = useRef(new MusicRecorder('q', 'C4', 'q', defaultSettings.bars));
 	const midiNotes = useAppSelector(
 		(state) => state.midi.notes.map((n) => n.number),
@@ -51,22 +51,17 @@ export const NotationInputScreen = () => {
 			}));
 		}
 	}, [card]);
-
 	useEffect(() => {
 		recorderRef.current.updateDuration(settings.trebleDur, StaffEnum.Treble);
 	}, [settings.trebleDur]);
-
 	useEffect(() => {
 		recorderRef.current.updateDuration(settings.bassDur, StaffEnum.Bass);
 	}, [settings.bassDur]);
-
 	useEffect(() => {
 		recorderRef.current.setBars(settings.bars);
 		recorderRef.current.reset();
 	}, [settings.bars]);
-
 	const prevMidiNotesRef = useRef<number[]>([]);
-
 	const data = useMemo(() => {
 		if (!shallowEqual(prevMidiNotesRef.current, midiNotes)) {
 			recorderRef.current.addMidiNotes(midiNotes);
@@ -79,7 +74,7 @@ export const NotationInputScreen = () => {
 			return card.question;
 		}
 		return recorderRef.current.buildQuestion(settings.keySig);
-	}, [midiNotes, settings.keySig, card]);
+	}, [midiNotes, settings.keySig, card, resetCount]);
 	const previewsAll = questionsForAllMajorKeys(data, settings.lowest, settings.highest);
 	const previews = previewsAll.filter((_, i) => settings.selected[i]);
 
@@ -112,6 +107,8 @@ export const NotationInputScreen = () => {
 
 	const handleReset = () => {
 		recorderRef.current.reset();
+		prevMidiNotesRef.current = [];
+		setResetCount((c) => c + 1);
 	};
 
 	const error = updateError || addError;
