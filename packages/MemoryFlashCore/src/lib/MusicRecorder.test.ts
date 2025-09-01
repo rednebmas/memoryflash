@@ -32,6 +32,16 @@ describe('MusicRecorder', () => {
 		expect(r.notes.length).to.equal(4);
 	});
 
+	it('ignores cross-clef notes after one bar', () => {
+		const r = new MusicRecorder('q');
+		for (const n of [60, 48, 60, 48, 60]) {
+			r.addMidiNotes([n]);
+			r.addMidiNotes([]);
+		}
+		expect(r.notes.length).to.equal(4);
+		expect(r.totalBeatsRecorded).to.equal(4);
+	});
+
 	it('records two measures when configured', () => {
 		const r = new MusicRecorder('q', 'C4', 'q', 2);
 		for (const n of [60, 62, 64, 65, 67, 69, 71, 72]) {
