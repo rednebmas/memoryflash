@@ -35,5 +35,3 @@ export function computeTieSkipAdvance(
 		return { nextIndex: idx + 1, isCompleted: idx + 1 > lastIndex };
 	}
 }
-
-

@@ -76,7 +76,8 @@ export const ExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _car
 			} else {
 				// advance to nextIndex from current
 				const steps = nextIndex - multiPartCardIndex;
-				for (let i = 0; i < steps; i++) dispatch(schedulerActions.incrementMultiPartCardIndex());
+				for (let i = 0; i < steps; i++)
+					dispatch(schedulerActions.incrementMultiPartCardIndex());
 			}
 		}
 	}, [onNotesMidi, answerPartNotesMidi, waitingUntilEmpty]);
