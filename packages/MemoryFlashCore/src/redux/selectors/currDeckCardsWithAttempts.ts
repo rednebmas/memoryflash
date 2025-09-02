@@ -13,7 +13,7 @@ const selectHiddenCardIds = (state: ReduxState) => {
 	return stats?.hiddenCardIds ?? [];
 };
 
-export type CardWithAttempts = Card & { attempts: Attempt[] };
+export type CardWithAttempts = Card & { attempts: Attempt[]; hidden?: boolean };
 
 const deckCardsWithAttempts = createSelector(
 	[selectDeckId, selectCards, selectAttempts],
@@ -54,13 +54,15 @@ export const currDeckAllWithCorrectAttemptsSelector = createSelector(
 );
 
 export const currDeckAllWithCorrectAttemptsSortedArray = createSelector(
-	[currDeckAllWithCorrectAttemptsSelector],
-	(cards) =>
-		Object.values(cards).sort((a, b) => {
-			const aTime = a.attempts.length > 0 ? a.attempts[0].timeTaken : Infinity;
-			const bTime = b.attempts.length > 0 ? b.attempts[0].timeTaken : Infinity;
-			return aTime - bTime;
-		}),
+	[currDeckAllWithCorrectAttemptsSelector, selectHiddenCardIds],
+	(cards, hiddenIds) =>
+		Object.values(cards)
+			.map((c) => ({ ...c, hidden: hiddenIds.includes(c._id) }))
+			.sort((a, b) => {
+				const aTime = a.attempts.length > 0 ? a.attempts[0].timeTaken : Infinity;
+				const bTime = b.attempts.length > 0 ? b.attempts[0].timeTaken : Infinity;
+				return aTime - bTime;
+			}),
 );
 
 export const currDeckWithAttemptsSelector = createSelector(
