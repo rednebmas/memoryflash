@@ -78,7 +78,8 @@ export const UnExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _c
 				dispatch(recordAttempt(true));
 			} else {
 				const steps = nextIndex - multiPartCardIndex;
-				for (let i = 0; i < steps; i++) dispatch(schedulerActions.incrementMultiPartCardIndex());
+				for (let i = 0; i < steps; i++)
+					dispatch(schedulerActions.incrementMultiPartCardIndex());
 			}
 		}
 	}, [onNotesChroma, answerPartNotesChroma, waitingUntilEmpty]);
