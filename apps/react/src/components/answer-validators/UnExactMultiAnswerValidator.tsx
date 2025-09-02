@@ -7,6 +7,7 @@ import { schedulerActions } from 'MemoryFlashCore/src/redux/slices/schedulerSlic
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { Card } from 'MemoryFlashCore/src/types/Cards';
 import { MultiSheetCard } from 'MemoryFlashCore/src/types/MultiSheetCard';
+import { computeTieSkipAdvance } from './tieUtils';
 
 export const UnExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _card }) => {
 	const card = _card as MultiSheetCard;
@@ -20,12 +21,11 @@ export const UnExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _c
 
 	const [wrongIndex, setWrongIndex] = useState(-1);
 
-	const getChromaNotesForPart = (index: number): number[] => {
-		return card.question.voices
+	const getChromaNotesForPart = (index: number): number[] =>
+		card.question.voices
 			.flatMap((voice) => voice.stack[index]?.notes ?? [])
 			.map((note) => Note.chroma(note.name + note.octave))
 			.sort((a, b) => a - b);
-	};
 
 	const answerPartNotesChroma = getChromaNotesForPart(multiPartCardIndex);
 	const firstPartNotesChroma = getChromaNotesForPart(0);
@@ -68,11 +68,17 @@ export const UnExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _c
 
 		const partComplete = onNotesChroma.length === answerPartNotesChroma.length;
 		if (partComplete) {
-			if (multiPartCardIndex === card.question.voices[0].stack.length - 1) {
+			dispatch(midiActions.waitUntilEmpty());
+			const { nextIndex, isCompleted } = computeTieSkipAdvance(
+				card,
+				multiPartCardIndex,
+				(idx) => getChromaNotesForPart(idx),
+			);
+			if (isCompleted) {
 				dispatch(recordAttempt(true));
 			} else {
-				dispatch(midiActions.waitUntilEmpty());
-				dispatch(schedulerActions.incrementMultiPartCardIndex());
+				const steps = nextIndex - multiPartCardIndex;
+				for (let i = 0; i < steps; i++) dispatch(schedulerActions.incrementMultiPartCardIndex());
 			}
 		}
 	}, [onNotesChroma, answerPartNotesChroma, waitingUntilEmpty]);
