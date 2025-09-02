@@ -1,13 +1,10 @@
-import { CheckIcon, EyeIcon, EyeSlashIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import { updateHiddenCards } from 'MemoryFlashCore/src/redux/actions/update-hidden-cards-action';
+import { CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { CardWithAttempts } from 'MemoryFlashCore/src/redux/selectors/currDeckCardsWithAttempts';
-import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
+import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { CardTypeEnum, IntervalCard } from 'MemoryFlashCore/src/types/Cards';
 import React, { forwardRef } from 'react';
 import { IS_TEST_ENV } from '../utils/constants';
-import { CircleHover } from './CircleHover';
-import { FlashCardEditButton } from './FlashCardEditButton';
-import { FlashCardDeleteButton } from './FlashCardDeleteButton';
+import { FlashCardOptionsMenu } from './FlashCardOptionsMenu';
 import { MultiSheetCardQuestion } from './FlashCards/MultiSheetCardQuestion';
 import { Pill } from './Pill';
 
@@ -41,30 +38,6 @@ let QuestionComponentMap: { [cardType: string]: React.FC<QuestionRender> } = {
 	[CardTypeEnum.MultiSheet]: MultiSheetCardQuestion,
 };
 
-const HideCardButton: React.FC<{ card: CardWithAttempts }> = ({ card }) => {
-	const dispatch = useAppDispatch();
-	const hiddenIds = useAppSelector((state) => {
-		const stats = Object.values(state.userDeckStats.entities).find(
-			(s) => s.deckId === card.deckId,
-		);
-		return stats?.hiddenCardIds || [];
-	});
-	const hidden = hiddenIds.includes(card._id);
-	const toggle = () => {
-		const updated = hidden
-			? hiddenIds.filter((id) => id !== card._id)
-			: [...hiddenIds, card._id];
-		dispatch(updateHiddenCards(card.deckId, updated));
-	};
-	return (
-		<div className="absolute left-1 top-1">
-			<CircleHover onClick={toggle}>
-				{hidden ? <EyeSlashIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
-			</CircleHover>
-		</div>
-	);
-};
-
 export const FlashCard = forwardRef<HTMLDivElement, FlashCardProps>(
 	({ card, className, opacity, placement, showEdit, showDelete }, ref) => {
 		const QuestionComponent = QuestionComponentMap[card.type];
@@ -82,9 +55,9 @@ export const FlashCard = forwardRef<HTMLDivElement, FlashCardProps>(
 					transition: 'opacity 0.5s ease',
 				}}
 			>
-				<FlashCardEditButton card={card} show={showEdit} />
-				<FlashCardDeleteButton card={card} show={showDelete} />
-				<HideCardButton card={card} />
+				<div className="absolute right-1 top-1">
+					<FlashCardOptionsMenu card={card} showEdit={showEdit} showDelete={showDelete} />
+				</div>
 				<div className="text-4xl font-medium flex flex-1 justify-center items-center">
 					<QuestionComponent card={card} placement={placement} />
 				</div>
