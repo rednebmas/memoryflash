@@ -28,12 +28,16 @@ export const FlashCardOptionsMenu: React.FC<FlashCardOptionsMenuProps> = ({
 	const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
 
 	const hiddenIds = useAppSelector((state) => {
-		const stats = Object.values(state.userDeckStats.entities).find((s) => s.deckId === card.deckId);
+		const stats = Object.values(state.userDeckStats.entities).find(
+			(s) => s.deckId === card.deckId,
+		);
 		return stats?.hiddenCardIds || [];
 	});
 	const hidden = hiddenIds.includes(card._id);
 	const toggleHidden = () => {
-		const updated = hidden ? hiddenIds.filter((id) => id !== card._id) : [...hiddenIds, card._id];
+		const updated = hidden
+			? hiddenIds.filter((id) => id !== card._id)
+			: [...hiddenIds, card._id];
 		dispatch(updateHiddenCards(card.deckId, updated));
 	};
 
@@ -77,5 +81,3 @@ export const FlashCardOptionsMenu: React.FC<FlashCardOptionsMenuProps> = ({
 		</>
 	);
 };
-
-
