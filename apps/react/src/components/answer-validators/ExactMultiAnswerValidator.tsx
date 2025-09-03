@@ -8,6 +8,7 @@ import { Card } from 'MemoryFlashCore/src/types/Cards';
 import { MultiSheetCard } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { filterNullOrUndefined } from 'MemoryFlashCore/src/lib/filterNullOrUndefined';
 import { useState } from 'react';
+import { computeTieSkipAdvance, notesForPartExact } from './tieUtils';
 
 export const ExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _card }) => {
 	const card = _card as MultiSheetCard;
@@ -21,14 +22,7 @@ export const ExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _car
 	const [wrongIndex, setWrongIndex] = useState(-1);
 
 	// Helper function to get MIDI notes for a specific part index
-	const getNotesForPart = (index: number) => {
-		const partNotes = filterNullOrUndefined(
-			card.question.voices
-				.flatMap((voice) => voice.stack[index]?.notes ?? [])
-				.map((note) => Note.midi(note.name + note.octave)),
-		);
-		return partNotes;
-	};
+	const getNotesForPart = (index: number) => notesForPartExact(card, index);
 
 	const answerPartNotesMidi = getNotesForPart(multiPartCardIndex);
 	const firstPartNotesMidi = getNotesForPart(0);
@@ -70,12 +64,20 @@ export const ExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _car
 
 		// Check if the correct number of notes have been played
 		if (onNotesMidi.length === answerPartNotesMidi.length) {
-			if (multiPartCardIndex === card.question.voices[0].stack.length - 1) {
+			dispatch(midiActions.waitUntilEmpty());
+			const { nextIndex, isCompleted } = computeTieSkipAdvance(
+				card,
+				multiPartCardIndex,
+				(idx) => getNotesForPart(idx),
+			);
+			if (isCompleted) {
 				console.log('Correct card!');
 				dispatch(recordAttempt(true));
 			} else {
-				dispatch(midiActions.waitUntilEmpty());
-				dispatch(schedulerActions.incrementMultiPartCardIndex());
+				// advance to nextIndex from current
+				const steps = nextIndex - multiPartCardIndex;
+				for (let i = 0; i < steps; i++)
+					dispatch(schedulerActions.incrementMultiPartCardIndex());
 			}
 		}
 	}, [onNotesMidi, answerPartNotesMidi, waitingUntilEmpty]);
