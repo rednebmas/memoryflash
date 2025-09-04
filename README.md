@@ -6,10 +6,10 @@ MemoryFlash is an interactive practice tool for musicians. It presents flashcard
 
 ## Features
 
--   📚 **Flashcard Training** – Study musical concepts through automatically generated cards and decks.
--   🎹 **MIDI Input** – Connect a MIDI keyboard for answering card prompts directly from your instrument.
--   🔁 **Spaced Repetition** – Cards are scheduled based on your performance so you can focus on what needs work.
--   📱 **Cross‑Platform** – React web app, Node.js server, and an iOS client keep practice sessions in sync across devices.
+- 📚 **Flashcard Training** – Study musical concepts through automatically generated cards and decks.
+- 🎹 **MIDI Input** – Connect a MIDI keyboard for answering card prompts directly from your instrument.
+- 🔁 **Spaced Repetition** – Cards are scheduled based on your performance so you can focus on what needs work.
+- 📱 **Cross‑Platform** – React web app, Node.js server, and an iOS client keep practice sessions in sync across devices.
 
 ## Getting Started
 
