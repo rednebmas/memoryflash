@@ -8,11 +8,13 @@ import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store'
 import { Card } from 'MemoryFlashCore/src/types/Cards';
 import { MultiSheetCard } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { computeTieSkipAdvance } from './tieUtils';
+import { useToast } from '../Toast';
 
 export const UnExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _card }) => {
 	const card = _card as MultiSheetCard;
 
 	const dispatch = useAppDispatch();
+	const toast = useToast();
 	const onNotes = useAppSelector((state) => state.midi.notes);
 	const onNotesChroma = onNotes.map((note) => Note.chroma(Midi.midiToNoteName(note.number)));
 	const onNotesMidi = onNotes.map((note) => note.number);
@@ -24,8 +26,7 @@ export const UnExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _c
 	const getChromaNotesForPart = (index: number): number[] =>
 		card.question.voices
 			.flatMap((voice) => voice.stack[index]?.notes ?? [])
-			.map((note) => Note.chroma(note.name + note.octave))
-			.sort((a, b) => a - b);
+			.map((note) => Note.chroma(note.name + note.octave));
 
 	const answerPartNotesChroma = getChromaNotesForPart(multiPartCardIndex);
 	const firstPartNotesChroma = getChromaNotesForPart(0);
@@ -68,6 +69,11 @@ export const UnExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _c
 
 		const partComplete = onNotesChroma.length === answerPartNotesChroma.length;
 		if (partComplete) {
+			if (!areArraysEqual(onNotesChroma, answerPartNotesChroma)) {
+				toast('Correct notes but incorrect order');
+				dispatch(midiActions.waitUntilEmpty());
+				return;
+			}
 			dispatch(midiActions.waitUntilEmpty());
 			const { nextIndex, isCompleted } = computeTieSkipAdvance(
 				card,
