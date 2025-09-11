@@ -43,7 +43,7 @@ test('Study cross-clef tied chord', async ({ page }) => {
 				await page.getByLabel('Treble').selectOption('8');
 				await page.getByLabel('Bass').selectOption('8');
 			}
-		}
+		},
 	);
 
 	await page.getByRole('button', { name: 'Add Card' }).click();
