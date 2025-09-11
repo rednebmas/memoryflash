@@ -24,51 +24,27 @@ test('Study cross-clef tied chord', async ({ page }) => {
 	await page.getByLabel('Count').fill('1');
 	await page.getByLabel('Treble').selectOption('h');
 	await page.getByLabel('Bass').selectOption('h');
-	await page.evaluate((ns) => {
-		const dispatch = (window as any).store.dispatch;
-		for (const n of ns) dispatch({ type: 'midi/addNote', payload: n });
-	}, fm);
-	await page.waitForTimeout(0);
-	await page.evaluate((ns) => {
-		const dispatch = (window as any).store.dispatch;
-		for (const n of ns) dispatch({ type: 'midi/removeNote', payload: n });
-	}, fm);
-
-	await page.getByLabel('Treble').selectOption('8');
-	await page.getByLabel('Bass').selectOption('8');
-	await page.evaluate((ns) => {
-		const dispatch = (window as any).store.dispatch;
-		for (const n of ns) dispatch({ type: 'midi/addNote', payload: n });
-	}, fm);
-	await page.waitForTimeout(0);
-	await page.evaluate((ns) => {
-		const dispatch = (window as any).store.dispatch;
-		for (const n of ns) dispatch({ type: 'midi/removeNote', payload: n });
-	}, fm);
-
-	await page.getByLabel('Treble').selectOption('q');
-	await page.getByLabel('Bass').selectOption('q');
-	await page.evaluate((ns) => {
-		const dispatch = (window as any).store.dispatch;
-		for (const n of ns) dispatch({ type: 'midi/addNote', payload: n });
-	}, a);
-	await page.waitForTimeout(0);
-	await page.evaluate((ns) => {
-		const dispatch = (window as any).store.dispatch;
-		for (const n of ns) dispatch({ type: 'midi/removeNote', payload: n });
-	}, a);
-
-	await page.getByLabel('Treble').selectOption('8');
-	await page.getByLabel('Bass').selectOption('8');
-	await page.evaluate((ns) => {
-		const dispatch = (window as any).store.dispatch;
-		for (const n of ns) dispatch({ type: 'midi/addNote', payload: n });
-	}, a);
-	await page.waitForTimeout(0);
-	await page.evaluate((ns) => {
-		const dispatch = (window as any).store.dispatch;
-		for (const n of ns) dispatch({ type: 'midi/removeNote', payload: n });
-	}, a);
+	await runRecorderEvents(
+		page,
+		undefined,
+		events,
+		'custom-deck-notation-cross-clef-tie-notation-input',
+		async (index) => {
+			if (index === 0) {
+				// After first fm chord, change to 8ths for second fm
+				await page.getByLabel('Treble').selectOption('8');
+				await page.getByLabel('Bass').selectOption('8');
+			} else if (index === 1) {
+				// After second fm chord, change to quarters for first a
+				await page.getByLabel('Treble').selectOption('q');
+				await page.getByLabel('Bass').selectOption('q');
+			} else if (index === 2) {
+				// After first a chord, change back to 8ths for second a
+				await page.getByLabel('Treble').selectOption('8');
+				await page.getByLabel('Bass').selectOption('8');
+			}
+		}
+	);
 
 	await page.getByRole('button', { name: 'Add Card' }).click();
 	await page.goto(`/study/${deckId}`);
