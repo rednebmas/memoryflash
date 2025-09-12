@@ -7,7 +7,11 @@ const testsDir = path.resolve(__dirname, '../apps/react/tests');
 function tokens(spec) {
 	const out = new Set();
 	const strRe = /(['"`])([\s\S]*?)\1/g;
-	for (const m of fs.readFileSync(spec, 'utf8').matchAll(strRe)) {
+	const src = fs
+		.readFileSync(spec, 'utf8')
+		.replace(/\/\*[\s\S]*?\*\//g, '')
+		.replace(/\/\/.*$/gm, '');
+	for (const m of src.matchAll(strRe)) {
 		const s = m[2];
 		const pre = s.split('${')[0];
 		if (/^[A-Za-z0-9._-]+$/.test(pre)) out.add(pre);
