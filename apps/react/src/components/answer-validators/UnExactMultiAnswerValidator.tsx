@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store'
 import { Card } from 'MemoryFlashCore/src/types/Cards';
 import { MultiSheetCard } from 'MemoryFlashCore/src/types/MultiSheetCard';
 
+// Notes may be played in any order, but the resulting chroma sequence must match the card
 export const UnExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _card }) => {
 	const card = _card as MultiSheetCard;
 
@@ -23,8 +24,12 @@ export const UnExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _c
 	const getChromaNotesForPart = (index: number): number[] => {
 		return card.question.voices
 			.flatMap((voice) => voice.stack[index]?.notes ?? [])
-			.map((note) => Note.chroma(note.name + note.octave))
-			.sort((a, b) => a - b);
+			.map((note) => ({
+				chroma: Note.chroma(note.name + note.octave),
+				midi: Note.midi(note.name + note.octave) ?? 0,
+			}))
+			.sort((a, b) => a.midi - b.midi)
+			.map((n) => n.chroma);
 	};
 
 	const answerPartNotesChroma = getChromaNotesForPart(multiPartCardIndex);
@@ -68,11 +73,15 @@ export const UnExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _c
 
 		const partComplete = onNotesChroma.length === answerPartNotesChroma.length;
 		if (partComplete) {
-			if (multiPartCardIndex === card.question.voices[0].stack.length - 1) {
-				dispatch(recordAttempt(true));
+			if (areArraysEqual(onNotesChroma, answerPartNotesChroma)) {
+				if (multiPartCardIndex === card.question.voices[0].stack.length - 1) {
+					dispatch(recordAttempt(true));
+				} else {
+					dispatch(midiActions.waitUntilEmpty());
+					dispatch(schedulerActions.incrementMultiPartCardIndex());
+				}
 			} else {
-				dispatch(midiActions.waitUntilEmpty());
-				dispatch(schedulerActions.incrementMultiPartCardIndex());
+				alert('Correct notes but incorrect order');
 			}
 		}
 	}, [onNotesChroma, answerPartNotesChroma, waitingUntilEmpty]);

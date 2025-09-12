@@ -96,6 +96,9 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 				: majorKey(data.key).scale,
 		);
 
+		const lastNotes = data.voices.map(() => null as StaveNote | null);
+		const lastSns = data.voices.map(() => null as Voice['stack'][0] | null);
+
 		for (let bar = 0; bar < bars; bar++) {
 			const x = bar * BAR_WIDTH;
 			const isFirstBar = bar === 0;
@@ -147,6 +150,29 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 				});
 				// Determine ties for consecutive identical notes
 				const ties = [] as { first: StaveNote; last: StaveNote; indices: number[] }[];
+
+				const prevSn = lastSns[vIdx];
+				const prevNote = lastNotes[vIdx];
+				const firstSn = stack[0]?.sn;
+				if (
+					prevSn &&
+					prevNote &&
+					firstSn &&
+					!prevSn.rest &&
+					!firstSn.rest &&
+					prevSn.notes.length === firstSn.notes.length &&
+					prevSn.notes.every(
+						(n, idx2) =>
+							n.name === firstSn.notes[idx2].name &&
+							n.octave === firstSn.notes[idx2].octave,
+					)
+				) {
+					ties.push({
+						first: prevNote,
+						last: notes[0],
+						indices: firstSn.notes.map((_, idx2) => idx2),
+					});
+				}
 				for (let i = 0; i < stack.length - 1; i++) {
 					const a = stack[i].sn;
 					const b = stack[i + 1].sn;
@@ -178,6 +204,11 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 							.setContext(ctx)
 							.draw(),
 					);
+					lastSns[vIdx] = stack[stack.length - 1].sn;
+					lastNotes[vIdx] = notes[notes.length - 1];
+				} else {
+					lastSns[vIdx] = null;
+					lastNotes[vIdx] = null;
 				}
 
 				// --- CHORD TEXT (fixed): wrap in a Voice, format, then draw ---

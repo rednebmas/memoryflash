@@ -1,5 +1,6 @@
 import { AnswerType, CardTypeEnum, StaffEnum } from 'MemoryFlashCore/src/types/Cards';
 import { MultiSheetCard, StackedNotes } from 'MemoryFlashCore/src/types/MultiSheetCard';
+import { Midi } from 'tonal';
 import { PresentationMode } from 'MemoryFlashCore/src/types/PresentationMode';
 import { generateProgressionsFromRomanNumerals } from './ii-V-i/ii-V-I-progression-generators';
 
@@ -20,9 +21,20 @@ export function createTwoHandedCardsFromProgressions(
 		const bassStack: StackedNotes[] = [];
 		const trebleStack: StackedNotes[] = [];
 
-		progression.voice.forEach((voice, i) => {
-			bassStack.push({ ...voice, notes: voice.notes.slice(0, numBassNotes) });
-			trebleStack.push({ ...voice, notes: voice.notes.slice(numBassNotes) });
+		const sortNotes = (notes: StackedNotes['notes']) =>
+			[...notes].sort(
+				(a, b) => Midi.toMidi(a.name + a.octave)! - Midi.toMidi(b.name + b.octave)!,
+			);
+
+		progression.voice.forEach((voice) => {
+			bassStack.push({
+				...voice,
+				notes: sortNotes(voice.notes.slice(0, numBassNotes)),
+			});
+			trebleStack.push({
+				...voice,
+				notes: sortNotes(voice.notes.slice(numBassNotes)),
+			});
 		});
 
 		return {
