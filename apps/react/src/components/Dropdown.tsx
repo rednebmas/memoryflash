@@ -1,5 +1,6 @@
 import { Menu, MenuButton, MenuItem, MenuItems, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
+import clsx from 'clsx';
 import React, { Fragment } from 'react';
 
 interface DropdownItem {
@@ -11,10 +12,6 @@ interface DropdownProps {
 	label: React.ReactNode;
 	items: DropdownItem[];
 	onButtonClick?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent> | undefined) => void;
-}
-
-function classNames(...classes: string[]) {
-	return classes.filter(Boolean).join(' ');
 }
 
 const Dropdown: React.FC<DropdownProps> = ({ label, items, onButtonClick }) => {
@@ -45,7 +42,7 @@ const Dropdown: React.FC<DropdownProps> = ({ label, items, onButtonClick }) => {
 								{({ focus }) => (
 									<button
 										onClick={item.onClick}
-										className={classNames(
+										className={clsx(
 											focus ? 'bg-gray-50 text-gray-900' : 'text-gray-700',
 											'block w-full px-4 py-2 text-left text-sm',
 										)}
