@@ -3,6 +3,22 @@ import { ReduxState } from '../store';
 import { Card } from '../../types/Cards';
 import { Attempt } from '../../types/Attempt';
 
+export type CardWithAttempts = Card & { attempts: Attempt[] };
+
+export const filterCorrect = (cards: { [key: string]: CardWithAttempts }) => {
+	const result: typeof cards = {};
+	Object.keys(cards).forEach((key) => {
+		result[key] = { ...cards[key], attempts: cards[key].attempts.filter((a) => a.correct) };
+	});
+	return result;
+};
+
+export const compareByAttemptTime = (a: CardWithAttempts, b: CardWithAttempts) => {
+	const aTime = a.attempts[0]?.timeTaken ?? Infinity;
+	const bTime = b.attempts[0]?.timeTaken ?? Infinity;
+	return aTime - bTime;
+};
+
 const selectDeckId = (state: ReduxState) => state.scheduler.deck;
 const selectCards = (state: ReduxState) => state.cards;
 const selectAttempts = (state: ReduxState) => state.attempts;
@@ -12,8 +28,6 @@ const selectHiddenCardIds = (state: ReduxState) => {
 	const stats = Object.values(state.userDeckStats.entities).find((s) => s.deckId === deckId);
 	return stats?.hiddenCardIds ?? [];
 };
-
-export type CardWithAttempts = Card & { attempts: Attempt[] };
 
 const deckCardsWithAttempts = createSelector(
 	[selectDeckId, selectCards, selectAttempts],
@@ -38,14 +52,6 @@ const deckCardsWithAttempts = createSelector(
 	},
 );
 
-const filterCorrect = (cards: { [key: string]: CardWithAttempts }) => {
-	const result: typeof cards = {};
-	Object.keys(cards).forEach((key) => {
-		result[key] = { ...cards[key], attempts: cards[key].attempts.filter((a) => a.correct) };
-	});
-	return result;
-};
-
 export const currDeckAllWithAttemptsSelector = deckCardsWithAttempts;
 
 export const currDeckAllWithCorrectAttemptsSelector = createSelector(
@@ -55,12 +61,7 @@ export const currDeckAllWithCorrectAttemptsSelector = createSelector(
 
 export const currDeckAllWithCorrectAttemptsSortedArray = createSelector(
 	[currDeckAllWithCorrectAttemptsSelector],
-	(cards) =>
-		Object.values(cards).sort((a, b) => {
-			const aTime = a.attempts.length > 0 ? a.attempts[0].timeTaken : Infinity;
-			const bTime = b.attempts.length > 0 ? b.attempts[0].timeTaken : Infinity;
-			return aTime - bTime;
-		}),
+	(cards) => Object.values(cards).sort(compareByAttemptTime),
 );
 
 export const currDeckWithAttemptsSelector = createSelector(
@@ -81,10 +82,5 @@ export const currDeckWithCorrectAttemptsSelector = createSelector(
 
 export const currDeckWithCorrectAttemptsSortedArray = createSelector(
 	[currDeckWithCorrectAttemptsSelector],
-	(cards) =>
-		Object.values(cards).sort((a, b) => {
-			const aTime = a.attempts.length > 0 ? a.attempts[0].timeTaken : Infinity;
-			const bTime = b.attempts.length > 0 ? b.attempts[0].timeTaken : Infinity;
-			return aTime - bTime;
-		}),
+	(cards) => Object.values(cards).sort(compareByAttemptTime),
 );
