@@ -7,14 +7,12 @@ import { schedulerActions } from 'MemoryFlashCore/src/redux/slices/schedulerSlic
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { Card } from 'MemoryFlashCore/src/types/Cards';
 import { MultiSheetCard } from 'MemoryFlashCore/src/types/MultiSheetCard';
-import { computeTieSkipAdvance } from './tieUtils';
-import { useToast } from '../Toast';
 
+// Notes may be played in any order, but the resulting chroma sequence must match the card
 export const UnExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _card }) => {
 	const card = _card as MultiSheetCard;
 
 	const dispatch = useAppDispatch();
-	const toast = useToast();
 	const onNotes = useAppSelector((state) => state.midi.notes);
 	const onNotesChroma = onNotes.map((note) => Note.chroma(Midi.midiToNoteName(note.number)));
 	const onNotesMidi = onNotes.map((note) => note.number);
@@ -23,15 +21,16 @@ export const UnExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _c
 
 	const [wrongIndex, setWrongIndex] = useState(-1);
 
-	const getChromaNotesForPart = (index: number): number[] =>
-		card.question.voices
+	const getChromaNotesForPart = (index: number): number[] => {
+		return card.question.voices
 			.flatMap((voice) => voice.stack[index]?.notes ?? [])
-			.map((note) => {
-				const name = note.name + note.octave;
-				return { midi: Midi.toMidi(name)!, chroma: Note.chroma(name) };
-			})
+			.map((note) => ({
+				chroma: Note.chroma(note.name + note.octave),
+				midi: Note.midi(note.name + note.octave) ?? 0,
+			}))
 			.sort((a, b) => a.midi - b.midi)
 			.map((n) => n.chroma);
+	};
 
 	const answerPartNotesChroma = getChromaNotesForPart(multiPartCardIndex);
 	const firstPartNotesChroma = getChromaNotesForPart(0);
@@ -74,23 +73,15 @@ export const UnExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _c
 
 		const partComplete = onNotesChroma.length === answerPartNotesChroma.length;
 		if (partComplete) {
-			if (!areArraysEqual(onNotesChroma, answerPartNotesChroma)) {
-				toast('Correct notes but incorrect order');
-				dispatch(midiActions.waitUntilEmpty());
-				return;
-			}
-			dispatch(midiActions.waitUntilEmpty());
-			const { nextIndex, isCompleted } = computeTieSkipAdvance(
-				card,
-				multiPartCardIndex,
-				(idx) => getChromaNotesForPart(idx),
-			);
-			if (isCompleted) {
-				dispatch(recordAttempt(true));
-			} else {
-				const steps = nextIndex - multiPartCardIndex;
-				for (let i = 0; i < steps; i++)
+			if (areArraysEqual(onNotesChroma, answerPartNotesChroma)) {
+				if (multiPartCardIndex === card.question.voices[0].stack.length - 1) {
+					dispatch(recordAttempt(true));
+				} else {
+					dispatch(midiActions.waitUntilEmpty());
 					dispatch(schedulerActions.incrementMultiPartCardIndex());
+				}
+			} else {
+				alert('Correct notes but incorrect order');
 			}
 		}
 	}, [onNotesChroma, answerPartNotesChroma, waitingUntilEmpty]);
