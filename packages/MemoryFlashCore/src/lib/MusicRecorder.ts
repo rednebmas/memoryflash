@@ -70,7 +70,8 @@ export class MusicRecorder {
 		const state = this.staff[staff as StaffKey];
 		const beats = durationBeats[state.duration];
 		if (start + beats > this._maxBeats) return false;
-		state.events.push({ start, notes: [...midi], duration: state.duration });
+		const notes = [...midi].sort((a, b) => a - b);
+		state.events.push({ start, notes, duration: state.duration });
 		state.beats = start + beats;
 		return true;
 	}
@@ -83,6 +84,7 @@ export class MusicRecorder {
 		for (const n of midi) {
 			if (!existing.has(n)) event.notes.push(n);
 		}
+		event.notes.sort((a, b) => a - b);
 	}
 
 	private rebuildNotes() {
@@ -96,8 +98,13 @@ export class MusicRecorder {
 				for (const n of e.notes) {
 					if (!existing.has(n)) last.notes.push(n);
 				}
+				last.notes.sort((a, b) => a - b);
 			} else {
-				merged.push({ start: e.start, notes: [...e.notes], duration: e.duration });
+				merged.push({
+					start: e.start,
+					notes: [...e.notes].sort((a, b) => a - b),
+					duration: e.duration,
+				});
 			}
 		}
 		this.notes = merged.map((e) => ({
@@ -193,8 +200,9 @@ export class MusicRecorder {
 				stack.push(...createRestDurations(e.start - beat));
 				beat = e.start;
 			}
+			const notes = [...e.notes].sort((a, b) => a - b);
 			stack.push({
-				notes: e.notes.map((m) => this.toSheetNote(m, key)),
+				notes: notes.map((m) => this.toSheetNote(m, key)),
 				duration: e.duration,
 			});
 			beat = e.start + durationBeats[e.duration];
