@@ -98,7 +98,6 @@ export class MusicRecorder {
 				for (const n of e.notes) {
 					if (!existing.has(n)) last.notes.push(n);
 				}
-				last.notes.sort((a, b) => a - b);
 			} else {
 				merged.push({
 					start: e.start,
