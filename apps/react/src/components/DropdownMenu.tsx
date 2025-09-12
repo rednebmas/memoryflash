@@ -1,4 +1,5 @@
 import { MenuItem, MenuItems, Transition } from '@headlessui/react';
+import clsx from 'clsx';
 import React, { Fragment } from 'react';
 
 export interface DropdownItem {
@@ -8,10 +9,6 @@ export interface DropdownItem {
 
 interface DropdownMenuProps {
 	items: DropdownItem[];
-}
-
-function classNames(...classes: string[]) {
-	return classes.filter(Boolean).join(' ');
 }
 
 export const DropdownMenu: React.FC<DropdownMenuProps> = ({ items }) => (
@@ -31,7 +28,7 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({ items }) => (
 						{({ focus }) => (
 							<button
 								onClick={item.onClick}
-								className={classNames(
+								className={clsx(
 									focus ? 'bg-gray-50 text-gray-900' : 'text-gray-700',
 									'block w-full px-4 py-2 text-left text-sm',
 								)}
