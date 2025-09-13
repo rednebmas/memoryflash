@@ -6,3 +6,4 @@ export * from './SettingsSection';
 export * from './NotationPreviewList';
 export * from './defaultSettings';
 export * from './BarsSetting';
+export * from './ScoreEditor';
