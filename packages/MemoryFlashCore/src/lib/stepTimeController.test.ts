@@ -27,4 +27,12 @@ describe('StepTimeController', () => {
 		expect(treble).to.have.length(0);
 		expect(bass).to.have.length(1);
 	});
+	it('supports dotted durations', () => {
+		const c = new StepTimeController();
+		c.setDuration('hd');
+		c.input([{ name: 'C', octave: 4 }]);
+		const v = c.score.measures[0][StaffEnum.Treble].voices[0];
+		expect(v.events[0].duration).to.equal('hd');
+		expect(v.beat).to.equal(3);
+	});
 });

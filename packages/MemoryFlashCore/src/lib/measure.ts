@@ -1,18 +1,26 @@
-export type Duration = 'w' | 'h' | 'q' | '8' | '16' | '32' | '64';
+export type BaseDuration = 'w' | 'h' | 'q' | '8' | '16' | '32' | '64';
+export type Duration = BaseDuration | `${BaseDuration}d`;
 
 export const durationBeats: Record<Duration, number> = {
 	w: 4,
+	wd: 6,
 	h: 2,
+	hd: 3,
 	q: 1,
+	qd: 1.5,
 	'8': 0.5,
+	'8d': 0.75,
 	'16': 0.25,
+	'16d': 0.375,
 	'32': 0.125,
+	'32d': 0.1875,
 	'64': 0.0625,
+	'64d': 0.09375,
 };
 
 import { SheetNote, StackedNotes } from '../types/MultiSheetCard';
 
-const beatsToDurations: [number, Duration][] = [
+const beatsToDurations: [number, BaseDuration][] = [
 	[4, 'w'],
 	[2, 'h'],
 	[1, 'q'],

@@ -9,6 +9,7 @@ import {
 	Accidental,
 	Barline,
 	StaveTie,
+	Beam,
 } from 'vexflow';
 import { majorKey, minorKey } from '@tonaljs/key';
 import { MultiSheetQuestion, Voice } from 'MemoryFlashCore/src/types/MultiSheetCard';
@@ -28,6 +29,7 @@ const VF = {
 	Accidental,
 	Barline,
 	StaveTie,
+	Beam,
 };
 
 const BAR_WIDTH = 300;
@@ -148,6 +150,7 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 
 					return note;
 				});
+				const beams = VF.Beam.generateBeams(notes);
 				// Determine ties for consecutive identical notes
 				const ties = [] as { first: StaveNote; last: StaveNote; indices: number[] }[];
 
@@ -194,6 +197,7 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 				// Space and draw the notes
 				if (notes.length) {
 					VF.Formatter.FormatAndDraw(ctx, stave, notes);
+					beams.forEach((b) => b.setContext(ctx).draw());
 					ties.forEach((t) =>
 						new VF.StaveTie({
 							first_note: t.first,
