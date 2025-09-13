@@ -10,6 +10,7 @@ import { Staff } from 'MemoryFlashCore/src/lib/score';
 import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { Midi } from 'tonal';
 import { majorKey } from '@tonaljs/key';
+import { ScoreToolbar } from './ScoreToolbar';
 
 interface Props {
 	keySig: string;
@@ -33,65 +34,13 @@ const isFull = (c: StepTimeController) => {
 	);
 };
 
-const durations: BaseDuration[] = ['w', 'h', 'q', '8'];
-
-interface ToolbarProps {
-	dur: BaseDuration;
-	dotted: boolean;
-	setDur: (d: BaseDuration) => void;
-	toggleDot: () => void;
-	staff: Staff;
-	setStaff: (s: Staff) => void;
-	addRest: () => void;
-}
-
-const Toolbar: React.FC<ToolbarProps> = ({
-	dur,
-	dotted,
-	setDur,
-	toggleDot,
-	staff,
-	setStaff,
-	addRest,
-}) => (
-	<div className="flex gap-2">
-		{durations.map((d) => (
-			<button
-				key={d}
-				className={`px-2 py-1 border ${dur === d ? 'bg-gray-200' : ''}`}
-				onClick={() => setDur(d)}
-			>
-				{d}
-			</button>
-		))}
-		<button className={`px-2 py-1 border ${dotted ? 'bg-gray-200' : ''}`} onClick={toggleDot}>
-			.
-		</button>
-		<button className="px-2 py-1 border" onClick={addRest}>
-			rest
-		</button>
-		<button
-			className={`px-2 py-1 border ${staff === StaffEnum.Treble ? 'bg-gray-200' : ''}`}
-			onClick={() => setStaff(StaffEnum.Treble)}
-		>
-			treble
-		</button>
-		<button
-			className={`px-2 py-1 border ${staff === StaffEnum.Bass ? 'bg-gray-200' : ''}`}
-			onClick={() => setStaff(StaffEnum.Bass)}
-		>
-			bass
-		</button>
-	</div>
-);
-
 function useStepCtrl(
 	keySig: string,
 	resetSignal: number,
 	onChange: (q: MultiSheetQuestion, full: boolean) => void,
 ) {
 	const ctrlRef = useRef(new StepTimeController());
-	const [dur, setDur] = useState<BaseDuration>('q');
+	const [dur, setDurState] = useState<BaseDuration>('q');
 	const [dotted, setDotted] = useState(false);
 	const [staff, setStaff] = useState<Staff>(StaffEnum.Treble);
 	const midi = useAppSelector((s) => s.midi.notes.map((n) => n.number), shallowEqual);
@@ -121,6 +70,10 @@ function useStepCtrl(
 		ctrlRef.current.input([]);
 		emit();
 	};
+	const setDur = (d: BaseDuration) => {
+		setDurState(d);
+		setDotted(false);
+	};
 	return {
 		dur,
 		dotted,
@@ -141,7 +94,7 @@ export const ScoreEditor: React.FC<Props> = ({ keySig, onChange, resetSignal }) 
 	);
 	return (
 		<div className="flex flex-col items-center gap-4">
-			<Toolbar
+			<ScoreToolbar
 				dur={dur}
 				dotted={dotted}
 				setDur={setDur}

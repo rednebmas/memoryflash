@@ -16,7 +16,6 @@ import {
 	NotationSettingsState,
 	defaultSettings,
 	NotationPreviewList,
-	ScoreEditor,
 } from '../components/notation';
 import { MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
@@ -93,15 +92,13 @@ export const NotationInputScreen = () => {
 					<NotationSettings settings={settings} onChange={setSettings} />
 				</div>
 				<div className="flex flex-col justify-center items-center min-h-[400px] space-y-6">
-					<ScoreEditor
+					<NotationPreviewList
 						keySig={settings.keySig}
 						resetSignal={resetCount}
 						onChange={(q: MultiSheetQuestion, full: boolean) => {
 							setQuestion(q);
 							setComplete(full);
 						}}
-					/>
-					<NotationPreviewList
 						previews={previews}
 						cardType={settings.cardType}
 						textPrompt={settings.textPrompt}
