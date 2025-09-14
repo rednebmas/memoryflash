@@ -1,7 +1,8 @@
 import { expect } from 'chai';
 import { Score } from './score';
 import { StaffEnum } from '../types/Cards';
-import { scoreToQuestion } from './scoreBuilder';
+import { scoreToQuestion, questionToScore } from './scoreBuilder';
+import { MultiSheetQuestion } from '../types/MultiSheetCard';
 
 describe('Score', () => {
 	it('creates new measure when beats overflow', () => {
@@ -26,5 +27,26 @@ describe('Score', () => {
 		expect(v.events.map((e) => e.duration)).to.deep.equal(['hd', 'q']);
 		const stack = scoreToQuestion(s, 'C').voices.find((v) => v.staff === StaffEnum.Bass)!.stack;
 		expect(stack.map((n) => n.duration)).to.deep.equal(['hd', 'q']);
+	});
+	it('reconstructs score from MultiSheetQuestion', () => {
+		const q: MultiSheetQuestion = {
+			key: 'C',
+			voices: [
+				{
+					staff: StaffEnum.Treble,
+					stack: [
+						{
+							notes: [{ name: 'C', octave: 4 }],
+							duration: 'q',
+						},
+						{ notes: [], duration: 'q', rest: true },
+					],
+				},
+			],
+		};
+		const s = questionToScore(q, 4);
+		const events = s.measures[0][StaffEnum.Treble].voices[0].events;
+		expect(events.map((e) => e.type)).to.deep.equal(['note', 'rest']);
+		expect(events.map((e) => e.duration)).to.deep.equal(['q', 'q']);
 	});
 });

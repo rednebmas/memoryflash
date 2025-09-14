@@ -35,3 +35,15 @@ export function scoreToQuestion(score: Score, key: string): MultiSheetQuestion {
 	}
 	return { key, voices };
 }
+
+export function questionToScore(question: MultiSheetQuestion, beatsPerMeasure = 4): Score {
+	const score = new Score(beatsPerMeasure);
+	for (const v of question.voices) {
+		const staff = v.staff as Staff;
+		for (const s of v.stack) {
+			if (s.rest) score.addRest(staff, s.duration);
+			else score.addNote(staff, s.notes, s.duration);
+		}
+	}
+	return score;
+}
