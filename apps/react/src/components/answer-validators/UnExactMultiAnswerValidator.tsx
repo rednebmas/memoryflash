@@ -17,7 +17,6 @@ export const UnExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _c
 	const onNotes = useAppSelector((state) => state.midi.notes);
 	const onNotesChroma = onNotes.map((note) => Note.chroma(Midi.midiToNoteName(note.number)));
 	const onNotesMidi = onNotes.map((note) => note.number);
-	const waitingUntilEmpty = useAppSelector((state) => state.midi.waitingUntilEmpty);
 	const multiPartCardIndex = useAppSelector((state) => state.scheduler.multiPartCardIndex);
 
 	const [wrongIndex, setWrongIndex] = useState(-1);
@@ -40,10 +39,6 @@ export const UnExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _c
 	};
 
 	useDeepCompareEffect(() => {
-		if (waitingUntilEmpty) {
-			return;
-		}
-
 		// Allow restarting from the first index if the first part is played after an incorrect attempt
 		if (
 			multiPartCardIndex !== 0 &&
@@ -68,11 +63,9 @@ export const UnExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _c
 		const partComplete = onNotesChroma.length === answerPartNotesChroma.length;
 		if (partComplete) {
 			if (areArraysEqual(onNotesChroma, answerPartNotesChroma)) {
-				dispatch(midiActions.waitUntilEmpty());
 				const { nextIndex, isCompleted } = computeTieSkipAdvance(
 					timeline,
 					multiPartCardIndex,
-					(idx) => getChromaNotesForPart(idx),
 				);
 				if (isCompleted) {
 					dispatch(recordAttempt(true));
@@ -85,7 +78,7 @@ export const UnExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _c
 				alert('Correct notes but incorrect order');
 			}
 		}
-	}, [onNotesChroma, answerPartNotesChroma, waitingUntilEmpty]);
+	}, [onNotesChroma, answerPartNotesChroma]);
 
 	return null;
 };

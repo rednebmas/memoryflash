@@ -1,18 +1,12 @@
 import { Midi, Note } from 'tonal';
-import { StackedNotes } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import {
 	questionToTimeline,
-	notesForSlice as notesForSliceMidi,
+	notesForSlice,
 	computeTieSkipAdvance,
-	NoteProjection,
 } from 'MemoryFlashCore/src/lib/answerTimeline';
 
-export { questionToTimeline, computeTieSkipAdvance };
+export { questionToTimeline, notesForSlice, computeTieSkipAdvance };
 
-export const notesForSlice = notesForSliceMidi;
-
-export function chromaForSlice(timeline: StackedNotes[], index: number): number[] {
-	return notesForSliceMidi(timeline, index).map((m) => Note.chroma(Midi.midiToNoteName(m)));
+export function chromaForSlice(timeline: number[][], index: number): number[] {
+	return notesForSlice(timeline, index).map((m) => Note.chroma(Midi.midiToNoteName(m)));
 }
-
-export type { NoteProjection };

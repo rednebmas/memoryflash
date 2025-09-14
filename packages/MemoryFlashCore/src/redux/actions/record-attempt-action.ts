@@ -4,7 +4,6 @@ import { selectActivePresentationMode } from '../selectors/activePresentationMod
 import { attemptsStatsSelector } from '../selectors/attemptsStatsSelector';
 import { currDeckWithAttemptsSelector } from '../selectors/currDeckCardsWithAttempts';
 import { attemptsActions } from '../slices/attemptsSlice';
-import { midiActions } from '../slices/midiSlice';
 import { schedulerActions } from '../slices/schedulerSlice';
 import { AppThunk } from '../store';
 import { schedule } from './schedule-cards-action';
@@ -30,7 +29,6 @@ export const recordAttempt =
 		const { length, tooLongTime } = attemptsStats;
 		if (correct && timeTaken > tooLongTime && length > 10) {
 			console.log(`[scheduling] Not recording attempt, user took too long!`);
-			dispatch(midiActions.waitUntilEmpty());
 			dispatch(schedulerActions.dequeueNextCard());
 			return;
 		}
@@ -47,7 +45,6 @@ export const recordAttempt =
 			presentationMode: selectActivePresentationMode(getState()),
 		};
 
-		dispatch(midiActions.waitUntilEmpty());
 		dispatch(attemptsActions.upsert([attempt]));
 
 		console.log(`[scheduling] Recording attempt: ${correct}`);

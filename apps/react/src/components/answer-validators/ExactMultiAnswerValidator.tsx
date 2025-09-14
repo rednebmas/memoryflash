@@ -13,7 +13,6 @@ export const ExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _car
 
 	const dispatch = useAppDispatch();
 	const onNotes = useAppSelector((state) => state.midi.notes);
-	const waitingUntilEmpty = useAppSelector((state) => state.midi.waitingUntilEmpty);
 	const multiPartCardIndex = useAppSelector((state) => state.scheduler.multiPartCardIndex);
 	const onNotesMidi = onNotes.map((note) => note.number);
 
@@ -36,8 +35,6 @@ export const ExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _car
 	};
 
 	useDeepCompareEffect(() => {
-		if (waitingUntilEmpty) return;
-
 		// Allow restarting from the first index if the first part is played
 		if (
 			multiPartCardIndex != 0 &&
@@ -64,12 +61,7 @@ export const ExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _car
 
 		// Check if the correct number of notes have been played
 		if (onNotesMidi.length === answerPartNotesMidi.length) {
-			dispatch(midiActions.waitUntilEmpty());
-			const { nextIndex, isCompleted } = computeTieSkipAdvance(
-				timeline,
-				multiPartCardIndex,
-				(idx) => getNotesForPart(idx),
-			);
+			const { nextIndex, isCompleted } = computeTieSkipAdvance(timeline, multiPartCardIndex);
 			if (isCompleted) {
 				console.log('Correct card!');
 				dispatch(recordAttempt(true));
@@ -80,7 +72,7 @@ export const ExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _car
 					dispatch(schedulerActions.incrementMultiPartCardIndex());
 			}
 		}
-	}, [onNotesMidi, answerPartNotesMidi, waitingUntilEmpty]);
+	}, [onNotesMidi, answerPartNotesMidi]);
 
 	return null;
 };

@@ -41,11 +41,9 @@ describe('answerTimeline', () => {
 			],
 		};
 		const t = questionToTimeline(q);
-		expect(t).to.have.length(4);
-		const { nextIndex, isCompleted } = computeTieSkipAdvance(t, 0, (idx) =>
-			notesForSlice(t, idx),
-		);
+		expect(t).to.have.length(1);
+		const { nextIndex, isCompleted } = computeTieSkipAdvance(t, 0);
 		expect(isCompleted).to.equal(true);
-		expect(nextIndex).to.equal(3);
+		expect(nextIndex).to.equal(1);
 	});
 });
