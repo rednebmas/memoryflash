@@ -1,12 +1,13 @@
 import { Midi, Note } from 'tonal';
 import useDeepCompareEffect from 'use-deep-compare-effect';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { recordAttempt } from 'MemoryFlashCore/src/redux/actions/record-attempt-action';
 import { midiActions } from 'MemoryFlashCore/src/redux/slices/midiSlice';
 import { schedulerActions } from 'MemoryFlashCore/src/redux/slices/schedulerSlice';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { Card } from 'MemoryFlashCore/src/types/Cards';
 import { MultiSheetCard } from 'MemoryFlashCore/src/types/MultiSheetCard';
+import { questionToTimeline, chromaForSlice, computeTieSkipAdvance } from './tieUtils';
 
 // Notes may be played in any order, but the resulting chroma sequence must match the card
 export const UnExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _card }) => {
@@ -21,16 +22,9 @@ export const UnExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _c
 
 	const [wrongIndex, setWrongIndex] = useState(-1);
 
-	const getChromaNotesForPart = (index: number): number[] => {
-		return card.question.voices
-			.flatMap((voice) => voice.stack[index]?.notes ?? [])
-			.map((note) => ({
-				chroma: Note.chroma(note.name + note.octave),
-				midi: Note.midi(note.name + note.octave) ?? 0,
-			}))
-			.sort((a, b) => a.midi - b.midi)
-			.map((n) => n.chroma);
-	};
+	const timeline = useMemo(() => questionToTimeline(card.question), [card]);
+
+	const getChromaNotesForPart = (index: number) => chromaForSlice(timeline, index);
 
 	const answerPartNotesChroma = getChromaNotesForPart(multiPartCardIndex);
 	const firstPartNotesChroma = getChromaNotesForPart(0);
@@ -74,11 +68,18 @@ export const UnExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _c
 		const partComplete = onNotesChroma.length === answerPartNotesChroma.length;
 		if (partComplete) {
 			if (areArraysEqual(onNotesChroma, answerPartNotesChroma)) {
-				if (multiPartCardIndex === card.question.voices[0].stack.length - 1) {
+				dispatch(midiActions.waitUntilEmpty());
+				const { nextIndex, isCompleted } = computeTieSkipAdvance(
+					timeline,
+					multiPartCardIndex,
+					(idx) => getChromaNotesForPart(idx),
+				);
+				if (isCompleted) {
 					dispatch(recordAttempt(true));
 				} else {
-					dispatch(midiActions.waitUntilEmpty());
-					dispatch(schedulerActions.incrementMultiPartCardIndex());
+					const steps = nextIndex - multiPartCardIndex;
+					for (let i = 0; i < steps; i++)
+						dispatch(schedulerActions.incrementMultiPartCardIndex());
 				}
 			} else {
 				alert('Correct notes but incorrect order');

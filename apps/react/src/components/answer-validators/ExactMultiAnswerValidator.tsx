@@ -1,4 +1,3 @@
-import { Note } from 'tonal';
 import useDeepCompareEffect from 'use-deep-compare-effect';
 import { recordAttempt } from 'MemoryFlashCore/src/redux/actions/record-attempt-action';
 import { midiActions } from 'MemoryFlashCore/src/redux/slices/midiSlice';
@@ -6,9 +5,8 @@ import { schedulerActions } from 'MemoryFlashCore/src/redux/slices/schedulerSlic
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { Card } from 'MemoryFlashCore/src/types/Cards';
 import { MultiSheetCard } from 'MemoryFlashCore/src/types/MultiSheetCard';
-import { filterNullOrUndefined } from 'MemoryFlashCore/src/lib/filterNullOrUndefined';
-import { useState } from 'react';
-import { computeTieSkipAdvance, notesForPartExact } from './tieUtils';
+import { useState, useMemo } from 'react';
+import { computeTieSkipAdvance, notesForSlice, questionToTimeline } from './tieUtils';
 
 export const ExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _card }) => {
 	const card = _card as MultiSheetCard;
@@ -22,7 +20,9 @@ export const ExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _car
 	const [wrongIndex, setWrongIndex] = useState(-1);
 
 	// Helper function to get MIDI notes for a specific part index
-	const getNotesForPart = (index: number) => notesForPartExact(card, index);
+	const timeline = useMemo(() => questionToTimeline(card.question), [card]);
+
+	const getNotesForPart = (index: number) => notesForSlice(timeline, index);
 
 	const answerPartNotesMidi = getNotesForPart(multiPartCardIndex);
 	const firstPartNotesMidi = getNotesForPart(0);
@@ -66,7 +66,7 @@ export const ExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _car
 		if (onNotesMidi.length === answerPartNotesMidi.length) {
 			dispatch(midiActions.waitUntilEmpty());
 			const { nextIndex, isCompleted } = computeTieSkipAdvance(
-				card,
+				timeline,
 				multiPartCardIndex,
 				(idx) => getNotesForPart(idx),
 			);
