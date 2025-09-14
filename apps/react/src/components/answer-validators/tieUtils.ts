@@ -17,6 +17,71 @@ export function arraysEqual(a: number[], b: number[]) {
 	return true;
 }
 
+export interface ChordState {
+	startNotes: number[];
+	carryNotes: number[];
+	releaseNotes: number[];
+}
+
+const baseDurations: Record<string, number> = {
+	'16': 0.25,
+	'8': 0.5,
+	q: 1,
+	h: 2,
+	w: 4,
+};
+
+function parseDuration(d: string): number {
+	const dotted = d.endsWith('d');
+	const base = baseDurations[dotted ? d.slice(0, -1) : d] ?? 0;
+	return dotted ? base * 1.5 : base;
+}
+
+interface NoteEvent {
+	midi: number;
+	start: number;
+	end: number;
+}
+
+function voiceEvents(voice: MultiSheetCard['question']['voices'][number]): NoteEvent[] {
+	let time = 0;
+	const events: NoteEvent[] = [];
+	for (const part of voice.stack) {
+		const dur = parseDuration(part.duration);
+		if (!part.rest) {
+			for (const n of part.notes ?? []) {
+				const midi = Note.midi(n.name + n.octave);
+				if (typeof midi === 'number') events.push({ midi, start: time, end: time + dur });
+			}
+		}
+		time += dur;
+	}
+	return events;
+}
+
+export function buildNoteTimeline(card: MultiSheetCard): ChordState[] {
+	const events = card.question.voices.flatMap(voiceEvents);
+	const times = Array.from(new Set(events.flatMap((e) => [e.start, e.end]))).sort(
+		(a, b) => a - b,
+	);
+	return times.slice(0, -1).map((t, i) => {
+		const next = times[i + 1];
+		const startNotes = events
+			.filter((e) => e.start === t)
+			.map((e) => e.midi)
+			.sort((a, b) => a - b);
+		const carryNotes = events
+			.filter((e) => e.start < t && e.end > t)
+			.map((e) => e.midi)
+			.sort((a, b) => a - b);
+		const releaseNotes = events
+			.filter((e) => e.end === next)
+			.map((e) => e.midi)
+			.sort((a, b) => a - b);
+		return { startNotes, carryNotes, releaseNotes };
+	});
+}
+
 export function computeTieSkipAdvance(
 	card: MultiSheetCard,
 	currentIndex: number,

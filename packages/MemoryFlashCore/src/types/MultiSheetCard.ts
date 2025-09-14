@@ -10,7 +10,7 @@ export type Voice = {
 };
 export type StackedNotes = {
 	notes: SheetNote[];
-	duration: 'w' | 'h' | 'q' | '8' | '16' | '32' | '64';
+	duration: 'w' | 'h' | 'q' | '8' | '16' | '32' | '64' | 'wd' | 'hd' | 'qd';
 	chordName?: string;
 	rest?: boolean;
 };
