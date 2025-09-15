@@ -11,6 +11,7 @@ import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { Midi } from 'tonal';
 import { majorKey } from '@tonaljs/key';
 import { ScoreToolbar } from './ScoreToolbar';
+import { Score } from 'MemoryFlashCore/src/lib/score';
 
 interface Props {
 	keySig: string;
@@ -25,15 +26,12 @@ const toSheet = (m: number, key: string): SheetNote => {
 	return { name: match[1], octave: parseInt(match[2]) };
 };
 
-const isFull = (c: StepTimeController) => {
-	const s = c.score;
-	const m = s.measures[s.measures.length - 1];
-	return (
-		m[StaffEnum.Treble].voices[0].beat === s.beatsPerMeasure &&
-		m[StaffEnum.Bass].voices[0].beat === s.beatsPerMeasure
-	);
+const isFull = (score: Score) => {
+	const m = score.measures[score.measures.length - 1] ?? {};
+	const trebleBeat = m[StaffEnum.Treble]?.voices[0]?.beat ?? 0;
+	const bassBeat = m[StaffEnum.Bass]?.voices[0]?.beat ?? 0;
+	return trebleBeat === score.beatsPerMeasure && bassBeat === score.beatsPerMeasure;
 };
-
 function useStepCtrl(
 	keySig: string,
 	resetSignal: number,
@@ -45,23 +43,38 @@ function useStepCtrl(
 	const [staff, setStaff] = useState<Staff>(StaffEnum.Treble);
 	const midi = useAppSelector((s) => s.midi.notes.map((n) => n.number), shallowEqual);
 	const prev = useRef<number[]>([]);
+	const maxChord = useRef<number[]>([]);
 	const emit = () => {
-		const score = ctrlRef.current.score;
-		onChange(scoreToQuestion(score, keySig), isFull(ctrlRef.current));
+		const ctrl = ctrlRef.current;
+		let displayScore = ctrl.score;
+		if (maxChord.current.length > 0) {
+			displayScore = ctrl.score.clone();
+			displayScore.addNote(ctrl.staff, maxChord.current.map((m) => toSheet(m, keySig)), ctrl.duration, ctrl.voice);
+		}
+		onChange(scoreToQuestion(displayScore, keySig), isFull(displayScore));
 	};
+	const applyDur = () => ctrlRef.current.setDuration((dotted ? `${dur}d` : dur) as Duration);
 	useEffect(() => {
-		if (!shallowEqual(prev.current, midi) && midi.length) {
-			ctrlRef.current.input(midi.map((m) => toSheet(m, keySig)));
+		if (!shallowEqual(prev.current, midi)) {
+			if (midi.length > 0) {
+				const currentSet = new Set(maxChord.current);
+				midi.forEach((m) => currentSet.add(m));
+				maxChord.current = Array.from(currentSet).sort((a, b) => a - b);
+			}
+			if (midi.length === 0 && prev.current.length > 0) {
+				ctrlRef.current.input(maxChord.current.map((m) => toSheet(m, keySig)));
+				maxChord.current = [];
+			}
 			prev.current = [...midi];
 			emit();
 		}
-		if (!midi.length) prev.current = [];
 	}, [midi, keySig]);
-	const applyDur = () => ctrlRef.current.setDuration((dotted ? `${dur}d` : dur) as Duration);
 	useEffect(() => {
 		ctrlRef.current = new StepTimeController();
 		applyDur();
 		ctrlRef.current.setStaff(staff);
+		maxChord.current = [];
+		prev.current = [];
 		emit();
 	}, [resetSignal, keySig]);
 	useEffect(applyDur, [dur, dotted]);
@@ -87,10 +100,15 @@ function useStepCtrl(
 }
 
 export const ScoreEditor: React.FC<Props> = ({ keySig, onChange, resetSignal }) => {
-	const { dur, dotted, setDur, toggleDot, staff, setStaff, addRest, score } = useStepCtrl(
+	const [currentQuestion, setCurrentQuestion] = useState<MultiSheetQuestion>(scoreToQuestion(new Score(), keySig));
+	const localOnChange = (q: MultiSheetQuestion, full: boolean) => {
+		setCurrentQuestion(q);
+		onChange(q, full);
+	};
+	const { dur, dotted, setDur, toggleDot, staff, setStaff, addRest } = useStepCtrl(
 		keySig,
 		resetSignal,
-		onChange,
+		localOnChange,
 	);
 	return (
 		<div className="flex flex-col items-center gap-4">
@@ -103,7 +121,7 @@ export const ScoreEditor: React.FC<Props> = ({ keySig, onChange, resetSignal }) 
 				setStaff={setStaff}
 				addRest={addRest}
 			/>
-			<MusicNotation data={scoreToQuestion(score, keySig)} />
+			<MusicNotation data={currentQuestion} />
 		</div>
 	);
 };

@@ -65,4 +65,22 @@ export class Score {
 		v.events.push({ type: 'rest', duration });
 		v.beat += beats;
 	}
+	clone(): Score {
+		const s = new Score(this.beatsPerMeasure);
+		s.measures = this.measures.map(m => ({
+			[StaffEnum.Treble]: {
+				voices: m[StaffEnum.Treble].voices.map(v => ({
+					events: v.events.map(e => e.type === 'note' ? {type: 'note', notes: [...e.notes], duration: e.duration} : {type: 'rest', duration: e.duration}),
+					beat: v.beat
+				}))
+			},
+			[StaffEnum.Bass]: {
+				voices: m[StaffEnum.Bass].voices.map(v => ({
+					events: v.events.map(e => e.type === 'note' ? {type: 'note', notes: [...e.notes], duration: e.duration} : {type: 'rest', duration: e.duration}),
+					beat: v.beat
+				}))
+			}
+		}));
+		return s;
+	}
 }

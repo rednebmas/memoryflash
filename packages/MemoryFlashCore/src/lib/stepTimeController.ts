@@ -4,9 +4,9 @@ import { SheetNote } from '../types/MultiSheetCard';
 import { StaffEnum } from '../types/Cards';
 
 export class StepTimeController {
-	private duration: Duration;
-	private staff: Staff;
-	private voice: number;
+	public duration: Duration;
+	public staff: Staff;
+	public voice: number;
 	private rest: boolean;
 	constructor(
 		public score = new Score(),
