@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import {
 	Stave,
 	StaveNote,
@@ -18,6 +18,7 @@ import { durationBeats } from 'MemoryFlashCore/src/lib/measure';
 import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { Chord } from 'tonal';
 import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
+import { buildScoreTimeline } from 'MemoryFlashCore/src/lib/scoreTimeline';
 
 const VF = {
 	Stave,
@@ -71,6 +72,7 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 }) => {
 	const divRef = useRef<HTMLDivElement>(null);
 	const multiPartCardIndex = useAppSelector((s) => s.scheduler.multiPartCardIndex);
+	const timeline = useMemo(() => buildScoreTimeline(data), [data]);
 
 	useEffect(() => {
 		const div = divRef.current;
@@ -115,6 +117,7 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 				// Notes/rests for this bar & voice
 				const vIdx = data.voices.findIndex((v) => v.staff === staffType);
 				const stack = measuresByVoice[vIdx][bar] || [];
+				let beat = 0;
 				const notes = stack.map(({ sn, idx }) => {
 					const isRest = sn.rest || sn.notes.length === 0;
 					const restKey = staffType === StaffEnum.Bass ? 'd/3' : 'b/4';
@@ -143,9 +146,10 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 
 					if (sn.duration.includes('d')) VF.Dot.buildAndAttach([note], { all: true });
 					if (allNotesClassName) note.addClass(allNotesClassName);
-					if (idx < multiPartCardIndex && highlightClassName)
+					if (beat < timeline.beats[multiPartCardIndex] && highlightClassName)
 						note.addClass(highlightClassName);
 
+					beat += durationBeats[sn.duration];
 					return note;
 				});
 				const beams = VF.Beam.generateBeams(notes);
@@ -155,7 +159,7 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 					beams.forEach((b) => b.setContext(ctx).draw());
 				}
 
-				// --- CHORD TEXT (fixed): wrap in a Voice, format, then draw ---
+				// --- CHORD TEXT: wrap in a Voice, format, then draw ---
 				if (!hideChords && staffType === StaffEnum.Treble) {
 					const textNotes = (chordMeasures[bar] || []).map(({ sn }) => {
 						if (!sn.chordName) {

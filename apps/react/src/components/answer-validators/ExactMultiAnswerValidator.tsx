@@ -12,7 +12,7 @@ export const ExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _car
 	const onNotes = useAppSelector((s) => s.midi.notes);
 	const waiting = useAppSelector((s) => s.midi.waitingUntilEmpty);
 	const index = useAppSelector((s) => s.scheduler.multiPartCardIndex);
-	const timeline = useMemo(() => buildScoreTimeline(card), [card]);
+	const timeline = useMemo(() => buildScoreTimeline(card.question), [card.question]);
 	const engine = useMemo(() => new ValidatorEngine(timeline), [timeline]);
 	useDeepCompareEffect(() => {
 		engine.handle({
@@ -21,6 +21,6 @@ export const ExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _car
 			index,
 			dispatch,
 		});
-	}, [onNotes, waiting, index]);
+	}, [onNotes]);
 	return null;
 };

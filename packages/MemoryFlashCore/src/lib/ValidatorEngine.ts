@@ -1,4 +1,4 @@
-import { activeNotesAt, computeTieAdvance, ScoreTimeline } from './scoreTimeline';
+import { activeNotesAt, arraysEqual, computeTieAdvance, ScoreTimeline } from './scoreTimeline';
 import { midiActions } from '../redux/slices/midiSlice';
 import { schedulerActions } from '../redux/slices/schedulerSlice';
 import { recordAttempt } from '../redux/actions/record-attempt-action';
@@ -13,61 +13,87 @@ interface HandleArgs {
 	dispatch: AppDispatch;
 }
 
+/**
+ * Once you've pressed all the notes at the current index, that note is good, you never need
+ * to press it again.
+ */
 export class ValidatorEngine {
 	private prev: number[] = [];
-	private timings = new Map<number, { start?: number; end?: number }>();
 	constructor(
 		private timeline: ScoreTimeline,
 		private project: ProjectFn = (n) => n,
 	) {}
 
-	handle({ onNotes, waiting, index, dispatch }: HandleArgs): void {
-		this.updateTimings(onNotes);
-		if (waiting) return;
-		const expected = activeNotesAt(this.timeline, index).map(this.project);
-		const played = onNotes.map(this.project);
-		if (!this.matches(played, expected)) {
-			this.onWrong(played, expected, onNotes, dispatch);
-			return;
-		}
-		if (played.length === expected.length) this.onCorrect(index, dispatch);
-	}
+	handle({ onNotes, index, dispatch }: HandleArgs): void {
+		const added = onNotes.filter((n) => !this.prev.includes(n));
+		const expectedOnThisBeat = activeNotesAt(this.timeline, index);
+		const expectedAddedOnThisBeat = expectedOnThisBeat.filter(
+			(n) => n.start == this.timeline.beats[index],
+		);
+		const expectedAddedOnThisBeatMidis = expectedAddedOnThisBeat.map((n) => n.midi);
 
-	private matches(played: number[], expected: number[]): boolean {
-		return played.every((n) => expected.includes(n));
+		console.log(
+			'[validation] expectedAddedOnThisBeat:',
+			JSON.stringify(expectedAddedOnThisBeat.map((n) => n.midi)),
+		);
+
+		console.log('[validation] added:', JSON.stringify(added));
+
+		this.prev = onNotes;
+
+		if (added.length == 0) return; // i might want || waiting here
+
+		const onNotesProjected = onNotes.map(this.project);
+		const expectedOnThisBeatMidisProjected = expectedOnThisBeat
+			.map((n) => n.midi)
+			.map(this.project);
+		const expectedAddedOnThisBeatMidisProjected = expectedAddedOnThisBeatMidis.map(
+			this.project,
+		);
+
+		const addedProjected = added.map(this.project);
+
+		if (
+			arraysEqual(expectedOnThisBeatMidisProjected, onNotesProjected) ||
+			// just expected added on this beat is allowed because if the user made a mistake, we
+			// don't require them to press a previously held note to continue.
+			arraysEqual(expectedAddedOnThisBeatMidisProjected, addedProjected)
+		) {
+			this.onCorrect(index, dispatch);
+		} else if (
+			addedProjected
+				.map(this.project)
+				.reduce(
+					(acc, added) => acc || !expectedOnThisBeatMidisProjected.includes(added),
+					false,
+				)
+		) {
+			this.onWrong(addedProjected, expectedAddedOnThisBeatMidisProjected, onNotes, dispatch);
+		}
 	}
 
 	private onWrong(
-		played: number[],
-		expected: number[],
-		raw: number[],
+		onNotesProjected: number[],
+		expectedProjected: number[],
+		onNotesRaw: number[],
 		dispatch: AppDispatch,
 	): void {
+		console.log('[validation] onWrong', onNotesProjected, expectedProjected);
+
 		dispatch(recordAttempt(false));
-		const wrong = played.find((n) => !expected.includes(n));
+		const wrong = onNotesProjected.find((n) => !expectedProjected.includes(n));
 		if (typeof wrong === 'number')
-			dispatch(midiActions.addWrongNote(raw[played.indexOf(wrong)]));
+			dispatch(midiActions.addWrongNote(onNotesRaw[onNotesProjected.indexOf(wrong)]));
 		dispatch(midiActions.waitUntilEmpty());
 	}
 
 	private onCorrect(index: number, dispatch: AppDispatch): void {
 		dispatch(midiActions.waitUntilEmpty());
-		const { nextIndex, isCompleted } = computeTieAdvance(this.timeline, index);
-		if (isCompleted) dispatch(recordAttempt(true));
-		else
-			for (let i = 0; i < nextIndex - index; i++)
-				dispatch(schedulerActions.incrementMultiPartCardIndex());
-	}
-
-	private updateTimings(onNotes: number[]): void {
-		const now = Date.now();
-		const added = onNotes.filter((n) => !this.prev.includes(n));
-		const removed = this.prev.filter((n) => !onNotes.includes(n));
-		added.forEach((n) => this.timings.set(n, { start: now }));
-		removed.forEach((n) => {
-			const t = this.timings.get(n);
-			if (t) t.end = now;
-		});
-		this.prev = onNotes;
+		const nextIndex = index + 1;
+		if (nextIndex + 1 == this.timeline.beats.length) {
+			dispatch(recordAttempt(true));
+		} else {
+			dispatch(schedulerActions.incrementMultiPartCardIndex());
+		}
 	}
 }
