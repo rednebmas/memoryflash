@@ -49,7 +49,12 @@ function useStepCtrl(
 		let displayScore = ctrl.score;
 		if (maxChord.current.length > 0) {
 			displayScore = ctrl.score.clone();
-			displayScore.addNote(ctrl.staff, maxChord.current.map((m) => toSheet(m, keySig)), ctrl.duration, ctrl.voice);
+			displayScore.addNote(
+				ctrl.staff,
+				maxChord.current.map((m) => toSheet(m, keySig)),
+				ctrl.duration,
+				ctrl.voice,
+			);
 		}
 		onChange(scoreToQuestion(displayScore, keySig), isFull(displayScore));
 	};
@@ -100,7 +105,9 @@ function useStepCtrl(
 }
 
 export const ScoreEditor: React.FC<Props> = ({ keySig, onChange, resetSignal }) => {
-	const [currentQuestion, setCurrentQuestion] = useState<MultiSheetQuestion>(scoreToQuestion(new Score(), keySig));
+	const [currentQuestion, setCurrentQuestion] = useState<MultiSheetQuestion>(
+		scoreToQuestion(new Score(), keySig),
+	);
 	const localOnChange = (q: MultiSheetQuestion, full: boolean) => {
 		setCurrentQuestion(q);
 		onChange(q, full);
