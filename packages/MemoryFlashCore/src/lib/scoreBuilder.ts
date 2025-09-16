@@ -16,7 +16,8 @@ function buildStack(
 		let beat = 0;
 		if (voice) {
 			for (const e of voice.events) {
-				if (e.type === 'note') stack.push({ notes: e.notes, duration: e.duration });
+				if (e.type === 'note')
+					stack.push({ notes: e.notes, duration: e.duration, tie: e.tie });
 				else stack.push({ notes: [], duration: e.duration, rest: true });
 				beat += durationBeats[e.duration];
 			}
@@ -42,7 +43,7 @@ export function questionToScore(question: MultiSheetQuestion, beatsPerMeasure = 
 		const staff = v.staff as Staff;
 		for (const s of v.stack) {
 			if (s.rest) score.addRest(staff, s.duration);
-			else score.addNote(staff, s.notes, s.duration);
+			else score.addNote(staff, s.notes, s.duration, 0, s.tie);
 		}
 	}
 	return score;

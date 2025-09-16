@@ -1,5 +1,5 @@
 import { Note } from 'tonal';
-import { MultiSheetCard, MultiSheetQuestion } from '../types/MultiSheetCard';
+import { MultiSheetQuestion, StackedNotes } from '../types/MultiSheetCard';
 import { durationBeats } from './measure';
 
 export interface NoteEvent {
@@ -14,23 +14,60 @@ export interface ScoreTimeline {
 	beats: number[];
 }
 
+type ContinuingNotes = (NoteEvent | undefined)[];
+
+interface MergeResult {
+	nextContinuing: ContinuingNotes;
+	beatDelta: number;
+}
+
+const mergeStackEntry = (
+	entry: StackedNotes,
+	voice: number,
+	beat: number,
+	continuing: ContinuingNotes,
+	events: NoteEvent[],
+): MergeResult => {
+	const len = durationBeats[entry.duration];
+	const fromPrevious = new Set(entry.tie?.fromPrevious ?? []);
+	const toNext = new Set(entry.tie?.toNext ?? []);
+	if (entry.rest || entry.notes.length === 0) return { nextContinuing: [], beatDelta: len };
+	const midiValues = entry.notes.map((n) => Note.midi(n.name + n.octave));
+	const nextContinuing: ContinuingNotes = [];
+	midiValues.forEach((midi, index) => {
+		if (typeof midi !== 'number') return;
+		let event: NoteEvent | undefined;
+		if (fromPrevious.has(index)) {
+			const prev = continuing[index];
+			if (prev && prev.midi === midi) {
+				prev.end = beat + len;
+				event = prev;
+			}
+		}
+		if (!event) {
+			event = { midi, voice, start: beat, end: beat + len };
+			events.push(event);
+		}
+		if (toNext.has(index)) nextContinuing[index] = event;
+	});
+	return { nextContinuing, beatDelta: len };
+};
+
 export function buildScoreTimeline(question: MultiSheetQuestion): ScoreTimeline {
 	const events: NoteEvent[] = [];
-	question.voices.forEach((v, voice) => {
+	question.voices.forEach((voiceDef, voice) => {
 		let beat = 0;
-		v.stack.forEach((s) => {
-			const len = durationBeats[s.duration];
-			s.notes.forEach((n) => {
-				const midi = Note.midi(n.name + n.octave);
-				if (typeof midi === 'number')
-					events.push({
-						midi,
-						voice,
-						start: beat,
-						end: beat + len,
-					});
-			});
-			beat += len;
+		let continuing: ContinuingNotes = [];
+		voiceDef.stack.forEach((entry) => {
+			const { beatDelta, nextContinuing } = mergeStackEntry(
+				entry,
+				voice,
+				beat,
+				continuing,
+				events,
+			);
+			beat += beatDelta;
+			continuing = nextContinuing;
 		});
 	});
 	const beats = Array.from(new Set(events.flatMap((e) => [e.start, e.end]).concat(0))).sort(

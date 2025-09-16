@@ -1,11 +1,11 @@
 import { durationBeats, Duration } from './measure';
-import { SheetNote } from '../types/MultiSheetCard';
+import { NoteTie, SheetNote } from '../types/MultiSheetCard';
 import { StaffEnum } from '../types/Cards';
 
 export type Staff = StaffEnum.Treble | StaffEnum.Bass;
 
 export type ScoreEvent =
-	| { type: 'note'; notes: SheetNote[]; duration: Duration }
+	| { type: 'note'; notes: SheetNote[]; duration: Duration; tie?: NoteTie }
 	| { type: 'rest'; duration: Duration };
 
 export interface ScoreVoice {
@@ -29,6 +29,14 @@ const createMeasure = (): ScoreMeasure => ({
 	[StaffEnum.Bass]: createStaff(),
 });
 
+const cloneTie = (tie?: NoteTie): NoteTie | undefined =>
+	tie
+		? {
+				toNext: tie.toNext ? [...tie.toNext] : undefined,
+				fromPrevious: tie.fromPrevious ? [...tie.fromPrevious] : undefined,
+			}
+		: undefined;
+
 export class Score {
 	public measures: ScoreMeasure[] = [];
 	constructor(public beatsPerMeasure = 4) {
@@ -43,15 +51,15 @@ export class Score {
 	private pushMeasure(): void {
 		this.measures.push(createMeasure());
 	}
-	addNote(staff: Staff, notes: SheetNote[], duration: Duration, voice = 0): void {
+	addNote(staff: Staff, notes: SheetNote[], duration: Duration, voice = 0, tie?: NoteTie): void {
 		const beats = durationBeats[duration];
 		const v = this.getVoice(staff, voice);
 		if (v.beat + beats > this.beatsPerMeasure) {
 			this.pushMeasure();
-			this.addNote(staff, notes, duration, voice);
+			this.addNote(staff, notes, duration, voice, tie);
 			return;
 		}
-		v.events.push({ type: 'note', notes, duration });
+		v.events.push({ type: 'note', notes, duration, tie });
 		v.beat += beats;
 	}
 	addRest(staff: Staff, duration: Duration, voice = 0): void {
@@ -72,7 +80,12 @@ export class Score {
 				voices: m[StaffEnum.Treble].voices.map((v) => ({
 					events: v.events.map((e) =>
 						e.type === 'note'
-							? { type: 'note', notes: [...e.notes], duration: e.duration }
+							? {
+									type: 'note',
+									notes: [...e.notes],
+									duration: e.duration,
+									tie: cloneTie(e.tie),
+								}
 							: { type: 'rest', duration: e.duration },
 					),
 					beat: v.beat,
@@ -82,7 +95,12 @@ export class Score {
 				voices: m[StaffEnum.Bass].voices.map((v) => ({
 					events: v.events.map((e) =>
 						e.type === 'note'
-							? { type: 'note', notes: [...e.notes], duration: e.duration }
+							? {
+									type: 'note',
+									notes: [...e.notes],
+									duration: e.duration,
+									tie: cloneTie(e.tie),
+								}
 							: { type: 'rest', duration: e.duration },
 					),
 					beat: v.beat,

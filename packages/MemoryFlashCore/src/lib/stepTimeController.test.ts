@@ -35,4 +35,21 @@ describe('StepTimeController', () => {
 		expect(v.events[0].duration).to.equal('hd');
 		expect(v.beat).to.equal(3);
 	});
+	it('creates ties when duration list has multiple values', () => {
+		const c = new StepTimeController();
+		c.setDuration(['h', '16']);
+		c.input([{ name: 'C', octave: 4 }]);
+		const events = c.score.measures[0][StaffEnum.Treble].voices[0].events;
+		expect(events).to.have.length(2);
+		expect(events[0].type).to.equal('note');
+		expect(events[1].type).to.equal('note');
+		if (events[0].type === 'note') {
+			expect(events[0].duration).to.equal('h');
+			expect(events[0].tie?.toNext).to.deep.equal([0]);
+		}
+		if (events[1].type === 'note') {
+			expect(events[1].duration).to.equal('16');
+			expect(events[1].tie?.fromPrevious).to.deep.equal([0]);
+		}
+	});
 });

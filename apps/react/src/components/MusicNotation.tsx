@@ -10,6 +10,7 @@ import {
 	Barline,
 	Beam,
 	Dot,
+	StaveTie,
 } from 'vexflow';
 import { majorKey, minorKey } from '@tonaljs/key';
 import { MultiSheetQuestion, Voice } from 'MemoryFlashCore/src/types/MultiSheetCard';
@@ -31,6 +32,7 @@ const VF = {
 	Barline,
 	Beam,
 	Dot,
+	StaveTie,
 };
 
 const BAR_WIDTH = 300;
@@ -118,7 +120,15 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 				const vIdx = data.voices.findIndex((v) => v.staff === staffType);
 				const stack = measuresByVoice[vIdx][bar] || [];
 				let beat = 0;
-				const notes = stack.map(({ sn, idx }) => {
+				const notes: StaveNote[] = [];
+				const tieSpecs: Array<{
+					first: StaveNote;
+					last: StaveNote;
+					firstIndices: number[];
+					lastIndices: number[];
+				}> = [];
+				let pendingTie: { note: StaveNote; indices: number[] } | null = null;
+				stack.forEach(({ sn }) => {
 					const isRest = sn.rest || sn.notes.length === 0;
 					const restKey = staffType === StaffEnum.Bass ? 'd/3' : 'b/4';
 					const keys = isRest
@@ -149,14 +159,41 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 					if (beat < timeline.beats[multiPartCardIndex] && highlightClassName)
 						note.addClass(highlightClassName);
 
+					if (!isRest) {
+						const fromPrevious = sn.tie?.fromPrevious;
+						if (fromPrevious && fromPrevious.length && pendingTie) {
+							tieSpecs.push({
+								first: pendingTie.note,
+								last: note,
+								firstIndices: [...pendingTie.indices],
+								lastIndices: [...fromPrevious],
+							});
+						}
+						const toNext = sn.tie?.toNext;
+						pendingTie =
+							toNext && toNext.length ? { note, indices: [...toNext] } : null;
+					} else {
+						pendingTie = null;
+					}
+
+					notes.push(note);
 					beat += durationBeats[sn.duration];
-					return note;
 				});
 				const beams = VF.Beam.generateBeams(notes);
 
 				if (notes.length) {
 					VF.Formatter.FormatAndDraw(ctx, stave, notes);
 					beams.forEach((b) => b.setContext(ctx).draw());
+					tieSpecs.forEach((spec) =>
+						new VF.StaveTie({
+							first_note: spec.first,
+							last_note: spec.last,
+							first_indices: spec.firstIndices,
+							last_indices: spec.lastIndices,
+						})
+							.setContext(ctx)
+							.draw(),
+					);
 				}
 
 				// --- CHORD TEXT: wrap in a Voice, format, then draw ---

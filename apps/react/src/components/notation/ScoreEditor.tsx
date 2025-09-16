@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { shallowEqual } from 'react-redux';
 import { MusicNotation } from '../MusicNotation';
 import { StepTimeController } from 'MemoryFlashCore/src/lib/stepTimeController';
@@ -40,6 +40,11 @@ function useStepCtrl(
 	const ctrlRef = useRef(new StepTimeController());
 	const [dur, setDurState] = useState<BaseDuration>('q');
 	const [dotted, setDotted] = useState(false);
+	const [extraDurations, setExtraDurations] = useState<Duration[]>([]);
+	const durations = useMemo(() => {
+		const base = (dotted ? `${dur}d` : dur) as Duration;
+		return [base, ...extraDurations];
+	}, [dur, dotted, extraDurations]);
 	const [staff, setStaff] = useState<Staff>(StaffEnum.Treble);
 	const midi = useAppSelector((s) => s.midi.notes.map((n) => n.number), shallowEqual);
 	const prev = useRef<number[]>([]);
@@ -49,16 +54,24 @@ function useStepCtrl(
 		let displayScore = ctrl.score;
 		if (maxChord.current.length > 0) {
 			displayScore = ctrl.score.clone();
-			displayScore.addNote(
-				ctrl.staff,
-				maxChord.current.map((m) => toSheet(m, keySig)),
-				ctrl.duration,
-				ctrl.voice,
-			);
+			const sheetNotes = maxChord.current.map((m) => toSheet(m, keySig));
+			const indexes = sheetNotes.map((_, i) => i);
+			const previewDurations = ctrl.durations.length ? ctrl.durations : durations;
+			previewDurations.forEach((duration, index) => {
+				const tie =
+					previewDurations.length > 1 && indexes.length
+						? {
+								fromPrevious: index > 0 ? [...indexes] : undefined,
+								toNext:
+									index < previewDurations.length - 1 ? [...indexes] : undefined,
+							}
+						: undefined;
+				displayScore.addNote(ctrl.staff, sheetNotes, duration, ctrl.voice, tie);
+			});
 		}
 		onChange(scoreToQuestion(displayScore, keySig), isFull(displayScore));
 	};
-	const applyDur = () => ctrlRef.current.setDuration((dotted ? `${dur}d` : dur) as Duration);
+	const applyDur = () => ctrlRef.current.setDuration(durations);
 	useEffect(() => {
 		if (!shallowEqual(prev.current, midi)) {
 			if (midi.length > 0) {
@@ -82,7 +95,10 @@ function useStepCtrl(
 		prev.current = [];
 		emit();
 	}, [resetSignal, keySig]);
-	useEffect(applyDur, [dur, dotted]);
+	useEffect(() => {
+		applyDur();
+		emit();
+	}, [durations]);
 	useEffect(() => ctrlRef.current.setStaff(staff), [staff]);
 	const addRest = () => {
 		ctrlRef.current.input([]);
@@ -91,12 +107,20 @@ function useStepCtrl(
 	const setDur = (d: BaseDuration) => {
 		setDurState(d);
 		setDotted(false);
+		setExtraDurations([]);
 	};
+	const addTieDuration = (duration: Duration) =>
+		setExtraDurations((prevDurations) => [...prevDurations, duration]);
+	const removeTieDuration = (index: number) =>
+		setExtraDurations((prevDurations) => prevDurations.filter((_, i) => i !== index));
 	return {
 		dur,
 		dotted,
 		setDur,
 		toggleDot: () => setDotted((d) => !d),
+		durations,
+		addTieDuration,
+		removeTieDuration,
 		staff,
 		setStaff,
 		addRest,
@@ -112,18 +136,28 @@ export const ScoreEditor: React.FC<Props> = ({ keySig, onChange, resetSignal }) 
 		setCurrentQuestion(q);
 		onChange(q, full);
 	};
-	const { dur, dotted, setDur, toggleDot, staff, setStaff, addRest } = useStepCtrl(
-		keySig,
-		resetSignal,
-		localOnChange,
-	);
+	const {
+		dur,
+		dotted,
+		durations,
+		setDur,
+		toggleDot,
+		addTieDuration,
+		removeTieDuration,
+		staff,
+		setStaff,
+		addRest,
+	} = useStepCtrl(keySig, resetSignal, localOnChange);
 	return (
 		<div className="flex flex-col items-center gap-4">
 			<ScoreToolbar
 				dur={dur}
 				dotted={dotted}
+				durations={durations}
 				setDur={setDur}
 				toggleDot={toggleDot}
+				addTieDuration={addTieDuration}
+				removeTieDuration={removeTieDuration}
 				staff={staff}
 				setStaff={setStaff}
 				addRest={addRest}
