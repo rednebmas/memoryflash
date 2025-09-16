@@ -4,7 +4,9 @@ import { MultiSheetQuestion } from '../types/MultiSheetCard';
 import { StaffEnum } from '../types/Cards';
 import { Note } from 'tonal';
 
-const makeQuestion = (stack: MultiSheetQuestion['voices'][number]['stack']): MultiSheetQuestion => ({
+const makeQuestion = (
+	stack: MultiSheetQuestion['voices'][number]['stack'],
+): MultiSheetQuestion => ({
 	key: 'C',
 	voices: [
 		{
@@ -60,7 +62,8 @@ describe('buildScoreTimeline', () => {
 		const cMidi = Note.midi('C4');
 		const eMidi = Note.midi('E4');
 		const gMidi = Note.midi('G4');
-		if (cMidi === null || eMidi === null || gMidi === null) throw new Error('Unexpected midi value');
+		if (cMidi === null || eMidi === null || gMidi === null)
+			throw new Error('Unexpected midi value');
 		const cEvent = timeline.events.find((e) => e.midi === cMidi);
 		const eEvent = timeline.events.find((e) => e.midi === eMidi);
 		const gEvent = timeline.events.find((e) => e.midi === gMidi);

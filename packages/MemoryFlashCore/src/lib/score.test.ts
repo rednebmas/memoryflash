@@ -36,7 +36,8 @@ describe('Score', () => {
 		expect(trebleEvents[0].type).to.equal('note');
 		expect(trebleEvents[1].type).to.equal('note');
 		if (trebleEvents[0].type === 'note') expect(trebleEvents[0].tie?.toNext).to.deep.equal([0]);
-		if (trebleEvents[1].type === 'note') expect(trebleEvents[1].tie?.fromPrevious).to.deep.equal([0]);
+		if (trebleEvents[1].type === 'note')
+			expect(trebleEvents[1].tie?.fromPrevious).to.deep.equal([0]);
 		const question = scoreToQuestion(s, 'C');
 		const stack = question.voices[0].stack;
 		expect(stack[0].tie?.toNext).to.deep.equal([0]);
