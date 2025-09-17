@@ -25,7 +25,7 @@ import Timer from './Timer';
 import useWindowResize from './useWindowResize';
 import { AccountNavButton } from '../../components/navigation/AccountNavButton';
 import { IS_TEST_ENV } from '../../utils/constants';
-import { useIsCardOwner } from '../../utils/useIsCardOwner';
+import { isCardOwner } from '../../utils/useIsCardOwner';
 
 export const StudyScreen = () => {
 	const dispatch = useAppDispatch();
@@ -164,13 +164,13 @@ export const StudyScreen = () => {
 					}}
 				>
 					{cards.map((card, i) => {
-						const isOwner = useIsCardOwner(card);
+						const isOwner = isCardOwner(card, user);
 						const isActive = i === index;
 						return (
 							<FlashCard
 								key={card._id + i}
 								ref={(el) => (cardRefs.current[i] = el!)}
-								placement={isActive ? 'cur' : i < index ? 'answered' : 'scheduled'}
+							placement={isActive ? 'cur' : i < index ? 'answered' : 'scheduled'}
 								card={card}
 								className={`card-shadow-2 ${cardOpactity(i)}`}
 								opacity={cardOpactity(i)}
