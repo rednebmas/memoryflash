@@ -98,7 +98,16 @@ function useStepCtrl(keySig: string, resetSignal: number, notify: ScoreChangeHan
 		notify(nextQuestion, isFull(displayScore));
 	}, [durations, keySig, notify]);
 
+	const emitRef = useRef(emit);
+	useEffect(() => {
+		emitRef.current = emit;
+	}, [emit]);
+
 	const applyDur = useCallback(() => ctrlRef.current.setDuration(durations), [durations]);
+	const applyDurRef = useRef(applyDur);
+	useEffect(() => {
+		applyDurRef.current = applyDur;
+	}, [applyDur]);
 
 	useEffect(() => {
 		if (!shallowEqual(prev.current, midi)) {
@@ -119,12 +128,12 @@ function useStepCtrl(keySig: string, resetSignal: number, notify: ScoreChangeHan
 
 	useEffect(() => {
 		ctrlRef.current = new StepTimeController();
-		applyDur();
+		applyDurRef.current();
 		ctrlRef.current.setStaff(staffRef.current);
 		maxChord.current = [];
 		prev.current = [];
-		emit();
-	}, [applyDur, emit, keySig, resetSignal]);
+		emitRef.current();
+	}, [resetSignal]);
 
 	useEffect(() => {
 		applyDur();

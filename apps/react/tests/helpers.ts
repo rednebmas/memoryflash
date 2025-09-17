@@ -1,11 +1,14 @@
-import { test as base, expect, Page } from '@playwright/test';
+import { test as base, expect, Page, Locator } from '@playwright/test';
 
 export const screenshotOpts = { maxDiffPixels: 32 };
 
 // If the font does/doesn't load can cause small differences making tests more flaky
 const blockFonts = process.env.BLOCK_REMOTE_FONTS === 'true';
 
-export const test = base.extend<{ page: Page }>({
+export const test = base.extend<{
+	page: Page;
+	getButton: (name: string, options?: { exact?: boolean }) => Locator;
+}>({
 	page: async ({ page }, use) => {
 		const errors: string[] = [];
 		page.on('pageerror', (err) => errors.push(err.message));
@@ -31,6 +34,11 @@ export const test = base.extend<{ page: Page }>({
 		await use(page);
 
 		expect(errors).toEqual([]);
+	},
+	getButton: async ({ page }, use) => {
+		await use((name: string, options: { exact?: boolean } = {}) =>
+			page.getByRole('button', { name, exact: true, ...options }),
+		);
 	},
 });
 
