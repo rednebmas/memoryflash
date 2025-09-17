@@ -10,7 +10,11 @@ import {
 	createDeck,
 } from './helpers';
 
-test('Create custom deck, add notation and text cards, then study', async ({ page, getButton, clickButton }) => {
+test('Create custom deck, add notation and text cards, then study', async ({
+	page,
+	getButton,
+	clickButton,
+}) => {
 	await initDeterministicEnv(page);
 	await seedTestData(page);
 	await uiLogin(page, 't@example.com', 'Testing123!');
