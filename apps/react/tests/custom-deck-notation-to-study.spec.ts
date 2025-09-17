@@ -19,17 +19,49 @@ test('Create custom deck, add notation and text cards, then study', async ({ pag
 	const deckId = await createDeck(page, courseId, 'My Deck');
 	await page.waitForURL(new RegExp(`/study/${deckId}/notation`));
 
+	type StaffStep = { notes: number[]; staff: 'bass' | 'treble' | 'rest' };
+	const splitStaffEvents = (events: number[][]): StaffStep[] =>
+		events.flatMap((step) => {
+			if (!step.length) return [{ notes: step, staff: 'rest' }];
+			const bass = step.filter((note) => note < 60);
+			const treble = step.filter((note) => note >= 60);
+			const result: StaffStep[] = [];
+			if (bass.length) result.push({ notes: bass, staff: 'bass' });
+			if (treble.length) result.push({ notes: treble, staff: 'treble' });
+			return result.length ? result : [{ notes: [], staff: 'rest' }];
+		});
+
+	const setStaff = async (staff: 'bass' | 'treble') => {
+		await page.getByRole('button', { name: staff === 'bass' ? 'Bass' : 'Treble' }).click();
+	};
+
+	const playEvents = async (events: number[][], prefix?: string, url?: string) => {
+		const expanded = splitStaffEvents(events);
+		if (!expanded.length) return;
+		const steps = expanded.map((step) => step.notes);
+		const findNextStaff = (index: number) =>
+			expanded
+				.slice(index + 1)
+				.find((step) => step.staff === 'bass' || step.staff === 'treble')?.staff ?? null;
+		let current =
+			expanded.find((step) => step.staff === 'bass' || step.staff === 'treble')?.staff ??
+			null;
+		if (current) await setStaff(current);
+		await runRecorderEvents(page, url, steps, prefix, async (index) => {
+			const next = findNextStaff(index);
+			if (next && next !== current) {
+				await setStaff(next);
+				current = next;
+			}
+		});
+	};
+
 	// Input a full measure with shuffled order per chord
-	await runRecorderEvents(page, `/study/${deckId}/notation`, [
-		[72, 55, 45, 52, 48],
-		[],
-		[71, 69],
-		[],
-		[67],
-		[],
-		[64],
-		[],
-	]);
+	await playEvents(
+		[[72, 55, 45, 52, 48], [], [71, 69], [], [67], [], [64], []],
+		undefined,
+		`/study/${deckId}/notation`,
+	);
 
 	const [addResp] = await Promise.all([
 		page.waitForResponse(
@@ -45,16 +77,7 @@ test('Create custom deck, add notation and text cards, then study', async ({ pag
 	await page.getByRole('menuitem', { name: 'Text Prompt' }).click();
 	const promptText = 'Test Prompt';
 	await page.fill('#text-prompt', promptText);
-	await runRecorderEvents(page, undefined, [
-		[72, 55, 45, 52, 48],
-		[],
-		[71, 69],
-		[],
-		[67],
-		[],
-		[64],
-		[],
-	]);
+	await playEvents([[72, 55, 45, 52, 48], [], [71, 69], [], [67], [], [64], []]);
 	const [addResp2] = await Promise.all([
 		page.waitForResponse(
 			(r) => r.url().includes(`/decks/${deckId}/cards`) && r.request().method() === 'POST',
@@ -97,9 +120,7 @@ test('Create custom deck, add notation and text cards, then study', async ({ pag
 	// Wait for the page to load
 	await page.locator('.card-container').first().waitFor();
 
-	await runRecorderEvents(
-		page,
-		undefined,
+	await playEvents(
 		[[72, 55, 45, 52, 48], [], [71, 69], [], [67], [], [64]],
 		'custom-deck-notation-to-study-midi-step',
 	);
@@ -120,9 +141,7 @@ test('Create custom deck, add notation and text cards, then study', async ({ pag
 	// Go back to study and answer the remaining text-based card
 	await page.goto(`/study/${deckId}`);
 	await page.locator('.card-container').first().waitFor();
-	await runRecorderEvents(
-		page,
-		undefined,
+	await playEvents(
 		[[72, 55, 45, 52, 48], [], [71, 69], [], [67], [], [64]],
 		'custom-deck-text-to-study-midi-step',
 	);

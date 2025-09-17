@@ -21,13 +21,11 @@ const PreviewCard: React.FC<PreviewCardProps> = ({ notation, total, showText, te
 );
 
 interface NotationPreviewListProps {
-	previews: any[];
+	previews: MultiSheetQuestion[];
 	cardType?: 'Sheet Music' | 'Text Prompt';
 	textPrompt?: string;
 	previewTextCard?: boolean;
 	keySig: string;
-	resetSignal: number;
-	onChange: (q: MultiSheetQuestion, full: boolean) => void;
 }
 
 export const NotationPreviewList: React.FC<NotationPreviewListProps> = ({
@@ -36,8 +34,6 @@ export const NotationPreviewList: React.FC<NotationPreviewListProps> = ({
 	textPrompt,
 	previewTextCard,
 	keySig,
-	resetSignal,
-	onChange,
 }) => {
 	const base = previews.find((p) => p.key === keySig);
 	const others = previews.filter((p) => p.key !== keySig);
@@ -46,9 +42,7 @@ export const NotationPreviewList: React.FC<NotationPreviewListProps> = ({
 	return (
 		<div className="flex flex-col items-center gap-5">
 			<PreviewCard
-				notation={
-					<ScoreEditor keySig={keySig} resetSignal={resetSignal} onChange={onChange} />
-				}
+				notation={<ScoreEditor />}
 				total={base?.voices[0].stack.length ?? 0}
 				showText={showText}
 				text={prompt}
