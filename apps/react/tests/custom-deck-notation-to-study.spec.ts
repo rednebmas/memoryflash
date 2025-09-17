@@ -10,7 +10,7 @@ import {
 	createDeck,
 } from './helpers';
 
-test('Create custom deck, add notation and text cards, then study', async ({ page }) => {
+test('Create custom deck, add notation and text cards, then study', async ({ page, getButton, clickButton }) => {
 	await initDeterministicEnv(page);
 	await seedTestData(page);
 	await uiLogin(page, 't@example.com', 'Testing123!');
@@ -32,7 +32,7 @@ test('Create custom deck, add notation and text cards, then study', async ({ pag
 		});
 
 	const setStaff = async (staff: 'bass' | 'treble') => {
-		await page.getByRole('button', { name: staff === 'bass' ? 'Bass' : 'Treble' }).click();
+		await clickButton(staff === 'bass' ? 'Bass' : 'Treble');
 	};
 
 	const playEvents = async (events: number[][], prefix?: string, url?: string) => {
@@ -46,10 +46,10 @@ test('Create custom deck, add notation and text cards, then study', async ({ pag
 		let current =
 			expanded.find((step) => step.staff === 'bass' || step.staff === 'treble')?.staff ??
 			null;
-		if (current) await setStaff(current);
+		if (current && current !== 'rest') await setStaff(current);
 		await runRecorderEvents(page, url, steps, prefix, async (index) => {
 			const next = findNextStaff(index);
-			if (next && next !== current) {
+			if (next && next !== current && next !== 'rest') {
 				await setStaff(next);
 				current = next;
 			}
@@ -67,12 +67,12 @@ test('Create custom deck, add notation and text cards, then study', async ({ pag
 		page.waitForResponse(
 			(r) => r.url().includes(`/decks/${deckId}/cards`) && r.request().method() === 'POST',
 		),
-		page.getByRole('button', { name: 'Add Card' }).click(),
+		clickButton('Add Card'),
 	]);
 	expect(addResp.ok()).toBeTruthy();
 
 	// Add a text-based flashcard
-	await page.getByRole('button', { name: 'Reset' }).click();
+	await clickButton('Reset');
 	await page.locator('button:has-text("Sheet Music")').click();
 	await page.getByRole('menuitem', { name: 'Text Prompt' }).click();
 	const promptText = 'Test Prompt';
@@ -82,7 +82,7 @@ test('Create custom deck, add notation and text cards, then study', async ({ pag
 		page.waitForResponse(
 			(r) => r.url().includes(`/decks/${deckId}/cards`) && r.request().method() === 'POST',
 		),
-		page.getByRole('button', { name: 'Add Card' }).click(),
+		clickButton('Add Card'),
 	]);
 	expect(addResp2.ok()).toBeTruthy();
 
@@ -104,7 +104,7 @@ test('Create custom deck, add notation and text cards, then study', async ({ pag
 		.locator('a[href*="/edit/"]')
 		.click();
 	await page.waitForURL(new RegExp(`/study/${deckId}/edit/`));
-	await expect(page.getByRole('button', { name: 'Text Prompt' })).toBeVisible();
+	await expect(await getButton('Text Prompt')).toBeVisible();
 	await expect(page.locator('#text-prompt')).toHaveValue(promptText);
 	await page.evaluate(() => {
 		window.scrollTo(0, 0);
@@ -133,7 +133,7 @@ test('Create custom deck, add notation and text cards, then study', async ({ pag
 		page.waitForResponse(
 			(r) => r.url().includes('/cards/') && r.request().method() === 'DELETE',
 		),
-		page.getByRole('button', { name: 'Delete' }).click(),
+		clickButton('Delete'),
 	]);
 	expect(deleteResp3.ok()).toBeTruthy();
 	await expect(page.locator('.card-container')).toHaveCount(1);

@@ -8,6 +8,7 @@ const blockFonts = process.env.BLOCK_REMOTE_FONTS === 'true';
 export const test = base.extend<{
 	page: Page;
 	getButton: (name: string, options?: { exact?: boolean }) => Locator;
+	clickButton: (name: string, options?: { exact?: boolean }) => Promise<void>;
 }>({
 	page: async ({ page }, use) => {
 		const errors: string[] = [];
@@ -39,6 +40,11 @@ export const test = base.extend<{
 		await use((name: string, options: { exact?: boolean } = {}) =>
 			page.getByRole('button', { name, exact: true, ...options }),
 		);
+	},
+	clickButton: async ({ getButton }, use) => {
+		await use(async (name: string, options: { exact?: boolean } = {}) => {
+			await getButton(name, options).click();
+		});
 	},
 });
 

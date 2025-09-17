@@ -18,7 +18,7 @@ const fm = [...fmBass, ...fmTreble];
 const a = [...aBass, ...aTreble];
 const notationEvents = [fmBass, fmTreble, fmBass, fmTreble, aBass, aTreble, aBass, aTreble];
 
-test('Study cross-clef tied chord', async ({ page, getButton }) => {
+test('Study cross-clef tied chord', async ({ page, clickButton }) => {
 	await initDeterministicEnv(page);
 	await seedTestData(page);
 	await uiLogin(page, 't@example.com', 'Testing123!');
@@ -28,8 +28,8 @@ test('Study cross-clef tied chord', async ({ page, getButton }) => {
 	await page.getByLabel('Key').selectOption('E');
 	await page.getByLabel('Count').fill('1');
 
-	await getButton('h').click();
-	await getButton('+8').click();
+	await clickButton('h');
+	await clickButton('+8');
 	await runRecorderEvents(
 		page,
 		undefined,
@@ -37,15 +37,15 @@ test('Study cross-clef tied chord', async ({ page, getButton }) => {
 		'custom-deck-notation-cross-clef-tie-treble-notation-input',
 		async (index) => {
 			if (index == 0) {
-				await getButton('q').click();
-				await getButton('+8').click();
+				await clickButton('q');
+				await clickButton('+8');
 			}
 		},
 	);
 
-	await getButton('h').click();
-	await getButton('+8').click();
-	await getButton('Bass').click();
+	await clickButton('h');
+	await clickButton('+8');
+	await clickButton('Bass');
 
 	await runRecorderEvents(
 		page,
@@ -54,13 +54,13 @@ test('Study cross-clef tied chord', async ({ page, getButton }) => {
 		'custom-deck-notation-cross-clef-tie-bass-notation-input',
 		async (index) => {
 			if (index == 0) {
-				await getButton('q').click();
-				await getButton('+8').click();
+				await clickButton('q');
+				await clickButton('+8');
 			}
 		},
 	);
 
-	await getButton('Add Card').click();
+	await clickButton('Add Card');
 	await page.goto(`/study/${deckId}`);
 	await page.locator('.card-container').first().waitFor();
 	await runRecorderEvents(page, undefined, [fm, a], 'custom-deck-notation-cross-clef-tie-study');
