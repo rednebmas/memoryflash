@@ -1,7 +1,6 @@
 import {
 	test,
 	expect,
-	screenshotOpts,
 	uiLogin,
 	seedTestData,
 	initDeterministicEnv,
@@ -16,7 +15,6 @@ const aBass = [57];
 const aTreble = [64, 69, 73];
 const fm = [...fmBass, ...fmTreble];
 const a = [...aBass, ...aTreble];
-const notationEvents = [fmBass, fmTreble, fmBass, fmTreble, aBass, aTreble, aBass, aTreble];
 
 test('Study cross-clef tied chord', async ({ page, clickButton }) => {
 	await initDeterministicEnv(page);
