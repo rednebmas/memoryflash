@@ -1,6 +1,7 @@
 import {
 	test,
 	expect,
+	screenshotOpts,
 	uiLogin,
 	seedTestData,
 	initDeterministicEnv,
@@ -9,9 +10,13 @@ import {
 	createDeck,
 } from './helpers';
 
-const fm = [54, 66, 69, 73];
-const a = [57, 64, 69, 73];
-const events = [fm, fm, a, a];
+const fmBass = [54];
+const fmTreble = [66, 69, 73];
+const aBass = [57];
+const aTreble = [64, 69, 73];
+const fm = [...fmBass, ...fmTreble];
+const a = [...aBass, ...aTreble];
+const notationEvents = [fmBass, fmTreble, fmBass, fmTreble, aBass, aTreble, aBass, aTreble];
 
 test('Study cross-clef tied chord', async ({ page }) => {
 	await initDeterministicEnv(page);
@@ -22,29 +27,30 @@ test('Study cross-clef tied chord', async ({ page }) => {
 	await page.waitForURL(new RegExp(`/study/${deckId}/notation`));
 	await page.getByLabel('Key').selectOption('E');
 	await page.getByLabel('Count').fill('1');
-	await page.getByLabel('Treble').selectOption('h');
-	await page.getByLabel('Bass').selectOption('h');
-	await runRecorderEvents(
-		page,
-		undefined,
-		events,
-		'custom-deck-notation-cross-clef-tie-notation-input',
-		async (index) => {
-			if (index === 0) {
-				// After first fm chord, change to 8ths for second fm
-				await page.getByLabel('Treble').selectOption('8');
-				await page.getByLabel('Bass').selectOption('8');
-			} else if (index === 1) {
-				// After second fm chord, change to quarters for first a
-				await page.getByLabel('Treble').selectOption('q');
-				await page.getByLabel('Bass').selectOption('q');
-			} else if (index === 2) {
-				// After first a chord, change back to 8ths for second a
-				await page.getByLabel('Treble').selectOption('8');
-				await page.getByLabel('Bass').selectOption('8');
-			}
-		},
-	);
+	await page.getByRole('button', { name: 'h' }).click();
+	await page.getByRole('button', { name: 'Bass' }).click();
+	const root = page.locator('#root');
+	await runRecorderEvents(page, undefined, notationEvents, undefined, async (index) => {
+		if (index % 2 === 0) {
+			await page.getByRole('button', { name: 'Treble' }).click();
+			return;
+		}
+		const chord = (index + 1) / 2;
+		await expect(root).toHaveScreenshot(
+			`custom-deck-notation-cross-clef-tie-notation-input-${chord}.png`,
+			screenshotOpts,
+		);
+		if (chord === 1) {
+			await page.getByRole('button', { name: '8' }).click();
+		} else if (chord === 2) {
+			await page.getByRole('button', { name: 'q' }).click();
+		} else if (chord === 3) {
+			await page.getByRole('button', { name: '8' }).click();
+		}
+		if (index < notationEvents.length - 1) {
+			await page.getByRole('button', { name: 'Bass' }).click();
+		}
+	});
 
 	await page.getByRole('button', { name: 'Add Card' }).click();
 	await page.goto(`/study/${deckId}`);

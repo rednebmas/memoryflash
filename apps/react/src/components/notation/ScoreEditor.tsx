@@ -1,4 +1,12 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+	createContext,
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import { shallowEqual } from 'react-redux';
 import { MusicNotation } from '../MusicNotation';
 import { StepTimeController } from 'MemoryFlashCore/src/lib/stepTimeController';
@@ -6,18 +14,34 @@ import { scoreToQuestion } from 'MemoryFlashCore/src/lib/scoreBuilder';
 import { Duration, BaseDuration } from 'MemoryFlashCore/src/lib/measure';
 import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
 import { SheetNote, MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
-import { Staff } from 'MemoryFlashCore/src/lib/score';
+import { Staff, Score } from 'MemoryFlashCore/src/lib/score';
 import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { Midi } from 'tonal';
 import { majorKey } from '@tonaljs/key';
-import { ScoreToolbar } from './ScoreToolbar';
-import { Score } from 'MemoryFlashCore/src/lib/score';
 
-interface Props {
-	keySig: string;
-	onChange: (q: MultiSheetQuestion, full: boolean) => void;
-	resetSignal: number;
+type ScoreChangeHandler = (q: MultiSheetQuestion, full: boolean) => void;
+
+interface ScoreEditorContextValue {
+	dur: BaseDuration;
+	dotted: boolean;
+	durations: Duration[];
+	setDur: (d: BaseDuration) => void;
+	toggleDot: () => void;
+	addTieDuration: (d: Duration) => void;
+	removeTieDuration: (index: number) => void;
+	staff: Staff;
+	setStaff: (s: Staff) => void;
+	addRest: () => void;
+	question: MultiSheetQuestion;
 }
+
+const ScoreEditorContext = createContext<ScoreEditorContextValue | null>(null);
+
+export const useScoreEditor = () => {
+	const ctx = useContext(ScoreEditorContext);
+	if (!ctx) throw new Error('Score editor context is missing');
+	return ctx;
+};
 
 const toSheet = (m: number, key: string): SheetNote => {
 	const useSharps = majorKey(key).alteration > 0;
@@ -27,16 +51,13 @@ const toSheet = (m: number, key: string): SheetNote => {
 };
 
 const isFull = (score: Score) => {
-	const m = score.measures[score.measures.length - 1] ?? {};
-	const trebleBeat = m[StaffEnum.Treble]?.voices[0]?.beat ?? 0;
-	const bassBeat = m[StaffEnum.Bass]?.voices[0]?.beat ?? 0;
+	const measure = score.measures[score.measures.length - 1] ?? {};
+	const trebleBeat = measure[StaffEnum.Treble]?.voices[0]?.beat ?? 0;
+	const bassBeat = measure[StaffEnum.Bass]?.voices[0]?.beat ?? 0;
 	return trebleBeat === score.beatsPerMeasure && bassBeat === score.beatsPerMeasure;
 };
-function useStepCtrl(
-	keySig: string,
-	resetSignal: number,
-	onChange: (q: MultiSheetQuestion, full: boolean) => void,
-) {
+
+function useStepCtrl(keySig: string, resetSignal: number, notify: ScoreChangeHandler) {
 	const ctrlRef = useRef(new StepTimeController());
 	const [dur, setDurState] = useState<BaseDuration>('q');
 	const [dotted, setDotted] = useState(false);
@@ -45,11 +66,14 @@ function useStepCtrl(
 		const base = (dotted ? `${dur}d` : dur) as Duration;
 		return [base, ...extraDurations];
 	}, [dur, dotted, extraDurations]);
-	const [staff, setStaff] = useState<Staff>(StaffEnum.Treble);
+	const [staffState, setStaffState] = useState<Staff>(StaffEnum.Treble);
+	const staffRef = useRef<Staff>(StaffEnum.Treble);
 	const midi = useAppSelector((s) => s.midi.notes.map((n) => n.number), shallowEqual);
 	const prev = useRef<number[]>([]);
 	const maxChord = useRef<number[]>([]);
-	const emit = () => {
+	const [question, setQuestion] = useState(() => scoreToQuestion(new Score(), keySig));
+
+	const emit = useCallback(() => {
 		const ctrl = ctrlRef.current;
 		let displayScore = ctrl.score;
 		if (maxChord.current.length > 0) {
@@ -69,74 +93,76 @@ function useStepCtrl(
 				displayScore.addNote(ctrl.staff, sheetNotes, duration, ctrl.voice, tie);
 			});
 		}
-		onChange(scoreToQuestion(displayScore, keySig), isFull(displayScore));
-	};
-	const applyDur = () => ctrlRef.current.setDuration(durations);
+		const nextQuestion = scoreToQuestion(displayScore, keySig);
+		setQuestion(nextQuestion);
+		notify(nextQuestion, isFull(displayScore));
+	}, [durations, keySig, notify]);
+
+	const applyDur = useCallback(() => ctrlRef.current.setDuration(durations), [durations]);
+
 	useEffect(() => {
 		if (!shallowEqual(prev.current, midi)) {
 			if (midi.length > 0) {
-				const currentSet = new Set(maxChord.current);
-				midi.forEach((m) => currentSet.add(m));
-				maxChord.current = Array.from(currentSet).sort((a, b) => a - b);
+				const set = new Set(maxChord.current);
+				midi.forEach((m) => set.add(m));
+				maxChord.current = Array.from(set).sort((a, b) => a - b);
 			}
 			if (midi.length === 0 && prev.current.length > 0) {
-				ctrlRef.current.input(maxChord.current.map((m) => toSheet(m, keySig)));
+				const sheetNotes = maxChord.current.map((m) => toSheet(m, keySig));
+				ctrlRef.current.input(sheetNotes);
 				maxChord.current = [];
 			}
 			prev.current = [...midi];
 			emit();
 		}
-	}, [midi, keySig]);
+	}, [emit, midi, keySig]);
+
 	useEffect(() => {
 		ctrlRef.current = new StepTimeController();
 		applyDur();
-		ctrlRef.current.setStaff(staff);
+		ctrlRef.current.setStaff(staffRef.current);
 		maxChord.current = [];
 		prev.current = [];
 		emit();
-	}, [resetSignal, keySig]);
+	}, [applyDur, emit, keySig, resetSignal]);
+
 	useEffect(() => {
 		applyDur();
 		emit();
-	}, [durations]);
-	useEffect(() => ctrlRef.current.setStaff(staff), [staff]);
-	const addRest = () => {
-		ctrlRef.current.input([]);
-		emit();
-	};
-	const setDur = (d: BaseDuration) => {
+	}, [applyDur, emit]);
+
+	useEffect(() => {
+		staffRef.current = staffState;
+		ctrlRef.current.setStaff(staffState);
+	}, [staffState]);
+
+	const setDur = useCallback((d: BaseDuration) => {
 		setDurState(d);
 		setDotted(false);
 		setExtraDurations([]);
-	};
-	const addTieDuration = (duration: Duration) =>
-		setExtraDurations((prevDurations) => [...prevDurations, duration]);
-	const removeTieDuration = (index: number) =>
-		setExtraDurations((prevDurations) => prevDurations.filter((_, i) => i !== index));
-	return {
-		dur,
-		dotted,
-		setDur,
-		toggleDot: () => setDotted((d) => !d),
-		durations,
-		addTieDuration,
-		removeTieDuration,
-		staff,
-		setStaff,
-		addRest,
-		score: ctrlRef.current.score,
-	};
-}
+	}, []);
 
-export const ScoreEditor: React.FC<Props> = ({ keySig, onChange, resetSignal }) => {
-	const [currentQuestion, setCurrentQuestion] = useState<MultiSheetQuestion>(
-		scoreToQuestion(new Score(), keySig),
+	const toggleDot = useCallback(() => setDotted((prevDot) => !prevDot), []);
+
+	const addTieDuration = useCallback(
+		(duration: Duration) => setExtraDurations((prevDurations) => [...prevDurations, duration]),
+		[],
 	);
-	const localOnChange = (q: MultiSheetQuestion, full: boolean) => {
-		setCurrentQuestion(q);
-		onChange(q, full);
-	};
-	const {
+
+	const removeTieDuration = useCallback(
+		(index: number) =>
+			setExtraDurations((prevDurations) => prevDurations.filter((_, i) => i !== index)),
+		[],
+	);
+
+	const setStaff = useCallback((s: Staff) => setStaffState(s), []);
+
+	const addRest = useCallback(() => {
+		ctrlRef.current.input([]);
+		emit();
+	}, [emit]);
+
+	return {
 		dur,
 		dotted,
 		durations,
@@ -144,25 +170,35 @@ export const ScoreEditor: React.FC<Props> = ({ keySig, onChange, resetSignal }) 
 		toggleDot,
 		addTieDuration,
 		removeTieDuration,
-		staff,
+		staff: staffState,
 		setStaff,
 		addRest,
-	} = useStepCtrl(keySig, resetSignal, localOnChange);
+		question,
+	};
+}
+
+interface ProviderProps {
+	keySig: string;
+	resetSignal: number;
+	onChange: ScoreChangeHandler;
+	children: React.ReactNode;
+}
+
+export const ScoreEditorProvider: React.FC<ProviderProps> = ({
+	keySig,
+	resetSignal,
+	onChange,
+	children,
+}) => {
+	const value = useStepCtrl(keySig, resetSignal, onChange);
+	return <ScoreEditorContext.Provider value={value}>{children}</ScoreEditorContext.Provider>;
+};
+
+export const ScoreEditor: React.FC = () => {
+	const { question } = useScoreEditor();
 	return (
 		<div className="flex flex-col items-center gap-4">
-			<ScoreToolbar
-				dur={dur}
-				dotted={dotted}
-				durations={durations}
-				setDur={setDur}
-				toggleDot={toggleDot}
-				addTieDuration={addTieDuration}
-				removeTieDuration={removeTieDuration}
-				staff={staff}
-				setStaff={setStaff}
-				addRest={addRest}
-			/>
-			<MusicNotation data={currentQuestion} />
+			<MusicNotation data={question} />
 		</div>
 	);
 };

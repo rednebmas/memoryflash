@@ -31,12 +31,7 @@ export const NotationSettings: React.FC<NotationSettingsProps> = ({ settings, on
 
 	return (
 		<div className="space-y-4">
-			<NoteSettings
-				keySig={settings.keySig}
-				trebleDur={settings.trebleDur}
-				bassDur={settings.bassDur}
-				onChange={update}
-			/>
+			<NoteSettings keySig={settings.keySig} onChange={update} />
 			<CardTypeOptions
 				cardType={settings.cardType}
 				textPrompt={settings.textPrompt}

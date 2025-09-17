@@ -1,10 +1,7 @@
-import { NoteDuration } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { majorKeys } from 'MemoryFlashCore/src/lib/notes';
 
 export interface NotationSettingsState {
 	keySig: string;
-	trebleDur: NoteDuration;
-	bassDur: NoteDuration;
 	lowest: string;
 	highest: string;
 	bars: number;
@@ -16,8 +13,6 @@ export interface NotationSettingsState {
 
 export const defaultSettings: NotationSettingsState = {
 	keySig: majorKeys[0],
-	trebleDur: 'q',
-	bassDur: 'q',
 	lowest: 'C3',
 	highest: 'C5',
 	bars: 1,

@@ -1,38 +1,26 @@
 import React from 'react';
 import { BaseDuration, Duration } from 'MemoryFlashCore/src/lib/measure';
 import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
-import { Staff } from 'MemoryFlashCore/src/lib/score';
-
-interface Props {
-	dur: BaseDuration;
-	dotted: boolean;
-	durations: Duration[];
-	setDur: (d: BaseDuration) => void;
-	toggleDot: () => void;
-	addTieDuration: (d: Duration) => void;
-	removeTieDuration: (index: number) => void;
-	staff: Staff;
-	setStaff: (s: Staff) => void;
-	addRest: () => void;
-}
+import { useScoreEditor } from './ScoreEditor';
 
 const baseDurations: BaseDuration[] = ['w', 'h', 'q', '8', '16'];
 const tieOptions: Duration[] = ['w', 'h', 'q', '8', '16', '32', '64'];
 
 const btn = 'border rounded flex items-center justify-center text-lg';
 
-export const ScoreToolbar: React.FC<Props> = ({
-	dur,
-	dotted,
-	durations,
-	setDur,
-	toggleDot,
-	addTieDuration,
-	removeTieDuration,
-	staff,
-	setStaff,
-	addRest,
-}) => {
+export const ScoreToolbar: React.FC = () => {
+	const {
+		dur,
+		dotted,
+		durations,
+		setDur,
+		toggleDot,
+		addTieDuration,
+		removeTieDuration,
+		staff,
+		setStaff,
+		addRest,
+	} = useScoreEditor();
 	const tiedDurations = durations.slice(1);
 	return (
 		<div className="flex flex-col gap-2">
@@ -59,13 +47,13 @@ export const ScoreToolbar: React.FC<Props> = ({
 					className={`${btn} px-3 h-10 ${staff === StaffEnum.Treble ? 'bg-gray-200' : ''}`}
 					onClick={() => setStaff(StaffEnum.Treble)}
 				>
-					treble
+					Treble
 				</button>
 				<button
 					className={`${btn} px-3 h-10 ${staff === StaffEnum.Bass ? 'bg-gray-200' : ''}`}
 					onClick={() => setStaff(StaffEnum.Bass)}
 				>
-					bass
+					Bass
 				</button>
 			</div>
 			<div className="flex flex-wrap items-center gap-2">

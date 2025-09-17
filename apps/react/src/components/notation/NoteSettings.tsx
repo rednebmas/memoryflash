@@ -1,26 +1,17 @@
 import React from 'react';
-import { Select, DurationSelect } from '../inputs';
+import { Select } from '../inputs';
 import { majorKeys } from 'MemoryFlashCore/src/lib/notes';
-import { NoteDuration } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { SettingsSection } from './SettingsSection';
+import { ScoreToolbar } from './ScoreToolbar';
 
 interface NoteSettingsProps {
 	keySig: string;
-	trebleDur: NoteDuration;
-	bassDur: NoteDuration;
-	onChange: (
-		changes: Partial<{ keySig: string; trebleDur: NoteDuration; bassDur: NoteDuration }>,
-	) => void;
+	onChange: (changes: Partial<{ keySig: string }>) => void;
 }
 
-export const NoteSettings: React.FC<NoteSettingsProps> = ({
-	keySig,
-	trebleDur,
-	bassDur,
-	onChange,
-}) => (
+export const NoteSettings: React.FC<NoteSettingsProps> = ({ keySig, onChange }) => (
 	<SettingsSection title="Note Settings">
-		<div className="flex gap-4">
+		<div className="space-y-4">
 			<label className="flex items-center gap-2">
 				Key
 				<Select value={keySig} onChange={(e) => onChange({ keySig: e.target.value })}>
@@ -29,20 +20,7 @@ export const NoteSettings: React.FC<NoteSettingsProps> = ({
 					))}
 				</Select>
 			</label>
-			<label className="flex items-center gap-2">
-				Treble
-				<DurationSelect
-					value={trebleDur}
-					onChange={(e) => onChange({ trebleDur: e.target.value as NoteDuration })}
-				/>
-			</label>
-			<label className="flex items-center gap-2">
-				Bass
-				<DurationSelect
-					value={bassDur}
-					onChange={(e) => onChange({ bassDur: e.target.value as NoteDuration })}
-				/>
-			</label>
+			<ScoreToolbar />
 		</div>
 	</SettingsSection>
 );
