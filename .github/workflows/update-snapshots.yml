@@ -32,6 +32,9 @@ jobs:
               working-directory: apps/react
               run: yarn test:screenshots:update
 
+            - name: Prune unused snapshots
+              run: yarn test:snapshots:prune
+
             - name: Commit and push updated snapshots
               env:
                   # expose the PAT for the push
@@ -39,7 +42,7 @@ jobs:
               run: |
                   git config user.name "github-actions[bot]"
                   git config user.email "github-actions[bot]@users.noreply.github.com"
-                  git add apps/react/tests/*-snapshots/* || true
+                  git add -A apps/react/tests/*-snapshots || true
                   git commit -m "chore: update Playwright screenshot snapshots" || echo "No changes to commit"
                   BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
                   echo "Pushing updates to branch: $BRANCH"
