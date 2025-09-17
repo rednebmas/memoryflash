@@ -28,6 +28,9 @@ jobs:
             - name: Install dependencies
               run: yarn install
 
+            - name: Prune existing Playwright snapshots
+              run: rm -rf apps/react/tests/*-snapshots
+
             - name: Update Playwright snapshots
               working-directory: apps/react
               run: yarn test:screenshots:update
