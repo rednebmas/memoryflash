@@ -170,7 +170,7 @@ export const StudyScreen = () => {
 							<FlashCard
 								key={card._id + i}
 								ref={(el) => (cardRefs.current[i] = el!)}
-							placement={isActive ? 'cur' : i < index ? 'answered' : 'scheduled'}
+								placement={isActive ? 'cur' : i < index ? 'answered' : 'scheduled'}
 								card={card}
 								className={`card-shadow-2 ${cardOpactity(i)}`}
 								opacity={cardOpactity(i)}
