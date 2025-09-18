@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import {
 	Stave,
 	StaveNote,
@@ -8,6 +8,8 @@ import {
 	Formatter,
 	Accidental,
 	Barline,
+	Beam,
+	Dot,
 	StaveTie,
 } from 'vexflow';
 import { majorKey, minorKey } from '@tonaljs/key';
@@ -17,6 +19,7 @@ import { durationBeats } from 'MemoryFlashCore/src/lib/measure';
 import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { Chord } from 'tonal';
 import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
+import { buildScoreTimeline } from 'MemoryFlashCore/src/lib/scoreTimeline';
 
 const VF = {
 	Stave,
@@ -27,6 +30,8 @@ const VF = {
 	Formatter,
 	Accidental,
 	Barline,
+	Beam,
+	Dot,
 	StaveTie,
 };
 
@@ -69,6 +74,7 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 }) => {
 	const divRef = useRef<HTMLDivElement>(null);
 	const multiPartCardIndex = useAppSelector((s) => s.scheduler.multiPartCardIndex);
+	const timeline = useMemo(() => buildScoreTimeline(data), [data]);
 
 	useEffect(() => {
 		const div = divRef.current;
@@ -96,9 +102,6 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 				: majorKey(data.key).scale,
 		);
 
-		const lastNotes = data.voices.map(() => null as StaveNote | null);
-		const lastSns = data.voices.map(() => null as Voice['stack'][0] | null);
-
 		for (let bar = 0; bar < bars; bar++) {
 			const x = bar * BAR_WIDTH;
 			const isFirstBar = bar === 0;
@@ -116,7 +119,16 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 				// Notes/rests for this bar & voice
 				const vIdx = data.voices.findIndex((v) => v.staff === staffType);
 				const stack = measuresByVoice[vIdx][bar] || [];
-				const notes = stack.map(({ sn, idx }) => {
+				let beat = 0;
+				const notes: StaveNote[] = [];
+				const tieSpecs: Array<{
+					first: StaveNote;
+					last: StaveNote;
+					firstIndices: number[];
+					lastIndices: number[];
+				}> = [];
+				let pendingTie: { note: StaveNote; indices: number[] } | null = null;
+				stack.forEach(({ sn }) => {
 					const isRest = sn.rest || sn.notes.length === 0;
 					const restKey = staffType === StaffEnum.Bass ? 'd/3' : 'b/4';
 					const keys = isRest
@@ -142,76 +154,49 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 						});
 					}
 
+					if (sn.duration.includes('d')) VF.Dot.buildAndAttach([note], { all: true });
 					if (allNotesClassName) note.addClass(allNotesClassName);
-					if (idx < multiPartCardIndex && highlightClassName)
+					if (beat < timeline.beats[multiPartCardIndex] && highlightClassName)
 						note.addClass(highlightClassName);
 
-					return note;
-				});
-				// Determine ties for consecutive identical notes
-				const ties = [] as { first: StaveNote; last: StaveNote; indices: number[] }[];
-
-				const prevSn = lastSns[vIdx];
-				const prevNote = lastNotes[vIdx];
-				const firstSn = stack[0]?.sn;
-				if (
-					prevSn &&
-					prevNote &&
-					firstSn &&
-					!prevSn.rest &&
-					!firstSn.rest &&
-					prevSn.notes.length === firstSn.notes.length &&
-					prevSn.notes.every(
-						(n, idx2) =>
-							n.name === firstSn.notes[idx2].name &&
-							n.octave === firstSn.notes[idx2].octave,
-					)
-				) {
-					ties.push({
-						first: prevNote,
-						last: notes[0],
-						indices: firstSn.notes.map((_, idx2) => idx2),
-					});
-				}
-				for (let i = 0; i < stack.length - 1; i++) {
-					const a = stack[i].sn;
-					const b = stack[i + 1].sn;
-					if (a.rest || b.rest) continue;
-					if (a.notes.length !== b.notes.length) continue;
-					const same = a.notes.every(
-						(n, idx2) =>
-							n.name === b.notes[idx2].name && n.octave === b.notes[idx2].octave,
-					);
-					if (same) {
-						ties.push({
-							first: notes[i],
-							last: notes[i + 1],
-							indices: a.notes.map((_, idx2) => idx2),
-						});
+					if (!isRest) {
+						const fromPrevious = sn.tie?.fromPrevious;
+						if (fromPrevious && fromPrevious.length && pendingTie) {
+							tieSpecs.push({
+								first: pendingTie.note,
+								last: note,
+								firstIndices: [...pendingTie.indices],
+								lastIndices: [...fromPrevious],
+							});
+						}
+						const toNext = sn.tie?.toNext;
+						pendingTie =
+							toNext && toNext.length ? { note, indices: [...toNext] } : null;
+					} else {
+						pendingTie = null;
 					}
-				}
 
-				// Space and draw the notes
+					notes.push(note);
+					beat += durationBeats[sn.duration];
+				});
+				const beams = VF.Beam.generateBeams(notes);
+
 				if (notes.length) {
 					VF.Formatter.FormatAndDraw(ctx, stave, notes);
-					ties.forEach((t) =>
+					beams.forEach((b) => b.setContext(ctx).draw());
+					tieSpecs.forEach((spec) =>
 						new VF.StaveTie({
-							first_note: t.first,
-							last_note: t.last,
-							first_indices: t.indices,
-							last_indices: t.indices,
+							first_note: spec.first,
+							last_note: spec.last,
+							first_indices: spec.firstIndices,
+							last_indices: spec.lastIndices,
 						})
 							.setContext(ctx)
 							.draw(),
 					);
-					lastSns[vIdx] = stack[stack.length - 1].sn;
-					lastNotes[vIdx] = notes[notes.length - 1];
-				} else {
-					lastSns[vIdx] = null;
-					lastNotes[vIdx] = null;
 				}
 
-				// --- CHORD TEXT (fixed): wrap in a Voice, format, then draw ---
+				// --- CHORD TEXT: wrap in a Voice, format, then draw ---
 				if (!hideChords && staffType === StaffEnum.Treble) {
 					const textNotes = (chordMeasures[bar] || []).map(({ sn }) => {
 						if (!sn.chordName) {

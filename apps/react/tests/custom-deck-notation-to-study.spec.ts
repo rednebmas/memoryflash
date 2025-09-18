@@ -10,7 +10,23 @@ import {
 	createDeck,
 } from './helpers';
 
-test('Create custom deck, add notation and text cards, then study', async ({ page }) => {
+const aMinor7Bass = [55, 45, 52, 48];
+
+const trebleRecordEvents = [[72], [71, 69], [67], [64]];
+const bassRecordEvents = [aMinor7Bass];
+
+const studyEvents = [
+	[72, ...aMinor7Bass],
+	trebleRecordEvents[1].reverse(),
+	trebleRecordEvents[2],
+	trebleRecordEvents[3],
+];
+
+test('Create custom deck, add notation and text cards, then study', async ({
+	page,
+	getButton,
+	clickButton,
+}) => {
 	await initDeterministicEnv(page);
 	await seedTestData(page);
 	await uiLogin(page, 't@example.com', 'Testing123!');
@@ -19,47 +35,41 @@ test('Create custom deck, add notation and text cards, then study', async ({ pag
 	const deckId = await createDeck(page, courseId, 'My Deck');
 	await page.waitForURL(new RegExp(`/study/${deckId}/notation`));
 
-	// Input a full measure with shuffled order per chord
-	await runRecorderEvents(page, `/study/${deckId}/notation`, [
-		[72, 55, 45, 52, 48],
-		[],
-		[71, 69],
-		[],
-		[67],
-		[],
-		[64],
-		[],
-	]);
+	// Record treble clef
+	await runRecorderEvents(page, `/study/${deckId}/notation`, trebleRecordEvents, undefined);
+	// Bass clef
+	await clickButton('Bass');
+	await clickButton('w');
+	await runRecorderEvents(page, undefined, bassRecordEvents, undefined);
 
 	const [addResp] = await Promise.all([
 		page.waitForResponse(
 			(r) => r.url().includes(`/decks/${deckId}/cards`) && r.request().method() === 'POST',
 		),
-		page.getByRole('button', { name: 'Add Card' }).click(),
+		clickButton('Add Card'),
 	]);
 	expect(addResp.ok()).toBeTruthy();
 
 	// Add a text-based flashcard
-	await page.getByRole('button', { name: 'Reset' }).click();
+	await clickButton('Reset');
 	await page.locator('button:has-text("Sheet Music")').click();
 	await page.getByRole('menuitem', { name: 'Text Prompt' }).click();
 	const promptText = 'Test Prompt';
 	await page.fill('#text-prompt', promptText);
-	await runRecorderEvents(page, undefined, [
-		[72, 55, 45, 52, 48],
-		[],
-		[71, 69],
-		[],
-		[67],
-		[],
-		[64],
-		[],
-	]);
+
+	// Record treble clef first
+	await clickButton('q');
+	await clickButton('Treble');
+	await runRecorderEvents(page, undefined, trebleRecordEvents);
+	// Switch to bass clef and record bass notes
+	await clickButton('Bass');
+	await clickButton('w');
+	await runRecorderEvents(page, undefined, bassRecordEvents);
 	const [addResp2] = await Promise.all([
 		page.waitForResponse(
 			(r) => r.url().includes(`/decks/${deckId}/cards`) && r.request().method() === 'POST',
 		),
-		page.getByRole('button', { name: 'Add Card' }).click(),
+		clickButton('Add Card'),
 	]);
 	expect(addResp2.ok()).toBeTruthy();
 
@@ -81,7 +91,7 @@ test('Create custom deck, add notation and text cards, then study', async ({ pag
 		.locator('a[href*="/edit/"]')
 		.click();
 	await page.waitForURL(new RegExp(`/study/${deckId}/edit/`));
-	await expect(page.getByRole('button', { name: 'Text Prompt' })).toBeVisible();
+	await expect(await getButton('Text Prompt')).toBeVisible();
 	await expect(page.locator('#text-prompt')).toHaveValue(promptText);
 	await page.evaluate(() => {
 		window.scrollTo(0, 0);
@@ -100,7 +110,7 @@ test('Create custom deck, add notation and text cards, then study', async ({ pag
 	await runRecorderEvents(
 		page,
 		undefined,
-		[[72, 55, 45, 52, 48], [], [71, 69], [], [67], [], [64]],
+		studyEvents,
 		'custom-deck-notation-to-study-midi-step',
 	);
 
@@ -112,7 +122,7 @@ test('Create custom deck, add notation and text cards, then study', async ({ pag
 		page.waitForResponse(
 			(r) => r.url().includes('/cards/') && r.request().method() === 'DELETE',
 		),
-		page.getByRole('button', { name: 'Delete' }).click(),
+		clickButton('Delete'),
 	]);
 	expect(deleteResp3.ok()).toBeTruthy();
 	await expect(page.locator('.card-container')).toHaveCount(1);
@@ -120,12 +130,7 @@ test('Create custom deck, add notation and text cards, then study', async ({ pag
 	// Go back to study and answer the remaining text-based card
 	await page.goto(`/study/${deckId}`);
 	await page.locator('.card-container').first().waitFor();
-	await runRecorderEvents(
-		page,
-		undefined,
-		[[72, 55, 45, 52, 48], [], [71, 69], [], [67], [], [64]],
-		'custom-deck-text-to-study-midi-step',
-	);
+	await runRecorderEvents(page, undefined, studyEvents, 'custom-deck-text-to-study-midi-step');
 
 	// Cleanup any remaining routes to avoid teardown errors
 	await page.unrouteAll({ behavior: 'ignoreErrors' });

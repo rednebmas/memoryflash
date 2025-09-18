@@ -1,4 +1,10 @@
 import { BaseAnswer, CardTypeBase, CardTypeEnum, StaffEnum } from './Cards';
+import type { Duration } from '../lib/measure';
+
+export type NoteTie = {
+	toNext?: number[];
+	fromPrevious?: number[];
+};
 
 export type SheetNote = {
 	name: string; // Rest, C, Bb, D#, ...
@@ -10,9 +16,10 @@ export type Voice = {
 };
 export type StackedNotes = {
 	notes: SheetNote[];
-	duration: 'w' | 'h' | 'q' | '8' | '16' | '32' | '64';
+	duration: Duration;
 	chordName?: string;
 	rest?: boolean;
+	tie?: NoteTie;
 };
 
 export type NoteDuration = StackedNotes['duration'];

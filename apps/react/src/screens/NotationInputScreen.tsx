@@ -1,10 +1,7 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { shallowEqual } from 'react-redux';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Layout, Button } from '../components';
 import { BasicErrorCard } from '../components/ErrorCard';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
-import { MusicRecorder } from 'MemoryFlashCore/src/lib/MusicRecorder';
-import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
 import { questionsForAllMajorKeys } from 'MemoryFlashCore/src/lib/multiKeyTransposer';
 import { majorKeys } from 'MemoryFlashCore/src/lib/notes';
 import { addCardsToDeck } from 'MemoryFlashCore/src/redux/actions/add-cards-to-deck';
@@ -20,22 +17,24 @@ import {
 	defaultSettings,
 	NotationPreviewList,
 } from '../components/notation';
+import { ScoreEditorProvider } from '../components/notation/ScoreEditor';
+import { MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
+import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
 
 export const NotationInputScreen = () => {
 	const [settings, setSettings] = useState<NotationSettingsState>(defaultSettings);
 	const [resetCount, setResetCount] = useState(0);
+	const [question, setQuestion] = useState<MultiSheetQuestion>({
+		key: settings.keySig,
+		voices: [{ staff: StaffEnum.Treble, stack: [{ notes: [], duration: 'w', rest: true }] }],
+	});
+	const [complete, setComplete] = useState(false);
 	const dispatch = useAppDispatch();
 	const { deckId } = useDeckIdPath();
 	const { cardId } = useParams();
 	const card = useAppSelector((state) => (cardId ? state.cards.entities[cardId] : undefined));
 	const { isLoading: isUpdating, error: updateError } = useNetworkState('updateCard');
 	const { isLoading: isAdding, error: addError } = useNetworkState('addCardsToDeck');
-	const recorderRef = useRef(new MusicRecorder('q', 'C4', 'q', defaultSettings.bars));
-	const midiNotes = useAppSelector(
-		(state) => state.midi.notes.map((n) => n.number),
-		shallowEqual,
-	);
-
 	useEffect(() => {
 		if (card && card.type === CardTypeEnum.MultiSheet) {
 			const text = card.question.presentationModes?.find((p) => p.id === 'Text Prompt');
@@ -51,36 +50,16 @@ export const NotationInputScreen = () => {
 			}));
 		}
 	}, [card]);
-	useEffect(() => {
-		recorderRef.current.updateDuration(settings.trebleDur, StaffEnum.Treble);
-	}, [settings.trebleDur]);
-	useEffect(() => {
-		recorderRef.current.updateDuration(settings.bassDur, StaffEnum.Bass);
-	}, [settings.bassDur]);
-	useEffect(() => {
-		recorderRef.current.setBars(settings.bars);
-		recorderRef.current.reset();
-	}, [settings.bars]);
-	const prevMidiNotesRef = useRef<number[]>([]);
-	const data = useMemo(() => {
-		if (!shallowEqual(prevMidiNotesRef.current, midiNotes)) {
-			recorderRef.current.addMidiNotes(midiNotes);
-			prevMidiNotesRef.current = [...midiNotes];
-		}
-		if (recorderRef.current.totalBeatsRecorded > 0) {
-			return recorderRef.current.buildQuestion(settings.keySig);
-		}
-		if (card && card.type === CardTypeEnum.MultiSheet) {
-			return card.question;
-		}
-		return recorderRef.current.buildQuestion(settings.keySig);
-	}, [midiNotes, settings.keySig, card, resetCount]);
-	const previewsAll = questionsForAllMajorKeys(data, settings.lowest, settings.highest);
+	const previewsAll = questionsForAllMajorKeys(question, settings.lowest, settings.highest);
 	const previews = previewsAll.filter((_, i) => settings.selected[i]);
+	const handleScoreChange = useCallback((q: MultiSheetQuestion, full: boolean) => {
+		setQuestion(q);
+		setComplete(full);
+	}, []);
 
 	const handleAdd = () => {
 		if (deckId) {
-			if (!recorderRef.current.hasFullMeasure()) return;
+			if (!complete) return;
 			let toAdd = previews;
 			if (settings.cardType === 'Text Prompt') {
 				toAdd = previews.map((q) => ({
@@ -106,8 +85,6 @@ export const NotationInputScreen = () => {
 	};
 
 	const handleReset = () => {
-		recorderRef.current.reset();
-		prevMidiNotesRef.current = [];
 		setResetCount((c) => c + 1);
 	};
 
@@ -115,34 +92,41 @@ export const NotationInputScreen = () => {
 
 	return (
 		<Layout subtitle="Notation Input">
-			<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-				<div>
-					<NotationSettings settings={settings} onChange={setSettings} />
-				</div>
-				<div className="flex flex-col justify-center items-center min-h-[400px] space-y-6">
-					<NotationPreviewList
-						previews={previews}
-						cardType={settings.cardType}
-						textPrompt={settings.textPrompt}
-						previewTextCard={settings.preview}
-					/>
-					<div className="w-full max-w-xs">
-						<div className="grid grid-cols-2 gap-3">
-							<Button onClick={handleReset} className="w-full">
-								Reset
-							</Button>
-							<Button
-								onClick={cardId ? handleUpdate : handleAdd}
-								disabled={!cardId && !recorderRef.current.hasFullMeasure()}
-								loading={cardId ? isUpdating : isAdding}
-								className="w-full"
-							>
-								{cardId ? 'Update Card' : 'Add Card'}
-							</Button>
+			<ScoreEditorProvider
+				keySig={settings.keySig}
+				resetSignal={resetCount}
+				onChange={handleScoreChange}
+			>
+				<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+					<div>
+						<NotationSettings settings={settings} onChange={setSettings} />
+					</div>
+					<div className="flex flex-col justify-center items-center min-h-[400px] space-y-6">
+						<NotationPreviewList
+							keySig={settings.keySig}
+							previews={previews}
+							cardType={settings.cardType}
+							textPrompt={settings.textPrompt}
+							previewTextCard={settings.preview}
+						/>
+						<div className="w-full max-w-xs">
+							<div className="grid grid-cols-2 gap-3">
+								<Button onClick={handleReset} className="w-full">
+									Reset
+								</Button>
+								<Button
+									onClick={cardId ? handleUpdate : handleAdd}
+									disabled={!cardId && !complete}
+									loading={cardId ? isUpdating : isAdding}
+									className="w-full"
+								>
+									{cardId ? 'Update Card' : 'Add Card'}
+								</Button>
+							</div>
 						</div>
 					</div>
 				</div>
-			</div>
+			</ScoreEditorProvider>
 			<BasicErrorCard error={error} />
 		</Layout>
 	);

@@ -1,86 +1,26 @@
-import { Note } from 'tonal';
 import useDeepCompareEffect from 'use-deep-compare-effect';
-import { recordAttempt } from 'MemoryFlashCore/src/redux/actions/record-attempt-action';
-import { midiActions } from 'MemoryFlashCore/src/redux/slices/midiSlice';
-import { schedulerActions } from 'MemoryFlashCore/src/redux/slices/schedulerSlice';
+import { useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { Card } from 'MemoryFlashCore/src/types/Cards';
 import { MultiSheetCard } from 'MemoryFlashCore/src/types/MultiSheetCard';
-import { filterNullOrUndefined } from 'MemoryFlashCore/src/lib/filterNullOrUndefined';
-import { useState } from 'react';
-import { computeTieSkipAdvance, notesForPartExact } from './tieUtils';
+import { buildScoreTimeline } from 'MemoryFlashCore/src/lib/scoreTimeline';
+import { ValidatorEngine } from 'MemoryFlashCore/src/lib/ValidatorEngine';
 
 export const ExactMultiAnswerValidator: React.FC<{ card: Card }> = ({ card: _card }) => {
 	const card = _card as MultiSheetCard;
-
 	const dispatch = useAppDispatch();
-	const onNotes = useAppSelector((state) => state.midi.notes);
-	const waitingUntilEmpty = useAppSelector((state) => state.midi.waitingUntilEmpty);
-	const multiPartCardIndex = useAppSelector((state) => state.scheduler.multiPartCardIndex);
-	const onNotesMidi = onNotes.map((note) => note.number);
-
-	const [wrongIndex, setWrongIndex] = useState(-1);
-
-	// Helper function to get MIDI notes for a specific part index
-	const getNotesForPart = (index: number) => notesForPartExact(card, index);
-
-	const answerPartNotesMidi = getNotesForPart(multiPartCardIndex);
-	const firstPartNotesMidi = getNotesForPart(0);
-
-	// Helper function to check if played notes match target notes (order-insensitive)
-	const areNotesMatching = (playedNotes: number[], targetNotes: number[]): boolean => {
-		return (
-			playedNotes.length === targetNotes.length &&
-			playedNotes.every((note) => targetNotes.includes(note))
-		);
-	};
-
+	const onNotes = useAppSelector((s) => s.midi.notes);
+	const waiting = useAppSelector((s) => s.midi.waitingUntilEmpty);
+	const index = useAppSelector((s) => s.scheduler.multiPartCardIndex);
+	const timeline = useMemo(() => buildScoreTimeline(card.question), [card.question]);
+	const engine = useMemo(() => new ValidatorEngine(timeline), [timeline]);
 	useDeepCompareEffect(() => {
-		if (waitingUntilEmpty) return;
-
-		// Allow restarting from the first index if the first part is played
-		if (
-			multiPartCardIndex != 0 &&
-			wrongIndex == multiPartCardIndex &&
-			areNotesMatching(onNotesMidi, firstPartNotesMidi)
-		) {
-			console.log('[scheduler] Restarting from the first part');
-			dispatch(schedulerActions.startFromBeginningOfCurrentCard());
-			setWrongIndex(-1);
-			return;
-		}
-
-		// Validate notes for the current part
-		if (!onNotesMidi.every((note) => answerPartNotesMidi.includes(note))) {
-			dispatch(recordAttempt(false));
-			setWrongIndex(multiPartCardIndex);
-			dispatch(
-				midiActions.addWrongNote(
-					onNotesMidi.find((note) => !answerPartNotesMidi.includes(note))!,
-				),
-			);
-			return;
-		}
-
-		// Check if the correct number of notes have been played
-		if (onNotesMidi.length === answerPartNotesMidi.length) {
-			dispatch(midiActions.waitUntilEmpty());
-			const { nextIndex, isCompleted } = computeTieSkipAdvance(
-				card,
-				multiPartCardIndex,
-				(idx) => getNotesForPart(idx),
-			);
-			if (isCompleted) {
-				console.log('Correct card!');
-				dispatch(recordAttempt(true));
-			} else {
-				// advance to nextIndex from current
-				const steps = nextIndex - multiPartCardIndex;
-				for (let i = 0; i < steps; i++)
-					dispatch(schedulerActions.incrementMultiPartCardIndex());
-			}
-		}
-	}, [onNotesMidi, answerPartNotesMidi, waitingUntilEmpty]);
-
+		engine.handle({
+			onNotes: onNotes.map((n) => n.number),
+			waiting,
+			index,
+			dispatch,
+		});
+	}, [onNotes]);
 	return null;
 };

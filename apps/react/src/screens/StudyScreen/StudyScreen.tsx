@@ -8,6 +8,7 @@ import { MidiInputsDropdown } from '../../components/MidiInputsDropdown';
 import { StudyScreenEmptyState } from './StudyScreenEmptyState';
 import { AnswerValidator } from '../../components/answer-validators/AnswerValidator';
 import { Keyboard } from '../../components/keyboard/KeyBoard';
+import { DebugValidator } from '../../components/DebugValidator';
 import { getDeck } from 'MemoryFlashCore/src/redux/actions/get-deck-action';
 import { schedule } from 'MemoryFlashCore/src/redux/actions/schedule-cards-action';
 import { selectActivePresentationMode } from 'MemoryFlashCore/src/redux/selectors/activePresentationModeSelector';
@@ -124,6 +125,8 @@ export const StudyScreen = () => {
 		}, 1000 / 30);
 	}, [cards.length, index, activePresentationMode]);
 
+	// console.log(JSON.stringify(cards, undefined, 4));
+
 	return (
 		<Layout
 			back={`/course/${deck?.courseId}`}
@@ -174,6 +177,9 @@ export const StudyScreen = () => {
 			</div>
 			<div>
 				<QuestionPresentationModePills card={cards[index]} />
+				{cards[index] && cards[index].type === 'MultiSheet' && (
+					<DebugValidator card={cards[index] as any} />
+				)}
 				<Keyboard />
 				{!IS_TEST_ENV && (
 					<div className="text-center text-xs">
