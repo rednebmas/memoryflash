@@ -42,7 +42,7 @@ jobs:
               run: |
                   git config user.name "github-actions[bot]"
                   git config user.email "github-actions[bot]@users.noreply.github.com"
-                  git add apps/react/tests/*-snapshots/* || true
+                  git add -A apps/react/tests || true
                   git commit -m "chore: update Playwright screenshot snapshots" || echo "No changes to commit"
                   BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
                   echo "Pushing updates to branch: $BRANCH"
