@@ -1,6 +1,6 @@
 import React from 'react';
 import { CardTypeDropdown } from '../CardTypeDropdown';
-import { InputField, Checkbox } from '../inputs';
+import { TextAreaField, Checkbox } from '../inputs';
 import { SettingsSection } from './SettingsSection';
 
 interface CardTypeOptionsProps {
@@ -29,7 +29,7 @@ export const CardTypeOptions: React.FC<CardTypeOptionsProps> = ({
 			</div>
 			{cardType === 'Text Prompt' && (
 				<>
-					<InputField
+					<TextAreaField
 						id="text-prompt"
 						label="Prompt Text"
 						value={textPrompt}
