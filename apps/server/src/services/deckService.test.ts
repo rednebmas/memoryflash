@@ -9,7 +9,8 @@ import Attempt, { AttemptDoc } from '../models/Attempt';
 import { Card } from '../models/Card';
 import { DeckDoc } from '../models/Deck';
 import { User } from 'MemoryFlashCore/src/types/User';
-import { getDeckForUser } from './deckService';
+import { addCardsToDeck, getDeckForUser } from './deckService';
+import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
 
 describe('getDeckForUser', () => {
 	let user: UserDoc,
@@ -92,5 +93,49 @@ describe('getDeckForUser', () => {
 		// Ensure the returned attempt is only for the specified user
 		const returnedUserId = result.attempts[0].userId.toString();
 		expect(returnedUserId).to.equal((user._id as ObjectId).toString());
+	});
+});
+
+describe('addCardsToDeck', () => {
+	let user: UserDoc, deck: DeckDoc;
+	setupDBConnectionForTesting();
+
+	beforeEach(async () => {
+		const seededData = await seed();
+		user = seededData.user;
+		deck = seededData.deck;
+	});
+
+	it('assigns the creating user as the userId on the card', async () => {
+		const cards = await addCardsToDeck(
+			deck._id.toString(),
+			[
+				{
+					key: 'C',
+					voices: [
+						{
+							staff: StaffEnum.Treble,
+							stack: [
+								{
+									duration: 'q',
+									notes: [
+										{
+											name: 'C',
+											octave: 4,
+										},
+									],
+								},
+							],
+						},
+					],
+				},
+			],
+			user._id.toString(),
+		);
+
+		expect(cards[0].userId?.toString()).to.equal(user._id.toString());
+
+		const persistedCard = await Card.findById(cards[0]._id);
+		expect(persistedCard?.userId?.toString()).to.equal(user._id.toString());
 	});
 });

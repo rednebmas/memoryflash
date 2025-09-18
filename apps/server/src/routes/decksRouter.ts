@@ -58,7 +58,11 @@ router.get('/:id/stats', isAuthenticated, async (req, res, next) => {
 router.post('/:id/cards', isAuthenticated, async (req, res, next) => {
 	try {
 		const { questions } = req.body;
-		const cards = await addCardsToDeck(req.params.id, questions);
+		const cards = await addCardsToDeck(
+			req.params.id,
+			questions,
+			(req.user as User)._id.toString(),
+		);
 		return res.json({ cards });
 	} catch (error) {
 		next(error);
