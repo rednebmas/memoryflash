@@ -10,6 +10,18 @@ import {
 	createDeck,
 } from './helpers';
 
+const aMinor7Bass = [55, 45, 52, 48];
+
+const trebleRecordEvents = [[72], [71, 69], [67], [64]];
+const bassRecordEvents = [aMinor7Bass];
+
+const studyEvents = [
+	[72, ...aMinor7Bass],
+	trebleRecordEvents[1].reverse(),
+	trebleRecordEvents[2],
+	trebleRecordEvents[3],
+];
+
 test('Create custom deck, add notation and text cards, then study', async ({
 	page,
 	getButton,
@@ -23,49 +35,12 @@ test('Create custom deck, add notation and text cards, then study', async ({
 	const deckId = await createDeck(page, courseId, 'My Deck');
 	await page.waitForURL(new RegExp(`/study/${deckId}/notation`));
 
-	type StaffStep = { notes: number[]; staff: 'bass' | 'treble' | 'rest' };
-	const splitStaffEvents = (events: number[][]): StaffStep[] =>
-		events.flatMap((step) => {
-			if (!step.length) return [{ notes: step, staff: 'rest' }];
-			const bass = step.filter((note) => note < 60);
-			const treble = step.filter((note) => note >= 60);
-			const result: StaffStep[] = [];
-			if (bass.length) result.push({ notes: bass, staff: 'bass' });
-			if (treble.length) result.push({ notes: treble, staff: 'treble' });
-			return result.length ? result : [{ notes: [], staff: 'rest' }];
-		});
-
-	const setStaff = async (staff: 'bass' | 'treble') => {
-		await clickButton(staff === 'bass' ? 'Bass' : 'Treble');
-	};
-
-	const playEvents = async (events: number[][], prefix?: string, url?: string) => {
-		const expanded = splitStaffEvents(events);
-		if (!expanded.length) return;
-		const steps = expanded.map((step) => step.notes);
-		const findNextStaff = (index: number) =>
-			expanded
-				.slice(index + 1)
-				.find((step) => step.staff === 'bass' || step.staff === 'treble')?.staff ?? null;
-		let current =
-			expanded.find((step) => step.staff === 'bass' || step.staff === 'treble')?.staff ??
-			null;
-		if (current && current !== 'rest') await setStaff(current);
-		await runRecorderEvents(page, url, steps, prefix, async (index) => {
-			const next = findNextStaff(index);
-			if (next && next !== current && next !== 'rest') {
-				await setStaff(next);
-				current = next;
-			}
-		});
-	};
-
-	// Input a full measure with shuffled order per chord
-	await playEvents(
-		[[72, 55, 45, 52, 48], [], [71, 69], [], [67], [], [64], []],
-		undefined,
-		`/study/${deckId}/notation`,
-	);
+	// Record treble clef
+	await runRecorderEvents(page, `/study/${deckId}/notation`, trebleRecordEvents, undefined);
+	// Bass clef
+	await clickButton('Bass');
+	await clickButton('w');
+	await runRecorderEvents(page, undefined, bassRecordEvents, undefined);
 
 	const [addResp] = await Promise.all([
 		page.waitForResponse(
@@ -81,7 +56,15 @@ test('Create custom deck, add notation and text cards, then study', async ({
 	await page.getByRole('menuitem', { name: 'Text Prompt' }).click();
 	const promptText = 'Test Prompt';
 	await page.fill('#text-prompt', promptText);
-	await playEvents([[72, 55, 45, 52, 48], [], [71, 69], [], [67], [], [64], []]);
+
+	// Record treble clef first
+	await clickButton('q');
+	await clickButton('Treble');
+	await runRecorderEvents(page, undefined, trebleRecordEvents);
+	// Switch to bass clef and record bass notes
+	await clickButton('Bass');
+	await clickButton('w');
+	await runRecorderEvents(page, undefined, bassRecordEvents);
 	const [addResp2] = await Promise.all([
 		page.waitForResponse(
 			(r) => r.url().includes(`/decks/${deckId}/cards`) && r.request().method() === 'POST',
@@ -124,8 +107,10 @@ test('Create custom deck, add notation and text cards, then study', async ({
 	// Wait for the page to load
 	await page.locator('.card-container').first().waitFor();
 
-	await playEvents(
-		[[72, 55, 45, 52, 48], [], [71, 69], [], [67], [], [64]],
+	await runRecorderEvents(
+		page,
+		undefined,
+		studyEvents,
 		'custom-deck-notation-to-study-midi-step',
 	);
 
@@ -145,10 +130,7 @@ test('Create custom deck, add notation and text cards, then study', async ({
 	// Go back to study and answer the remaining text-based card
 	await page.goto(`/study/${deckId}`);
 	await page.locator('.card-container').first().waitFor();
-	await playEvents(
-		[[72, 55, 45, 52, 48], [], [71, 69], [], [67], [], [64]],
-		'custom-deck-text-to-study-midi-step',
-	);
+	await runRecorderEvents(page, undefined, studyEvents, 'custom-deck-text-to-study-midi-step');
 
 	// Cleanup any remaining routes to avoid teardown errors
 	await page.unrouteAll({ behavior: 'ignoreErrors' });
