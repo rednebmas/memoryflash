@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Card } from './Card';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 interface SectionCardProps {
 	title: string;
@@ -19,6 +19,11 @@ export const SectionCard: React.FC<SectionCardProps> = ({
 	link,
 	menu,
 }) => {
+	const navigate = useNavigate();
+	const handleClick = useCallback(() => {
+		navigate(link);
+	}, [navigate, link]);
+
 	return (
 		<Card
 			className={`w-44 h-44 group ${className}`}
@@ -34,12 +39,13 @@ export const SectionCard: React.FC<SectionCardProps> = ({
 				{subTitle && <div className="text-[0.6rem]">{subTitle}</div>}
 			</div>
 
-			<Link
+			<button
+				type="button"
 				className="rounded-md w-full bg-blue-500 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 text-center"
-				to={link}
+				onClick={handleClick}
 			>
 				{btnText}
-			</Link>
+			</button>
 		</Card>
 	);
 };
