@@ -86,9 +86,9 @@ test('Create custom deck, add notation and text cards, then study', async ({
 	await expect(output).toHaveScreenshot('custom-deck-notation-to-study-list.png', screenshotOpts);
 
 	// Edit text card and ensure it loads with existing data
-        const textCard = page.locator('.card-container', { hasText: promptText });
-        await textCard.getByRole('button', { name: 'Card options' }).click();
-        await page.getByRole('menuitem', { name: 'Edit card' }).click();
+	const textCard = page.locator('.card-container', { hasText: promptText });
+	await textCard.getByRole('button', { name: 'Card options' }).click();
+	await page.getByRole('menuitem', { name: 'Edit card' }).click();
 	await page.waitForURL(new RegExp(`/study/${deckId}/edit/`));
 	await expect(await getButton('Text Prompt')).toBeVisible();
 	await expect(page.locator('#text-prompt')).toHaveValue(promptText);
