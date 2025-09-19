@@ -65,7 +65,7 @@ export const FlashCardOptionsMenu: React.FC<FlashCardOptionsMenuProps> = ({
 	return (
 		<>
 			<Menu as="div" className="relative inline-block text-left">
-				<MenuButton className="focus:outline-none">
+                        <MenuButton className="focus:outline-none" aria-label="Card options">
 					<CircleHover>
 						<EllipsisVerticalIcon className="w-5 h-5" />
 					</CircleHover>
