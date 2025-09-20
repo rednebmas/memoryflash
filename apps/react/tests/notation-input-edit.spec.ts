@@ -1,10 +1,9 @@
-import { test, expect } from './helpers';
+import { test, expect, loadNotationInputScreen } from './helpers';
 
 // verify edit mode shows Update Card button
 
 test('NotationInputScreen edit flow', async ({ page }) => {
-	await page.goto('/tests/notation-input-edit-test.html');
-	await page.locator('#root').waitFor();
+	await loadNotationInputScreen(page, { deckId: 'deck1', cardId: 'card1' });
 
 	const cardPayload = {
 		_id: 'card1',

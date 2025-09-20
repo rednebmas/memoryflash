@@ -1,8 +1,7 @@
-import { test, expect } from './helpers';
+import { test, expect, loadNotationInputScreen } from './helpers';
 
 test('NotationInputScreen handles overflow input', async ({ page }) => {
-	await page.goto('/tests/notation-input-screen-test.html');
-	await page.locator('#root').waitFor();
+	await loadNotationInputScreen(page);
 
 	const press = async (midi: number) => {
 		await page.evaluate((n) => {

@@ -1,11 +1,9 @@
-import { test, expect, screenshotOpts } from './helpers';
+import { test, expect, screenshotOpts, loadNotationInputScreen } from './helpers';
 
 // Test selecting Text Prompt card type on NotationInputScreen
 
 test('NotationInputScreen text prompt card type', async ({ page }) => {
-	await page.goto('/tests/notation-input-screen-test.html');
-	const output = page.locator('#root');
-	await output.waitFor();
+	const output = await loadNotationInputScreen(page);
 
 	await page.locator('button:has-text("Sheet Music")').click();
 	await page.getByRole('menuitem', { name: 'Text Prompt' }).click();

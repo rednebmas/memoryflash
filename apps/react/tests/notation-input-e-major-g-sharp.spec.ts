@@ -1,9 +1,13 @@
-import { test, expect, screenshotOpts, runRecorderEvents } from './helpers';
+import {
+	test,
+	expect,
+	screenshotOpts,
+	runRecorderEvents,
+	loadNotationInputScreen,
+} from './helpers';
 
 test('NotationInputScreen E major G# rendering', async ({ page }) => {
-	await page.goto('/tests/notation-input-screen-test.html');
-	const output = page.locator('#root');
-	await output.waitFor();
+	const output = await loadNotationInputScreen(page);
 
 	// Select E major (index 4 in majorKeys array: C=0, G=1, D=2, A=3, E=4)
 	await page.locator('label:has-text("Key") select').selectOption('E');
