@@ -55,6 +55,30 @@ export async function captureScreenshot(page: Page, url: string, name: string, s
 	await expect(output).toHaveScreenshot(name, screenshotOpts);
 }
 
+type NotationInputScreenOptions = {
+	mode?: 'screen' | 'edit';
+	deckId?: string;
+	cardId?: string;
+};
+
+export async function loadNotationInputScreen(
+	page: Page,
+	options: NotationInputScreenOptions = {},
+) {
+	const params = new URLSearchParams();
+	const { mode, deckId, cardId } = options;
+	const resolvedMode = mode ?? (deckId && cardId ? 'edit' : undefined);
+	if (resolvedMode) params.set('mode', resolvedMode);
+	if (deckId) params.set('deckId', deckId);
+	if (cardId) params.set('cardId', cardId);
+	const query = params.toString();
+	const url = `/tests/notation-input-screen-test.html${query ? `?${query}` : ''}`;
+	await page.goto(url);
+	const output = page.locator('#root');
+	await output.waitFor();
+	return output;
+}
+
 export async function runRecorderEvents(
 	page: Page,
 	url: string | undefined,
