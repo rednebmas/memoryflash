@@ -116,7 +116,9 @@ test('Create custom deck, add notation and text cards, then study', async ({
 	// Navigate to the list and delete the first (notation) card
 	await page.click('a[href="list"], a[href$="/list"]');
 	await page.waitForURL(new RegExp(`/study/${deckId}/list`));
-	await page.locator('.card-container').first().locator('.absolute.right-1.bottom-1').click();
+	const firstCard = page.locator('.card-container').first();
+	await firstCard.getByRole('button', { name: 'Card options' }).click();
+	await page.getByRole('menuitem', { name: 'Delete card' }).click();
 	const [deleteResp3] = await Promise.all([
 		page.waitForResponse(
 			(r) => r.url().includes('/cards/') && r.request().method() === 'DELETE',
