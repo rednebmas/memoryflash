@@ -3,7 +3,7 @@ import { ReduxState } from '../store';
 import { Card } from '../../types/Cards';
 import { Attempt } from '../../types/Attempt';
 
-export type CardWithAttempts = Card & { attempts: Attempt[] };
+export type CardWithAttempts = Card & { attempts: Attempt[]; hidden?: boolean };
 
 export const filterCorrect = (cards: { [key: string]: CardWithAttempts }) => {
 	const result: typeof cards = {};
@@ -60,8 +60,11 @@ export const currDeckAllWithCorrectAttemptsSelector = createSelector(
 );
 
 export const currDeckAllWithCorrectAttemptsSortedArray = createSelector(
-	[currDeckAllWithCorrectAttemptsSelector],
-	(cards) => Object.values(cards).sort(compareByAttemptTime),
+	[currDeckAllWithCorrectAttemptsSelector, selectHiddenCardIds],
+	(cards, hiddenIds) =>
+		Object.values(cards)
+			.map((c) => ({ ...c, hidden: hiddenIds.includes(c._id) }))
+			.sort(compareByAttemptTime),
 );
 
 export const currDeckWithAttemptsSelector = createSelector(

@@ -13,6 +13,11 @@ const CardSchema = new Schema<CardDoc>(
 			type: Schema.Types.ObjectId,
 			required: true,
 		},
+		userId: {
+			type: Schema.Types.ObjectId,
+			ref: 'User',
+			required: false,
+		},
 		type: {
 			type: String,
 			required: true,

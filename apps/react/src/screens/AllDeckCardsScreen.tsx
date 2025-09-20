@@ -39,6 +39,7 @@ export const AllDeckCardsScreen: React.FunctionComponent<AllDeckCardsScreenProps
 						placement="cur"
 						card={card}
 						className="card-shadow-2"
+						opacity={card.hidden ? 0.5 : 1}
 						showEdit
 						showDelete
 					/>

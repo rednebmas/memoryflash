@@ -115,7 +115,11 @@ export async function deleteDeckById(deckId: string, userId: string) {
 	]);
 }
 
-export async function addCardsToDeck(deckId: string, questions: MultiSheetQuestion[]) {
+export async function addCardsToDeck(
+	deckId: string,
+	questions: MultiSheetQuestion[],
+	userId?: string,
+) {
 	const now = Date.now();
 	const cards = questions.map((q, i) => ({
 		uid: `custom-${deckId}-${now}-${i}`,
@@ -123,9 +127,10 @@ export async function addCardsToDeck(deckId: string, questions: MultiSheetQuesti
 		type: CardTypeEnum.MultiSheet,
 		question: q,
 		answer: { type: AnswerType.ExactMulti },
+		...(userId ? { userId: new Types.ObjectId(userId) } : {}),
 	}));
-	await Card.insertMany(cards);
-	return cards;
+	const insertedCards = await Card.insertMany(cards);
+	return insertedCards;
 }
 
 export async function updateHiddenCards(deckId: string, userId: string, hiddenCardIds: string[]) {
