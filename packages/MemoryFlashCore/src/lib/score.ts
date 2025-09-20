@@ -42,34 +42,30 @@ export class Score {
 	constructor(public beatsPerMeasure = 4) {
 		this.measures.push(createMeasure());
 	}
-	private getVoice(staff: Staff, index: number): ScoreVoice {
-		const m = this.measures[this.measures.length - 1];
-		const v = m[staff].voices;
-		while (v.length <= index) v.push(createVoice());
-		return v[index];
+	private getVoice(staff: Staff, index: number, requiredBeats = 0): ScoreVoice {
+		for (const measure of this.measures) {
+			const voices = measure[staff].voices;
+			while (voices.length <= index) voices.push(createVoice());
+			const voice = voices[index];
+			if (voice.beat + requiredBeats <= this.beatsPerMeasure) {
+				return voice;
+			}
+		}
+		this.pushMeasure();
+		return this.getVoice(staff, index, requiredBeats);
 	}
 	private pushMeasure(): void {
 		this.measures.push(createMeasure());
 	}
 	addNote(staff: Staff, notes: SheetNote[], duration: Duration, voice = 0, tie?: NoteTie): void {
 		const beats = durationBeats[duration];
-		const v = this.getVoice(staff, voice);
-		if (v.beat + beats > this.beatsPerMeasure) {
-			this.pushMeasure();
-			this.addNote(staff, notes, duration, voice, tie);
-			return;
-		}
+		const v = this.getVoice(staff, voice, beats);
 		v.events.push({ type: 'note', notes, duration, tie });
 		v.beat += beats;
 	}
 	addRest(staff: Staff, duration: Duration, voice = 0): void {
 		const beats = durationBeats[duration];
-		const v = this.getVoice(staff, voice);
-		if (v.beat + beats > this.beatsPerMeasure) {
-			this.pushMeasure();
-			this.addRest(staff, duration, voice);
-			return;
-		}
+		const v = this.getVoice(staff, voice, beats);
 		v.events.push({ type: 'rest', duration });
 		v.beat += beats;
 	}
