@@ -55,6 +55,20 @@ export async function captureScreenshot(page: Page, url: string, name: string, s
 	await expect(output).toHaveScreenshot(name, screenshotOpts);
 }
 
+export async function setStaticScroll(
+	page: Page,
+	options: { windowTop?: number; overflowTop?: number } = {},
+) {
+	const { windowTop = 0, overflowTop = 0 } = options;
+	await page.evaluate(
+		({ windowTop: winTop, overflowTop: overTop }) => {
+			window.scrollTo(0, winTop);
+			document.querySelector('.overflow-scroll')?.scrollTo(0, overTop);
+		},
+		{ windowTop, overflowTop },
+	);
+}
+
 export async function runRecorderEvents(
 	page: Page,
 	url: string | undefined,
