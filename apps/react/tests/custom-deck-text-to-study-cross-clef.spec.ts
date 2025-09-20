@@ -7,6 +7,7 @@ import {
 	runRecorderEvents,
 	createCourse,
 	createDeck,
+	setStaticScroll,
 } from './helpers';
 
 const chords = [
@@ -41,9 +42,8 @@ test('Custom text prompt cross-clef card to study', async ({ page, clickButton }
 
 	const output = page.locator('#root');
 	await output.waitFor();
-	await expect(output).toHaveScreenshot(
-		'apps/react/tests/custom-deck-text-to-study-cross-clef-notation.png',
-	);
+	await setStaticScroll(page, { overflowTop: 300 });
+	await expect(output).toHaveScreenshot('custom-deck-text-to-study-cross-clef-notation.png');
 
 	const [addResp] = await Promise.all([
 		page.waitForResponse(
