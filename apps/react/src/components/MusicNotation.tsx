@@ -37,6 +37,14 @@ const VF = {
 
 const BAR_WIDTH = 300;
 const BEATS_PER_MEASURE = 4;
+const RENDER_PADDING = 2;
+const STAFF_TOP_MARGIN = 20;
+const STAFF_BOTTOM_MARGIN = 20;
+const STAFF_GAP = 100;
+const NOTE_AREA_LEFT_PADDING = 26;
+const FIRST_MEASURE_MIN_LEFT_PADDING = 70;
+const NOTE_AREA_RIGHT_PADDING = 26;
+const STAFF_BODY_HEIGHT = 120;
 
 interface MusicNotationProps {
 	data: MultiSheetQuestion;
@@ -46,6 +54,20 @@ interface MusicNotationProps {
 }
 
 type IndexedSn = { sn: Voice['stack'][0]; idx: number };
+
+type StaffRenderData = {
+	stave: Stave;
+	notes: StaveNote[];
+	beams: Beam[];
+	tieSpecs: Array<{
+		first: StaveNote;
+		last: StaveNote;
+		firstIndices: number[];
+		lastIndices: number[];
+	}>;
+	textVoice: VFVoice | null;
+	voice: VFVoice | null;
+};
 
 // Split a flat stack into measures of up to BEATS_PER_MEASURE beats
 function splitMeasures(indexed: IndexedSn[]) {
@@ -85,10 +107,17 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 		const width = BAR_WIDTH * bars;
 		const trebleOn = data.voices.some((v) => v.staff === StaffEnum.Treble);
 		const bassOn = data.voices.some((v) => v.staff === StaffEnum.Bass);
-		const height = trebleOn && bassOn ? 250 : 160;
+		const staffCount = Number(trebleOn) + Number(bassOn);
+		const height =
+			staffCount > 0
+				? STAFF_TOP_MARGIN +
+					STAFF_BODY_HEIGHT * staffCount +
+					STAFF_BOTTOM_MARGIN +
+					(staffCount > 1 ? STAFF_GAP : 0)
+				: STAFF_BODY_HEIGHT + STAFF_TOP_MARGIN + STAFF_BOTTOM_MARGIN;
 
 		const renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
-		renderer.resize(width + 2, height);
+		renderer.resize(width + RENDER_PADDING, height);
 		const ctx = renderer.getContext();
 
 		// Prepare per-voice, per-measure stacks
@@ -106,7 +135,7 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 			const x = bar * BAR_WIDTH;
 			const isFirstBar = bar === 0;
 
-			const drawStaff = (staffType: StaffEnum, y: number) => {
+			const buildStaff = (staffType: StaffEnum, y: number): StaffRenderData => {
 				const stave = new VF.Stave(x, y, BAR_WIDTH);
 				if (isFirstBar) {
 					stave
@@ -114,20 +143,23 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 						.addTimeSignature('4/4')
 						.addKeySignature(data.key);
 				}
+				if (isFirstBar) {
+					const minStart = x + FIRST_MEASURE_MIN_LEFT_PADDING;
+					if (stave.getNoteStartX() < minStart) {
+						stave.setNoteStartX(minStart);
+					}
+				} else {
+					stave.setNoteStartX(x + NOTE_AREA_LEFT_PADDING);
+				}
 				stave.setContext(ctx).draw();
 
-				// Notes/rests for this bar & voice
 				const vIdx = data.voices.findIndex((v) => v.staff === staffType);
-				const stack = measuresByVoice[vIdx][bar] || [];
+				const stack = vIdx >= 0 ? measuresByVoice[vIdx][bar] || [] : [];
 				let beat = 0;
 				const notes: StaveNote[] = [];
-				const tieSpecs: Array<{
-					first: StaveNote;
-					last: StaveNote;
-					firstIndices: number[];
-					lastIndices: number[];
-				}> = [];
+				const tieSpecs: StaffRenderData['tieSpecs'] = [];
 				let pendingTie: { note: StaveNote; indices: number[] } | null = null;
+
 				stack.forEach(({ sn }) => {
 					const isRest = sn.rest || sn.notes.length === 0;
 					const restKey = staffType === StaffEnum.Bass ? 'd/3' : 'b/4';
@@ -179,26 +211,12 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 					notes.push(note);
 					beat += durationBeats[sn.duration];
 				});
+
 				const beams = VF.Beam.generateBeams(notes);
 
-				if (notes.length) {
-					VF.Formatter.FormatAndDraw(ctx, stave, notes);
-					beams.forEach((b) => b.setContext(ctx).draw());
-					tieSpecs.forEach((spec) =>
-						new VF.StaveTie({
-							first_note: spec.first,
-							last_note: spec.last,
-							first_indices: spec.firstIndices,
-							last_indices: spec.lastIndices,
-						})
-							.setContext(ctx)
-							.draw(),
-					);
-				}
-
-				// --- CHORD TEXT: wrap in a Voice, format, then draw ---
+				let textVoice: VFVoice | null = null;
 				if (!hideChords && staffType === StaffEnum.Treble) {
-					const textNotes = (chordMeasures[bar] || []).map(({ sn }) => {
+					const textNotes = (chordMeasures?.[bar] || []).map(({ sn }) => {
 						if (!sn.chordName) {
 							return new VF.TextNote({ text: '', duration: sn.duration }).setStave(
 								stave,
@@ -233,27 +251,83 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 					});
 
 					if (textNotes.length) {
-						const textVoice = new VF.Voice({
+						textVoice = new VF.Voice({
 							num_beats: BEATS_PER_MEASURE,
 							beat_value: 4,
-						}).addTickables(textNotes);
+						})
+							.setStrict(false)
+							.addTickables(textNotes);
 
 						const textFormatter = new VF.Formatter();
 						textFormatter.joinVoices([textVoice]);
 						textFormatter.formatToStave([textVoice], stave);
-						textVoice.draw(ctx, stave);
 					}
 				}
 
-				// Draw barline at end of this measure
+				return { stave, notes, beams, tieSpecs, textVoice, voice: null };
+			};
+
+			const staffEntries: StaffRenderData[] = [];
+			const trebleY = STAFF_TOP_MARGIN;
+			if (trebleOn) staffEntries.push(buildStaff(StaffEnum.Treble, trebleY));
+			if (bassOn) {
+				const bassY = trebleOn ? trebleY + STAFF_GAP : STAFF_TOP_MARGIN;
+				staffEntries.push(buildStaff(StaffEnum.Bass, bassY));
+			}
+
+			const voices: VFVoice[] = [];
+			staffEntries.forEach((entry) => {
+				if (!entry.notes.length) return;
+				entry.voice = new VF.Voice({
+					num_beats: BEATS_PER_MEASURE,
+					beat_value: 4,
+				})
+					.setStrict(false)
+					.addTickables(entry.notes);
+				voices.push(entry.voice);
+			});
+
+			if (voices.length) {
+				const formatter = new VF.Formatter();
+				if (voices.length > 1) {
+					formatter.joinVoices(voices);
+				}
+				const availableWidths = staffEntries
+					.filter((entry): entry is StaffRenderData & { voice: VFVoice } =>
+						Boolean(entry.voice),
+					)
+					.map((entry) => {
+						const leftOffset = entry.stave.getNoteStartX() - x;
+						return BAR_WIDTH - leftOffset - NOTE_AREA_RIGHT_PADDING;
+					});
+				const availableWidth = availableWidths.length
+					? Math.max(Math.min(...availableWidths), 0)
+					: BAR_WIDTH - NOTE_AREA_LEFT_PADDING - NOTE_AREA_RIGHT_PADDING;
+				formatter.format(voices, availableWidth);
+
+				staffEntries.forEach((entry) => {
+					entry.voice?.draw(ctx, entry.stave);
+					entry.beams.forEach((b) => b.setContext(ctx).draw());
+					entry.tieSpecs.forEach((spec) =>
+						new VF.StaveTie({
+							first_note: spec.first,
+							last_note: spec.last,
+							first_indices: spec.firstIndices,
+							last_indices: spec.lastIndices,
+						})
+							.setContext(ctx)
+							.draw(),
+					);
+					entry.textVoice?.draw(ctx, entry.stave);
+				});
+			}
+
+			staffEntries.forEach((entry) => {
 				new VF.Barline(VF.Barline.type.SINGLE)
 					.setContext(ctx)
 					.setX(x + BAR_WIDTH)
-					.draw(stave);
-			};
-
-			if (trebleOn) drawStaff(StaffEnum.Treble, 20);
-			if (bassOn) drawStaff(StaffEnum.Bass, trebleOn ? 120 : 20);
+					.draw(entry.stave);
+			});
 		}
 	}, [data, multiPartCardIndex, allNotesClassName, highlightClassName, hideChords]);
 
