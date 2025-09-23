@@ -49,7 +49,7 @@ export const FlashCard = forwardRef<HTMLDivElement, FlashCardProps>(
 		return (
 			<div
 				ref={ref}
-				className={`relative card-container flex flex-col justify-between items-center min-w-[15rem] h-60  m-4 ${className}`}
+				className={`relative card-container flex flex-col justify-between items-center min-w-[15rem] m-h-60  m-4 ${className}`}
 				style={{
 					opacity,
 					transition: 'opacity 0.5s ease',
