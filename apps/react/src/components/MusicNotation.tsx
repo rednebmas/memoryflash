@@ -222,7 +222,9 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 					if (isHighlighted && highlightClassName) note.addClass(highlightClassName);
 
 					if (!isRest) {
-						const noteColor = isHighlighted ? highlightColor ?? baseNoteColor : baseNoteColor;
+						const noteColor = isHighlighted
+							? (highlightColor ?? baseNoteColor)
+							: baseNoteColor;
 						if (noteColor) applyNoteStyle(note, noteColor);
 					}
 
