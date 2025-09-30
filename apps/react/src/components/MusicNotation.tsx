@@ -46,6 +46,33 @@ const NOTE_AREA_RIGHT_PADDING = 26;
 const SINGLE_STAFF_HEIGHT = 160;
 const DOUBLE_STAFF_MIN_HEIGHT = 220;
 const STAFF_BOTTOM_PADDING = 20;
+const NOTE_SHADOW_BLUR = 2;
+const NOTE_STYLE_MAP: Record<string, { light: string; dark: string }> = {
+	highlight: { light: '#22c55e', dark: '#7e22ce' },
+	answered: { light: '#22c55e', dark: '#7e22ce' },
+};
+
+const applyNoteStyle = (note: StaveNote, color: string) => {
+	note.setStyle({
+		shadowBlur: NOTE_SHADOW_BLUR,
+		shadowColor: color,
+		fillStyle: color,
+		strokeStyle: color,
+	});
+};
+
+const resolveNoteColor = (className: string | undefined, isDark: boolean) => {
+	if (!className) return null;
+	const classes = className
+		.split(/\s+/)
+		.map((c) => c.trim())
+		.filter(Boolean);
+	for (const cls of classes) {
+		const entry = NOTE_STYLE_MAP[cls];
+		if (entry) return isDark ? entry.dark : entry.light;
+	}
+	return null;
+};
 
 interface MusicNotationProps {
 	data: MultiSheetQuestion;
@@ -103,6 +130,13 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 		const div = divRef.current;
 		if (!div) return;
 		div.innerHTML = '';
+
+		const prefersDark =
+			typeof window !== 'undefined' &&
+			(window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false);
+		const isDark = document.documentElement.classList.contains('dark') || prefersDark;
+		const highlightColor = resolveNoteColor(highlightClassName, isDark);
+		const baseNoteColor = resolveNoteColor(allNotesClassName, isDark);
 
 		const bars = calcBars(data);
 		const width = BAR_WIDTH * bars;
@@ -182,9 +216,15 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 					}
 
 					if (sn.duration.includes('d')) VF.Dot.buildAndAttach([note], { all: true });
+					const isHighlighted =
+						Boolean(highlightClassName) && beat < timeline.beats[multiPartCardIndex];
 					if (allNotesClassName) note.addClass(allNotesClassName);
-					if (beat < timeline.beats[multiPartCardIndex] && highlightClassName)
-						note.addClass(highlightClassName);
+					if (isHighlighted && highlightClassName) note.addClass(highlightClassName);
+
+					if (!isRest) {
+						const noteColor = isHighlighted ? highlightColor ?? baseNoteColor : baseNoteColor;
+						if (noteColor) applyNoteStyle(note, noteColor);
+					}
 
 					if (!isRest) {
 						const fromPrevious = sn.tie?.fromPrevious;
