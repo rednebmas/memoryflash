@@ -50,11 +50,20 @@ const toSheet = (m: number, key: string): SheetNote => {
 	return { name: match[1], octave: parseInt(match[2]) };
 };
 
+const STAVES: Staff[] = [StaffEnum.Treble, StaffEnum.Bass];
+
+const staffActive = (score: Score, staff: Staff) =>
+	score.measures.some((m) => (m[staff]?.voices[0]?.events.length ?? 0) > 0);
+
 const isFull = (score: Score) => {
-	const measure = score.measures[score.measures.length - 1] ?? {};
-	const trebleBeat = measure[StaffEnum.Treble]?.voices[0]?.beat ?? 0;
-	const bassBeat = measure[StaffEnum.Bass]?.voices[0]?.beat ?? 0;
-	return trebleBeat === score.beatsPerMeasure && bassBeat === score.beatsPerMeasure;
+	const measure = score.measures[score.measures.length - 1];
+	if (!measure) return false;
+	const staves = STAVES.filter((staff) => staffActive(score, staff));
+	if (!staves.length) return false;
+	return staves.every((staff) => {
+		const beat = measure[staff]?.voices[0]?.beat ?? 0;
+		return beat === score.beatsPerMeasure;
+	});
 };
 
 function useStepCtrl(keySig: string, resetSignal: number, notify: ScoreChangeHandler) {
