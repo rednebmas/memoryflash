@@ -271,7 +271,12 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 								sup = '7';
 								break;
 							case 'major seventh':
-								sym = '∆7';
+								if (c.tonic) {
+									sym += '∆';
+									sup = '7';
+								} else {
+									sym = c.symbol || '∆7';
+								}
 								break;
 							default:
 								sym = c.symbol || sym;
