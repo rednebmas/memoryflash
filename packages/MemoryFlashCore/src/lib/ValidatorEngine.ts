@@ -52,9 +52,7 @@ export class ValidatorEngine {
 	}
 
 	private logBeat(
-		{
-			expectedAddedOnThisBeat,
-		}: ReturnType<ValidatorEngine['buildBeatContext']>,
+		{ expectedAddedOnThisBeat }: ReturnType<ValidatorEngine['buildBeatContext']>,
 		added: number[],
 	): void {
 		console.log(
@@ -86,18 +84,13 @@ export class ValidatorEngine {
 		};
 	}
 
-	private isCorrect(
-		{
-			onNotes,
-			expectedOnBeat,
-			expectedAdded,
-			added,
-		}: ReturnType<ValidatorEngine['projectBeat']>,
-	): boolean {
-		return (
-			arraysEqual(expectedOnBeat, onNotes) ||
-			arraysEqual(expectedAdded, added)
-		);
+	private isCorrect({
+		onNotes,
+		expectedOnBeat,
+		expectedAdded,
+		added,
+	}: ReturnType<ValidatorEngine['projectBeat']>): boolean {
+		return arraysEqual(expectedOnBeat, onNotes) || arraysEqual(expectedAdded, added);
 	}
 
 	private hasWrongNotes(added: number[], expectedOnBeat: number[]): boolean {
