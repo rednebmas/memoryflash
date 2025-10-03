@@ -9,23 +9,23 @@ export const MidiInputsDropdown: React.FunctionComponent<MidiInputsDropdownProps
 	const dispatch = useAppDispatch();
 	const devices = useAppSelector((state) => state.midi.availableMidiDevices);
 	const inputs = devices.filter((device) => device.type === 'input');
-	// const outputs = devices.filter((device) => device.type === 'output');
 	const selectedInputId = useAppSelector((state) => state.midi.selectedInput);
 	const selectedInputName = devices.find((input) => input.id === selectedInputId)?.name;
-	// const selectedOutputId = useAppSelector((state) => state.midi.selectedOutput);
-	// const selectedOutputName = devices.find((input) => input.id === selectedOutputId)?.name;
+	const pianoSamplesEnabled = useAppSelector((state) => state.midi.pianoSamplesEnabled);
 
 	return (
 		<div className="flex flex-row gap-4">
-			{/* <Dropdown
-				label={selectedOutputName || 'No MIDI Output'}
-				items={outputs.map((device) => ({
-					label: device.name,
-					onClick: () => {
-						dispatch(midiActions.setSelectedOutput(device.id));
-					},
-				}))}
-			/> */}
+			<button
+				onClick={() => dispatch(midiActions.setPianoSamplesEnabled(!pianoSamplesEnabled))}
+				className={`px-3 py-1 rounded text-sm ${
+					pianoSamplesEnabled
+						? 'bg-blue-500 text-white'
+						: 'bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
+				}`}
+				title="Toggle piano samples"
+			>
+				🎹
+			</button>
 			<Dropdown
 				label={selectedInputName || 'No MIDI Input'}
 				onButtonClick={(e) => {
