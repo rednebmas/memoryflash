@@ -45,16 +45,20 @@ export const PianoSound: React.FC = () => {
 				const oscillator = audioContextRef.current!.createOscillator();
 				const gainNode = audioContextRef.current!.createGain();
 
-				oscillator.type = 'sine';
+				oscillator.type = 'triangle';
 				oscillator.frequency.setValueAtTime(
 					frequency,
 					audioContextRef.current!.currentTime,
 				);
 
-				gainNode.gain.setValueAtTime(0.3, audioContextRef.current!.currentTime);
+				gainNode.gain.setValueAtTime(0, audioContextRef.current!.currentTime);
+				gainNode.gain.linearRampToValueAtTime(
+					0.15,
+					audioContextRef.current!.currentTime + 0.01,
+				);
 				gainNode.gain.exponentialRampToValueAtTime(
-					0.01,
-					audioContextRef.current!.currentTime + 1.5,
+					0.001,
+					audioContextRef.current!.currentTime + 2,
 				);
 
 				oscillator.connect(gainNode);
