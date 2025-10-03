@@ -20,6 +20,7 @@ export interface MidiReduxState {
 	availableMidiDevices: MidiInput[];
 	selectedInput?: string;
 	selectedOutput?: string;
+	pianoSamplesEnabled: boolean;
 }
 
 const initialState: MidiReduxState = {
@@ -28,6 +29,7 @@ const initialState: MidiReduxState = {
 	waitingUntilEmpty: false,
 	waitingUntilEmptyNotes: [],
 	availableMidiDevices: [],
+	pianoSamplesEnabled: false,
 };
 
 const midiSlice = createSlice({
@@ -98,6 +100,9 @@ const midiSlice = createSlice({
 		},
 		setSelectedOutput(state, action: PayloadAction<string>) {
 			state.selectedOutput = action.payload;
+		},
+		setPianoSamplesEnabled(state, action: PayloadAction<boolean>) {
+			state.pianoSamplesEnabled = action.payload;
 		},
 		waitUntilEmpty(state) {
 			state.waitingUntilEmpty = true;
