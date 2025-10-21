@@ -2108,7 +2108,7 @@ __metadata:
     typescript: "npm:^5.0.2"
     use-deep-compare-effect: "npm:^1.8.1"
     vexflow: "https://codeload.github.com/rednebmas/vexflow/tar.gz/3199cca26a5322841192c02ee2267237a99b4806"
-    vite: "npm:6.3.5"
+    vite: "npm:6.4.1"
     webmidi: "npm:^3.1.8"
   languageName: unknown
   linkType: soft
@@ -8104,9 +8104,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:6.3.5":
-  version: 6.3.5
-  resolution: "vite@npm:6.3.5"
+"vite@npm:6.4.1":
+  version: 6.4.1
+  resolution: "vite@npm:6.4.1"
   dependencies:
     esbuild: "npm:^0.25.0"
     fdir: "npm:^6.4.4"
@@ -8155,7 +8155,7 @@ __metadata:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: 10c0/df70201659085133abffc6b88dcdb8a57ef35f742a01311fc56a4cfcda6a404202860729cc65a2c401a724f6e25f9ab40ce4339ed4946f550541531ced6fe41c
+  checksum: 10c0/77bb4c5b10f2a185e7859cc9a81c789021bc18009b02900347d1583b453b58e4b19ff07a5e5a5b522b68fc88728460bb45a63b104d969e8c6a6152aea3b849f7
   languageName: node
   linkType: hard
 
