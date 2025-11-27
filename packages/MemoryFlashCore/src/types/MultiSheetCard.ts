@@ -30,4 +30,6 @@ export type MultiSheetQuestion = {
 };
 export type MultiSheetCard = CardTypeBase<CardTypeEnum.MultiSheet, MultiSheetQuestion>;
 
-export type MultiExactAnswer = BaseAnswer & { // voices: Array<StackedNotes[]>; };
+export type MultiExactAnswer = BaseAnswer & {
+	voices?: Array<StackedNotes[]>;
+};
