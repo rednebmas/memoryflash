@@ -21,25 +21,37 @@ import { coursesSelector } from 'MemoryFlashCore/src/redux/selectors/coursesSele
 import { useNetworkState } from 'MemoryFlashCore/src/redux/selectors/useNetworkState';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { deleteCourse } from 'MemoryFlashCore/src/redux/actions/delete-course-action';
+import { getFeed } from 'MemoryFlashCore/src/redux/actions/get-feed-action';
+import { recentDeckFeedItemsSelector } from 'MemoryFlashCore/src/redux/selectors/feedSelectors';
 
 export const CoursesScreen = () => {
 	const dispatch = useAppDispatch();
 	const courses = useSelector(coursesSelector);
 	const user = useAppSelector((state) => state.auth.user);
 	const { isLoading, error } = useNetworkState('getCourses');
+	const { isLoading: isFeedLoading, error: feedError } = useNetworkState('getFeed');
 	const [isCreateOpen, setIsCreateOpen] = React.useState(false);
 	const [renameCourseId, setRenameCourseId] = React.useState<string | undefined>();
 	const [deleteCourseId, setDeleteCourseId] = React.useState<string | undefined>();
+	const recentDecks = useAppSelector(recentDeckFeedItemsSelector);
 	useEffect(() => {
 		dispatch(getCourses());
-	}, []);
+		dispatch(getFeed());
+	}, [dispatch]);
 
 	return (
 		<Layout>
 			<div className="space-y-4">
+				<Spinner show={isFeedLoading && recentDecks.length === 0} />
+				<BasicErrorCard error={error || feedError} />
+				{recentDecks.length > 0 && (
+					<>
+						<SectionHeader title="Most recently played decks" />
+						<SectionData btnText="Study" items={recentDecks} />
+					</>
+				)}
 				<SectionHeader title="Courses" />
 				<Spinner show={isLoading && courses.length === 0} />
-				<BasicErrorCard error={error} />
 				<SectionData
 					btnText="Lessons"
 					items={courses.map((course) => {
