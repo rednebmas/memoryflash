@@ -6,6 +6,7 @@ import { roundToTenth } from 'MemoryFlashCore/src/lib/rounding';
 import { StatsByCardId } from 'MemoryFlashCore/src/types/StatsByCardType';
 import { User } from 'MemoryFlashCore/src/types/User';
 import { MedianHistory, MedianHistoryValue } from 'MemoryFlashCore/src/types/UserDeckStats';
+import { updateFeedWithAttempt } from './feedService';
 
 export async function getDeckStats(deckId: string, user: User, timezone: string) {
 	const [cards, userDeckStats, attempts] = await Promise.all([
@@ -38,9 +39,23 @@ export async function getDeckStats(deckId: string, user: User, timezone: string)
 }
 
 export async function processAttempt(doc: AttemptDoc) {
+	const attemptedAt = doc.attemptedAt ?? new Date();
+	doc.attemptedAt = attemptedAt;
+
+	try {
+		await updateFeedWithAttempt({
+			userId: doc.userId,
+			deckId: doc.deckId,
+			attemptedAt,
+		});
+	} catch (error) {
+		console.error('Failed to update feed for attempt', error);
+	}
+
 	if (!doc.correct) {
 		return;
 	}
+
 	try {
 		const userDeckStats = await UserDeckStats.findOne({
 			userId: doc.userId,

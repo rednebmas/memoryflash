@@ -11,6 +11,7 @@ import { authActions, authReducer } from './slices/authSlice';
 import { cardsReducer } from './slices/cardsSlice';
 import { coursesReducer } from './slices/coursesSlice';
 import { decksReducer } from './slices/decksSlice';
+import { feedReducer } from './slices/feedSlice';
 import { midiReducer } from './slices/midiSlice';
 import { networkReducer } from './slices/networkSlice';
 import { schedulerReducer } from './slices/schedulerSlice';
@@ -23,6 +24,7 @@ const appReducer = combineReducers({
 	cards: cardsReducer,
 	courses: coursesReducer,
 	decks: decksReducer,
+	feed: feedReducer,
 	midi: midiReducer,
 	network: networkReducer,
 	scheduler: schedulerReducer,

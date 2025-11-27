@@ -1,4 +1,4 @@
-import { Document, model, Schema } from 'mongoose';
+import { Document, Schema, model } from 'mongoose';
 import { processAttempt } from '../services/statsService';
 import { AttemptMongo } from 'MemoryFlashCore/src/types/Attempt';
 
@@ -17,10 +17,12 @@ const attemptSchema = new Schema<AttemptDoc>({
 
 // This isn't atomic, but it's probably good enough.
 attemptSchema.pre('save', async function (next) {
-	if (this.isNew) {
-		await processAttempt(this);
-		next();
+	if (!this.isNew) {
+		return next();
 	}
+
+	await processAttempt(this as AttemptDoc);
+	next();
 });
 
 const Attempt = model('Attempt', attemptSchema);
