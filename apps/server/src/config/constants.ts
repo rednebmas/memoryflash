@@ -1,5 +1,5 @@
 import { SessionOptions } from 'express-session';
-import { oneDayInMillis, oneMinInMillis } from '../utils/dates';
+import { oneYearInMillis } from '../utils/dates';
 
 export const APP_URL = process.env.APP_URL || 'http://localhost:3000';
 export const FRONT_END_URL = process.env.FRONT_END_URL || APP_URL;
@@ -18,7 +18,7 @@ export const SESSION_OPTS: SessionOptions = {
 	cookie: {
 		domain: APP_DOMAIN,
 		httpOnly: true,
-		maxAge: oneDayInMillis * 30,
+		maxAge: oneYearInMillis * 10,
 		// In development we are not using HTTPS so we must use 'strict' otherwise the browser will
 		// ignore our cookie.
 		// When using https, we use none so we always get the sid cookie. This is not insecure

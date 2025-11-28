@@ -7,3 +7,4 @@ export const oneMonthInSeconds = oneDayInSeconds * 30;
 export const oneMinInMillis = 1000 * 60;
 export const oneHourInMillis = oneMinInMillis * 60;
 export const oneDayInMillis = oneHourInMillis * 24;
+export const oneYearInMillis = oneDayInMillis * 365;
