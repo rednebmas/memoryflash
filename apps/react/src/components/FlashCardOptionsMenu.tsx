@@ -10,6 +10,9 @@ import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store'
 import { updateHiddenCards } from 'MemoryFlashCore/src/redux/actions/update-hidden-cards-action';
 import { deleteCard } from 'MemoryFlashCore/src/redux/actions/delete-card-action';
 import { CardWithAttempts } from 'MemoryFlashCore/src/redux/selectors/currDeckCardsWithAttempts';
+import { CardTypeEnum } from 'MemoryFlashCore/src/types/Cards';
+import { MultiSheetCard } from 'MemoryFlashCore/src/types/MultiSheetCard';
+import { RevealAnswerModal } from './FlashCards/RevealAnswerModal';
 
 interface FlashCardOptionsMenuProps {
 	card: CardWithAttempts;
@@ -26,6 +29,7 @@ export const FlashCardOptionsMenu: React.FC<FlashCardOptionsMenuProps> = ({
 	const dispatch = useAppDispatch();
 	const isOwner = useIsCardOwner(card);
 	const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
+	const [showAnswer, setShowAnswer] = React.useState(false);
 
 	const hiddenIds = useAppSelector((state) => {
 		const stats = Object.values(state.userDeckStats.entities).find(
@@ -34,6 +38,10 @@ export const FlashCardOptionsMenu: React.FC<FlashCardOptionsMenuProps> = ({
 		return stats?.hiddenCardIds || [];
 	});
 	const hidden = hiddenIds.includes(card._id);
+	const hasTextPrompt =
+		card.type === CardTypeEnum.MultiSheet &&
+		card.question.presentationModes?.some((m) => m.id === 'Text Prompt');
+	const revealQuestion = card.type === CardTypeEnum.MultiSheet ? card.question : undefined;
 	const toggleHidden = () => {
 		const updated = hidden
 			? hiddenIds.filter((id) => id !== card._id)
@@ -47,6 +55,13 @@ export const FlashCardOptionsMenu: React.FC<FlashCardOptionsMenuProps> = ({
 			onClick: toggleHidden,
 		},
 	];
+
+	if (hasTextPrompt && revealQuestion) {
+		items.unshift({
+			label: 'Reveal answer',
+			onClick: () => setShowAnswer(true),
+		});
+	}
 
 	if (isOwner && showEdit) {
 		items.push({
@@ -78,6 +93,13 @@ export const FlashCardOptionsMenu: React.FC<FlashCardOptionsMenuProps> = ({
 				message="Delete this card?"
 				onConfirm={() => dispatch(deleteCard(card._id))}
 			/>
+			{revealQuestion && (
+				<RevealAnswerModal
+					isOpen={showAnswer}
+					onClose={() => setShowAnswer(false)}
+					question={revealQuestion as MultiSheetCard['question']}
+				/>
+			)}
 		</>
 	);
 };
