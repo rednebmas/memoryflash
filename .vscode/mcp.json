@@ -1,12 +1,12 @@
 {
 	"servers": {
 		"playwright": {
-			"command": "yarn",
-			"args": ["mcp-server-playwright", "--storage-state", "./apps/react/.auth-state.json"]
+			"command": "npx",
+			"args": ["@playwright/mcp@latest", "--storage-state", "./apps/react/.auth-state.json"]
 		},
 		"playwright-guest": {
-			"command": "yarn",
-			"args": ["mcp-server-playwright"]
+			"command": "npx",
+			"args": ["@playwright/mcp@latest"]
 		}
 	}
 }

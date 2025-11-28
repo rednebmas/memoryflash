@@ -775,18 +775,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@playwright/mcp@npm:^0.0.48":
-  version: 0.0.48
-  resolution: "@playwright/mcp@npm:0.0.48"
-  dependencies:
-    playwright: "npm:1.58.0-alpha-1763757971000"
-    playwright-core: "npm:1.58.0-alpha-1763757971000"
-  bin:
-    mcp-server-playwright: cli.js
-  checksum: 10c0/1eea2607f40b7b6053444d8b996ae65d770952ec46b0853b93fe71e30dd83e0f3ce48e5887947285b552f0fe244822186926e2e9f664afc6ccf01744eb32e7e2
-  languageName: node
-  linkType: hard
-
 "@playwright/test@npm:^1.42.1":
   version: 1.52.0
   resolution: "@playwright/test@npm:1.52.0"
@@ -2060,7 +2048,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "MemoryFlash@workspace:."
   dependencies:
-    "@playwright/mcp": "npm:^0.0.48"
     MemoryFlashReact: "workspace:apps/react"
     MemoryFlashServer: "workspace:apps/server"
     concurrently: "npm:^9.1.2"
@@ -6432,15 +6419,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"playwright-core@npm:1.58.0-alpha-1763757971000":
-  version: 1.58.0-alpha-1763757971000
-  resolution: "playwright-core@npm:1.58.0-alpha-1763757971000"
-  bin:
-    playwright-core: cli.js
-  checksum: 10c0/ee65f8d0ef126a301062a644e6f7df0da3fc60aa58366f382eeae508d81f90b852b2011035abc9daad3d8ddfbf9701d6d3b03d3e581403543300a0613c434dad
-  languageName: node
-  linkType: hard
-
 "playwright@npm:1.52.0":
   version: 1.52.0
   resolution: "playwright@npm:1.52.0"
@@ -6453,21 +6431,6 @@ __metadata:
   bin:
     playwright: cli.js
   checksum: 10c0/2c6edf1e15e59bbaf77f3fa0fe0ac975793c17cff835d9c8b8bc6395a3b6f1c01898b3058ab37891b2e4d424bcc8f1b4844fe70d943e0143d239d7451408c579
-  languageName: node
-  linkType: hard
-
-"playwright@npm:1.58.0-alpha-1763757971000":
-  version: 1.58.0-alpha-1763757971000
-  resolution: "playwright@npm:1.58.0-alpha-1763757971000"
-  dependencies:
-    fsevents: "npm:2.3.2"
-    playwright-core: "npm:1.58.0-alpha-1763757971000"
-  dependenciesMeta:
-    fsevents:
-      optional: true
-  bin:
-    playwright: cli.js
-  checksum: 10c0/311f3f0ca4b966d2080ae6508f1375c150401dd13b585417b7dbf101d5db90e9d6517cc0219e88be635752d895693cbaf59e07dd83b2f57fffbe6e74083c25f3
   languageName: node
   linkType: hard
 
