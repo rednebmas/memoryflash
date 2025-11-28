@@ -1,0 +1,12 @@
+{
+	"servers": {
+		"playwright": {
+			"command": "npx",
+			"args": ["@playwright/mcp@latest", "--storage-state", "./apps/react/.auth-state.json"]
+		},
+		"playwright-guest": {
+			"command": "npx",
+			"args": ["@playwright/mcp@latest"]
+		}
+	}
+}

@@ -10,7 +10,8 @@
 		"preview": "vite preview",
 		"test:screenshots": "BLOCK_REMOTE_FONTS=true playwright test",
 		"test:screenshots:update": "BLOCK_REMOTE_FONTS=true playwright test --update-snapshots",
-		"postinstall": "./scripts/install-playwright.sh"
+		"postinstall": "./scripts/install-playwright.sh",
+		"generate-auth-state": "npx tsx scripts/generate-auth-state.ts"
 	},
 	"dependencies": {
 		"@headlessui/react": "2.1.3",
