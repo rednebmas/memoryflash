@@ -33,6 +33,7 @@ export const NotationInputScreen = () => {
 	const { deckId } = useDeckIdPath();
 	const { cardId } = useParams();
 	const card = useAppSelector((state) => (cardId ? state.cards.entities[cardId] : undefined));
+	const initialQuestion = card?.type === CardTypeEnum.MultiSheet ? card.question : undefined;
 	const { isLoading: isUpdating, error: updateError } = useNetworkState('updateCard');
 	const { isLoading: isAdding, error: addError } = useNetworkState('addCardsToDeck');
 	useEffect(() => {
@@ -48,6 +49,8 @@ export const NotationInputScreen = () => {
 				// If editing a Text Prompt card, default to previewing the text prompt
 				preview: !!text,
 			}));
+			setQuestion(card.question);
+			setComplete(true);
 		}
 	}, [card]);
 	const previewsAll = questionsForAllMajorKeys(question, settings.lowest, settings.highest);
@@ -96,6 +99,7 @@ export const NotationInputScreen = () => {
 				keySig={settings.keySig}
 				resetSignal={resetCount}
 				onChange={handleScoreChange}
+				initialQuestion={initialQuestion}
 			>
 				<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 					<div>

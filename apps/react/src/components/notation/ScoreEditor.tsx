@@ -10,7 +10,7 @@ import React, {
 import { shallowEqual } from 'react-redux';
 import { MusicNotation } from '../MusicNotation';
 import { StepTimeController } from 'MemoryFlashCore/src/lib/stepTimeController';
-import { scoreToQuestion } from 'MemoryFlashCore/src/lib/scoreBuilder';
+import { questionToScore, scoreToQuestion } from 'MemoryFlashCore/src/lib/scoreBuilder';
 import { Duration, BaseDuration } from 'MemoryFlashCore/src/lib/measure';
 import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
 import { SheetNote, MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
@@ -66,8 +66,20 @@ const isFull = (score: Score) => {
 	});
 };
 
-function useStepCtrl(keySig: string, resetSignal: number, notify: ScoreChangeHandler) {
-	const ctrlRef = useRef(new StepTimeController());
+function useStepCtrl(
+	keySig: string,
+	resetSignal: number,
+	notify: ScoreChangeHandler,
+	initialQuestion?: MultiSheetQuestion,
+) {
+	const controllerFactory = useMemo(
+		() => () =>
+			new StepTimeController(
+				initialQuestion ? questionToScore(initialQuestion) : new Score(),
+			),
+		[initialQuestion],
+	);
+	const ctrlRef = useRef(controllerFactory());
 	const [dur, setDurState] = useState<BaseDuration>('q');
 	const [dotted, setDotted] = useState(false);
 	const [extraDurations, setExtraDurations] = useState<Duration[]>([]);
@@ -80,7 +92,7 @@ function useStepCtrl(keySig: string, resetSignal: number, notify: ScoreChangeHan
 	const midi = useAppSelector((s) => s.midi.notes.map((n) => n.number), shallowEqual);
 	const prev = useRef<number[]>([]);
 	const maxChord = useRef<number[]>([]);
-	const [question, setQuestion] = useState(() => scoreToQuestion(new Score(), keySig));
+	const [question, setQuestion] = useState(() => scoreToQuestion(ctrlRef.current.score, keySig));
 
 	const emit = useCallback(() => {
 		const ctrl = ctrlRef.current;
@@ -145,6 +157,15 @@ function useStepCtrl(keySig: string, resetSignal: number, notify: ScoreChangeHan
 	}, [resetSignal]);
 
 	useEffect(() => {
+		ctrlRef.current = controllerFactory();
+		applyDurRef.current();
+		ctrlRef.current.setStaff(staffRef.current);
+		maxChord.current = [];
+		prev.current = [];
+		emitRef.current();
+	}, [controllerFactory]);
+
+	useEffect(() => {
 		applyDur();
 		emit();
 	}, [applyDur, emit]);
@@ -199,6 +220,7 @@ interface ProviderProps {
 	keySig: string;
 	resetSignal: number;
 	onChange: ScoreChangeHandler;
+	initialQuestion?: MultiSheetQuestion;
 	children: React.ReactNode;
 }
 
@@ -206,9 +228,10 @@ export const ScoreEditorProvider: React.FC<ProviderProps> = ({
 	keySig,
 	resetSignal,
 	onChange,
+	initialQuestion,
 	children,
 }) => {
-	const value = useStepCtrl(keySig, resetSignal, onChange);
+	const value = useStepCtrl(keySig, resetSignal, onChange, initialQuestion);
 	return <ScoreEditorContext.Provider value={value}>{children}</ScoreEditorContext.Provider>;
 };
 

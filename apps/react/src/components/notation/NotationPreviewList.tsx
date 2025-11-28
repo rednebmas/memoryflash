@@ -36,14 +36,19 @@ export const NotationPreviewList: React.FC<NotationPreviewListProps> = ({
 	keySig,
 }) => {
 	const base = previews.find((p) => p.key === keySig);
+	const baseStackLength = base?.voices?.[0]?.stack?.length ?? 0;
 	const others = previews.filter((p) => p.key !== keySig);
 	const showText = !!previewTextCard && cardType === 'Text Prompt';
 	const prompt = textPrompt ?? '';
 	return (
-		<div className="flex flex-col items-center gap-5">
+		<div
+			className="flex flex-col items-center gap-5"
+			data-base-key={base?.key ?? ''}
+			data-base-stack-length={baseStackLength}
+		>
 			<PreviewCard
 				notation={<ScoreEditor />}
-				total={base?.voices[0].stack.length ?? 0}
+				total={baseStackLength}
 				showText={showText}
 				text={prompt}
 			/>
@@ -51,7 +56,7 @@ export const NotationPreviewList: React.FC<NotationPreviewListProps> = ({
 				<PreviewCard
 					key={i}
 					notation={<MusicNotation data={p} />}
-					total={p.voices[0].stack.length}
+					total={p.voices?.[0]?.stack?.length ?? 0}
 					showText={showText}
 					text={prompt}
 				/>
