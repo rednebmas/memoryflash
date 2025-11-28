@@ -40,7 +40,11 @@ export const NotationPreviewList: React.FC<NotationPreviewListProps> = ({
 	const showText = !!previewTextCard && cardType === 'Text Prompt';
 	const prompt = textPrompt ?? '';
 	return (
-		<div className="flex flex-col items-center gap-5">
+		<div
+			className="flex flex-col items-center gap-5"
+			data-base-key={base?.key ?? ''}
+			data-base-stack-length={base?.voices[0].stack.length ?? 0}
+		>
 			<PreviewCard
 				notation={<ScoreEditor />}
 				total={base?.voices[0].stack.length ?? 0}
