@@ -3,7 +3,7 @@ import { Deck } from '../models/Deck';
 import { UserDeckStats } from '../models/UserDeckStats';
 import { User } from 'MemoryFlashCore/src/types/User';
 import { Visibility, VISIBILITIES } from 'MemoryFlashCore/src/types/Deck';
-import { deleteDeckById } from './deckService';
+import { deleteDeckById, copyDeckToCoure } from './deckService';
 
 export async function createCourse(name: string, userId?: string) {
 	const course = new Course({ name, decks: [], userId });
@@ -81,4 +81,35 @@ export async function getCoursePreview(courseId: string) {
 		},
 		decks: decksWithCounts,
 	};
+}
+
+export async function importCourse(courseId: string, userId: string) {
+	const sourceCourse = await Course.findById(courseId);
+	if (!sourceCourse || sourceCourse.visibility === 'private') return null;
+
+	const newCourse = new Course({
+		name: sourceCourse.name,
+		decks: [],
+		userId,
+		visibility: 'private',
+		importedFromCourseId: courseId,
+	});
+	await newCourse.save();
+
+	const newDeckIds: string[] = [];
+	for (const sourceDeckId of sourceCourse.decks) {
+		const newDeck = await copyDeckToCoure(
+			sourceDeckId.toString(),
+			newCourse._id.toString(),
+			userId,
+		);
+		if (newDeck) {
+			newDeckIds.push(newDeck._id.toString());
+		}
+	}
+
+	newCourse.decks = newDeckIds;
+	await newCourse.save();
+
+	return { course: newCourse, deckCount: newDeckIds.length };
 }

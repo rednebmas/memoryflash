@@ -8,6 +8,7 @@ import {
 	deleteCourse,
 	updateCourseVisibility,
 	getCoursePreview,
+	importCourse,
 } from '../services/coursesService';
 import { User } from 'MemoryFlashCore/src/types/User';
 
@@ -81,6 +82,16 @@ router.patch('/:id/visibility', isAuthenticated, async (req, res, next) => {
 		);
 		if (!course) return res.status(404).json({ error: 'Not found or not authorized' });
 		return res.json({ course });
+	} catch (error) {
+		next(error);
+	}
+});
+
+router.post('/:id/import', isAuthenticated, async (req, res, next) => {
+	try {
+		const result = await importCourse(req.params.id, (req.user as User)._id.toString());
+		if (!result) return res.status(404).json({ error: 'Not found' });
+		return res.json(result);
 	} catch (error) {
 		next(error);
 	}

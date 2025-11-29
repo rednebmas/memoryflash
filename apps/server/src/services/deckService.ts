@@ -193,6 +193,45 @@ async function getOrCreateImportedDecksCourse(userId: string) {
 	return course;
 }
 
+export async function copyDeckToCoure(
+	sourceDeckId: string,
+	targetCourseId: string,
+	userId: string,
+) {
+	const sourceDeck = await Deck.findById(sourceDeckId);
+	if (!sourceDeck) return null;
+
+	const sourceCards = await Card.find({ deckId: sourceDeck._id }).lean();
+	const now = Date.now();
+
+	const newDeck = new Deck({
+		uid: `imported-${sourceDeckId}-${now}`,
+		courseId: targetCourseId,
+		name: sourceDeck.name,
+		section: sourceDeck.section,
+		sectionSubtitle: sourceDeck.sectionSubtitle,
+		tags: [...sourceDeck.tags],
+		cardCount: sourceCards.length,
+		visibility: 'private',
+		importedFromDeckId: sourceDeckId,
+	});
+	await newDeck.save();
+
+	if (sourceCards.length > 0) {
+		const newCards = sourceCards.map((card, i) => ({
+			uid: `imported-${newDeck._id}-${now}-${i}`,
+			deckId: newDeck._id,
+			userId: new Types.ObjectId(userId),
+			type: card.type,
+			question: card.question,
+			answer: card.answer,
+		}));
+		await Card.insertMany(newCards);
+	}
+
+	return newDeck;
+}
+
 export async function importDeck(deckId: string, userId: string, targetCourseId?: string) {
 	const sourceDeck = await Deck.findById(deckId);
 	if (!sourceDeck || sourceDeck.visibility === 'private') return null;
@@ -205,32 +244,8 @@ export async function importDeck(deckId: string, userId: string, targetCourseId?
 		targetCourse = await getOrCreateImportedDecksCourse(userId);
 	}
 
-	const sourceCards = await Card.find({ deckId: sourceDeck._id }).lean();
-
-	const newDeck = new Deck({
-		uid: `imported-${deckId}-${Date.now()}`,
-		courseId: targetCourse._id,
-		name: sourceDeck.name,
-		section: 'Imported',
-		sectionSubtitle: '',
-		tags: [...sourceDeck.tags],
-		cardCount: sourceCards.length,
-		visibility: 'private',
-		importedFromDeckId: deckId,
-	});
-	await newDeck.save();
-
-	if (sourceCards.length > 0) {
-		const newCards = sourceCards.map((card, i) => ({
-			uid: `imported-${newDeck._id}-${Date.now()}-${i}`,
-			deckId: newDeck._id,
-			userId: new Types.ObjectId(userId),
-			type: card.type,
-			question: card.question,
-			answer: card.answer,
-		}));
-		await Card.insertMany(newCards);
-	}
+	const newDeck = await copyDeckToCoure(deckId, targetCourse._id.toString(), userId);
+	if (!newDeck) return null;
 
 	targetCourse.decks.push(newDeck._id);
 	await targetCourse.save();
