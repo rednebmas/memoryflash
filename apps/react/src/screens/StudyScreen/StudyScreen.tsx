@@ -24,6 +24,7 @@ import { QuestionPresentationModePills } from './QuestionPresentationModePills';
 import Timer from './Timer';
 import useWindowResize from './useWindowResize';
 import { AccountNavButton } from '../../components/navigation/AccountNavButton';
+import { StreakChip } from '../../components/StreakChip';
 import { IS_TEST_ENV } from '../../utils/constants';
 import { isCardOwner } from '../../utils/useIsCardOwner';
 
@@ -134,6 +135,7 @@ export const StudyScreen = () => {
 			contentClassName="max-w-none sm:px-0 lg:px-0"
 			right={
 				<div className="flex items-center gap-4 ml-2">
+					<StreakChip />
 					<div className="pl-1">
 						<Metronome bpm={bpm} />
 					</div>

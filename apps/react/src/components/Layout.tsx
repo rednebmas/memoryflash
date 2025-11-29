@@ -7,6 +7,7 @@ import { MidiInputsDropdown } from './MidiInputsDropdown';
 import { AccountNavButton } from './navigation/AccountNavButton';
 import { isIOSDebug } from '../utils/isIOSDebug';
 import { ConsoleErrorsButton } from './ConsoleErrorsButton';
+import { StreakChip } from './StreakChip';
 
 interface LayoutProps {
 	children: React.ReactNode;
@@ -30,6 +31,7 @@ export const Layout: React.FC<LayoutProps> = ({
 	const iosDebug = isIOSDebug();
 	const rightContent = right || (
 		<>
+			<StreakChip />
 			<AccountNavButton />
 			<CircleHover link="/community">
 				<GlobeAltIcon className="w-6 h-6 stroke-2" />

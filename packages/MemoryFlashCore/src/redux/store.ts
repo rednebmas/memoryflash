@@ -18,6 +18,7 @@ import { networkReducer } from './slices/networkSlice';
 import { schedulerReducer } from './slices/schedulerSlice';
 import { settingsReducer } from './slices/settingsSlice';
 import { userDeckStatsReducer } from './slices/userDeckStatsSlice';
+import { userStatsReducer } from './slices/userStatsSlice';
 
 const appReducer = combineReducers({
 	attempts: attemptsReducer,
@@ -32,6 +33,7 @@ const appReducer = combineReducers({
 	scheduler: schedulerReducer,
 	settings: settingsReducer,
 	userDeckStats: userDeckStatsReducer,
+	userStats: userStatsReducer,
 });
 
 type ExtraThunkArgs = {

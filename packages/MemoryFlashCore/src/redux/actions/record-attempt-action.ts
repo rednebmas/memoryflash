@@ -8,6 +8,7 @@ import { midiActions } from '../slices/midiSlice';
 import { schedulerActions } from '../slices/schedulerSlice';
 import { AppThunk } from '../store';
 import { schedule } from './schedule-cards-action';
+import { updateLocalStreak } from './update-local-streak-action';
 
 export const recordAttempt =
 	(correct: boolean): AppThunk =>
@@ -56,6 +57,8 @@ export const recordAttempt =
 		if (getState().scheduler.nextCards.length < 3) {
 			dispatch(schedule(card.deckId));
 		}
+
+		dispatch(updateLocalStreak(attempt.attemptedAt));
 
 		await api.post('/attempts', attempt);
 	};

@@ -11,6 +11,7 @@ interface AccountScreenProps {}
 export const AccountScreen: React.FC<AccountScreenProps> = () => {
 	const dispatch = useAppDispatch();
 	const user = useAppSelector((s) => s.auth.user);
+	const timezone = useAppSelector((s) => s.userStats.userStats?.timezone ?? 'UTC');
 	const [profileData, setProfileData] = React.useState({
 		firstName: user?.firstName ?? '',
 		lastName: user?.lastName ?? '',
@@ -77,6 +78,7 @@ export const AccountScreen: React.FC<AccountScreenProps> = () => {
 									}
 								/>
 								<ProfileRow label="Email address" value={user?.email ?? ''} />
+								<ProfileRow label="Timezone" value={timezone ?? 'UTC'} />
 							</dl>
 						</div>
 					</div>

@@ -1,5 +1,6 @@
 import { Document, Schema, model } from 'mongoose';
 import { processAttempt } from '../services/statsService';
+import { updateStreakForAttempt } from '../services/userStatsService';
 import { AttemptMongo } from 'MemoryFlashCore/src/types/Attempt';
 import { Deck } from './Deck';
 import { incrementLeaderboardForDeck } from './CommunityLeaderboard';
@@ -32,6 +33,7 @@ attemptSchema.post('save', async function () {
 	if (deck?.visibility === 'public') {
 		await incrementLeaderboardForDeck(this.deckId.toString());
 	}
+	await updateStreakForAttempt(this as AttemptDoc);
 });
 
 const Attempt = model('Attempt', attemptSchema);

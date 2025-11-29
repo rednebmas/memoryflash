@@ -5,7 +5,7 @@ export let store: Store;
 
 export const rdxPersist = new RDXPersist<ReduxState>([], []);
 
-rdxPersist.keysToPersist = ['auth', 'settings'];
+rdxPersist.keysToPersist = ['auth', 'settings', 'userStats'];
 
 const persistStore = (state: ReduxState) => {
 	rdxPersist.persist(state);
