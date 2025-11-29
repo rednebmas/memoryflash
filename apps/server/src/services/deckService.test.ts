@@ -9,7 +9,7 @@ import Attempt, { AttemptDoc } from '../models/Attempt';
 import { Card } from '../models/Card';
 import { DeckDoc } from '../models/Deck';
 import { User } from 'MemoryFlashCore/src/types/User';
-import { addCardsToDeck, getDeckForUser, importDeck } from './deckService';
+import { addCardsToDeck, getDeckForUser, importDeck, updateDeckVisibility } from './deckService';
 import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
 import Course from '../models/Course';
 import { Deck } from '../models/Deck';
@@ -233,5 +233,130 @@ describe('importDeck', () => {
 		);
 
 		expect(result).to.be.null;
+	});
+});
+
+describe('updateDeckVisibility', () => {
+	let user: UserDoc, deck: DeckDoc;
+	setupDBConnectionForTesting();
+
+	beforeEach(async () => {
+		const seededData = await seed();
+		user = seededData.user;
+		deck = seededData.deck;
+		const course = await Course.findById(deck.courseId);
+		course!.userId = user._id.toString();
+		await course!.save();
+	});
+
+	it('rejects non-public visibility for decks in public courses', async () => {
+		const course = await Course.findById(deck.courseId);
+		course!.visibility = 'public';
+		await course!.save();
+
+		deck.visibility = 'public';
+		await deck.save();
+
+		const privateResult = await updateDeckVisibility(
+			deck._id.toString(),
+			'private',
+			user._id.toString(),
+		);
+		expect(privateResult).to.be.null;
+
+		const unlistedResult = await updateDeckVisibility(
+			deck._id.toString(),
+			'unlisted',
+			user._id.toString(),
+		);
+		expect(unlistedResult).to.be.null;
+
+		const refreshedDeck = await Deck.findById(deck._id);
+		expect(refreshedDeck!.visibility).to.equal('public');
+	});
+
+	it('allows public visibility for decks in public courses', async () => {
+		const course = await Course.findById(deck.courseId);
+		course!.visibility = 'public';
+		await course!.save();
+
+		const result = await updateDeckVisibility(
+			deck._id.toString(),
+			'public',
+			user._id.toString(),
+		);
+		expect(result).to.not.be.null;
+		expect(result!.visibility).to.equal('public');
+	});
+
+	it('rejects private visibility for decks in unlisted courses', async () => {
+		const course = await Course.findById(deck.courseId);
+		course!.visibility = 'unlisted';
+		await course!.save();
+
+		deck.visibility = 'unlisted';
+		await deck.save();
+
+		const privateResult = await updateDeckVisibility(
+			deck._id.toString(),
+			'private',
+			user._id.toString(),
+		);
+		expect(privateResult).to.be.null;
+
+		const refreshedDeck = await Deck.findById(deck._id);
+		expect(refreshedDeck!.visibility).to.equal('unlisted');
+	});
+
+	it('allows unlisted and public visibility for decks in unlisted courses', async () => {
+		const course = await Course.findById(deck.courseId);
+		course!.visibility = 'unlisted';
+		await course!.save();
+
+		const unlistedResult = await updateDeckVisibility(
+			deck._id.toString(),
+			'unlisted',
+			user._id.toString(),
+		);
+		expect(unlistedResult).to.not.be.null;
+		expect(unlistedResult!.visibility).to.equal('unlisted');
+
+		const publicResult = await updateDeckVisibility(
+			deck._id.toString(),
+			'public',
+			user._id.toString(),
+		);
+		expect(publicResult).to.not.be.null;
+		expect(publicResult!.visibility).to.equal('public');
+	});
+
+	it('allows any visibility for decks in private courses', async () => {
+		const course = await Course.findById(deck.courseId);
+		course!.visibility = 'private';
+		await course!.save();
+
+		const publicResult = await updateDeckVisibility(
+			deck._id.toString(),
+			'public',
+			user._id.toString(),
+		);
+		expect(publicResult).to.not.be.null;
+		expect(publicResult!.visibility).to.equal('public');
+
+		const unlistedResult = await updateDeckVisibility(
+			deck._id.toString(),
+			'unlisted',
+			user._id.toString(),
+		);
+		expect(unlistedResult).to.not.be.null;
+		expect(unlistedResult!.visibility).to.equal('unlisted');
+
+		const privateResult = await updateDeckVisibility(
+			deck._id.toString(),
+			'private',
+			user._id.toString(),
+		);
+		expect(privateResult).to.not.be.null;
+		expect(privateResult!.visibility).to.equal('private');
 	});
 });

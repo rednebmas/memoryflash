@@ -7,7 +7,7 @@ import { User } from 'MemoryFlashCore/src/types/User';
 import { MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { CardTypeEnum, AnswerType } from 'MemoryFlashCore/src/types/Cards';
 import { Types } from 'mongoose';
-import { Visibility, VISIBILITIES } from 'MemoryFlashCore/src/types/Deck';
+import { Visibility, VISIBILITIES, VISIBILITY_LEVEL } from 'MemoryFlashCore/src/types/Deck';
 
 export async function getDeckForUser(deckId: string, user: User) {
 	const [deck, cards, userDeckStats] = await Promise.all([
@@ -160,6 +160,8 @@ export async function updateDeckVisibility(deckId: string, visibility: Visibilit
 	if (!deck) return null;
 	const course = await Course.findById(deck.courseId);
 	if (course?.userId?.toString() !== userId) return null;
+	const courseVisibility = course?.visibility ?? 'private';
+	if (VISIBILITY_LEVEL[visibility] < VISIBILITY_LEVEL[courseVisibility]) return null;
 	deck.visibility = visibility;
 	await deck.save();
 	return deck;

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
@@ -20,6 +20,7 @@ import { renameDeck } from 'MemoryFlashCore/src/redux/actions/rename-deck-action
 import { deleteDeck } from 'MemoryFlashCore/src/redux/actions/delete-deck-action';
 import { updateDeckVisibility } from 'MemoryFlashCore/src/redux/actions/update-deck-visibility-action';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
+import { Visibility } from 'MemoryFlashCore/src/types/Deck';
 
 export const DecksScreen = () => {
 	const dispatch = useAppDispatch();
@@ -41,6 +42,23 @@ export const DecksScreen = () => {
 	const [isCreateOpen, setIsCreateOpen] = React.useState(false);
 	const decks = useSelector(decksSelector);
 	const { isLoading, error } = useNetworkState('getCourse' + parsingCourseId);
+
+	const disabledVisibilityOptions = useMemo(():
+		| Partial<Record<Visibility, string>>
+		| undefined => {
+		if (course?.visibility === 'public') {
+			return {
+				private: 'Decks in a public course must be public',
+				unlisted: 'Decks in a public course must be public',
+			};
+		}
+		if (course?.visibility === 'unlisted') {
+			return {
+				private: 'Decks in an unlisted course cannot be private',
+			};
+		}
+		return undefined;
+	}, [course?.visibility]);
 
 	if (courseId && parsingCourseId != courseId) {
 		dispatch(coursesActions.setParsingCourse(courseId));
@@ -86,6 +104,9 @@ export const DecksScreen = () => {
 													dispatch(
 														updateDeckVisibility(String(deck._id), v),
 													)
+												}
+												disabledVisibilityOptions={
+													disabledVisibilityOptions
 												}
 											/>
 										) : undefined,

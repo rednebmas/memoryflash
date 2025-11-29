@@ -2,6 +2,7 @@
 
 This project prefers a highly componentized React codebase that avoids duplicate code.
 
+-   **DRY Code (CRITICAL)**: Before writing ANY new code, ALWAYS search the codebase for existing implementations that might already solve your problem. Never duplicate logic - if similar code exists, refactor to share it. If you find yourself writing similar patterns, extract it into a helper function or component. Violating DRY is unacceptable.
 -   **Componentization**: Extract reusable JSX into components whenever possible. Keep components small and focused refactoring them as needed.
 -   **Code Size**: Keep individual functions under 25 lines. Keep files under 150 lines when possible. If code grows larger, refactor into smaller components to keep it readable, maintainable, and elegant.
 -   **Refactoring**: You are empowered to rewrite or refactor existing code to avoid duplication and to simplify the code base. It's prefered to delete lines of code than to add lines of code to solve problems.
