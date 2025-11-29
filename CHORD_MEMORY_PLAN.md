@@ -9,7 +9,7 @@ This feature adds a new card type called "Chord Memory" to the NotationInputScre
 ## Progress
 
 -   [x] Phase 1: Core Type Definitions
--   [ ] Phase 2: Chord Tone Extraction Utility
+-   [x] Phase 2: Chord Tone Extraction Utility
 -   [ ] Phase 3: Chord Memory Answer Validator
 -   [ ] Phase 4: Update Card Type Dropdown
 -   [ ] Phase 5: Chord Memory Settings UI
