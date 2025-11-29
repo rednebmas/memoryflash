@@ -9,6 +9,7 @@ import {
 	updateHiddenCards,
 	updateDeckVisibility,
 	getDeckPreview,
+	importDeck,
 } from '../services/deckService';
 import { User } from 'MemoryFlashCore/src/types/User';
 import { getDeckStats } from '../services/statsService';
@@ -116,6 +117,20 @@ router.patch('/:id/visibility', isAuthenticated, async (req, res, next) => {
 		);
 		if (!deck) return res.status(404).json({ error: 'Not found or not authorized' });
 		return res.json({ deck });
+	} catch (error) {
+		next(error);
+	}
+});
+
+router.post('/:id/import', isAuthenticated, async (req, res, next) => {
+	try {
+		const result = await importDeck(
+			req.params.id,
+			(req.user as User)._id.toString(),
+			req.body.courseId,
+		);
+		if (!result) return res.status(404).json({ error: 'Not found' });
+		return res.json(result);
 	} catch (error) {
 		next(error);
 	}

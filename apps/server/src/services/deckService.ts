@@ -181,3 +181,59 @@ export async function getDeckPreview(deckId: string) {
 		course: course ? { _id: course._id, name: course.name } : null,
 	};
 }
+
+const IMPORTED_DECKS_COURSE_NAME = 'Imported Decks';
+
+async function getOrCreateImportedDecksCourse(userId: string) {
+	let course = await Course.findOne({ userId, name: IMPORTED_DECKS_COURSE_NAME });
+	if (!course) {
+		course = new Course({ name: IMPORTED_DECKS_COURSE_NAME, decks: [], userId });
+		await course.save();
+	}
+	return course;
+}
+
+export async function importDeck(deckId: string, userId: string, targetCourseId?: string) {
+	const sourceDeck = await Deck.findById(deckId);
+	if (!sourceDeck || sourceDeck.visibility === 'private') return null;
+
+	let targetCourse;
+	if (targetCourseId) {
+		targetCourse = await Course.findOne({ _id: targetCourseId, userId });
+		if (!targetCourse) return null;
+	} else {
+		targetCourse = await getOrCreateImportedDecksCourse(userId);
+	}
+
+	const sourceCards = await Card.find({ deckId: sourceDeck._id }).lean();
+
+	const newDeck = new Deck({
+		uid: `imported-${deckId}-${Date.now()}`,
+		courseId: targetCourse._id,
+		name: sourceDeck.name,
+		section: 'Imported',
+		sectionSubtitle: '',
+		tags: [...sourceDeck.tags],
+		cardCount: sourceCards.length,
+		visibility: 'private',
+		importedFromDeckId: deckId,
+	});
+	await newDeck.save();
+
+	if (sourceCards.length > 0) {
+		const newCards = sourceCards.map((card, i) => ({
+			uid: `imported-${newDeck._id}-${Date.now()}-${i}`,
+			deckId: newDeck._id,
+			userId: new Types.ObjectId(userId),
+			type: card.type,
+			question: card.question,
+			answer: card.answer,
+		}));
+		await Card.insertMany(newCards);
+	}
+
+	targetCourse.decks.push(newDeck._id);
+	await targetCourse.save();
+
+	return { deck: newDeck, course: targetCourse };
+}

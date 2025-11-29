@@ -11,7 +11,7 @@
 -   [x] Phase 7: Course Visibility & Preview APIs
 -   [x] Phase 8: Community Search API (Courses)
 -   [x] Phase 9: Leaderboard API
--   [ ] Phase 10: Deck Import API
+-   [x] Phase 10: Deck Import API
 -   [ ] Phase 11: Course Import API
 -   [ ] Phase 12: Redux Actions & Types
 -   [ ] Phase 13: VisibilityModal Component
@@ -382,7 +382,7 @@
 
 1. Create `DeckPreviewScreen` component
 2. Display deck name, course, card count
-3. "Import to My Library" button
+3. "Import to My Library" button with optional course selection dropdown
 4. Handle logged-out state (prompt to login)
 5. Handle deck not found state
 
@@ -394,6 +394,7 @@
 
 -   Shows deck details for valid preview URL
 -   Import button works for logged-in users
+-   User can optionally select which course to import into (defaults to "Imported Decks")
 -   Prompts login for logged-out users
 -   Shows error for invalid/private decks
 

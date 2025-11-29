@@ -1,7 +1,7 @@
 import CreateObjectId from 'bson-objectid';
 import { expect } from 'chai';
 import { it } from 'mocha';
-import { ObjectId } from 'mongoose';
+import { ObjectId, Types } from 'mongoose';
 import { seed } from '../config/test-seed';
 import { setupDBConnectionForTesting } from '../config/test-setup';
 import { UserDoc } from '../models';
@@ -9,8 +9,10 @@ import Attempt, { AttemptDoc } from '../models/Attempt';
 import { Card } from '../models/Card';
 import { DeckDoc } from '../models/Deck';
 import { User } from 'MemoryFlashCore/src/types/User';
-import { addCardsToDeck, getDeckForUser } from './deckService';
+import { addCardsToDeck, getDeckForUser, importDeck } from './deckService';
 import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
+import Course from '../models/Course';
+import { Deck } from '../models/Deck';
 
 describe('getDeckForUser', () => {
 	let user: UserDoc,
@@ -137,5 +139,99 @@ describe('addCardsToDeck', () => {
 
 		const persistedCard = await Card.findById(cards[0]._id);
 		expect(persistedCard?.userId?.toString()).to.equal(user._id.toString());
+	});
+});
+
+describe('importDeck', () => {
+	let user: UserDoc, deck: DeckDoc;
+	setupDBConnectionForTesting();
+
+	beforeEach(async () => {
+		const seededData = await seed();
+		user = seededData.user;
+		deck = seededData.deck;
+	});
+
+	it('returns null for private decks', async () => {
+		deck.visibility = 'private';
+		await deck.save();
+
+		const result = await importDeck(deck._id.toString(), user._id.toString());
+		expect(result).to.be.null;
+	});
+
+	it('imports a public deck with all cards', async () => {
+		deck.visibility = 'public';
+		await deck.save();
+
+		const originalCards = await Card.find({ deckId: deck._id });
+		const result = await importDeck(deck._id.toString(), user._id.toString());
+
+		expect(result).to.not.be.null;
+		expect(result!.deck.name).to.equal(deck.name);
+		expect(result!.deck.importedFromDeckId).to.equal(deck._id.toString());
+		expect(result!.course.name).to.equal('Imported Decks');
+
+		const importedCards = await Card.find({ deckId: result!.deck._id });
+		expect(importedCards.length).to.equal(originalCards.length);
+	});
+
+	it('reuses existing Imported Decks course', async () => {
+		deck.visibility = 'public';
+		await deck.save();
+
+		await importDeck(deck._id.toString(), user._id.toString());
+		const secondDeck = await Deck.create({
+			uid: 'second-deck',
+			name: 'Second Deck',
+			courseId: deck.courseId,
+			section: 'Test',
+			visibility: 'public',
+		});
+		await importDeck(secondDeck._id.toString(), user._id.toString());
+
+		const importedCourses = await Course.find({ userId: user._id, name: 'Imported Decks' });
+		expect(importedCourses.length).to.equal(1);
+		expect(importedCourses[0].decks.length).to.equal(2);
+	});
+
+	it('imports to a specified course when courseId provided', async () => {
+		deck.visibility = 'public';
+		await deck.save();
+
+		const targetCourse = await Course.create({
+			name: 'My Custom Course',
+			decks: [],
+			userId: user._id,
+		});
+
+		const result = await importDeck(
+			deck._id.toString(),
+			user._id.toString(),
+			targetCourse._id.toString(),
+		);
+
+		expect(result).to.not.be.null;
+		expect(result!.course._id.toString()).to.equal(targetCourse._id.toString());
+		expect(result!.course.name).to.equal('My Custom Course');
+	});
+
+	it('returns null when specified courseId does not belong to user', async () => {
+		deck.visibility = 'public';
+		await deck.save();
+
+		const otherCourse = await Course.create({
+			name: 'Other User Course',
+			decks: [],
+			userId: new Types.ObjectId(),
+		});
+
+		const result = await importDeck(
+			deck._id.toString(),
+			user._id.toString(),
+			otherCourse._id.toString(),
+		);
+
+		expect(result).to.be.null;
 	});
 });
