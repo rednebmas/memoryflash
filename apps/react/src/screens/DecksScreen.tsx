@@ -18,6 +18,7 @@ import { coursesActions } from 'MemoryFlashCore/src/redux/slices/coursesSlice';
 import { createDeck } from 'MemoryFlashCore/src/redux/actions/create-deck-action';
 import { renameDeck } from 'MemoryFlashCore/src/redux/actions/rename-deck-action';
 import { deleteDeck } from 'MemoryFlashCore/src/redux/actions/delete-deck-action';
+import { updateDeckVisibility } from 'MemoryFlashCore/src/redux/actions/update-deck-visibility-action';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 
 export const DecksScreen = () => {
@@ -79,6 +80,12 @@ export const DecksScreen = () => {
 												}
 												onDelete={() =>
 													dispatch(deleteDeck(String(deck._id)))
+												}
+												visibility={deck.visibility ?? 'private'}
+												onVisibilityChange={(v) =>
+													dispatch(
+														updateDeckVisibility(String(deck._id), v),
+													)
 												}
 											/>
 										) : undefined,

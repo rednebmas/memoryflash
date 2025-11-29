@@ -8,7 +8,6 @@ import {
 	Button,
 	InputModal,
 	CardOptionsMenu,
-	ConfirmModal,
 } from '../components';
 import { CircleHover } from '../components/CircleHover';
 import { BasicErrorCard } from '../components/ErrorCard';
@@ -23,6 +22,7 @@ import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store'
 import { deleteCourse } from 'MemoryFlashCore/src/redux/actions/delete-course-action';
 import { getFeed } from 'MemoryFlashCore/src/redux/actions/get-feed-action';
 import { recentDeckFeedItemsSelector } from 'MemoryFlashCore/src/redux/selectors/feedSelectors';
+import { updateCourseVisibility } from 'MemoryFlashCore/src/redux/actions/update-course-visibility-action';
 
 export const CoursesScreen = () => {
 	const dispatch = useAppDispatch();
@@ -31,8 +31,6 @@ export const CoursesScreen = () => {
 	const { isLoading, error } = useNetworkState('getCourses');
 	const { isLoading: isFeedLoading, error: feedError } = useNetworkState('getFeed');
 	const [isCreateOpen, setIsCreateOpen] = React.useState(false);
-	const [renameCourseId, setRenameCourseId] = React.useState<string | undefined>();
-	const [deleteCourseId, setDeleteCourseId] = React.useState<string | undefined>();
 	const recentDecks = useAppSelector(recentDeckFeedItemsSelector);
 	useEffect(() => {
 		dispatch(getCourses());
@@ -61,8 +59,14 @@ export const CoursesScreen = () => {
 							menu:
 								user && course.userId === user._id ? (
 									<CardOptionsMenu
-										onRename={() => setRenameCourseId(course._id)}
-										onDelete={() => setDeleteCourseId(course._id)}
+										itemName={course.name}
+										onRename={(val) => dispatch(renameCourse(course._id, val))}
+										onDelete={() => dispatch(deleteCourse(course._id))}
+										confirmMessage="Are you sure you want to delete this course?"
+										visibility={course.visibility ?? 'private'}
+										onVisibilityChange={(v) =>
+											dispatch(updateCourseVisibility(course._id, v))
+										}
 									/>
 								) : undefined,
 						};
@@ -78,21 +82,6 @@ export const CoursesScreen = () => {
 					onClose={() => setIsCreateOpen(false)}
 					label="Course name"
 					onSave={(val) => dispatch(createCourse(val))}
-				/>
-				<InputModal
-					isOpen={!!renameCourseId}
-					onClose={() => setRenameCourseId(undefined)}
-					label="Course name"
-					value={courses.find((c) => c._id === renameCourseId)?.name}
-					onSave={(val) => renameCourseId && dispatch(renameCourse(renameCourseId, val))}
-				/>
-				<ConfirmModal
-					isOpen={!!deleteCourseId}
-					onClose={() => setDeleteCourseId(undefined)}
-					message="Are you sure you want to delete this course?"
-					onConfirm={() => {
-						if (deleteCourseId) dispatch(deleteCourse(deleteCourseId));
-					}}
 				/>
 			</div>
 		</Layout>
