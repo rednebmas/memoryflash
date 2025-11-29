@@ -60,25 +60,31 @@ export const NotationInputScreen = () => {
 		setComplete(full);
 	}, []);
 
-	const handleAdd = () => {
-		if (deckId) {
-			if (!complete) return;
-			let toAdd = previews;
-			if (settings.cardType === 'Text Prompt') {
-				toAdd = previews.map((q) => ({
-					...q,
-					presentationModes: [{ id: 'Text Prompt', text: settings.textPrompt }],
-				}));
-				dispatch(setPresentationMode(CardTypeEnum.MultiSheet, 'Text Prompt'));
-			} else {
-				toAdd = previews.map((q) => ({
-					...q,
-					presentationModes: [{ id: 'Sheet Music' }],
-				}));
-				dispatch(setPresentationMode(CardTypeEnum.MultiSheet, 'Sheet Music'));
-			}
-			dispatch(addCardsToDeck(deckId, toAdd));
+	const handleSettingsChange = (newSettings: NotationSettingsState) => {
+		setSettings(newSettings);
+		if (newSettings.cardType === 'Chord Memory') {
+			setComplete(newSettings.chordMemory.chordTones.length > 0);
 		}
+	};
+
+	const handleAdd = () => {
+		if (!deckId || !complete) return;
+
+		let toAdd = previews;
+		if (settings.cardType === 'Text Prompt') {
+			toAdd = previews.map((q) => ({
+				...q,
+				presentationModes: [{ id: 'Text Prompt', text: settings.textPrompt }],
+			}));
+			dispatch(setPresentationMode(CardTypeEnum.MultiSheet, 'Text Prompt'));
+		} else {
+			toAdd = previews.map((q) => ({
+				...q,
+				presentationModes: [{ id: 'Sheet Music' }],
+			}));
+			dispatch(setPresentationMode(CardTypeEnum.MultiSheet, 'Sheet Music'));
+		}
+		dispatch(addCardsToDeck(deckId, toAdd));
 	};
 
 	const handleUpdate = () => {
@@ -103,7 +109,7 @@ export const NotationInputScreen = () => {
 			>
 				<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 					<div>
-						<NotationSettings settings={settings} onChange={setSettings} />
+						<NotationSettings settings={settings} onChange={handleSettingsChange} />
 					</div>
 					<div className="flex flex-col justify-center items-center min-h-[400px] space-y-6">
 						<NotationPreviewList

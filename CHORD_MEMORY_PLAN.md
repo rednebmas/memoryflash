@@ -11,7 +11,7 @@ This feature adds a new card type called "Chord Memory" to the NotationInputScre
 -   [x] Phase 1: Core Type Definitions
 -   [x] Phase 2: Chord Tone Extraction Utility
 -   [x] Phase 3: Chord Memory Answer Validator
--   [ ] Phase 4: Update Card Type Dropdown
+-   [x] Phase 4: Update Card Type Dropdown
 -   [ ] Phase 5: Chord Memory Settings UI
 -   [ ] Phase 6: Optional Chord Tones UI
 -   [ ] Phase 7: NotationInputScreen Integration
@@ -152,34 +152,32 @@ Update the card type union from `'Sheet Music' | 'Text Prompt'` to include `'Cho
 
 **Goal:** Show chord input UI when "Chord Memory" is selected, allowing users to directly enter chord symbols.
 
+**Architecture Notes:**
+
+-   Settings state should have a top-level `chordMemory` key containing all chord memory settings
+-   `CardTypeOptions` should receive the entire `settings` object, not individual props
+-   Use `chordTones` instead of `parsedChords` for clarity
+-   Single `onChange` callback that passes the entire updated state
+
 **Tasks:**
 
-1. Update `CardTypeOptions` to show chord input when "Chord Memory" selected
-2. Provide a text input for entering chord progression (e.g., "Cm7 F7 Bbmaj7 Ebmaj7")
-3. Parse the chord string into individual chord symbols
-4. Display the parsed chords with their extracted chord tones below the input
-5. Validate chord names using tonal library and show error for invalid chords
+1. Update `defaultSettings.ts` to add `chordMemory: { progression: string, chordTones: ChordMemoryChord[] }`
+2. Update `CardTypeOptions` to accept full `settings` object
+3. Show a text input for chord progression when "Chord Memory" selected
+4. Parse progression string and display chord tones below input
 
 **Files to modify:**
 
+-   `apps/react/src/components/notation/defaultSettings.ts`
 -   `apps/react/src/components/notation/CardTypeOptions.tsx`
-
-**UI Design:**
-
-When "Chord Memory" is selected:
-
--   Show a text input labeled "Chord Progression" with placeholder "e.g., Cm7 F7 Bbmaj7"
--   Below the input, display each parsed chord with its chord tones
--   Invalid chord names should be highlighted with an error message
--   Each chord's tones are shown and can be toggled (Phase 6)
+-   `apps/react/src/components/notation/NotationSettings.tsx`
 
 **Acceptance criteria:**
 
 -   Text input appears when "Chord Memory" selected
--   Chord progression string is parsed into individual chords on space/comma
+-   Chord progression string is parsed into individual chords
 -   Each chord's tones are extracted and displayed
 -   Invalid chord names show clear error feedback
--   UI updates in real-time as user types
 
 ---
 
@@ -189,29 +187,19 @@ When "Chord Memory" is selected:
 
 **Tasks:**
 
-1. Create `ChordToneSelector` component
-2. Display each chord tone as a toggleable chip
-3. Clicking a tone toggles it between required/optional
-4. Store optional tones in settings state
-
-**Files to create:**
-
--   `apps/react/src/components/notation/ChordToneSelector.tsx`
+1. Update `ChordToneDisplay` component with toggleable chips
+2. Clicking a tone toggles it between required/optional
+3. At least one tone must remain required
 
 **UI Design:**
 
-Display each chord with its name and chord tones as toggleable chips. Example: for Cmaj7, show [C ✓] [E ✓] [G ✓] [B ○] where filled/checked tones are required and empty/unchecked tones are optional.
-
--   Filled/checked = required
--   Empty/unchecked = optional (can be omitted)
--   At least one tone must remain required
+Display each chord with its name and chord tones as toggleable chips. Filled = required, outlined/dashed = optional.
 
 **Acceptance criteria:**
 
 -   Can toggle any tone between required/optional
 -   Cannot make all tones optional
 -   Visual distinction between required and optional
--   Changes persist in settings state
 
 ---
 
@@ -221,67 +209,49 @@ Display each chord with its name and chord tones as toggleable chips. Example: f
 
 **Tasks:**
 
-1. Update settings state to include chord memory configuration
-2. When adding card, generate `ChordMemoryAnswer` from settings
-3. Pass chord memory config to card creation action
-4. Update `handleAdd` to build correct answer type
+1. Update `handleAdd` to create cards with `ChordMemoryAnswer` when cardType is "Chord Memory"
+2. Chord Memory cards use existing presentation modes (Text Prompt, Chords, etc.) - NOT a new presentation mode
+3. The answer type determines validation behavior, not presentation mode
+
+**Key Architecture Decision:**
+
+Chord Memory does NOT need its own presentation mode. Existing presentation modes (Text Prompt, Chords, Sheet Music) work fine for display. The difference is in the **answer validation** - ChordMemoryAnswerValidator checks chord tones instead of exact notes.
 
 **Files to modify:**
 
 -   `apps/react/src/screens/NotationInputScreen.tsx`
--   `apps/react/src/components/notation/defaultSettings.ts`
--   `packages/MemoryFlashCore/src/redux/actions/add-cards-to-deck.ts` (if needed)
-
-**Settings State Addition:**
-
-Add `chordMemoryConfig?: ChordMemoryChord[]` field to `NotationSettingsState` interface to store the configured required/optional tones for each chord.
-
-**Card Creation:**
-
-When `cardType === 'Chord Memory'`, create a `ChordMemoryAnswer` object with type `ChordMemory` and the chords array from `settings.chordMemoryConfig`.
 
 **Acceptance criteria:**
 
--   "Chord Memory" cards created with correct answer type
--   Optional tones are preserved in card data
+-   "Chord Memory" cards created with `ChordMemoryAnswer` type
+-   Cards use existing presentation modes for display
 -   Card saves to database correctly
 
 ---
 
 ## Phase 8: Presentation Mode Support
 
-**Goal:** Add presentation mode for Chord Memory cards during study.
+**Goal:** Wire up ChordMemoryAnswerValidator in AnswerValidator component.
+
+**Key Point:** No new presentation mode needed! Chord Memory cards use existing presentation modes but route to `ChordMemoryAnswerValidator` based on answer type.
 
 **Tasks:**
 
-1. Add "Chord Memory" to `PresentationModeIds` type
-2. Update `AnswerValidator` to use `ChordMemoryAnswerValidator` for this type
-3. Update `MultiSheetCardQuestion` to display appropriately
-4. Update `RevealAnswerModal` to support Chord Memory cards - show the chord progression with clear visual distinction between required and optional tones
-5. Update `FlashCardOptionsMenu` to show "Reveal answer" option for Chord Memory cards
+1. Update `AnswerValidator` to check for `AnswerType.ChordMemory` and use `ChordMemoryAnswerValidator`
+2. Update `RevealAnswerModal` to show chord progression with required/optional tones for ChordMemory answers
+3. Update `FlashCardOptionsMenu` to show "Reveal answer" option for Chord Memory cards
 
 **Files to modify:**
 
--   `packages/MemoryFlashCore/src/types/PresentationMode.ts`
 -   `apps/react/src/components/answer-validators/AnswerValidator.tsx`
--   `apps/react/src/components/FlashCards/MultiSheetCardQuestion.tsx`
 -   `apps/react/src/components/FlashCards/RevealAnswerModal.tsx`
 -   `apps/react/src/components/FlashCardOptionsMenu.tsx`
 
-**Display Options:**
-
-For Chord Memory cards, the presentation could show:
-
--   Text prompt (like existing Text Prompt mode)
--   Chord symbols only (like existing Chords mode)
--   Sheet music without exact notes (optional)
-
 **Acceptance criteria:**
 
--   Chord Memory cards display correctly during study
--   Validator correctly checks chord tones, not exact notes
--   Progress through chord progression works
--   "Reveal answer" button works for Chord Memory cards and shows the chord progression with required/optional tones clearly indicated
+-   ChordMemoryAnswerValidator is used for ChordMemory answer types
+-   Reveal answer shows chord progression with tone indicators
+-   Validation correctly checks chord tones, not exact notes
 
 ---
 

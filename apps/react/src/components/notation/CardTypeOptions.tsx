@@ -1,48 +1,46 @@
 import React from 'react';
-import { CardTypeDropdown, CardType } from '../CardTypeDropdown';
+import { CardTypeDropdown } from '../CardTypeDropdown';
 import { InputField, Checkbox } from '../inputs';
 import { SettingsSection } from './SettingsSection';
+import { ChordProgressionInput } from './ChordProgressionInput';
+import { NotationSettingsState } from './defaultSettings';
 
 interface CardTypeOptionsProps {
-	cardType: CardType;
-	textPrompt: string;
-	preview: boolean;
-	onChange: (
-		changes: Partial<{
-			cardType: CardType;
-			textPrompt: string;
-			preview: boolean;
-		}>,
-	) => void;
+	settings: NotationSettingsState;
+	onChange: (changes: Partial<NotationSettingsState>) => void;
 }
 
-export const CardTypeOptions: React.FC<CardTypeOptionsProps> = ({
-	cardType,
-	textPrompt,
-	preview,
-	onChange,
-}) => (
+export const CardTypeOptions: React.FC<CardTypeOptionsProps> = ({ settings, onChange }) => (
 	<SettingsSection title="Card Type">
 		<div className="flex flex-col gap-4 items-start">
 			<div className="flex items-center gap-2">
-				<CardTypeDropdown value={cardType} onChange={(v) => onChange({ cardType: v })} />
+				<CardTypeDropdown
+					value={settings.cardType}
+					onChange={(cardType) => onChange({ cardType })}
+				/>
 			</div>
-			{cardType === 'Text Prompt' && (
+			{settings.cardType === 'Text Prompt' && (
 				<>
 					<InputField
 						id="text-prompt"
 						label="Prompt Text"
-						value={textPrompt}
+						value={settings.textPrompt}
 						onChange={(e) => onChange({ textPrompt: e.target.value })}
 					/>
 					<label className="flex items-center gap-2">
 						<Checkbox
-							checked={preview}
+							checked={settings.preview}
 							onChange={(e) => onChange({ preview: e.target.checked })}
 						/>
 						<span>Preview</span>
 					</label>
 				</>
+			)}
+			{settings.cardType === 'Chord Memory' && (
+				<ChordProgressionInput
+					chordMemory={settings.chordMemory}
+					onChange={(chordMemory) => onChange({ chordMemory })}
+				/>
 			)}
 		</div>
 	</SettingsSection>
