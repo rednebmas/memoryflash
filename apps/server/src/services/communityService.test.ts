@@ -3,7 +3,12 @@ import { it } from 'mocha';
 import { setupDBConnectionForTesting } from '../config/test-setup';
 import Course from '../models/Course';
 import { Deck } from '../models/Deck';
-import { searchPublicDecks, searchPublicCourses } from '../services/communityService';
+import { CommunityLeaderboard } from '../models/CommunityLeaderboard';
+import {
+	searchPublicDecks,
+	searchPublicCourses,
+	getLeaderboard,
+} from '../services/communityService';
 
 describe('communityService', () => {
 	setupDBConnectionForTesting();
@@ -109,6 +114,46 @@ describe('communityService', () => {
 
 			const page2 = await searchPublicCourses('', 2);
 			expect(page2.courses).to.have.length(5);
+		});
+	});
+
+	describe('getLeaderboard', () => {
+		it('returns empty entries when no leaderboard exists', async () => {
+			const result = await getLeaderboard();
+			expect(result.entries).to.deep.equal([]);
+		});
+
+		it('returns leaderboard entries with deck and course info', async () => {
+			const course = await Course.create({ name: 'Test Course', decks: [] });
+			const deck1 = await Deck.create({
+				uid: 'deck-1',
+				name: 'Popular Deck',
+				courseId: course._id,
+				section: 'Test',
+				visibility: 'public',
+			});
+			const deck2 = await Deck.create({
+				uid: 'deck-2',
+				name: 'Less Popular Deck',
+				courseId: course._id,
+				section: 'Test',
+				visibility: 'public',
+			});
+
+			await CommunityLeaderboard.create({
+				entries: [
+					{ deckId: deck1._id, attemptCount: 100 },
+					{ deckId: deck2._id, attemptCount: 50 },
+				],
+			});
+
+			const result = await getLeaderboard();
+			expect(result.entries).to.have.length(2);
+			expect(result.entries[0].deckName).to.equal('Popular Deck');
+			expect(result.entries[0].attemptCount).to.equal(100);
+			expect(result.entries[0].courseName).to.equal('Test Course');
+			expect(result.entries[1].deckName).to.equal('Less Popular Deck');
+			expect(result.entries[1].attemptCount).to.equal(50);
 		});
 	});
 });
