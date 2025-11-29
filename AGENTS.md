@@ -2,15 +2,17 @@
 
 This project prefers a highly componentized React codebase that avoids duplicate code.
 
-- **Componentization**: Extract reusable JSX into components whenever possible. Keep components small and focused refactoring them as needed.
-- **Code Size**: Keep individual functions under 25 lines. Keep files under 150 lines when possible. If code grows larger, refactor into smaller components to keep it readable, maintainable, and elegant.
-- **Refactoring**: You are empowered to rewrite or refactor existing code to avoid duplication and to simplify the code base. It's prefered to delete lines of code than to add lines of code to solve problems.
-- **Styling**: Use Tailwind CSS utility classes. Share common styling through base components rather than repeating class strings.
-- **Git**: Do not commit .png files
-- **Formatting**: Code is formatted with Prettier using tabs. Run `npx prettier --write` before committing. Don't add comments to code unless absolutely necessary.
-- **Testing**: After changes, run `yarn test:codex` from the repository root to ensure all tests pass.
-- **Type Safety**: Avoid casting to `any`.
-- **Redux**: Compose selectors and helpers rather than copy/pasting logic.
+-   **Componentization**: Extract reusable JSX into components whenever possible. Keep components small and focused refactoring them as needed.
+-   **Code Size**: Keep individual functions under 25 lines. Keep files under 150 lines when possible. If code grows larger, refactor into smaller components to keep it readable, maintainable, and elegant.
+-   **Refactoring**: You are empowered to rewrite or refactor existing code to avoid duplication and to simplify the code base. It's prefered to delete lines of code than to add lines of code to solve problems.
+-   **Styling**: Use Tailwind CSS utility classes. Share common styling through base components rather than repeating class strings.
+-   **Git**: Do not commit .png files
+-   **Formatting**: Code is formatted with Prettier using tabs. Run `npx prettier --write` before committing. Don't add comments to code unless absolutely necessary.
+-   **Testing**: After changes, run `yarn test:codex` from the repository root to ensure all tests pass.
+-   **Type Safety**: Avoid casting to `any`.
+-   **Redux**: Compose selectors and helpers rather than copy/pasting logic.
+-   **Error Handling**: Keep error handling reasonable but not excessive. This is a small app - simple null checks and basic 404s are fine. Don't over-engineer with detailed error types for every edge case.
+-   **Unit Tests**: Write unit tests for important service functions, especially those involving business logic or data transformations.
 
 Follow these guidelines to keep the codebase clean and maintainable.
 
@@ -18,15 +20,15 @@ Follow these guidelines to keep the codebase clean and maintainable.
 
 This project has two Playwright MCP servers configured for browser automation:
 
-- **`playwright`** - Pre-authenticated session with test data seeded. Use this for testing features that require login.
-- **`playwright-guest`** - No authentication. Use this for testing login, signup, and other unauthenticated flows.
+-   **`playwright`** - Pre-authenticated session with test data seeded. Use this for testing features that require login.
+-   **`playwright-guest`** - No authentication. Use this for testing login, signup, and other unauthenticated flows.
 
 ### When to Use Browser Testing
 
-- After making UI changes, verify they render correctly in the browser
-- When implementing new features, test the full user flow end-to-end
-- Don't mark a feature complete without verifying it works as a user would experience it
-- Use browser testing to catch bugs that aren't obvious from code alone
+-   After making UI changes, verify they render correctly in the browser
+-   When implementing new features, test the full user flow end-to-end
+-   Don't mark a feature complete without verifying it works as a user would experience it
+-   Use browser testing to catch bugs that aren't obvious from code alone
 
 ### How to Test
 
@@ -36,10 +38,10 @@ This project has two Playwright MCP servers configured for browser automation:
 
 ### Testing Workflow
 
-- Make incremental changes and verify each step works before moving on
-- If something breaks, revert and fix before continuing
-- Take screenshots to verify visual correctness when relevant
-- Run `yarn test:codex` after changes to ensure existing tests still pass
+-   Make incremental changes and verify each step works before moving on
+-   If something breaks, revert and fix before continuing
+-   Take screenshots to verify visual correctness when relevant
+-   Run `yarn test:codex` after changes to ensure existing tests still pass
 
 ### Troubleshooting
 

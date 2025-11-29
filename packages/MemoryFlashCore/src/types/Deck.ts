@@ -1,4 +1,5 @@
 export type DeckVisibility = 'private' | 'unlisted' | 'public';
+export const DECK_VISIBILITIES: DeckVisibility[] = ['private', 'unlisted', 'public'];
 
 export type Deck = {
 	_id: string;
@@ -10,7 +11,6 @@ export type Deck = {
 	sectionSubtitle: string;
 	tags: string[];
 	visibility?: DeckVisibility;
-	// Reference to original deck if this was imported from another user
 	importedFromDeckId?: string;
 	createdAt: Date;
 	updatedAt: Date;

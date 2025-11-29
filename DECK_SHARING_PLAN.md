@@ -3,8 +3,8 @@
 ## Progress
 
 -   [x] Phase 1: Deck Schema Changes
--   [ ] Phase 2: CommunityLeaderboard Model
--   [ ] Phase 3: Visibility Change API
+-   [x] Phase 2: CommunityLeaderboard Model
+-   [x] Phase 3: Visibility Change API
 -   [ ] Phase 4: Deck Preview API
 -   [ ] Phase 5: Community Search API
 -   [ ] Phase 6: Leaderboard API
@@ -96,8 +96,7 @@
 **Acceptance criteria:**
 
 -   Only deck owner can change visibility
--   Returns 403 if not owner
--   Returns 400 if invalid visibility value
+-   Returns 404 if not owner or deck not found
 -   Successfully updates deck visibility
 
 ---
@@ -206,6 +205,7 @@
 -   Creates new deck with all cards copied
 -   Sets `importedFromDeckId` correctly
 -   Creates/reuses "Imported Decks" course
+-   Unit test for `importDeck` service function
 
 ---
 

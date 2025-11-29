@@ -7,6 +7,7 @@ import {
 	renameDeck,
 	deleteDeckById,
 	updateHiddenCards,
+	updateDeckVisibility,
 } from '../services/deckService';
 import { User } from 'MemoryFlashCore/src/types/User';
 import { getDeckStats } from '../services/statsService';
@@ -90,6 +91,20 @@ router.patch('/:id/hidden-cards', isAuthenticated, async (req, res, next) => {
 			req.body.hiddenCardIds || [],
 		);
 		return res.json({ stats });
+	} catch (error) {
+		next(error);
+	}
+});
+
+router.patch('/:id/visibility', isAuthenticated, async (req, res, next) => {
+	try {
+		const deck = await updateDeckVisibility(
+			req.params.id,
+			req.body.visibility,
+			(req.user as User)._id.toString(),
+		);
+		if (!deck) return res.status(404).json({ error: 'Not found or not authorized' });
+		return res.json({ deck });
 	} catch (error) {
 		next(error);
 	}
