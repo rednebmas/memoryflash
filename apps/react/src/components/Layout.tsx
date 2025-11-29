@@ -1,4 +1,4 @@
-import { ChevronLeftIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import { ChevronLeftIcon, ArrowPathIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -31,6 +31,9 @@ export const Layout: React.FC<LayoutProps> = ({
 	const rightContent = right || (
 		<>
 			<AccountNavButton />
+			<CircleHover link="/community">
+				<GlobeAltIcon className="w-6 h-6 stroke-2" />
+			</CircleHover>
 			<MidiInputsDropdown />
 		</>
 	);

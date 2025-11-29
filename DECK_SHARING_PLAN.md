@@ -17,8 +17,8 @@
 -   [x] Phase 13: VisibilityModal Component
 -   [x] Phase 14: DeckPreviewScreen
 -   [x] Phase 15: CoursePreviewScreen
--   [ ] Phase 16: CommunityScreen
--   [ ] Phase 17: Navigation & Routing
+-   [x] Phase 16: CommunityScreen
+-   [x] Phase 17: Navigation & Routing
 -   [ ] Phase 18: Integration Testing
 
 ---
