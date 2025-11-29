@@ -8,6 +8,7 @@ import {
 	deleteDeckById,
 	updateHiddenCards,
 	updateDeckVisibility,
+	getDeckPreview,
 } from '../services/deckService';
 import { User } from 'MemoryFlashCore/src/types/User';
 import { getDeckStats } from '../services/statsService';
@@ -51,6 +52,16 @@ router.get('/:id/stats', isAuthenticated, async (req, res, next) => {
 				req.headers['user-time-zone'] as string,
 			),
 		);
+	} catch (error) {
+		next(error);
+	}
+});
+
+router.get('/:id/preview', async (req, res, next) => {
+	try {
+		const preview = await getDeckPreview(req.params.id);
+		if (!preview) return res.status(404).json({ error: 'Not found' });
+		return res.json(preview);
 	} catch (error) {
 		next(error);
 	}

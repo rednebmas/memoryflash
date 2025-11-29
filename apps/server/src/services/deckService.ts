@@ -167,3 +167,23 @@ export async function updateDeckVisibility(
 	await deck.save();
 	return deck;
 }
+
+export async function getDeckPreview(deckId: string) {
+	const deck = await Deck.findById(deckId);
+	if (!deck || deck.visibility === 'private') return null;
+
+	const [course, cardCount] = await Promise.all([
+		Course.findById(deck.courseId),
+		Card.countDocuments({ deckId }),
+	]);
+
+	return {
+		deck: {
+			_id: deck._id,
+			name: deck.name,
+			visibility: deck.visibility,
+			cardCount,
+		},
+		course: course ? { _id: course._id, name: course.name } : null,
+	};
+}

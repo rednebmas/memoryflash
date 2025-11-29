@@ -5,7 +5,7 @@
 -   [x] Phase 1: Deck Schema Changes
 -   [x] Phase 2: CommunityLeaderboard Model
 -   [x] Phase 3: Visibility Change API
--   [ ] Phase 4: Deck Preview API
+-   [x] Phase 4: Deck Preview API
 -   [ ] Phase 5: Community Search API
 -   [ ] Phase 6: Leaderboard API
 -   [ ] Phase 7: Deck Import API
