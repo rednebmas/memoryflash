@@ -7,6 +7,17 @@ import { User } from 'MemoryFlashCore/src/types/User';
 import { MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { CardTypeEnum, AnswerType } from 'MemoryFlashCore/src/types/Cards';
 import { Types } from 'mongoose';
+import { Visibility, VISIBILITIES, VISIBILITY_LEVEL } from 'MemoryFlashCore/src/types/Deck';
+
+export async function isDeckShareable(deckId: string): Promise<boolean> {
+	const deck = await Deck.findById(deckId);
+	if (!deck) return false;
+	const course = await Course.findById(deck.courseId);
+	const courseVis = course?.visibility ?? 'private';
+	const deckVis = deck.visibility ?? courseVis;
+	const effectiveVisibility = Math.min(VISIBILITY_LEVEL[deckVis], VISIBILITY_LEVEL[courseVis]);
+	return effectiveVisibility >= VISIBILITY_LEVEL['unlisted'];
+}
 
 export async function getDeckForUser(deckId: string, user: User) {
 	const [deck, cards, userDeckStats] = await Promise.all([
@@ -130,6 +141,7 @@ export async function addCardsToDeck(
 		...(userId ? { userId: new Types.ObjectId(userId) } : {}),
 	}));
 	const insertedCards = await Card.insertMany(cards);
+	await Deck.updateOne({ _id: deckId }, { $inc: { cardCount: cards.length } });
 	return insertedCards;
 }
 
@@ -150,4 +162,119 @@ export async function updateHiddenCards(deckId: string, userId: string, hiddenCa
 		await stats.save();
 	}
 	return stats;
+}
+
+export async function updateDeckVisibility(deckId: string, visibility: Visibility, userId: string) {
+	if (!VISIBILITIES.includes(visibility)) return null;
+	const deck = await Deck.findById(deckId);
+	if (!deck) return null;
+	const course = await Course.findById(deck.courseId);
+	if (course?.userId?.toString() !== userId) return null;
+	const courseVisibility = course?.visibility ?? 'private';
+	if (VISIBILITY_LEVEL[visibility] < VISIBILITY_LEVEL[courseVisibility]) return null;
+	deck.visibility = visibility;
+	await deck.save();
+	return deck;
+}
+
+export async function getDeckPreview(deckId: string) {
+	const deck = await Deck.findById(deckId);
+	if (!deck) return null;
+
+	const [course, cards] = await Promise.all([
+		Course.findById(deck.courseId),
+		Card.find({ deckId }).select('_id question answer type'),
+	]);
+
+	const deckVis = deck.visibility ?? 'private';
+	const courseVis = course?.visibility ?? 'private';
+	const effectiveVisibility = Math.max(VISIBILITY_LEVEL[deckVis], VISIBILITY_LEVEL[courseVis]);
+	if (effectiveVisibility < VISIBILITY_LEVEL['unlisted']) return null;
+
+	return {
+		deck: {
+			_id: deck._id,
+			name: deck.name,
+			visibility: deck.visibility,
+			cardCount: deck.cardCount || 0,
+		},
+		course: course ? { _id: course._id, name: course.name } : null,
+		cards: cards.map((c) => ({
+			_id: c._id,
+			question: c.question,
+			answer: c.answer,
+			cardType: c.type,
+		})),
+	};
+}
+
+const IMPORTED_DECKS_COURSE_NAME = 'Imported Decks';
+
+async function getOrCreateImportedDecksCourse(userId: string) {
+	let course = await Course.findOne({ userId, name: IMPORTED_DECKS_COURSE_NAME });
+	if (!course) {
+		course = new Course({ name: IMPORTED_DECKS_COURSE_NAME, decks: [], userId });
+		await course.save();
+	}
+	return course;
+}
+
+export async function copyDeckToCoure(
+	sourceDeckId: string,
+	targetCourseId: string,
+	userId: string,
+) {
+	const sourceDeck = await Deck.findById(sourceDeckId);
+	if (!sourceDeck) return null;
+
+	const sourceCards = await Card.find({ deckId: sourceDeck._id }).lean();
+	const now = Date.now();
+
+	const newDeck = new Deck({
+		uid: `imported-${sourceDeckId}-${now}`,
+		courseId: targetCourseId,
+		name: sourceDeck.name,
+		section: sourceDeck.section,
+		sectionSubtitle: sourceDeck.sectionSubtitle,
+		tags: [...sourceDeck.tags],
+		cardCount: sourceCards.length,
+		visibility: 'private',
+		importedFromDeckId: sourceDeckId,
+	});
+	await newDeck.save();
+
+	if (sourceCards.length > 0) {
+		const newCards = sourceCards.map((card, i) => ({
+			uid: `imported-${newDeck._id}-${now}-${i}`,
+			deckId: newDeck._id,
+			userId: new Types.ObjectId(userId),
+			type: card.type,
+			question: card.question,
+			answer: card.answer,
+		}));
+		await Card.insertMany(newCards);
+	}
+
+	return newDeck;
+}
+
+export async function importDeck(deckId: string, userId: string, targetCourseId?: string) {
+	const shareable = await isDeckShareable(deckId);
+	if (!shareable) return null;
+
+	let targetCourse;
+	if (targetCourseId) {
+		targetCourse = await Course.findOne({ _id: targetCourseId, userId });
+		if (!targetCourse) return null;
+	} else {
+		targetCourse = await getOrCreateImportedDecksCourse(userId);
+	}
+
+	const newDeck = await copyDeckToCoure(deckId, targetCourse._id.toString(), userId);
+	if (!newDeck) return null;
+
+	targetCourse.decks.push(newDeck._id);
+	await targetCourse.save();
+
+	return { deck: newDeck, course: targetCourse };
 }

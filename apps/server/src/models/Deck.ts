@@ -1,7 +1,9 @@
 import { Document, model, Schema } from 'mongoose';
-import { Deck as IDeck } from 'MemoryFlashCore/src/types/Deck';
+import { Deck as IDeck, Visibility } from 'MemoryFlashCore/src/types/Deck';
 
 export type DeckDoc = IDeck & Document;
+
+const visibilityValues: Visibility[] = ['private', 'unlisted', 'public'];
 
 const DeckSchema = new Schema<DeckDoc>(
 	{
@@ -23,6 +25,18 @@ const DeckSchema = new Schema<DeckDoc>(
 			type: [String],
 			required: false,
 			default: [],
+		},
+		cardCount: {
+			type: Number,
+			default: 0,
+		},
+		visibility: {
+			type: String,
+			enum: visibilityValues,
+		},
+		importedFromDeckId: {
+			type: String,
+			required: false,
 		},
 	},
 	{

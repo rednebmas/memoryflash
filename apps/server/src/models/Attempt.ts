@@ -1,6 +1,8 @@
 import { Document, Schema, model } from 'mongoose';
 import { processAttempt } from '../services/statsService';
 import { AttemptMongo } from 'MemoryFlashCore/src/types/Attempt';
+import { Deck } from './Deck';
+import { incrementLeaderboardForDeck } from './CommunityLeaderboard';
 
 export type AttemptDoc = AttemptMongo & Document;
 
@@ -23,6 +25,13 @@ attemptSchema.pre('save', async function (next) {
 
 	await processAttempt(this as AttemptDoc);
 	next();
+});
+
+attemptSchema.post('save', async function () {
+	const deck = await Deck.findById(this.deckId);
+	if (deck?.visibility === 'public') {
+		await incrementLeaderboardForDeck(this.deckId.toString());
+	}
 });
 
 const Attempt = model('Attempt', attemptSchema);

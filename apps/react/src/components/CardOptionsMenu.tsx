@@ -5,6 +5,8 @@ import { DropdownMenu, DropdownItem } from './DropdownMenu';
 import { CircleHover } from './CircleHover';
 import { InputModal } from './modals/InputModal';
 import { ConfirmModal } from './modals/ConfirmModal';
+import { VisibilityModal } from './modals/VisibilityModal';
+import { Visibility } from 'MemoryFlashCore/src/types/Deck';
 
 interface CardOptionsMenuProps {
 	itemName?: string;
@@ -12,6 +14,11 @@ interface CardOptionsMenuProps {
 	onDelete: () => void;
 	renameLabel?: string;
 	confirmMessage?: string;
+	visibility?: Visibility;
+	onVisibilityChange?: (visibility: Visibility) => void;
+	isVisibilitySaving?: boolean;
+	disabledVisibilityOptions?: Partial<Record<Visibility, string>>;
+	warningVisibilityOptions?: Partial<Record<Visibility, string>>;
 }
 
 export const CardOptionsMenu: React.FC<CardOptionsMenuProps> = ({
@@ -20,9 +27,15 @@ export const CardOptionsMenu: React.FC<CardOptionsMenuProps> = ({
 	onDelete,
 	renameLabel = 'Name',
 	confirmMessage = 'Are you sure?',
+	visibility,
+	onVisibilityChange,
+	isVisibilitySaving,
+	disabledVisibilityOptions,
+	warningVisibilityOptions,
 }) => {
 	const [isRenameOpen, setIsRenameOpen] = React.useState(false);
 	const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
+	const [isVisibilityOpen, setIsVisibilityOpen] = React.useState(false);
 
 	const items: DropdownItem[] = [
 		{
@@ -40,6 +53,13 @@ export const CardOptionsMenu: React.FC<CardOptionsMenuProps> = ({
 			},
 		},
 	];
+
+	if (visibility !== undefined && onVisibilityChange) {
+		items.unshift({
+			label: 'Sharing',
+			onClick: () => setIsVisibilityOpen(true),
+		});
+	}
 
 	return (
 		<>
@@ -67,6 +87,20 @@ export const CardOptionsMenu: React.FC<CardOptionsMenuProps> = ({
 						onConfirm={onDelete}
 					/>
 				</>
+			)}
+			{visibility !== undefined && onVisibilityChange && (
+				<VisibilityModal
+					isOpen={isVisibilityOpen}
+					onClose={() => setIsVisibilityOpen(false)}
+					currentVisibility={visibility}
+					onSave={(v) => {
+						onVisibilityChange(v);
+						setIsVisibilityOpen(false);
+					}}
+					isSaving={isVisibilitySaving}
+					disabledOptions={disabledVisibilityOptions}
+					warningForOptions={warningVisibilityOptions}
+				/>
 			)}
 		</>
 	);

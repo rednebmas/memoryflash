@@ -6,6 +6,9 @@ import {
 	createCourse,
 	renameCourse,
 	deleteCourse,
+	updateCourseVisibility,
+	getCoursePreview,
+	importCourse,
 } from '../services/coursesService';
 import { User } from 'MemoryFlashCore/src/types/User';
 
@@ -47,6 +50,16 @@ router.get('/:id', isAuthenticated, async (req, res, next) => {
 	}
 });
 
+router.get('/:id/preview', async (req, res, next) => {
+	try {
+		const preview = await getCoursePreview(req.params.id);
+		if (!preview) return res.status(404).json({ error: 'Not found' });
+		return res.json(preview);
+	} catch (error) {
+		next(error);
+	}
+});
+
 router.patch('/:id', isAuthenticated, async (req, res, next) => {
 	try {
 		const course = await renameCourse(
@@ -55,6 +68,30 @@ router.patch('/:id', isAuthenticated, async (req, res, next) => {
 			(req.user as User)._id.toString(),
 		);
 		return res.json({ course });
+	} catch (error) {
+		next(error);
+	}
+});
+
+router.patch('/:id/visibility', isAuthenticated, async (req, res, next) => {
+	try {
+		const course = await updateCourseVisibility(
+			req.params.id,
+			req.body.visibility,
+			(req.user as User)._id.toString(),
+		);
+		if (!course) return res.status(404).json({ error: 'Not found or not authorized' });
+		return res.json({ course });
+	} catch (error) {
+		next(error);
+	}
+});
+
+router.post('/:id/import', isAuthenticated, async (req, res, next) => {
+	try {
+		const result = await importCourse(req.params.id, (req.user as User)._id.toString());
+		if (!result) return res.status(404).json({ error: 'Not found' });
+		return res.json(result);
 	} catch (error) {
 		next(error);
 	}

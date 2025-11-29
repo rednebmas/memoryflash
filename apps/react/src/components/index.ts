@@ -12,6 +12,7 @@ export * from './Button';
 export * from './modals/Modal';
 export * from './modals/InputModal';
 export * from './modals/ConfirmModal';
+export * from './modals/VisibilityModal';
 export * from './CardOptionsMenu';
 export * from './ConsoleErrorsButton';
 export * from './TranspositionSelector';
