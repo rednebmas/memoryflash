@@ -61,7 +61,7 @@ export const DecksScreen = () => {
 					<div key={section} className="space-y-4">
 						<SectionHeader title={decks[section][0].section} />
 						<SectionData
-							btnText="Lessons"
+							btnText="Study"
 							items={decks[section].map((deck) => {
 								return {
 									title: deck.name,

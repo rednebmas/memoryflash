@@ -10,7 +10,7 @@ import {
 import { importDeck } from 'MemoryFlashCore/src/redux/actions/import-actions';
 import { useNetworkState } from 'MemoryFlashCore/src/redux/selectors/useNetworkState';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
-import { coursesSelector } from 'MemoryFlashCore/src/redux/selectors/coursesSelector';
+import { userOwnedCoursesSelector } from 'MemoryFlashCore/src/redux/selectors/coursesSelector';
 import { getCourses } from 'MemoryFlashCore/src/redux/actions/get-courses-action';
 
 export const DeckPreviewScreen: React.FC = () => {
@@ -19,7 +19,7 @@ export const DeckPreviewScreen: React.FC = () => {
 	const navigate = useNavigate();
 	const preview = useAppSelector((state) => state.community.deckPreview);
 	const user = useAppSelector((state) => state.auth.user);
-	const courses = useAppSelector(coursesSelector);
+	const courses = useAppSelector(userOwnedCoursesSelector);
 	const { isLoading, error } = useNetworkState('getDeckPreview');
 	const { isLoading: isImporting } = useNetworkState('importDeck');
 	const [selectedCourseId, setSelectedCourseId] = useState<string>('');
