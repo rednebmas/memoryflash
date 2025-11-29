@@ -1,5 +1,5 @@
-export type DeckVisibility = 'private' | 'unlisted' | 'public';
-export const DECK_VISIBILITIES: DeckVisibility[] = ['private', 'unlisted', 'public'];
+export type Visibility = 'private' | 'unlisted' | 'public';
+export const VISIBILITIES: Visibility[] = ['private', 'unlisted', 'public'];
 
 export type Deck = {
 	_id: string;
@@ -10,7 +10,7 @@ export type Deck = {
 	section: string;
 	sectionSubtitle: string;
 	tags: string[];
-	visibility?: DeckVisibility;
+	visibility?: Visibility;
 	importedFromDeckId?: string;
 	createdAt: Date;
 	updatedAt: Date;

@@ -1,9 +1,9 @@
 import { Document, model, Schema } from 'mongoose';
-import { Deck as IDeck, DeckVisibility } from 'MemoryFlashCore/src/types/Deck';
+import { Deck as IDeck, Visibility } from 'MemoryFlashCore/src/types/Deck';
 
 export type DeckDoc = IDeck & Document;
 
-const visibilityValues: DeckVisibility[] = ['private', 'unlisted', 'public'];
+const visibilityValues: Visibility[] = ['private', 'unlisted', 'public'];
 
 const DeckSchema = new Schema<DeckDoc>(
 	{

@@ -7,7 +7,7 @@
 -   [x] Phase 3: Deck Visibility Change API
 -   [x] Phase 4: Deck Preview API
 -   [x] Phase 5: Community Search API (Decks)
--   [ ] Phase 6: Course Schema Changes
+-   [x] Phase 6: Course Schema Changes
 -   [ ] Phase 7: Course Visibility & Preview APIs
 -   [ ] Phase 8: Community Search API (Courses)
 -   [ ] Phase 9: Leaderboard API
