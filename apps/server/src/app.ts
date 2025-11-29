@@ -22,6 +22,7 @@ import { generatePopCourse } from './services/card-generators/pop/basic-I-V-vi-I
 import { replayAttemptsForUser } from './services/attemptsService';
 import Attempt from './models/Attempt';
 import { singleHandedTritoneSub251 } from './services/card-generators/ii-V-i/ii-bII7-I-progression-generator';
+import { User, UserStats } from './models';
 
 const PORT = process.env.PORT || 3333;
 
@@ -88,6 +89,12 @@ const initApp = async () => {
 			// generate251s();
 			// generateBluesCourse();
 			// generatePopCourse();
+
+			// const user = await User.findOne({ email: 'sam@riker.tech' });
+			// if (user) {
+			// 	await UserStats.deleteOne({ userId: user._id });
+			// 	console.log('Deleted UserStats for user:', user.email);
+			// }
 		});
 	} catch (error: any) {
 		console.error(`Error:${error.message}`);
