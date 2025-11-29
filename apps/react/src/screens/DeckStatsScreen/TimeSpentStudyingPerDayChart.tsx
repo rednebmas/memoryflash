@@ -1,18 +1,28 @@
 import {
-	ResponsiveContainer,
-	ComposedChart,
 	CartesianGrid,
-	XAxis,
 	Label,
+	XAxis,
 	YAxis,
 	Tooltip,
-	Legend,
 	Bar,
 	Line,
 	BarChart,
 	LineChart,
 } from 'recharts';
 import { roundToTenth } from 'MemoryFlashCore/src/lib/rounding';
+
+const parseDateKey = (dateKey: string) => {
+	const [year, month, day] = dateKey.split('-').map((value) => parseInt(value, 10));
+	return new Date(year, month - 1, day);
+};
+
+const formatDateLabel = (dateKey: string) => {
+	const date = parseDateKey(dateKey);
+	const month = `${date.getMonth() + 1}`.padStart(2, '0');
+	const day = `${date.getDate()}`.padStart(2, '0');
+	const year = date.getFullYear().toString().slice(-2);
+	return `${month}/${day}/${year}`;
+};
 
 interface TimeSpentChartProps {
 	timeSpentPerDay: { [date: string]: number };
@@ -24,17 +34,17 @@ export const TimeSpentChart: React.FC<TimeSpentChartProps> = ({
 	medianPerDay,
 }) => {
 	const timeSpentData = Object.keys(timeSpentPerDay)
-		.sort()
-		.map((date) => ({
-			date,
-			timeSpent: roundToTenth((timeSpentPerDay[date] || 0) / 60), // Convert seconds to minutes
+		.sort((a, b) => parseDateKey(a).getTime() - parseDateKey(b).getTime())
+		.map((dateKey) => ({
+			date: formatDateLabel(dateKey),
+			timeSpent: roundToTenth((timeSpentPerDay[dateKey] || 0) / 60),
 		}));
 
 	const medianData = Object.keys(medianPerDay)
-		.sort()
-		.map((date) => ({
-			date,
-			median: medianPerDay[date] || null,
+		.sort((a, b) => parseDateKey(a).getTime() - parseDateKey(b).getTime())
+		.map((dateKey) => ({
+			date: formatDateLabel(dateKey),
+			median: medianPerDay[dateKey] || null,
 		}));
 
 	return (

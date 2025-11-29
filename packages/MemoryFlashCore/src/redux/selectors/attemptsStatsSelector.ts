@@ -2,41 +2,36 @@ import { createSelector } from '@reduxjs/toolkit';
 import { clamp } from '../../lib/clamp';
 import { calculateMedian } from '../../lib/median';
 import { UserDeckStatsType } from '../../types/UserDeckStats';
-import { ReduxState } from '../store';
 import {
+	currDeckAllWithAttemptsSelector,
 	currDeckWithAttemptsSelector,
 	currDeckWithCorrectAttemptsSelector,
 } from './currDeckCardsWithAttempts';
 import { userDeckStatsByDeckIdSelector } from './userDeckStatsByDeckIdSelector';
 
-const selectStatsByCardId = (state: ReduxState) => state.userDeckStats.statsByCardId;
-
-// Helper function to format dates to 'YY-MM-DD'
-const formatDate = (dateInput: string | number | Date): string => {
+const formatDateKey = (dateInput: string | number | Date): string => {
 	const date = new Date(dateInput);
-	const year = date.getFullYear().toString().slice(-2);
-	const month = (date.getMonth() + 1).toString();
-	const day = date.getDate().toString();
-	return `${month}/${day}/${year}`;
+	const year = date.getFullYear();
+	const month = `${date.getMonth() + 1}`.padStart(2, '0');
+	const day = `${date.getDate()}`.padStart(2, '0');
+	return `${year}-${month}-${day}`;
 };
 
-export const timeSpentPerDaySelector = createSelector([selectStatsByCardId], (statsByCardId) => {
-	const timeSpentPerDay: { [date: string]: number } = {};
+export const timeSpentPerDaySelector = createSelector(
+	[currDeckAllWithAttemptsSelector],
+	(cards) => {
+		const timeSpentPerDay: { [date: string]: number } = {};
 
-	if (statsByCardId) {
-		Object.values(statsByCardId).forEach((cardStats) => {
-			Object.entries(cardStats.timeStudyingPerDay).forEach(([date, time]) => {
-				date = formatDate(date);
-				if (!timeSpentPerDay[date]) {
-					timeSpentPerDay[date] = 0;
-				}
-				timeSpentPerDay[date] += time;
+		Object.values(cards).forEach((card) => {
+			card.attempts.forEach((attempt) => {
+				const dateKey = formatDateKey(attempt.attemptedAt);
+				timeSpentPerDay[dateKey] = (timeSpentPerDay[dateKey] ?? 0) + attempt.timeTaken;
 			});
 		});
-	}
 
-	return timeSpentPerDay;
-});
+		return timeSpentPerDay;
+	},
+);
 
 export const medianPerDaySelector = createSelector(
 	[userDeckStatsByDeckIdSelector, currDeckWithCorrectAttemptsSelector],
@@ -52,7 +47,7 @@ export const medianPerDaySelector = createSelector(
 
 		if (stats && stats.medianHistory) {
 			stats.medianHistory.forEach((entry) => {
-				const dateStr = formatDate(entry.date);
+				const dateStr = formatDateKey(entry.date);
 				medianPerDay[dateStr] = entry.median;
 			});
 		}
@@ -65,11 +60,10 @@ export const attemptsStatsSelector = createSelector(
 	[
 		currDeckWithCorrectAttemptsSelector,
 		userDeckStatsByDeckIdSelector,
-		selectStatsByCardId,
 		timeSpentPerDaySelector,
 		medianPerDaySelector,
 	],
-	(currentDeck, userDeckStatsByDeckId, statsByCardId, timeSpentPerDay, medianPerDay) => {
+	(currentDeck, userDeckStatsByDeckId, timeSpentPerDay, medianPerDay) => {
 		if (Object.keys(currentDeck).length === 0) {
 			return undefined;
 		}
