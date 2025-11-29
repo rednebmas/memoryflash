@@ -13,6 +13,7 @@ import { loadWebReudxStatePromise, store } from './utils/store';
 import { useDarkMode } from './utils/useDarkMode';
 import { DeckStatsScreen } from './screens/DeckStatsScreen/DeckStatsScreen';
 import { AccountScreen } from './screens/AccountScreen/AccountScreen';
+import { AttemptHistoryScreen } from './screens/AttemptHistoryScreen/AttemptHistoryScreen';
 
 export default function App() {
 	const forceUpdate = React.useState({})[1].bind(null, {});
@@ -59,6 +60,10 @@ export default function App() {
 					<Route
 						path="/study/:deckId/stats"
 						element={<AuthenticatedRoute screen={<DeckStatsScreen />} />}
+					/>
+					<Route
+						path="/study/:deckId/attempts"
+						element={<AuthenticatedRoute screen={<AttemptHistoryScreen />} />}
 					/>
 				</Routes>
 			</BrowserRouter>

@@ -2,62 +2,80 @@ import { createSelector } from '@reduxjs/toolkit';
 import { clamp } from '../../lib/clamp';
 import { calculateMedian } from '../../lib/median';
 import { UserDeckStatsType } from '../../types/UserDeckStats';
-import { ReduxState } from '../store';
 import {
+	currDeckAllWithAttemptsSelector,
 	currDeckWithAttemptsSelector,
 	currDeckWithCorrectAttemptsSelector,
 } from './currDeckCardsWithAttempts';
 import { userDeckStatsByDeckIdSelector } from './userDeckStatsByDeckIdSelector';
 
-const selectStatsByCardId = (state: ReduxState) => state.userDeckStats.statsByCardId;
+export interface DailyTimeSpent {
+	dateKey: string;
+	timestamp: number;
+	timeSpent: number;
+}
 
-// Helper function to format dates to 'YY-MM-DD'
-const formatDate = (dateInput: string | number | Date): string => {
+export interface DailyMedian {
+	dateKey: string;
+	timestamp: number;
+	median: number;
+}
+
+const formatDateKey = (dateInput: string | number | Date) => {
 	const date = new Date(dateInput);
-	const year = date.getFullYear().toString().slice(-2);
-	const month = (date.getMonth() + 1).toString();
-	const day = date.getDate().toString();
-	return `${month}/${day}/${year}`;
+	const year = date.getFullYear();
+	const month = `${date.getMonth() + 1}`.padStart(2, '0');
+	const day = `${date.getDate()}`.padStart(2, '0');
+	return {
+		dateKey: `${year}-${month}-${day}`,
+		timestamp: new Date(year, date.getMonth(), date.getDate()).getTime(),
+	};
 };
 
-export const timeSpentPerDaySelector = createSelector([selectStatsByCardId], (statsByCardId) => {
-	const timeSpentPerDay: { [date: string]: number } = {};
+export const timeSpentPerDaySelector = createSelector(
+	[currDeckAllWithAttemptsSelector],
+	(cards) => {
+		const timeSpentPerDay: Record<string, DailyTimeSpent> = {};
 
-	if (statsByCardId) {
-		Object.values(statsByCardId).forEach((cardStats) => {
-			Object.entries(cardStats.timeStudyingPerDay).forEach(([date, time]) => {
-				date = formatDate(date);
-				if (!timeSpentPerDay[date]) {
-					timeSpentPerDay[date] = 0;
-				}
-				timeSpentPerDay[date] += time;
+		Object.values(cards).forEach((card) => {
+			card.attempts.forEach((attempt) => {
+				const { dateKey, timestamp } = formatDateKey(attempt.attemptedAt);
+				timeSpentPerDay[dateKey] = {
+					dateKey,
+					timestamp,
+					timeSpent: (timeSpentPerDay[dateKey]?.timeSpent ?? 0) + attempt.timeTaken,
+				};
 			});
 		});
-	}
 
-	return timeSpentPerDay;
-});
+		return Object.values(timeSpentPerDay);
+	},
+);
 
 export const medianPerDaySelector = createSelector(
 	[userDeckStatsByDeckIdSelector, currDeckWithCorrectAttemptsSelector],
 	(userDeckStatsByDeckId, currentDeck) => {
 		if (Object.keys(currentDeck).length === 0) {
-			return {};
+			return [];
 		}
 
 		const deckId = Object.values(currentDeck)[0]?.deckId;
 		const stats: UserDeckStatsType | undefined = userDeckStatsByDeckId[deckId];
 
-		const medianPerDay: { [date: string]: number } = {};
+		const medianPerDay: Record<string, DailyMedian> = {};
 
 		if (stats && stats.medianHistory) {
 			stats.medianHistory.forEach((entry) => {
-				const dateStr = formatDate(entry.date);
-				medianPerDay[dateStr] = entry.median;
+				const { dateKey, timestamp } = formatDateKey(entry.date);
+				medianPerDay[dateKey] = {
+					dateKey,
+					timestamp,
+					median: entry.median,
+				};
 			});
 		}
 
-		return medianPerDay;
+		return Object.values(medianPerDay);
 	},
 );
 
@@ -65,11 +83,10 @@ export const attemptsStatsSelector = createSelector(
 	[
 		currDeckWithCorrectAttemptsSelector,
 		userDeckStatsByDeckIdSelector,
-		selectStatsByCardId,
 		timeSpentPerDaySelector,
 		medianPerDaySelector,
 	],
-	(currentDeck, userDeckStatsByDeckId, statsByCardId, timeSpentPerDay, medianPerDay) => {
+	(currentDeck, userDeckStatsByDeckId, timeSpentPerDay, medianPerDay) => {
 		if (Object.keys(currentDeck).length === 0) {
 			return undefined;
 		}
@@ -77,17 +94,12 @@ export const attemptsStatsSelector = createSelector(
 		const deckId = Object.values(currentDeck)[0]?.deckId;
 		const stats: UserDeckStatsType | undefined = userDeckStatsByDeckId[deckId];
 
-		// Compute totalTimeSpent
-		const totalTimeSpent = Object.values(timeSpentPerDay).reduce(
-			(total, time) => total + time,
-			0,
-		);
+		const totalTimeSpent = timeSpentPerDay.reduce((total, day) => total + day.timeSpent, 0);
 
 		const timeTaken: number[] = Object.values(currentDeck)
 			.map((c) => c.attempts[0]?.timeTaken)
 			.filter((c) => c !== undefined);
 
-		// Calculate mean, median, and std
 		const mean =
 			timeTaken.length > 0 ? timeTaken.reduce((a, b) => a + b, 0) / timeTaken.length : 0;
 		const median = timeTaken.length > 0 ? calculateMedian([...timeTaken]) : 0;
@@ -120,11 +132,11 @@ export const attemptsStatsSelector = createSelector(
 export const bpmSelector = createSelector(
 	[attemptsStatsSelector, currDeckWithAttemptsSelector],
 	(stats, currentDeck) => {
-		if (!stats || !stats.median) return { bpm: 40, goalTime: 0 }; // Default BPM if stats are not available
+		if (!stats || !stats.median) return { bpm: 40, goalTime: 0 };
 
 		console.log('[bpm] median: ', stats.median);
 
-		let originalBpm = 60 / stats.median; //  * learningSpeed);
+		let originalBpm = 60 / stats.median;
 		console.log('[bpm] originalBpm: ', originalBpm);
 
 		let bpm = originalBpm || 40;
@@ -147,7 +159,6 @@ export const bpmSelector = createSelector(
 			.forEach((attempt) => {
 				let attemptedDate = new Date(attempt.attemptedAt);
 
-				// the six hour ago filter also occurs on the server
 				if (attempt.correct && attemptedDate > sixHoursAgo) {
 					correct++;
 				} else if (attempt.correct === false) {
