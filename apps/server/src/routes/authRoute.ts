@@ -25,8 +25,9 @@ router.post('/sign-up', async (req, res, next) => {
 
 router.post('/log-in', passport.authenticate('local'), async (req, res, next) => {
 	try {
-		let user: User = req.user as User;
-		res.json(await userOnLoadInfo(user._id));
+		const user: User = req.user as User;
+		const timezone = typeof req.query.tz === 'string' ? req.query.tz : undefined;
+		res.json(await userOnLoadInfo(user._id, timezone));
 	} catch (error) {
 		next(error);
 	}
