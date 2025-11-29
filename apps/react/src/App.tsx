@@ -8,6 +8,7 @@ import { CoursesScreen, NotationInputScreen } from './screens';
 import { AllDeckCardsScreen } from './screens/AllDeckCardsScreen';
 import { DecksScreen } from './screens/DecksScreen';
 import { DeckPreviewScreen } from './screens/DeckPreviewScreen';
+import { CoursePreviewScreen } from './screens/CoursePreviewScreen';
 import { LoginScreen } from './screens/LoginScreen';
 import { SignUpScreen } from './screens/SignUpScreen';
 import { loadWebReudxStatePromise, store } from './utils/store';
@@ -35,6 +36,7 @@ export default function App() {
 					<Route path="/auth/sign-up" element={<SignUpScreen />} />
 					<Route path="/auth/login" element={<LoginScreen />} />
 					<Route path="/deck/:deckId/preview" element={<DeckPreviewScreen />} />
+					<Route path="/course/:courseId/preview" element={<CoursePreviewScreen />} />
 					<Route
 						path="/account"
 						element={<AuthenticatedRoute screen={<AccountScreen />} />}

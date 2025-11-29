@@ -15,8 +15,8 @@
 -   [x] Phase 11: Course Import API
 -   [x] Phase 12: Redux Actions & Types
 -   [x] Phase 13: VisibilityModal Component
--   [ ] Phase 14: DeckPreviewScreen
--   [ ] Phase 15: CoursePreviewScreen
+-   [x] Phase 14: DeckPreviewScreen
+-   [x] Phase 15: CoursePreviewScreen
 -   [ ] Phase 16: CommunityScreen
 -   [ ] Phase 17: Navigation & Routing
 -   [ ] Phase 18: Integration Testing
