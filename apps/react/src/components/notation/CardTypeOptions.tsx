@@ -1,15 +1,15 @@
 import React from 'react';
-import { CardTypeDropdown } from '../CardTypeDropdown';
+import { CardTypeDropdown, CardType } from '../CardTypeDropdown';
 import { InputField, Checkbox } from '../inputs';
 import { SettingsSection } from './SettingsSection';
 
 interface CardTypeOptionsProps {
-	cardType: 'Sheet Music' | 'Text Prompt';
+	cardType: CardType;
 	textPrompt: string;
 	preview: boolean;
 	onChange: (
 		changes: Partial<{
-			cardType: 'Sheet Music' | 'Text Prompt';
+			cardType: CardType;
 			textPrompt: string;
 			preview: boolean;
 		}>,

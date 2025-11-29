@@ -1,4 +1,5 @@
 import { majorKeys } from 'MemoryFlashCore/src/lib/notes';
+import { CardType } from '../CardTypeDropdown';
 
 export interface NotationSettingsState {
 	keySig: string;
@@ -6,7 +7,7 @@ export interface NotationSettingsState {
 	highest: string;
 	bars: number;
 	selected: boolean[];
-	cardType: 'Sheet Music' | 'Text Prompt';
+	cardType: CardType;
 	textPrompt: string;
 	preview: boolean;
 }

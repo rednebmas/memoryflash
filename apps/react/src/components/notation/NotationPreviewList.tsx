@@ -3,6 +3,7 @@ import { MusicNotation } from '../MusicNotation';
 import { TextCardPrompt } from '../FlashCards/TextCardPrompt';
 import { ScoreEditor } from './ScoreEditor';
 import { MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
+import { CardType } from '../CardTypeDropdown';
 
 interface PreviewCardProps {
 	notation: React.ReactNode;
@@ -22,7 +23,7 @@ const PreviewCard: React.FC<PreviewCardProps> = ({ notation, total, showText, te
 
 interface NotationPreviewListProps {
 	previews: MultiSheetQuestion[];
-	cardType?: 'Sheet Music' | 'Text Prompt';
+	cardType?: CardType;
 	textPrompt?: string;
 	previewTextCard?: boolean;
 	keySig: string;
