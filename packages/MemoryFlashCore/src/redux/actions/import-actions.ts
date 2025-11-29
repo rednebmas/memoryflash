@@ -1,5 +1,5 @@
 import { AppThunk } from '../store';
-import { fetchCoursesAction } from './coursesAction';
+import { getCourses } from './get-courses-action';
 import { networkCallWithReduxState } from '../util/networkStateHelper';
 
 export const importDeck =
@@ -7,7 +7,7 @@ export const importDeck =
 	async (dispatch, _, { api }) => {
 		await networkCallWithReduxState(dispatch, 'importDeck', async () => {
 			await api.post(`/decks/${deckId}/import`, { targetCourseId });
-			dispatch(fetchCoursesAction());
+			dispatch(getCourses());
 		});
 	};
 
@@ -16,6 +16,6 @@ export const importCourse =
 	async (dispatch, _, { api }) => {
 		await networkCallWithReduxState(dispatch, 'importCourse', async () => {
 			await api.post(`/courses/${courseId}/import`);
-			dispatch(fetchCoursesAction());
+			dispatch(getCourses());
 		});
 	};
