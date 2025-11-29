@@ -20,6 +20,13 @@ export interface LeaderboardEntry {
 	attemptCount: number;
 }
 
+export interface DeckPreviewCard {
+	_id: string;
+	question: unknown;
+	answer: unknown;
+	cardType: string;
+}
+
 export interface DeckPreview {
 	deck: {
 		_id: string;
@@ -28,6 +35,7 @@ export interface DeckPreview {
 		cardCount: number;
 	};
 	course: { _id: string; name: string } | null;
+	cards: DeckPreviewCard[];
 }
 
 export interface CoursePreview {

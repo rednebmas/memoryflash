@@ -169,7 +169,10 @@ export async function getDeckPreview(deckId: string) {
 	const deck = await Deck.findById(deckId);
 	if (!deck || deck.visibility === 'private') return null;
 
-	const course = await Course.findById(deck.courseId);
+	const [course, cards] = await Promise.all([
+		Course.findById(deck.courseId),
+		Card.find({ deckId }).select('_id question answer type'),
+	]);
 
 	return {
 		deck: {
@@ -179,6 +182,12 @@ export async function getDeckPreview(deckId: string) {
 			cardCount: deck.cardCount || 0,
 		},
 		course: course ? { _id: course._id, name: course.name } : null,
+		cards: cards.map((c) => ({
+			_id: c._id,
+			question: c.question,
+			answer: c.answer,
+			cardType: c.type,
+		})),
 	};
 }
 

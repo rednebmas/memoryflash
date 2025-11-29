@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Layout, Button } from '../components';
+import { MusicNotation } from '../components/MusicNotation';
 import { BasicErrorCard } from '../components/ErrorCard';
 import { Spinner } from '../components/Spinner';
 import {
@@ -12,6 +13,8 @@ import { useNetworkState } from 'MemoryFlashCore/src/redux/selectors/useNetworkS
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { userOwnedCoursesSelector } from 'MemoryFlashCore/src/redux/selectors/coursesSelector';
 import { getCourses } from 'MemoryFlashCore/src/redux/actions/get-courses-action';
+import { DeckPreviewCard } from 'MemoryFlashCore/src/redux/slices/communitySlice';
+import { MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
 
 export const DeckPreviewScreen: React.FC = () => {
 	const { deckId } = useParams<{ deckId: string }>();
@@ -121,7 +124,36 @@ export const DeckPreviewScreen: React.FC = () => {
 						</div>
 					</div>
 				)}
+
+				{preview.cards && preview.cards.length > 0 && (
+					<div className="bg-white rounded-lg shadow p-6 space-y-4">
+						<h3 className="text-lg font-medium text-gray-900">Cards Preview</h3>
+						<div className="space-y-4 max-h-96 overflow-y-auto">
+							{preview.cards.map((card) => (
+								<CardPreviewItem key={card._id} card={card} />
+							))}
+						</div>
+					</div>
+				)}
 			</div>
 		</Layout>
+	);
+};
+
+const CardPreviewItem: React.FC<{ card: DeckPreviewCard }> = ({ card }) => {
+	const question = card.question as MultiSheetQuestion | null;
+
+	if (!question || !question.voices) {
+		return (
+			<div className="border border-gray-200 rounded-lg p-3 bg-gray-50">
+				<p className="text-sm text-gray-500 text-center">Card preview unavailable</p>
+			</div>
+		);
+	}
+
+	return (
+		<div className="border border-gray-200 rounded-lg p-3 overflow-hidden">
+			<MusicNotation data={question} />
+		</div>
 	);
 };
