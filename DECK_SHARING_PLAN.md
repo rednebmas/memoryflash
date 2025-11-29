@@ -2,7 +2,7 @@
 
 ## Progress
 
--   [ ] Phase 1: Deck Schema Changes
+-   [x] Phase 1: Deck Schema Changes
 -   [ ] Phase 2: CommunityLeaderboard Model
 -   [ ] Phase 3: Visibility Change API
 -   [ ] Phase 4: Deck Preview API

@@ -1,3 +1,5 @@
+export type DeckVisibility = 'private' | 'unlisted' | 'public';
+
 export type Deck = {
 	_id: string;
 	// unique human readable id
@@ -7,6 +9,9 @@ export type Deck = {
 	section: string;
 	sectionSubtitle: string;
 	tags: string[];
+	visibility?: DeckVisibility;
+	// Reference to original deck if this was imported from another user
+	importedFromDeckId?: string;
 	createdAt: Date;
 	updatedAt: Date;
 };
