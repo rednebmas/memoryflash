@@ -18,6 +18,7 @@ interface CardOptionsMenuProps {
 	onVisibilityChange?: (visibility: Visibility) => void;
 	isVisibilitySaving?: boolean;
 	disabledVisibilityOptions?: Partial<Record<Visibility, string>>;
+	warningVisibilityOptions?: Partial<Record<Visibility, string>>;
 }
 
 export const CardOptionsMenu: React.FC<CardOptionsMenuProps> = ({
@@ -30,6 +31,7 @@ export const CardOptionsMenu: React.FC<CardOptionsMenuProps> = ({
 	onVisibilityChange,
 	isVisibilitySaving,
 	disabledVisibilityOptions,
+	warningVisibilityOptions,
 }) => {
 	const [isRenameOpen, setIsRenameOpen] = React.useState(false);
 	const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
@@ -97,6 +99,7 @@ export const CardOptionsMenu: React.FC<CardOptionsMenuProps> = ({
 					}}
 					isSaving={isVisibilitySaving}
 					disabledOptions={disabledVisibilityOptions}
+					warningForOptions={warningVisibilityOptions}
 				/>
 			)}
 		</>

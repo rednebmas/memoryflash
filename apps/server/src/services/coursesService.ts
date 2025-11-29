@@ -2,7 +2,7 @@ import Course from '../models/Course';
 import { Deck } from '../models/Deck';
 import { UserDeckStats } from '../models/UserDeckStats';
 import { User } from 'MemoryFlashCore/src/types/User';
-import { Visibility, VISIBILITIES } from 'MemoryFlashCore/src/types/Deck';
+import { Visibility, VISIBILITIES, VISIBILITY_LEVEL } from 'MemoryFlashCore/src/types/Deck';
 import { deleteDeckById, copyDeckToCoure } from './deckService';
 
 export async function createCourse(name: string, userId?: string) {
@@ -52,6 +52,16 @@ export async function updateCourseVisibility(
 	if (!VISIBILITIES.includes(visibility)) return null;
 	const course = await Course.findById(courseId);
 	if (!course || course.userId?.toString() !== userId) return null;
+
+	const courseLevel = VISIBILITY_LEVEL[visibility];
+	const invalidVisibilities = VISIBILITIES.filter((v) => VISIBILITY_LEVEL[v] < courseLevel);
+	if (invalidVisibilities.length > 0) {
+		await Deck.updateMany(
+			{ _id: { $in: course.decks }, visibility: { $in: invalidVisibilities } },
+			{ $unset: { visibility: '' } },
+		);
+	}
+
 	course.visibility = visibility;
 	await course.save();
 	return course;

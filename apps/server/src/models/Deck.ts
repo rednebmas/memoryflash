@@ -33,7 +33,6 @@ const DeckSchema = new Schema<DeckDoc>(
 		visibility: {
 			type: String,
 			enum: visibilityValues,
-			default: 'private',
 		},
 		importedFromDeckId: {
 			type: String,

@@ -169,12 +169,17 @@ export async function updateDeckVisibility(deckId: string, visibility: Visibilit
 
 export async function getDeckPreview(deckId: string) {
 	const deck = await Deck.findById(deckId);
-	if (!deck || deck.visibility === 'private') return null;
+	if (!deck) return null;
 
 	const [course, cards] = await Promise.all([
 		Course.findById(deck.courseId),
 		Card.find({ deckId }).select('_id question answer type'),
 	]);
+
+	const deckVis = deck.visibility ?? 'private';
+	const courseVis = course?.visibility ?? 'private';
+	const effectiveVisibility = Math.max(VISIBILITY_LEVEL[deckVis], VISIBILITY_LEVEL[courseVis]);
+	if (effectiveVisibility < VISIBILITY_LEVEL['unlisted']) return null;
 
 	return {
 		deck: {

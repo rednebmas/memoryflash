@@ -69,14 +69,17 @@ export const CoursePreviewScreen: React.FC = () => {
 						<h3 className="text-lg font-medium text-gray-900">Decks</h3>
 						<ul className="divide-y divide-gray-100">
 							{preview.decks.map((deck) => (
-								<li
-									key={deck._id}
-									className="py-2 flex justify-between items-center"
-								>
-									<span className="text-sm text-gray-900">{deck.name}</span>
-									<span className="text-xs text-gray-500">
-										{deck.cardCount} {deck.cardCount === 1 ? 'card' : 'cards'}
-									</span>
+								<li key={deck._id}>
+									<Link
+										to={`/deck/${deck._id}/preview`}
+										className="py-3 flex justify-between items-center hover:bg-gray-50 -mx-2 px-2 rounded"
+									>
+										<span className="text-sm text-gray-900">{deck.name}</span>
+										<span className="text-xs text-gray-500">
+											{deck.cardCount}{' '}
+											{deck.cardCount === 1 ? 'card' : 'cards'}
+										</span>
+									</Link>
 								</li>
 							))}
 						</ul>

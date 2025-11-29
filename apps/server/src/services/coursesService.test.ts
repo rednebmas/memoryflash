@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { setupDBConnectionForTesting } from '../config/test-setup';
-import { createCourse, getCourses, importCourse } from './coursesService';
+import { createCourse, getCourses, importCourse, updateCourseVisibility } from './coursesService';
 import { User } from '../models';
 import Course from '../models/Course';
 import { Deck } from '../models/Deck';
@@ -122,5 +122,84 @@ describe('importCourse', () => {
 			deckId: { $in: importedDecks.map((d) => d._id) },
 		});
 		expect(importedCards.length).to.equal(3);
+	});
+});
+
+describe('updateCourseVisibility', () => {
+	setupDBConnectionForTesting();
+
+	it('clears deck visibilities when course becomes more public', async () => {
+		const user = await new User({
+			firstName: 'Test',
+			lastName: 'User',
+			email: 'test@test.com',
+			passwordHash: 'hash',
+		}).save();
+
+		const course = await Course.create({
+			name: 'Test Course',
+			decks: [],
+			visibility: 'private',
+			userId: user._id.toString(),
+		});
+
+		const deck1 = await Deck.create({
+			uid: 'deck-1',
+			name: 'Deck 1',
+			courseId: course._id,
+			section: 'Section 1',
+			visibility: 'private',
+		});
+
+		const deck2 = await Deck.create({
+			uid: 'deck-2',
+			name: 'Deck 2',
+			courseId: course._id,
+			section: 'Section 1',
+			visibility: 'unlisted',
+		});
+
+		course.decks = [deck1._id, deck2._id];
+		await course.save();
+
+		await updateCourseVisibility(course._id.toString(), 'public', user._id.toString());
+
+		const updatedDeck1 = await Deck.findById(deck1._id);
+		const updatedDeck2 = await Deck.findById(deck2._id);
+
+		expect(updatedDeck1!.visibility).to.be.undefined;
+		expect(updatedDeck2!.visibility).to.be.undefined;
+	});
+
+	it('does not change deck visibilities when course becomes less restrictive', async () => {
+		const user = await new User({
+			firstName: 'Test',
+			lastName: 'User',
+			email: 'test@test.com',
+			passwordHash: 'hash',
+		}).save();
+
+		const course = await Course.create({
+			name: 'Test Course',
+			decks: [],
+			visibility: 'public',
+			userId: user._id.toString(),
+		});
+
+		const deck = await Deck.create({
+			uid: 'deck-1',
+			name: 'Deck 1',
+			courseId: course._id,
+			section: 'Section 1',
+			visibility: 'public',
+		});
+
+		course.decks = [deck._id];
+		await course.save();
+
+		await updateCourseVisibility(course._id.toString(), 'unlisted', user._id.toString());
+
+		const updatedDeck = await Deck.findById(deck._id);
+		expect(updatedDeck!.visibility).to.equal('public');
 	});
 });

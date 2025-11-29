@@ -9,7 +9,13 @@ import Attempt, { AttemptDoc } from '../models/Attempt';
 import { Card } from '../models/Card';
 import { DeckDoc } from '../models/Deck';
 import { User } from 'MemoryFlashCore/src/types/User';
-import { addCardsToDeck, getDeckForUser, importDeck, updateDeckVisibility } from './deckService';
+import {
+	addCardsToDeck,
+	getDeckForUser,
+	getDeckPreview,
+	importDeck,
+	updateDeckVisibility,
+} from './deckService';
 import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
 import Course from '../models/Course';
 import { Deck } from '../models/Deck';
@@ -233,6 +239,61 @@ describe('importDeck', () => {
 		);
 
 		expect(result).to.be.null;
+	});
+});
+
+describe('getDeckPreview', () => {
+	let deck: DeckDoc;
+	setupDBConnectionForTesting();
+
+	beforeEach(async () => {
+		const seededData = await seed();
+		deck = seededData.deck;
+	});
+
+	it('returns null for private deck in private course', async () => {
+		const course = await Course.findById(deck.courseId);
+		course!.visibility = 'private';
+		await course!.save();
+		deck.visibility = 'private';
+		await deck.save();
+
+		const result = await getDeckPreview(deck._id.toString());
+		expect(result).to.be.null;
+	});
+
+	it('returns preview for public deck in public course', async () => {
+		const course = await Course.findById(deck.courseId);
+		course!.visibility = 'public';
+		await course!.save();
+		deck.visibility = 'public';
+		await deck.save();
+
+		const result = await getDeckPreview(deck._id.toString());
+		expect(result).to.not.be.null;
+		expect(result!.deck.name).to.equal(deck.name);
+	});
+
+	it('returns preview for unlisted deck in unlisted course', async () => {
+		const course = await Course.findById(deck.courseId);
+		course!.visibility = 'unlisted';
+		await course!.save();
+		deck.visibility = 'unlisted';
+		await deck.save();
+
+		const result = await getDeckPreview(deck._id.toString());
+		expect(result).to.not.be.null;
+	});
+
+	it('returns preview for unlisted deck in private course', async () => {
+		const course = await Course.findById(deck.courseId);
+		course!.visibility = 'private';
+		await course!.save();
+		deck.visibility = 'unlisted';
+		await deck.save();
+
+		const result = await getDeckPreview(deck._id.toString());
+		expect(result).to.not.be.null;
 	});
 });
 

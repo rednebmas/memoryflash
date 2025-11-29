@@ -21,6 +21,7 @@ export interface VisibilityModalProps extends Omit<ModalProps, 'children'> {
 	onSave: (visibility: Visibility) => void;
 	isSaving?: boolean;
 	disabledOptions?: Partial<Record<Visibility, string>>;
+	warningForOptions?: Partial<Record<Visibility, string>>;
 }
 
 export const VisibilityModal: React.FC<VisibilityModalProps> = ({
@@ -31,6 +32,7 @@ export const VisibilityModal: React.FC<VisibilityModalProps> = ({
 	onSave,
 	isSaving,
 	disabledOptions = {},
+	warningForOptions = {},
 }) => {
 	const [selected, setSelected] = useState<Visibility>(currentVisibility);
 
@@ -111,6 +113,11 @@ export const VisibilityModal: React.FC<VisibilityModalProps> = ({
 						})}
 					</div>
 				</RadioGroup>
+				{warningForOptions[selected] && (
+					<div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+						<p className="text-sm text-amber-800">{warningForOptions[selected]}</p>
+					</div>
+				)}
 			</div>
 			<div className="mt-6 sm:flex sm:pl-4 gap-3 justify-end bg-gray-50 px-6 pt-3 pb-4 border-t border-gray-100">
 				<button
