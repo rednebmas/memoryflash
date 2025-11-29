@@ -123,6 +123,68 @@ describe('importCourse', () => {
 		});
 		expect(importedCards.length).to.equal(3);
 	});
+
+	it('skips private decks when importing a public course', async () => {
+		const user = await new User({
+			firstName: 'Test',
+			lastName: 'User',
+			email: 'test@test.com',
+			passwordHash: 'hash',
+		}).save();
+
+		const sourceCourse = await Course.create({
+			name: 'Public Course',
+			decks: [],
+			visibility: 'public',
+		});
+
+		const publicDeck = await Deck.create({
+			uid: 'public-deck',
+			name: 'Public Deck',
+			courseId: sourceCourse._id,
+			section: 'Section 1',
+			cardCount: 1,
+			visibility: 'public',
+		});
+
+		const privateDeck = await Deck.create({
+			uid: 'private-deck',
+			name: 'Private Deck',
+			courseId: sourceCourse._id,
+			section: 'Section 2',
+			cardCount: 1,
+			visibility: 'private',
+		});
+
+		sourceCourse.decks = [publicDeck._id, privateDeck._id];
+		await sourceCourse.save();
+
+		await Card.insertMany([
+			{
+				uid: 'public-card',
+				deckId: publicDeck._id,
+				type: 'MultiSheet',
+				question: { key: 'C', voices: [] },
+				answer: { type: 'ExactMulti' },
+			},
+			{
+				uid: 'private-card',
+				deckId: privateDeck._id,
+				type: 'MultiSheet',
+				question: { key: 'C', voices: [] },
+				answer: { type: 'ExactMulti' },
+			},
+		]);
+
+		const result = await importCourse(sourceCourse._id.toString(), user._id.toString());
+
+		expect(result).to.not.be.null;
+		expect(result!.deckCount).to.equal(1);
+
+		const importedDecks = await Deck.find({ courseId: result!.course._id });
+		expect(importedDecks.length).to.equal(1);
+		expect(importedDecks[0].name).to.equal('Public Deck');
+	});
 });
 
 describe('updateCourseVisibility', () => {

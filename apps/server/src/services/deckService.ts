@@ -9,6 +9,16 @@ import { CardTypeEnum, AnswerType } from 'MemoryFlashCore/src/types/Cards';
 import { Types } from 'mongoose';
 import { Visibility, VISIBILITIES, VISIBILITY_LEVEL } from 'MemoryFlashCore/src/types/Deck';
 
+export async function isDeckShareable(deckId: string): Promise<boolean> {
+	const deck = await Deck.findById(deckId);
+	if (!deck) return false;
+	const course = await Course.findById(deck.courseId);
+	const courseVis = course?.visibility ?? 'private';
+	const deckVis = deck.visibility ?? courseVis;
+	const effectiveVisibility = Math.min(VISIBILITY_LEVEL[deckVis], VISIBILITY_LEVEL[courseVis]);
+	return effectiveVisibility >= VISIBILITY_LEVEL['unlisted'];
+}
+
 export async function getDeckForUser(deckId: string, user: User) {
 	const [deck, cards, userDeckStats] = await Promise.all([
 		Deck.findOne({ _id: deckId }),
@@ -249,8 +259,8 @@ export async function copyDeckToCoure(
 }
 
 export async function importDeck(deckId: string, userId: string, targetCourseId?: string) {
-	const sourceDeck = await Deck.findById(deckId);
-	if (!sourceDeck || sourceDeck.visibility === 'private') return null;
+	const shareable = await isDeckShareable(deckId);
+	if (!shareable) return null;
 
 	let targetCourse;
 	if (targetCourseId) {

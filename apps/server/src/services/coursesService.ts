@@ -3,7 +3,7 @@ import { Deck } from '../models/Deck';
 import { UserDeckStats } from '../models/UserDeckStats';
 import { User } from 'MemoryFlashCore/src/types/User';
 import { Visibility, VISIBILITIES, VISIBILITY_LEVEL } from 'MemoryFlashCore/src/types/Deck';
-import { deleteDeckById, copyDeckToCoure } from './deckService';
+import { deleteDeckById, copyDeckToCoure, isDeckShareable } from './deckService';
 
 export async function createCourse(name: string, userId?: string) {
 	const course = new Course({ name, decks: [], userId });
@@ -108,6 +108,9 @@ export async function importCourse(courseId: string, userId: string) {
 
 	const newDeckIds: string[] = [];
 	for (const sourceDeckId of sourceCourse.decks) {
+		const shareable = await isDeckShareable(sourceDeckId.toString());
+		if (!shareable) continue;
+
 		const newDeck = await copyDeckToCoure(
 			sourceDeckId.toString(),
 			newCourse._id.toString(),

@@ -149,13 +149,18 @@ describe('addCardsToDeck', () => {
 });
 
 describe('importDeck', () => {
-	let user: UserDoc, deck: DeckDoc;
+	let user: UserDoc, deck: DeckDoc, course: InstanceType<typeof Course>;
 	setupDBConnectionForTesting();
 
 	beforeEach(async () => {
 		const seededData = await seed();
 		user = seededData.user;
 		deck = seededData.deck;
+		deck.visibility = 'public';
+		await deck.save();
+		course = (await Course.findById(deck.courseId))!;
+		course.visibility = 'public';
+		await course.save();
 	});
 
 	it('returns null for private decks', async () => {
@@ -166,10 +171,26 @@ describe('importDeck', () => {
 		expect(result).to.be.null;
 	});
 
-	it('imports a public deck with all cards', async () => {
-		deck.visibility = 'public';
+	it('returns null for deck without visibility in private course', async () => {
+		deck.visibility = undefined;
+		await deck.save();
+		course.visibility = 'private';
+		await course.save();
+
+		const result = await importDeck(deck._id.toString(), user._id.toString());
+		expect(result).to.be.null;
+	});
+
+	it('imports deck without visibility in public course', async () => {
+		deck.visibility = undefined;
 		await deck.save();
 
+		const result = await importDeck(deck._id.toString(), user._id.toString());
+		expect(result).to.not.be.null;
+		expect(result!.deck.name).to.equal(deck.name);
+	});
+
+	it('imports a public deck with all cards', async () => {
 		const originalCards = await Card.find({ deckId: deck._id });
 		const result = await importDeck(deck._id.toString(), user._id.toString());
 
@@ -183,9 +204,6 @@ describe('importDeck', () => {
 	});
 
 	it('reuses existing Imported Decks course', async () => {
-		deck.visibility = 'public';
-		await deck.save();
-
 		await importDeck(deck._id.toString(), user._id.toString());
 		const secondDeck = await Deck.create({
 			uid: 'second-deck',
@@ -202,9 +220,6 @@ describe('importDeck', () => {
 	});
 
 	it('imports to a specified course when courseId provided', async () => {
-		deck.visibility = 'public';
-		await deck.save();
-
 		const targetCourse = await Course.create({
 			name: 'My Custom Course',
 			decks: [],
@@ -223,9 +238,6 @@ describe('importDeck', () => {
 	});
 
 	it('returns null when specified courseId does not belong to user', async () => {
-		deck.visibility = 'public';
-		await deck.save();
-
 		const otherCourse = await Course.create({
 			name: 'Other User Course',
 			decks: [],
