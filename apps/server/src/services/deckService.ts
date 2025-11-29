@@ -131,6 +131,7 @@ export async function addCardsToDeck(
 		...(userId ? { userId: new Types.ObjectId(userId) } : {}),
 	}));
 	const insertedCards = await Card.insertMany(cards);
+	await Deck.updateOne({ _id: deckId }, { $inc: { cardCount: cards.length } });
 	return insertedCards;
 }
 
@@ -168,17 +169,14 @@ export async function getDeckPreview(deckId: string) {
 	const deck = await Deck.findById(deckId);
 	if (!deck || deck.visibility === 'private') return null;
 
-	const [course, cardCount] = await Promise.all([
-		Course.findById(deck.courseId),
-		Card.countDocuments({ deckId }),
-	]);
+	const course = await Course.findById(deck.courseId);
 
 	return {
 		deck: {
 			_id: deck._id,
 			name: deck.name,
 			visibility: deck.visibility,
-			cardCount,
+			cardCount: deck.cardCount || 0,
 		},
 		course: course ? { _id: course._id, name: course.name } : null,
 	};

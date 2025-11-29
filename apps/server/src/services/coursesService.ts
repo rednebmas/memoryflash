@@ -1,6 +1,5 @@
 import Course from '../models/Course';
 import { Deck } from '../models/Deck';
-import { Card } from '../models/Card';
 import { UserDeckStats } from '../models/UserDeckStats';
 import { User } from 'MemoryFlashCore/src/types/User';
 import { Visibility, VISIBILITIES } from 'MemoryFlashCore/src/types/Deck';
@@ -63,18 +62,11 @@ export async function getCoursePreview(courseId: string) {
 	if (!course || course.visibility === 'private') return null;
 
 	const decks = await Deck.find({ _id: { $in: course.decks } }).lean();
-	const deckIds = decks.map((d) => d._id);
-
-	const cardCounts = await Card.aggregate([
-		{ $match: { deckId: { $in: deckIds } } },
-		{ $group: { _id: '$deckId', count: { $sum: 1 } } },
-	]);
-	const cardCountMap = new Map(cardCounts.map((c) => [c._id.toString(), c.count]));
 
 	const decksWithCounts = decks.map((deck) => ({
 		_id: deck._id,
 		name: deck.name,
-		cardCount: cardCountMap.get(deck._id.toString()) || 0,
+		cardCount: deck.cardCount || 0,
 	}));
 
 	const totalCardCount = decksWithCounts.reduce((sum, d) => sum + d.cardCount, 0);

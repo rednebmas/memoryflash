@@ -9,7 +9,7 @@
 -   [x] Phase 5: Community Search API (Decks)
 -   [x] Phase 6: Course Schema Changes
 -   [x] Phase 7: Course Visibility & Preview APIs
--   [ ] Phase 8: Community Search API (Courses)
+-   [x] Phase 8: Community Search API (Courses)
 -   [ ] Phase 9: Leaderboard API
 -   [ ] Phase 10: Deck Import API
 -   [ ] Phase 11: Course Import API

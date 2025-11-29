@@ -26,6 +26,10 @@ const DeckSchema = new Schema<DeckDoc>(
 			required: false,
 			default: [],
 		},
+		cardCount: {
+			type: Number,
+			default: 0,
+		},
 		visibility: {
 			type: String,
 			enum: visibilityValues,

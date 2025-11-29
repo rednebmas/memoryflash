@@ -10,6 +10,7 @@ export type Deck = {
 	section: string;
 	sectionSubtitle: string;
 	tags: string[];
+	cardCount?: number;
 	visibility?: Visibility;
 	importedFromDeckId?: string;
 	createdAt: Date;

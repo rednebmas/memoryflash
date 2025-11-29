@@ -12,9 +12,13 @@ export async function upsertDeckWithCards<T extends CardTypeEnum, Q extends {}>(
 	if (!deckEntity) {
 		deckEntity = new Deck();
 		Object.assign(deckEntity, deck);
+		deckEntity.cardCount = cards.length;
 		await deckEntity.save();
 	} else {
-		await Deck.updateOne({ _id: deckEntity._id }, { $set: deck });
+		await Deck.updateOne(
+			{ _id: deckEntity._id },
+			{ $set: { ...deck, cardCount: cards.length } },
+		);
 	}
 
 	// Collect UIDs of the cards to keep
