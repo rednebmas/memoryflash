@@ -1,7 +1,9 @@
 import Course from '../models/Course';
 import { Deck } from '../models/Deck';
+import { Card } from '../models/Card';
 import { UserDeckStats } from '../models/UserDeckStats';
 import { User } from 'MemoryFlashCore/src/types/User';
+import { Visibility, VISIBILITIES } from 'MemoryFlashCore/src/types/Deck';
 import { deleteDeckById } from './deckService';
 
 export async function createCourse(name: string, userId?: string) {
@@ -41,4 +43,50 @@ export async function deleteCourse(courseId: string, userId: string) {
 	for (const deckId of course.decks) {
 		await deleteDeckById(deckId.toString(), userId);
 	}
+}
+
+export async function updateCourseVisibility(
+	courseId: string,
+	visibility: Visibility,
+	userId: string,
+) {
+	if (!VISIBILITIES.includes(visibility)) return null;
+	const course = await Course.findById(courseId);
+	if (!course || course.userId?.toString() !== userId) return null;
+	course.visibility = visibility;
+	await course.save();
+	return course;
+}
+
+export async function getCoursePreview(courseId: string) {
+	const course = await Course.findById(courseId);
+	if (!course || course.visibility === 'private') return null;
+
+	const decks = await Deck.find({ _id: { $in: course.decks } }).lean();
+	const deckIds = decks.map((d) => d._id);
+
+	const cardCounts = await Card.aggregate([
+		{ $match: { deckId: { $in: deckIds } } },
+		{ $group: { _id: '$deckId', count: { $sum: 1 } } },
+	]);
+	const cardCountMap = new Map(cardCounts.map((c) => [c._id.toString(), c.count]));
+
+	const decksWithCounts = decks.map((deck) => ({
+		_id: deck._id,
+		name: deck.name,
+		cardCount: cardCountMap.get(deck._id.toString()) || 0,
+	}));
+
+	const totalCardCount = decksWithCounts.reduce((sum, d) => sum + d.cardCount, 0);
+
+	return {
+		course: {
+			_id: course._id,
+			name: course.name,
+			visibility: course.visibility,
+			deckCount: decks.length,
+			totalCardCount,
+		},
+		decks: decksWithCounts,
+	};
 }
