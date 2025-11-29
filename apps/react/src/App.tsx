@@ -3,6 +3,7 @@ import { Provider } from 'react-redux';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { StudyScreen } from './components';
 import { MidiToRedux } from './components/MidiToRedux';
+import { PianoSound } from './components/PianoSound';
 import { AuthenticatedRoute } from './components/navigation/Routers';
 import { CoursesScreen, NotationInputScreen } from './screens';
 import { AllDeckCardsScreen } from './screens/AllDeckCardsScreen';
@@ -31,6 +32,7 @@ export default function App() {
 	return (
 		<Provider store={store}>
 			<MidiToRedux />
+			<PianoSound />
 			<BrowserRouter>
 				<Routes>
 					<Route path="/" element={<AuthenticatedRoute screen={<CoursesScreen />} />} />
