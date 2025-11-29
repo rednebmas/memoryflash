@@ -2,24 +2,24 @@
 
 ## Progress
 
--   [x] Phase 1: Deck Schema Changes
--   [x] Phase 2: CommunityLeaderboard Model
--   [x] Phase 3: Deck Visibility Change API
--   [x] Phase 4: Deck Preview API
--   [x] Phase 5: Community Search API (Decks)
--   [x] Phase 6: Course Schema Changes
--   [x] Phase 7: Course Visibility & Preview APIs
--   [x] Phase 8: Community Search API (Courses)
--   [x] Phase 9: Leaderboard API
--   [x] Phase 10: Deck Import API
--   [x] Phase 11: Course Import API
--   [x] Phase 12: Redux Actions & Types
--   [x] Phase 13: VisibilityModal Component
--   [x] Phase 14: DeckPreviewScreen
--   [x] Phase 15: CoursePreviewScreen
--   [x] Phase 16: CommunityScreen
--   [x] Phase 17: Navigation & Routing
--   [ ] Phase 18: Integration Testing
+- [x] Phase 1: Deck Schema Changes
+- [x] Phase 2: CommunityLeaderboard Model
+- [x] Phase 3: Deck Visibility Change API
+- [x] Phase 4: Deck Preview API
+- [x] Phase 5: Community Search API (Decks)
+- [x] Phase 6: Course Schema Changes
+- [x] Phase 7: Course Visibility & Preview APIs
+- [x] Phase 8: Community Search API (Courses)
+- [x] Phase 9: Leaderboard API
+- [x] Phase 10: Deck Import API
+- [x] Phase 11: Course Import API
+- [x] Phase 12: Redux Actions & Types
+- [x] Phase 13: VisibilityModal Component
+- [x] Phase 14: DeckPreviewScreen
+- [x] Phase 15: CoursePreviewScreen
+- [x] Phase 16: CommunityScreen
+- [x] Phase 17: Navigation & Routing
+- [ ] Phase 18: Integration Testing
 
 ---
 
@@ -35,15 +35,15 @@
 
 **Files to modify:**
 
--   `packages/MemoryFlashCore/src/types/Deck.ts`
--   `apps/server/src/models/Deck.ts`
+- `packages/MemoryFlashCore/src/types/Deck.ts`
+- `apps/server/src/models/Deck.ts`
 
 **Acceptance criteria:**
 
--   Deck type includes `visibility: 'private' | 'unlisted' | 'public'`
--   Deck type includes `importedFromDeckId?: string`
--   Schema defaults `visibility` to `'private'`
--   Existing tests pass
+- Deck type includes `visibility: 'private' | 'unlisted' | 'public'`
+- Deck type includes `importedFromDeckId?: string`
+- Schema defaults `visibility` to `'private'`
+- Existing tests pass
 
 ---
 
@@ -59,11 +59,11 @@
 
 **New files:**
 
--   `apps/server/src/models/CommunityLeaderboard.ts`
+- `apps/server/src/models/CommunityLeaderboard.ts`
 
 **Files to modify:**
 
--   `apps/server/src/models/Attempt.ts`
+- `apps/server/src/models/Attempt.ts`
 
 **Schema:**
 
@@ -76,9 +76,9 @@
 
 **Acceptance criteria:**
 
--   CommunityLeaderboard model exists and can be queried
--   When an Attempt is saved, the leaderboard increments for that deck
--   Only public decks appear in leaderboard
+- CommunityLeaderboard model exists and can be queried
+- When an Attempt is saved, the leaderboard increments for that deck
+- Only public decks appear in leaderboard
 
 ---
 
@@ -93,15 +93,15 @@
 
 **Files to modify:**
 
--   `apps/server/src/routes/decksRouter.ts`
+- `apps/server/src/routes/decksRouter.ts`
 
 **Request:** `{ visibility: 'private' | 'unlisted' | 'public' }`
 
 **Acceptance criteria:**
 
--   Only deck owner can change visibility
--   Returns 404 if not owner or deck not found
--   Successfully updates deck visibility
+- Only deck owner can change visibility
+- Returns 404 if not owner or deck not found
+- Successfully updates deck visibility
 
 ---
 
@@ -118,7 +118,7 @@
 
 **Files to modify:**
 
--   `apps/server/src/routes/decksRouter.ts`
+- `apps/server/src/routes/decksRouter.ts`
 
 **Response:**
 
@@ -131,10 +131,10 @@
 
 **Acceptance criteria:**
 
--   Public and unlisted decks return preview data
--   Private decks return 404
--   Card count is accurate
--   Course info is populated
+- Public and unlisted decks return preview data
+- Private decks return 404
+- Card count is accurate
+- Course info is populated
 
 ---
 
@@ -151,14 +151,14 @@
 
 **New files:**
 
--   `apps/server/src/routes/communityRouter.ts`
+- `apps/server/src/routes/communityRouter.ts`
 
 **Acceptance criteria:**
 
--   Only public decks appear in search results
--   Search is case-insensitive
--   Returns deck info with course name
--   Pagination works correctly
+- Only public decks appear in search results
+- Search is case-insensitive
+- Returns deck info with course name
+- Pagination works correctly
 
 ---
 
@@ -173,15 +173,15 @@
 
 **Files to modify:**
 
--   `packages/MemoryFlashCore/src/types/Course.ts`
--   `apps/server/src/models/Course.ts`
+- `packages/MemoryFlashCore/src/types/Course.ts`
+- `apps/server/src/models/Course.ts`
 
 **Acceptance criteria:**
 
--   Course type includes `visibility?: 'private' | 'unlisted' | 'public'`
--   Course type includes `importedFromCourseId?: string`
--   Schema defaults `visibility` to `'private'`
--   Existing tests pass
+- Course type includes `visibility?: 'private' | 'unlisted' | 'public'`
+- Course type includes `importedFromCourseId?: string`
+- Schema defaults `visibility` to `'private'`
+- Existing tests pass
 
 ---
 
@@ -197,8 +197,8 @@
 
 **Files to modify:**
 
--   `apps/server/src/routes/coursesRouter.ts`
--   `apps/server/src/services/courseService.ts` (if exists, or create)
+- `apps/server/src/routes/coursesRouter.ts`
+- `apps/server/src/services/courseService.ts` (if exists, or create)
 
 **Preview Response:**
 
@@ -211,9 +211,9 @@
 
 **Acceptance criteria:**
 
--   Only course owner can change visibility
--   Public and unlisted courses return preview data with deck list
--   Private courses return 404
+- Only course owner can change visibility
+- Public and unlisted courses return preview data with deck list
+- Private courses return 404
 
 ---
 
@@ -229,13 +229,13 @@
 
 **Files to modify:**
 
--   `apps/server/src/routes/communityRouter.ts`
+- `apps/server/src/routes/communityRouter.ts`
 
 **Acceptance criteria:**
 
--   Only public courses appear in search results
--   Returns course info with deck count
--   Pagination works correctly
+- Only public courses appear in search results
+- Returns course info with deck count
+- Pagination works correctly
 
 ---
 
@@ -252,13 +252,13 @@
 
 **Files to modify:**
 
--   `apps/server/src/routes/communityRouter.ts`
+- `apps/server/src/routes/communityRouter.ts`
 
 **Acceptance criteria:**
 
--   Returns cached leaderboard data
--   Deck and course details are populated
--   Results are sorted by attempt count descending
+- Returns cached leaderboard data
+- Deck and course details are populated
+- Results are sorted by attempt count descending
 
 ---
 
@@ -276,17 +276,17 @@
 
 **Files to modify:**
 
--   `apps/server/src/routes/decksRouter.ts`
--   `apps/server/src/services/deckService.ts`
+- `apps/server/src/routes/decksRouter.ts`
+- `apps/server/src/services/deckService.ts`
 
 **Acceptance criteria:**
 
--   Auth required (401 if not logged in)
--   Cannot import private decks (404)
--   Creates new deck with all cards copied
--   Sets `importedFromDeckId` correctly
--   Creates/reuses "Imported Decks" course
--   Unit test for `importDeck` service function
+- Auth required (401 if not logged in)
+- Cannot import private decks (404)
+- Creates new deck with all cards copied
+- Sets `importedFromDeckId` correctly
+- Creates/reuses "Imported Decks" course
+- Unit test for `importDeck` service function
 
 ---
 
@@ -304,16 +304,16 @@
 
 **Files to modify:**
 
--   `apps/server/src/routes/coursesRouter.ts`
--   `apps/server/src/services/courseService.ts`
+- `apps/server/src/routes/coursesRouter.ts`
+- `apps/server/src/services/courseService.ts`
 
 **Acceptance criteria:**
 
--   Auth required (401 if not logged in)
--   Cannot import private courses (404)
--   Creates new course with all decks and cards copied
--   Sets import tracking fields correctly
--   Unit test for `importCourse` service function
+- Auth required (401 if not logged in)
+- Cannot import private courses (404)
+- Creates new course with all decks and cards copied
+- Sets import tracking fields correctly
+- Unit test for `importCourse` service function
 
 ---
 
@@ -334,13 +334,13 @@
 
 **Files to modify:**
 
--   `apps/react/src/utils/api.ts` (or similar)
--   Redux slice files
+- `apps/react/src/utils/api.ts` (or similar)
+- Redux slice files
 
 **Acceptance criteria:**
 
--   All new API endpoints have corresponding frontend functions
--   Loading/error states handled appropriately
+- All new API endpoints have corresponding frontend functions
+- Loading/error states handled appropriately
 
 ---
 
@@ -358,19 +358,19 @@
 
 **New files:**
 
--   `apps/react/src/components/VisibilityModal.tsx`
+- `apps/react/src/components/VisibilityModal.tsx`
 
 **Files to modify:**
 
--   Deck options menu component
--   Course options menu component (if exists)
+- Deck options menu component
+- Course options menu component (if exists)
 
 **Acceptance criteria:**
 
--   Modal displays current visibility
--   User can select new visibility
--   Save updates deck/course and closes modal
--   Loading state while saving
+- Modal displays current visibility
+- User can select new visibility
+- Save updates deck/course and closes modal
+- Loading state while saving
 
 ---
 
@@ -388,15 +388,15 @@
 
 **New files:**
 
--   `apps/react/src/screens/DeckPreviewScreen.tsx`
+- `apps/react/src/screens/DeckPreviewScreen.tsx`
 
 **Acceptance criteria:**
 
--   Shows deck details for valid preview URL
--   Import button works for logged-in users
--   User can optionally select which course to import into (defaults to "Imported Decks")
--   Prompts login for logged-out users
--   Shows error for invalid/private decks
+- Shows deck details for valid preview URL
+- Import button works for logged-in users
+- User can optionally select which course to import into (defaults to "Imported Decks")
+- Prompts login for logged-out users
+- Shows error for invalid/private decks
 
 ---
 
@@ -414,14 +414,14 @@
 
 **New files:**
 
--   `apps/react/src/screens/CoursePreviewScreen.tsx`
+- `apps/react/src/screens/CoursePreviewScreen.tsx`
 
 **Acceptance criteria:**
 
--   Shows course details and deck list for valid preview URL
--   Import button works for logged-in users
--   Prompts login for logged-out users
--   Shows error for invalid/private courses
+- Shows course details and deck list for valid preview URL
+- Import button works for logged-in users
+- Prompts login for logged-out users
+- Shows error for invalid/private courses
 
 ---
 
@@ -440,15 +440,15 @@
 
 **New files:**
 
--   `apps/react/src/screens/CommunityScreen.tsx`
+- `apps/react/src/screens/CommunityScreen.tsx`
 
 **Acceptance criteria:**
 
--   Can switch between deck and course search
--   Search input filters public items
--   Leaderboard displays on page load
--   Clicking an item navigates to preview
--   Empty states for no results
+- Can switch between deck and course search
+- Search input filters public items
+- Leaderboard displays on page load
+- Clicking an item navigates to preview
+- Empty states for no results
 
 ---
 
@@ -466,15 +466,15 @@
 
 **Files to modify:**
 
--   `apps/react/src/App.tsx`
--   Navigation component(s)
+- `apps/react/src/App.tsx`
+- Navigation component(s)
 
 **Acceptance criteria:**
 
--   All new routes accessible
--   Community link visible in nav
--   Preview pages work without auth
--   Deep linking works correctly
+- All new routes accessible
+- Community link visible in nav
+- Preview pages work without auth
+- Deep linking works correctly
 
 ---
 
@@ -493,10 +493,10 @@
 
 **Acceptance criteria:**
 
--   All visibility rules enforced correctly for both decks and courses
--   Import creates proper copies with tracking
--   Leaderboard updates on new attempts
--   All existing tests still pass
+- All visibility rules enforced correctly for both decks and courses
+- Import creates proper copies with tracking
+- Leaderboard updates on new attempts
+- All existing tests still pass
 
 ---
 
