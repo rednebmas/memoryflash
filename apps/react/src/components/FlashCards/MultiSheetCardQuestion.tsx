@@ -11,11 +11,7 @@ import {
 	PresentationModeIds,
 } from 'MemoryFlashCore/src/types/PresentationMode';
 
-export const MultiSheetCardQuestion: React.FC<QuestionRender & { neutralNotation?: boolean }> = ({
-	card,
-	placement,
-	neutralNotation,
-}) => {
+export const MultiSheetCardQuestion: React.FC<QuestionRender> = ({ card, placement }) => {
 	const c = card as MultiSheetCard;
 
 	const multiPartCardIndex = useAppSelector((state) => state.scheduler.multiPartCardIndex);
@@ -46,12 +42,8 @@ export const MultiSheetCardQuestion: React.FC<QuestionRender & { neutralNotation
 			<span>
 				<MusicNotation
 					data={c.question}
-					highlightClassName={
-						neutralNotation ? undefined : clsx(placement === 'cur' && 'highlight')
-					}
-					allNotesClassName={
-						neutralNotation ? undefined : clsx(placement === 'answered' && 'answered')
-					}
+					highlightClassName={clsx(placement === 'cur' && 'highlight')}
+					allNotesClassName={clsx(placement === 'answered' && 'answered')}
 					hideChords={activePresentationModeId !== 'Sheet Music w/ Chords'}
 				/>
 			</span>

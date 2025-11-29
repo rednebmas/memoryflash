@@ -9,27 +9,46 @@ import {
 } from './currDeckCardsWithAttempts';
 import { userDeckStatsByDeckIdSelector } from './userDeckStatsByDeckIdSelector';
 
-const formatDateKey = (dateInput: string | number | Date): string => {
+export interface DailyTimeSpent {
+	dateKey: string;
+	timestamp: number;
+	timeSpent: number;
+}
+
+export interface DailyMedian {
+	dateKey: string;
+	timestamp: number;
+	median: number;
+}
+
+const formatDateKey = (dateInput: string | number | Date) => {
 	const date = new Date(dateInput);
 	const year = date.getFullYear();
 	const month = `${date.getMonth() + 1}`.padStart(2, '0');
 	const day = `${date.getDate()}`.padStart(2, '0');
-	return `${year}-${month}-${day}`;
+	return {
+		dateKey: `${year}-${month}-${day}`,
+		timestamp: new Date(year, date.getMonth(), date.getDate()).getTime(),
+	};
 };
 
 export const timeSpentPerDaySelector = createSelector(
 	[currDeckAllWithAttemptsSelector],
 	(cards) => {
-		const timeSpentPerDay: { [date: string]: number } = {};
+		const timeSpentPerDay: Record<string, DailyTimeSpent> = {};
 
 		Object.values(cards).forEach((card) => {
 			card.attempts.forEach((attempt) => {
-				const dateKey = formatDateKey(attempt.attemptedAt);
-				timeSpentPerDay[dateKey] = (timeSpentPerDay[dateKey] ?? 0) + attempt.timeTaken;
+				const { dateKey, timestamp } = formatDateKey(attempt.attemptedAt);
+				timeSpentPerDay[dateKey] = {
+					dateKey,
+					timestamp,
+					timeSpent: (timeSpentPerDay[dateKey]?.timeSpent ?? 0) + attempt.timeTaken,
+				};
 			});
 		});
 
-		return timeSpentPerDay;
+		return Object.values(timeSpentPerDay);
 	},
 );
 
@@ -37,22 +56,26 @@ export const medianPerDaySelector = createSelector(
 	[userDeckStatsByDeckIdSelector, currDeckWithCorrectAttemptsSelector],
 	(userDeckStatsByDeckId, currentDeck) => {
 		if (Object.keys(currentDeck).length === 0) {
-			return {};
+			return [];
 		}
 
 		const deckId = Object.values(currentDeck)[0]?.deckId;
 		const stats: UserDeckStatsType | undefined = userDeckStatsByDeckId[deckId];
 
-		const medianPerDay: { [date: string]: number } = {};
+		const medianPerDay: Record<string, DailyMedian> = {};
 
 		if (stats && stats.medianHistory) {
 			stats.medianHistory.forEach((entry) => {
-				const dateStr = formatDateKey(entry.date);
-				medianPerDay[dateStr] = entry.median;
+				const { dateKey, timestamp } = formatDateKey(entry.date);
+				medianPerDay[dateKey] = {
+					dateKey,
+					timestamp,
+					median: entry.median,
+				};
 			});
 		}
 
-		return medianPerDay;
+		return Object.values(medianPerDay);
 	},
 );
 
@@ -71,17 +94,12 @@ export const attemptsStatsSelector = createSelector(
 		const deckId = Object.values(currentDeck)[0]?.deckId;
 		const stats: UserDeckStatsType | undefined = userDeckStatsByDeckId[deckId];
 
-		// Compute totalTimeSpent
-		const totalTimeSpent = Object.values(timeSpentPerDay).reduce(
-			(total, time) => total + time,
-			0,
-		);
+		const totalTimeSpent = timeSpentPerDay.reduce((total, day) => total + day.timeSpent, 0);
 
 		const timeTaken: number[] = Object.values(currentDeck)
 			.map((c) => c.attempts[0]?.timeTaken)
 			.filter((c) => c !== undefined);
 
-		// Calculate mean, median, and std
 		const mean =
 			timeTaken.length > 0 ? timeTaken.reduce((a, b) => a + b, 0) / timeTaken.length : 0;
 		const median = timeTaken.length > 0 ? calculateMedian([...timeTaken]) : 0;
@@ -114,11 +132,11 @@ export const attemptsStatsSelector = createSelector(
 export const bpmSelector = createSelector(
 	[attemptsStatsSelector, currDeckWithAttemptsSelector],
 	(stats, currentDeck) => {
-		if (!stats || !stats.median) return { bpm: 40, goalTime: 0 }; // Default BPM if stats are not available
+		if (!stats || !stats.median) return { bpm: 40, goalTime: 0 };
 
 		console.log('[bpm] median: ', stats.median);
 
-		let originalBpm = 60 / stats.median; //  * learningSpeed);
+		let originalBpm = 60 / stats.median;
 		console.log('[bpm] originalBpm: ', originalBpm);
 
 		let bpm = originalBpm || 40;
@@ -141,7 +159,6 @@ export const bpmSelector = createSelector(
 			.forEach((attempt) => {
 				let attemptedDate = new Date(attempt.attemptedAt);
 
-				// the six hour ago filter also occurs on the server
 				if (attempt.correct && attemptedDate > sixHoursAgo) {
 					correct++;
 				} else if (attempt.correct === false) {

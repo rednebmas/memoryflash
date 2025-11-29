@@ -10,14 +10,13 @@ import {
 	LineChart,
 } from 'recharts';
 import { roundToTenth } from 'MemoryFlashCore/src/lib/rounding';
+import {
+	DailyMedian,
+	DailyTimeSpent,
+} from 'MemoryFlashCore/src/redux/selectors/attemptsStatsSelector';
 
-const parseDateKey = (dateKey: string) => {
-	const [year, month, day] = dateKey.split('-').map((value) => parseInt(value, 10));
-	return new Date(year, month - 1, day);
-};
-
-const formatDateLabel = (dateKey: string) => {
-	const date = parseDateKey(dateKey);
+const formatDateLabel = (timestamp: number) => {
+	const date = new Date(timestamp);
 	const month = `${date.getMonth() + 1}`.padStart(2, '0');
 	const day = `${date.getDate()}`.padStart(2, '0');
 	const year = date.getFullYear().toString().slice(-2);
@@ -25,26 +24,26 @@ const formatDateLabel = (dateKey: string) => {
 };
 
 interface TimeSpentChartProps {
-	timeSpentPerDay: { [date: string]: number };
-	medianPerDay: { [date: string]: number };
+	timeSpentPerDay: DailyTimeSpent[];
+	medianPerDay: DailyMedian[];
 }
 
 export const TimeSpentChart: React.FC<TimeSpentChartProps> = ({
 	timeSpentPerDay,
 	medianPerDay,
 }) => {
-	const timeSpentData = Object.keys(timeSpentPerDay)
-		.sort((a, b) => parseDateKey(a).getTime() - parseDateKey(b).getTime())
-		.map((dateKey) => ({
-			date: formatDateLabel(dateKey),
-			timeSpent: roundToTenth((timeSpentPerDay[dateKey] || 0) / 60),
+	const timeSpentData = [...timeSpentPerDay]
+		.sort((a, b) => a.timestamp - b.timestamp)
+		.map(({ timestamp, timeSpent }) => ({
+			date: formatDateLabel(timestamp),
+			timeSpent: roundToTenth(timeSpent / 60),
 		}));
 
-	const medianData = Object.keys(medianPerDay)
-		.sort((a, b) => parseDateKey(a).getTime() - parseDateKey(b).getTime())
-		.map((dateKey) => ({
-			date: formatDateLabel(dateKey),
-			median: medianPerDay[dateKey] || null,
+	const medianData = [...medianPerDay]
+		.sort((a, b) => a.timestamp - b.timestamp)
+		.map(({ timestamp, median }) => ({
+			date: formatDateLabel(timestamp),
+			median: median || null,
 		}));
 
 	return (

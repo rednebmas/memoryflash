@@ -63,6 +63,46 @@ const buildAttemptRows = (cards: ReturnType<typeof currDeckAllWithAttemptsSelect
 				new Date(a.attempt.attemptedAt).getTime(),
 		);
 
+const AttemptsList: React.FC<{
+	attempts: ReturnType<typeof buildAttemptRows>;
+	viewMode: AttemptViewMode;
+	deckName?: string;
+}> = ({ attempts, viewMode, deckName }) =>
+	attempts.length === 0 ? (
+		<div className="rounded-lg border border-gray-200 bg-white p-4 text-sm text-gray-700">
+			No attempts yet.
+		</div>
+	) : (
+		<div className="flex flex-col gap-3">
+			{attempts.map(({ attempt, card }) => (
+				<div
+					key={attempt._id}
+					className="rounded-lg border border-gray-200 bg-white p-3 shadow-sm"
+				>
+					<div className="flex flex-col gap-2">
+						<div className="flex flex-wrap items-center justify-between gap-2 text-sm font-semibold text-gray-900">
+							<span>{describeCard(card, deckName)}</span>
+							<span className="text-xs text-gray-600 sm:text-sm">
+								{formatAttemptDate(attempt.attemptedAt)}
+							</span>
+						</div>
+						{viewMode === 'notation' && card.type === CardTypeEnum.MultiSheet && (
+							<div className="overflow-auto rounded border border-gray-100 bg-gray-50 p-2">
+								<MultiSheetCardQuestion card={card} placement="answered" />
+							</div>
+						)}
+						<div className="flex items-center justify-between text-sm text-gray-700">
+							<span className={attempt.correct ? 'text-green-700' : 'text-red-700'}>
+								{attempt.correct ? 'Correct' : 'Incorrect'}
+							</span>
+							<span>{attempt.timeTaken.toFixed(1)}s</span>
+						</div>
+					</div>
+				</div>
+			))}
+		</div>
+	);
+
 export const AttemptHistoryScreen: React.FC = () => {
 	const dispatch = useAppDispatch();
 	const { deckId, deck } = useDeckIdPath();
@@ -120,49 +160,7 @@ export const AttemptHistoryScreen: React.FC = () => {
 						)}
 					</div>
 				</div>
-				{attempts.length === 0 ? (
-					<div className="rounded-lg border border-gray-200 bg-white p-4 text-sm text-gray-700">
-						No attempts yet.
-					</div>
-				) : (
-					<div className="flex flex-col gap-3">
-						{attempts.map(({ attempt, card }) => (
-							<div
-								key={attempt._id}
-								className="rounded-lg border border-gray-200 bg-white p-3 shadow-sm"
-							>
-								<div className="flex flex-col gap-2">
-									<div className="flex flex-wrap items-center justify-between gap-2 text-sm font-semibold text-gray-900">
-										<span>{describeCard(card, deck?.name)}</span>
-										<span className="text-xs text-gray-600 sm:text-sm">
-											{formatAttemptDate(attempt.attemptedAt)}
-										</span>
-									</div>
-									{viewMode === 'notation' &&
-										card.type === CardTypeEnum.MultiSheet && (
-											<div className="overflow-auto rounded border border-gray-100 bg-gray-50 p-2">
-												<MultiSheetCardQuestion
-													card={card}
-													placement="answered"
-													neutralNotation
-												/>
-											</div>
-										)}
-									<div className="flex items-center justify-between text-sm text-gray-700">
-										<span
-											className={
-												attempt.correct ? 'text-green-700' : 'text-red-700'
-											}
-										>
-											{attempt.correct ? 'Correct' : 'Incorrect'}
-										</span>
-										<span>{attempt.timeTaken.toFixed(1)}s</span>
-									</div>
-								</div>
-							</div>
-						))}
-					</div>
-				)}
+				<AttemptsList attempts={attempts} viewMode={viewMode} deckName={deck?.name} />
 			</div>
 		</Layout>
 	);
