@@ -13,7 +13,7 @@
 -   [x] Phase 9: Leaderboard API
 -   [x] Phase 10: Deck Import API
 -   [x] Phase 11: Course Import API
--   [ ] Phase 12: Redux Actions & Types
+-   [x] Phase 12: Redux Actions & Types
 -   [ ] Phase 13: VisibilityModal Component
 -   [ ] Phase 14: DeckPreviewScreen
 -   [ ] Phase 15: CoursePreviewScreen

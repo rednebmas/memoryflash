@@ -9,6 +9,7 @@ import { IS_PRODUCTION } from './env';
 import { attemptsReducer } from './slices/attemptsSlice';
 import { authActions, authReducer } from './slices/authSlice';
 import { cardsReducer } from './slices/cardsSlice';
+import { communityReducer } from './slices/communitySlice';
 import { coursesReducer } from './slices/coursesSlice';
 import { decksReducer } from './slices/decksSlice';
 import { feedReducer } from './slices/feedSlice';
@@ -22,6 +23,7 @@ const appReducer = combineReducers({
 	attempts: attemptsReducer,
 	auth: authReducer,
 	cards: cardsReducer,
+	community: communityReducer,
 	courses: coursesReducer,
 	decks: decksReducer,
 	feed: feedReducer,
