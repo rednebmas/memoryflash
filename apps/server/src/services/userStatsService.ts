@@ -1,24 +1,13 @@
 import { AttemptDoc } from '../models/Attempt';
 import { UserStats, UserStatsDoc } from '../models/UserStats';
-import { oneDayInMillis } from '../utils/dates';
+import { normalizeTimezone, oneDayInMillis } from 'MemoryFlashCore/src/redux/util/dates';
 
 const DEFAULT_TIMEZONE = 'UTC';
-
-const normalizeTimezone = (timezone?: string) => {
-	const trimmed = timezone?.trim();
-	if (!trimmed) return DEFAULT_TIMEZONE;
-	try {
-		new Intl.DateTimeFormat('en-US', { timeZone: trimmed });
-		return trimmed;
-	} catch {
-		return DEFAULT_TIMEZONE;
-	}
-};
 
 const dayKeyFromUTC = (utcMs: number) => new Date(utcMs).toISOString().slice(0, 10);
 
 const getActivityDayInfo = (date: Date, timeZone: string) => {
-	const tz = normalizeTimezone(timeZone);
+	const tz = normalizeTimezone(timeZone, DEFAULT_TIMEZONE);
 	const parts = new Intl.DateTimeFormat('en-US', {
 		timeZone: tz,
 		year: 'numeric',
@@ -30,11 +19,7 @@ const getActivityDayInfo = (date: Date, timeZone: string) => {
 	const map = Object.fromEntries(
 		parts.filter((part) => part.type !== 'literal').map((part) => [part.type, part.value]),
 	) as Record<string, string>;
-	const midnightUtc = Date.UTC(
-		Number(map.year),
-		Number(map.month) - 1,
-		Number(map.day),
-	);
+	const midnightUtc = Date.UTC(Number(map.year), Number(map.month) - 1, Number(map.day));
 	const adjustedUtc = Number(map.hour) < 3 ? midnightUtc - oneDayInMillis : midnightUtc;
 	return {
 		dayKey: dayKeyFromUTC(adjustedUtc),
@@ -53,7 +38,7 @@ const daysBetween = (start: string, end: string) => {
 
 export const getOrCreateUserStats = async (userId: string, timezone?: string) => {
 	const existing = await UserStats.findOne({ userId });
-	const resolvedTimezone = normalizeTimezone(timezone ?? existing?.timezone);
+	const resolvedTimezone = normalizeTimezone(timezone ?? existing?.timezone, DEFAULT_TIMEZONE);
 	if (existing) {
 		if (existing.timezone !== resolvedTimezone) {
 			existing.timezone = resolvedTimezone;

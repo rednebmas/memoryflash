@@ -1,5 +1,5 @@
 import { SessionOptions } from 'express-session';
-import { oneYearInMillis } from '../utils/dates';
+import { oneYearInMillis } from 'MemoryFlashCore/src/redux/util/dates';
 
 export const APP_URL = process.env.APP_URL || 'http://localhost:3000';
 export const FRONT_END_URL = process.env.FRONT_END_URL || APP_URL;

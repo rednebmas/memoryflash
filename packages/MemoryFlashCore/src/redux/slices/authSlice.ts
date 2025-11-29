@@ -17,7 +17,7 @@ const authSlice = createSlice({
 		completelyResetReduxState() {
 			/** Intentionally blank, see rootReducer */
 		},
-		setUser(state, action: PayloadAction<User>) {
+		setUser(state, action: PayloadAction<User | undefined>) {
 			state.user = action.payload;
 		},
 		setMfaToken(state, action: PayloadAction<string>) {

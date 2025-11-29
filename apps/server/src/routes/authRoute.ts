@@ -10,13 +10,18 @@ const router = Router();
 router.post('/sign-up', async (req, res, next) => {
 	try {
 		const { firstName, lastName, email, password } = req.body;
+		const timezone = typeof req.query.tz === 'string' ? req.query.tz : undefined;
 		const user = await signUp(firstName, lastName, email, password);
 
-		req.logIn(user, (error) => {
-			if (error) {
-				throw new Err('Error logging in after registration', 500);
+		req.logIn(user, async (error) => {
+			try {
+				if (error) {
+					throw new Err('Error logging in after registration', 500);
+				}
+				res.status(201).json(await userOnLoadInfo(user._id.toString(), timezone));
+			} catch (err) {
+				next(err);
 			}
-			res.status(201).json({ user });
 		});
 	} catch (error) {
 		next(error);
@@ -27,7 +32,17 @@ router.post('/log-in', passport.authenticate('local'), async (req, res, next) =>
 	try {
 		const user: User = req.user as User;
 		const timezone = typeof req.query.tz === 'string' ? req.query.tz : undefined;
-		res.json(await userOnLoadInfo(user._id, timezone));
+		res.json(await userOnLoadInfo(user._id.toString(), timezone));
+	} catch (error) {
+		next(error);
+	}
+});
+
+router.get('/me', isAuthenticated, async (req, res, next) => {
+	try {
+		const user: User = req.user as User;
+		const timezone = typeof req.query.tz === 'string' ? req.query.tz : undefined;
+		res.json(await userOnLoadInfo(user._id.toString(), timezone));
 	} catch (error) {
 		next(error);
 	}

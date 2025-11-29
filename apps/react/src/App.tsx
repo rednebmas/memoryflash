@@ -17,6 +17,18 @@ import { useDarkMode } from './utils/useDarkMode';
 import { DeckStatsScreen } from './screens/DeckStatsScreen/DeckStatsScreen';
 import { AccountScreen } from './screens/AccountScreen/AccountScreen';
 import { AttemptHistoryScreen } from './screens/AttemptHistoryScreen/AttemptHistoryScreen';
+import { useAppDispatch } from 'MemoryFlashCore/src/redux/store';
+import { refreshUser } from 'MemoryFlashCore/src/redux/actions/refresh-user-action';
+
+const AppBootstrapper = () => {
+	const dispatch = useAppDispatch();
+
+	useEffect(() => {
+		dispatch(refreshUser());
+	}, [dispatch]);
+
+	return null;
+};
 
 export default function App() {
 	const forceUpdate = React.useState({})[1].bind(null, {});
@@ -31,6 +43,7 @@ export default function App() {
 	return (
 		<Provider store={store}>
 			<MidiToRedux />
+			<AppBootstrapper />
 			<BrowserRouter>
 				<Routes>
 					<Route path="/" element={<AuthenticatedRoute screen={<CoursesScreen />} />} />
