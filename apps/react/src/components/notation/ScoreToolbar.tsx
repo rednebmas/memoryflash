@@ -57,8 +57,8 @@ export const ScoreToolbar: React.FC = () => {
 				</button>
 			</div>
 			<div className="flex flex-wrap items-center gap-2">
-				<span className="text-sm text-gray-600">ties</span>
-				{tiedDurations.length === 0 && <span className="text-sm text-gray-400">none</span>}
+				<span className="text-sm text-muted">ties</span>
+				{tiedDurations.length === 0 && <span className="text-sm text-muted">none</span>}
 				{tiedDurations.map((duration, index) => (
 					<button
 						key={`tie-${index}-${duration}`}

@@ -71,20 +71,20 @@ export const DeckPreviewScreen: React.FC = () => {
 				<ContentCard>
 					<PageTitle as="h2">{preview.deck.name}</PageTitle>
 					{preview.course && (
-						<p className="text-sm text-gray-500">Course: {preview.course.name}</p>
+						<p className="caption">Course: {preview.course.name}</p>
 					)}
-					<p className="text-sm text-gray-500">
+					<p className="caption">
 						{preview.deck.cardCount} {preview.deck.cardCount === 1 ? 'card' : 'cards'}
 					</p>
 				</ContentCard>
 
 				{user ? (
 					<ContentCard>
-						<h3 className="text-lg font-medium text-gray-900">Import to My Library</h3>
+						<h3 className="heading-sm">Import to My Library</h3>
 						<div>
 							<label
 								htmlFor="course-select"
-								className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+								className="label mb-1 block"
 							>
 								Add to course (optional)
 							</label>
@@ -107,7 +107,7 @@ export const DeckPreviewScreen: React.FC = () => {
 					</ContentCard>
 				) : (
 					<ContentCard centered>
-						<p className="text-gray-600">Sign in to import this deck to your library</p>
+						<p className="text-muted">Sign in to import this deck to your library</p>
 						<div className="flex gap-3 justify-center">
 							<LinkButton to="/auth/login">Log In</LinkButton>
 							<LinkButton to="/auth/sign-up" variant="outline">
@@ -119,7 +119,7 @@ export const DeckPreviewScreen: React.FC = () => {
 
 				{preview.cards && preview.cards.length > 0 && (
 					<ContentCard>
-						<h3 className="text-lg font-medium text-gray-900">Cards Preview</h3>
+						<h3 className="heading-sm">Cards Preview</h3>
 						<div className="space-y-4 max-h-96 overflow-y-auto">
 							{preview.cards.map((card) => (
 								<CardPreviewItem key={card._id} card={card} />
@@ -137,14 +137,14 @@ const CardPreviewItem: React.FC<{ card: DeckPreviewCard }> = ({ card }) => {
 
 	if (!question || !question.voices) {
 		return (
-			<div className="border border-gray-200 rounded-lg p-3 bg-gray-50">
-				<p className="text-sm text-gray-500 text-center">Card preview unavailable</p>
+			<div className="border border-default rounded-lg p-3 bg-lm-elevated dark:bg-dm-elevated">
+				<p className="caption text-center">Card preview unavailable</p>
 			</div>
 		);
 	}
 
 	return (
-		<div className="border border-gray-200 rounded-lg p-3 overflow-hidden">
+		<div className="border border-default rounded-lg p-3 overflow-hidden">
 			<MusicNotation data={question} />
 		</div>
 	);

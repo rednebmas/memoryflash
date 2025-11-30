@@ -62,7 +62,7 @@ export const FlashCard = forwardRef<HTMLDivElement, FlashCardProps>(
 					<QuestionComponent card={card} placement={placement} />
 				</div>
 				{!IS_TEST_ENV && card?.attempts?.length > 0 && (
-					<span className="text-xs text-gray-600">
+					<span className="caption">
 						{card.attempts[0].timeTaken.toFixed(1)}s
 					</span>
 				)}

@@ -1,3 +1,5 @@
+@import './typography.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -43,6 +45,10 @@ body,
 
 .bg-elevated {
 	@apply bg-gray-50 dark:bg-dm-elevated;
+}
+
+.bg-slightly-elevated {
+	@apply bg-gray-50 dark:bg-dm-slightlyElevated;
 }
 
 /* Text */

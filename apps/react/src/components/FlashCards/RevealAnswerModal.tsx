@@ -33,7 +33,7 @@ const ChordMemoryReveal: React.FC<{ answer: ChordMemoryAnswer }> = ({ answer }) 
 					{chord.optionalTones.map((tone) => (
 						<span
 							key={tone}
-							className="px-2 py-0.5 text-sm bg-gray-300 text-gray-700 rounded"
+							className="px-2 py-0.5 text-sm bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded"
 						>
 							{tone}
 						</span>
@@ -57,7 +57,7 @@ export const RevealAnswerModal: React.FC<RevealAnswerModalProps> = ({ isOpen, on
 			title={isChordMemory ? 'Chord progression' : 'Original sheet music'}
 		>
 			<div className="p-6 space-y-4">
-				<p className="text-sm text-gray-600">
+				<p className="text-muted text-sm">
 					{isChordMemory
 						? 'Play all blue tones (gray tones are optional).'
 						: "Here's the sheet music you recorded when creating this prompt."}

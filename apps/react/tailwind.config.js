@@ -21,6 +21,7 @@ export default {
 					bg: '#0f0f11',
 					surface: '#1e1e20',
 					elevated: 'rgba(223, 223, 255, 0.09)',
+					slightlyElevated: 'rgba(223, 223, 255, 0.03)',
 					border: 'rgba(255, 255, 255, 0.1)',
 					fg: '#fcfcfd',
 					muted: 'rgba(255, 255, 255, 0.6)',

@@ -157,13 +157,13 @@ const DeckResultsList: React.FC<DeckResultsListProps> = ({ decks }) => {
 				<Link
 					key={deck._id}
 					to={`/deck/${deck._id}/preview`}
-					className="flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700"
+					className="flex items-center justify-between p-4 hover:bg-lm-elevated dark:hover:bg-dm-elevated"
 				>
 					<div>
-						<div className="font-medium text-gray-900 dark:text-gray-100">
+						<div className="font-medium text-fg">
 							{deck.name}
 						</div>
-						{deck.course && <div className="text-sm text-gray-500">{deck.course}</div>}
+						{deck.course && <div className="text-sm text-muted">{deck.course}</div>}
 					</div>
 				</Link>
 			))}
@@ -186,12 +186,12 @@ const CourseResultsList: React.FC<CourseResultsListProps> = ({ courses }) => {
 				<Link
 					key={course._id}
 					to={`/course/${course._id}/preview`}
-					className="flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700"
+					className="flex items-center justify-between p-4 hover:bg-lm-elevated dark:hover:bg-dm-elevated"
 				>
-					<div className="font-medium text-gray-900 dark:text-gray-100">
+					<div className="font-medium text-fg">
 						{course.name}
 					</div>
-					<span className="text-sm text-gray-500">
+					<span className="text-sm text-muted">
 						{course.deckCount} {course.deckCount === 1 ? 'deck' : 'decks'} •{' '}
 						{course.totalCardCount} {course.totalCardCount === 1 ? 'card' : 'cards'}
 					</span>

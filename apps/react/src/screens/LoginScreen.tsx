@@ -53,13 +53,13 @@ export const LoginScreen: React.FunctionComponent<{}> = ({}) => {
 					<Checkbox id="remember-me" defaultChecked />
 					<label
 						htmlFor="remember-me"
-						className="ml-3 block text-sm leading-6 text-gray-900"
+						className="ml-3 block text-sm leading-6 text-fg"
 					>
 						Remember me
 					</label>
 				</div>
 				<div className="text-sm leading-6">
-					<a href="#" className="font-semibold text-blue-600 hover:text-blue-500">
+					<a href="#" className="font-semibold text-accent hover:text-blue-400">
 						Forgot password?
 					</a>
 				</div>
@@ -69,11 +69,11 @@ export const LoginScreen: React.FunctionComponent<{}> = ({}) => {
 			<Button type="submit" loading={isLoading}>
 				Login
 			</Button>
-			<p className="mt-6 text-center text-sm text-gray-500">
+			<p className="mt-6 text-center text-sm text-muted">
 				Not a member?{' '}
 				<Link
 					to="/auth/sign-up"
-					className="font-semibold text-blue-600 hover:text-blue-500"
+					className="font-semibold text-accent hover:text-blue-400"
 				>
 					Sign up
 				</Link>
