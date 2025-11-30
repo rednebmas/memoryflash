@@ -26,7 +26,7 @@ export const defaultSettings: NotationSettingsState = {
 	bars: 1,
 	selected: [true, ...new Array(majorKeys.length - 1).fill(false)],
 	cardType: 'Sheet Music',
-	textPrompt: '',
+	textPrompt: '# Markdown\nIs supported!',
 	preview: false,
 	chordMemory: {
 		progression: '',
