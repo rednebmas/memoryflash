@@ -22,4 +22,3 @@ export * from './CardOptionsMenu';
 export * from './ConsoleErrorsButton';
 export * from './TranspositionSelector';
 export * from './notation';
-export * from './DebugValidator';
