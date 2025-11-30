@@ -10,6 +10,14 @@ import {
 	PresentationModeText,
 	PresentationModeIds,
 } from 'MemoryFlashCore/src/types/PresentationMode';
+import { AnswerType, ChordMemoryAnswer } from 'MemoryFlashCore/src/types/Cards';
+
+const getTotal = (c: MultiSheetCard): number => {
+	if (c.answer.type === AnswerType.ChordMemory) {
+		return (c.answer as ChordMemoryAnswer).chords.length;
+	}
+	return c.question.voices[0].stack.length;
+};
 
 export const MultiSheetCardQuestion: React.FC<QuestionRender> = ({ card, placement }) => {
 	const c = card as MultiSheetCard;
@@ -33,7 +41,7 @@ export const MultiSheetCardQuestion: React.FC<QuestionRender> = ({ card, placeme
 		return null;
 	}
 
-	const total = c.question.voices[0].stack.length;
+	const total = getTotal(c);
 	const correctCount =
 		placement === 'answered' ? total : placement === 'cur' ? multiPartCardIndex : 0;
 

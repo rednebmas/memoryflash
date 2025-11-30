@@ -7,7 +7,7 @@ import { majorKeys } from 'MemoryFlashCore/src/lib/notes';
 import { addCardsToDeck } from 'MemoryFlashCore/src/redux/actions/add-cards-to-deck';
 import { updateCard } from 'MemoryFlashCore/src/redux/actions/update-card-action';
 import { setPresentationMode } from 'MemoryFlashCore/src/redux/actions/set-presentation-mode';
-import { CardTypeEnum } from 'MemoryFlashCore/src/types/Cards';
+import { AnswerType, CardTypeEnum } from 'MemoryFlashCore/src/types/Cards';
 import { useDeckIdPath } from './useDeckIdPath';
 import { useNetworkState } from 'MemoryFlashCore/src/redux/selectors/useNetworkState';
 import { useParams } from 'react-router-dom';
@@ -60,23 +60,43 @@ export const NotationInputScreen = () => {
 		setComplete(full);
 	}, []);
 
+	const handleSettingsChange = (newSettings: NotationSettingsState) => {
+		setSettings(newSettings);
+		if (newSettings.cardType === 'Chord Memory') {
+			setComplete(newSettings.chordMemory.chordTones.length > 0);
+		}
+	};
+
 	const handleAdd = () => {
-		if (deckId) {
-			if (!complete) return;
-			let toAdd = previews;
-			if (settings.cardType === 'Text Prompt') {
-				toAdd = previews.map((q) => ({
-					...q,
-					presentationModes: [{ id: 'Text Prompt', text: settings.textPrompt }],
-				}));
-				dispatch(setPresentationMode(CardTypeEnum.MultiSheet, 'Text Prompt'));
-			} else {
-				toAdd = previews.map((q) => ({
-					...q,
-					presentationModes: [{ id: 'Sheet Music' }],
-				}));
-				dispatch(setPresentationMode(CardTypeEnum.MultiSheet, 'Sheet Music'));
-			}
+		if (!deckId || !complete) return;
+
+		let toAdd = previews;
+		if (settings.cardType === 'Text Prompt') {
+			toAdd = previews.map((q) => ({
+				...q,
+				presentationModes: [{ id: 'Text Prompt', text: settings.textPrompt }],
+			}));
+			dispatch(setPresentationMode(CardTypeEnum.MultiSheet, 'Text Prompt'));
+			dispatch(addCardsToDeck(deckId, toAdd));
+		} else if (settings.cardType === 'Chord Memory') {
+			const text = settings.chordMemory.textPrompt || settings.chordMemory.progression;
+			toAdd = previews.map((q) => ({
+				...q,
+				presentationModes: [{ id: 'Text Prompt', text }],
+			}));
+			dispatch(setPresentationMode(CardTypeEnum.MultiSheet, 'Text Prompt'));
+			dispatch(
+				addCardsToDeck(deckId, toAdd, {
+					type: AnswerType.ChordMemory,
+					chords: settings.chordMemory.chordTones,
+				}),
+			);
+		} else {
+			toAdd = previews.map((q) => ({
+				...q,
+				presentationModes: [{ id: 'Sheet Music' }],
+			}));
+			dispatch(setPresentationMode(CardTypeEnum.MultiSheet, 'Sheet Music'));
 			dispatch(addCardsToDeck(deckId, toAdd));
 		}
 	};
@@ -103,14 +123,19 @@ export const NotationInputScreen = () => {
 			>
 				<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 					<div>
-						<NotationSettings settings={settings} onChange={setSettings} />
+						<NotationSettings settings={settings} onChange={handleSettingsChange} />
 					</div>
 					<div className="flex flex-col justify-center items-center min-h-[400px] space-y-6">
 						<NotationPreviewList
 							keySig={settings.keySig}
 							previews={previews}
 							cardType={settings.cardType}
-							textPrompt={settings.textPrompt}
+							textPrompt={
+								settings.cardType === 'Chord Memory'
+									? settings.chordMemory.textPrompt ||
+										settings.chordMemory.progression
+									: settings.textPrompt
+							}
 							previewTextCard={settings.preview}
 						/>
 						<div className="w-full max-w-xs">

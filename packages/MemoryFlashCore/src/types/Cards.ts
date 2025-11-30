@@ -19,6 +19,7 @@ export enum AnswerType {
 	AnyOctave = 'AnyOctave',
 	Exact = 'Exact',
 	ExactMulti = 'ExactMulti',
+	ChordMemory = 'ChordMemory',
 }
 export type BaseAnswer = { type: AnswerType };
 export type AnyOctaveAnswer = BaseAnswer & {
@@ -27,7 +28,16 @@ export type AnyOctaveAnswer = BaseAnswer & {
 export type ExactAnswer = BaseAnswer & {
 	notes: string[]; // A#4, Bb2, C5, ...
 };
-export type Answer = AnyOctaveAnswer | ExactAnswer | MultiExactAnswer;
+export type ChordMemoryChord = {
+	chordName: string;
+	requiredTones: string[]; // pitch classes like 'C', 'E', 'G'
+	optionalTones: string[]; // pitch classes that can be omitted
+};
+export type ChordMemoryAnswer = BaseAnswer & {
+	type: AnswerType.ChordMemory;
+	chords: ChordMemoryChord[];
+};
+export type Answer = AnyOctaveAnswer | ExactAnswer | MultiExactAnswer | ChordMemoryAnswer;
 
 export type CardTypeBase<T extends CardTypeEnum, Q extends {}> = {
 	uid: string; // a unique identifier for the card so we can update it in the future

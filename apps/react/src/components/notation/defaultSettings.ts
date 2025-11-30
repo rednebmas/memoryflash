@@ -1,4 +1,12 @@
 import { majorKeys } from 'MemoryFlashCore/src/lib/notes';
+import { CardType } from '../CardTypeDropdown';
+import { ChordMemoryChord } from 'MemoryFlashCore/src/types/Cards';
+
+export interface ChordMemorySettings {
+	progression: string;
+	chordTones: ChordMemoryChord[];
+	textPrompt: string;
+}
 
 export interface NotationSettingsState {
 	keySig: string;
@@ -6,9 +14,10 @@ export interface NotationSettingsState {
 	highest: string;
 	bars: number;
 	selected: boolean[];
-	cardType: 'Sheet Music' | 'Text Prompt';
+	cardType: CardType;
 	textPrompt: string;
 	preview: boolean;
+	chordMemory: ChordMemorySettings;
 }
 
 export const defaultSettings: NotationSettingsState = {
@@ -20,4 +29,9 @@ export const defaultSettings: NotationSettingsState = {
 	cardType: 'Sheet Music',
 	textPrompt: '',
 	preview: false,
+	chordMemory: {
+		progression: '',
+		chordTones: [],
+		textPrompt: '',
+	},
 };

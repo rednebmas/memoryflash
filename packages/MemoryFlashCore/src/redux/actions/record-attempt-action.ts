@@ -2,7 +2,7 @@ import ObjectId from 'bson-objectid';
 import { Attempt } from '../../types/Attempt';
 import { selectActivePresentationMode } from '../selectors/activePresentationModeSelector';
 import { attemptsStatsSelector } from '../selectors/attemptsStatsSelector';
-import { currDeckWithAttemptsSelector } from '../selectors/currDeckCardsWithAttempts';
+import { currDeckAllWithAttemptsSelector } from '../selectors/currDeckCardsWithAttempts';
 import { attemptsActions } from '../slices/attemptsSlice';
 import { midiActions } from '../slices/midiSlice';
 import { schedulerActions } from '../slices/schedulerSlice';
@@ -22,7 +22,7 @@ export const recordAttempt =
 			return;
 		}
 
-		const card = currDeckWithAttemptsSelector(getState())[currCardId];
+		const card = currDeckAllWithAttemptsSelector(getState())[currCardId];
 		const timeTaken = (Date.now() - currStartTime) / 1000;
 
 		// if the user takes too long to answer, we don't want to record the attempt
@@ -35,6 +35,8 @@ export const recordAttempt =
 			dispatch(schedulerActions.dequeueNextCard());
 			return;
 		}
+
+		if (!card) return;
 
 		const attempt: Attempt = {
 			_id: new ObjectId().toHexString(),

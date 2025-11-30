@@ -9,6 +9,7 @@ import { StudyScreenEmptyState } from './StudyScreenEmptyState';
 import { AnswerValidator } from '../../components/answer-validators/AnswerValidator';
 import { Keyboard } from '../../components/keyboard/KeyBoard';
 import { DebugValidator } from '../../components/DebugValidator';
+import { ChordMemoryDebugDialog } from '../../components/ChordMemoryDebugDialog';
 import { getDeck } from 'MemoryFlashCore/src/redux/actions/get-deck-action';
 import { schedule } from 'MemoryFlashCore/src/redux/actions/schedule-cards-action';
 import { selectActivePresentationMode } from 'MemoryFlashCore/src/redux/selectors/activePresentationModeSelector';
@@ -188,6 +189,7 @@ export const StudyScreen = () => {
 				{cards[index] && cards[index].type === 'MultiSheet' && (
 					<DebugValidator card={cards[index] as any} />
 				)}
+				{cards[index] && <ChordMemoryDebugDialog card={cards[index]} />}
 				<Keyboard />
 				{!IS_TEST_ENV && (
 					<div className="text-center text-xs">
