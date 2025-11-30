@@ -78,9 +78,23 @@ test('Create custom deck with Chord Memory card, study it, then edit it', async 
 	});
 	await expect(output).toHaveScreenshot('custom-deck-chord-memory-edit.png', screenshotOpts);
 
-	// Go back to study screen and test playing the chord
+	// Update the card title and save
+	await page.fill('#chord-text-prompt', 'Updated Cm7 Practice');
+	const [updateResp] = await Promise.all([
+		page.waitForResponse(
+			(r) => r.url().includes(`/decks/${deckId}/cards`) && r.request().method() === 'PUT',
+		),
+		clickButton('Update Card'),
+	]);
+	expect(updateResp.ok()).toBeTruthy();
+
+	// Go back to study screen and verify the updated title is shown
 	await page.goto(`/study/${deckId}`);
 	await page.locator('.card-container').first().waitFor();
+	await expect(output).toHaveScreenshot(
+		'custom-deck-chord-memory-updated-question.png',
+		screenshotOpts,
+	);
 
 	await runRecorderEvents(page, undefined, [cm7Notes], 'custom-deck-chord-memory-answer-step');
 
