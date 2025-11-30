@@ -7,7 +7,7 @@ import { majorKeys } from 'MemoryFlashCore/src/lib/notes';
 import { addCardsToDeck } from 'MemoryFlashCore/src/redux/actions/add-cards-to-deck';
 import { updateCard } from 'MemoryFlashCore/src/redux/actions/update-card-action';
 import { setPresentationMode } from 'MemoryFlashCore/src/redux/actions/set-presentation-mode';
-import { AnswerType, CardTypeEnum } from 'MemoryFlashCore/src/types/Cards';
+import { AnswerType, CardTypeEnum, ChordMemoryAnswer } from 'MemoryFlashCore/src/types/Cards';
 import { useDeckIdPath } from './useDeckIdPath';
 import { useNetworkState } from 'MemoryFlashCore/src/redux/selectors/useNetworkState';
 import { useParams } from 'react-router-dom';
@@ -40,14 +40,23 @@ export const NotationInputScreen = () => {
 		if (card && card.type === CardTypeEnum.MultiSheet) {
 			const text = card.question.presentationModes?.find((p) => p.id === 'Text Prompt');
 			const idx = majorKeys.indexOf(card.question.key);
+			const isChordMemory = card.answer.type === AnswerType.ChordMemory;
+			const chordMemoryAnswer = isChordMemory ? (card.answer as ChordMemoryAnswer) : null;
 			setSettings((prev) => ({
 				...prev,
 				keySig: card.question.key,
 				selected: majorKeys.map((_, i) => i === idx),
-				cardType: text ? 'Text Prompt' : 'Sheet Music',
+				cardType: isChordMemory ? 'Chord Memory' : text ? 'Text Prompt' : 'Sheet Music',
 				textPrompt: text?.text || '',
 				// If editing a Text Prompt card, default to previewing the text prompt
 				preview: !!text,
+				chordMemory: chordMemoryAnswer
+					? {
+							progression: chordMemoryAnswer.chords.map((c) => c.chordName).join(' '),
+							chordTones: chordMemoryAnswer.chords,
+							textPrompt: text?.text || '',
+						}
+					: prev.chordMemory,
 			}));
 			setQuestion(card.question);
 			setComplete(true);
