@@ -4,6 +4,7 @@ This project prefers a highly componentized React codebase that avoids duplicate
 
 - **DRY Code (CRITICAL)**: Before writing ANY new code, ALWAYS search the codebase for existing implementations that might already solve your problem. Never duplicate logic - if similar code exists, refactor to share it. If you find yourself writing similar patterns, extract it into a helper function or component. Violating DRY is unacceptable.
 - **Componentization**: Extract reusable JSX into components whenever possible. Keep components small and focused refactoring them as needed.
+- **Encapsulation**: Components should own their own logic. If a component needs to compute something from props (like whether to show itself, or how to render data), that logic belongs inside the component—not in the parent. Parents should pass raw data (like an entire `card` object), not pre-computed derived values. This keeps parent components simple and makes child components self-contained and reusable.
 - **Code Size**: Keep individual functions under 25 lines. Keep files under 150 lines when possible. If code grows larger, refactor into smaller components to keep it readable, maintainable, and elegant.
 - **Refactoring**: You are empowered to rewrite or refactor existing code to avoid duplication and to simplify the code base. It's prefered to delete lines of code than to add lines of code to solve problems.
 - **Styling**: Use Tailwind CSS utility classes. Share common styling through base components rather than repeating class strings.
