@@ -17,4 +17,3 @@ This project prefers a highly componentized React codebase that avoids duplicate
 - **Unit Tests**: Write unit tests for important service functions, especially those involving business logic or data transformations.
 
 Follow these guidelines to keep the codebase clean and maintainable.
-

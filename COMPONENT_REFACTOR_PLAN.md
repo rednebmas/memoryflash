@@ -6,16 +6,16 @@ The codebase has many repeated Tailwind CSS patterns scattered across screens an
 
 ## Progress
 
--   [ ] Phase 1: Button Variants
--   [ ] Phase 2: LinkButton Component
--   [ ] Phase 3: ContentCard Component
--   [ ] Phase 4: ListContainer Component
--   [ ] Phase 5: SearchInput Component
--   [ ] Phase 6: ModalButtons Component
--   [ ] Phase 7: SegmentedControl Component
--   [ ] Phase 8: PageTitle Component
--   [ ] Phase 9: EmptyState Component
--   [ ] Phase 10: Components Folder Reorganization
+- [ ] Phase 1: Button Variants
+- [ ] Phase 2: LinkButton Component
+- [ ] Phase 3: ContentCard Component
+- [ ] Phase 4: ListContainer Component
+- [ ] Phase 5: SearchInput Component
+- [ ] Phase 6: ModalButtons Component
+- [ ] Phase 7: SegmentedControl Component
+- [ ] Phase 8: PageTitle Component
+- [ ] Phase 9: EmptyState Component
+- [ ] Phase 10: Components Folder Reorganization
 
 As you complete each phase, check it off above to mark it as done.
 
@@ -27,11 +27,11 @@ As you complete each phase, check it off above to mark it as done.
 
 **Problem:** The current `Button` component only supports one style (primary blue). Many places use inline button styles:
 
--   `ConfirmModal.tsx`: Cancel (outline) and Delete (danger) buttons with inline styles
--   `InputModal.tsx`: Cancel (outline) and Save (primary) buttons with inline styles
--   `VisibilityModal.tsx`: Cancel (outline) and Save (primary) buttons with inline styles
--   `DeckPreviewScreen.tsx` / `CoursePreviewScreen.tsx`: "Log In" (primary) and "Sign Up" (outline) link buttons
--   `DeckStatsScreen.tsx` / `AttemptHistoryScreen.tsx`: "View attempt history" / "Back to stats" outline buttons with dark mode issues
+- `ConfirmModal.tsx`: Cancel (outline) and Delete (danger) buttons with inline styles
+- `InputModal.tsx`: Cancel (outline) and Save (primary) buttons with inline styles
+- `VisibilityModal.tsx`: Cancel (outline) and Save (primary) buttons with inline styles
+- `DeckPreviewScreen.tsx` / `CoursePreviewScreen.tsx`: "Log In" (primary) and "Sign Up" (outline) link buttons
+- `DeckStatsScreen.tsx` / `AttemptHistoryScreen.tsx`: "View attempt history" / "Back to stats" outline buttons with dark mode issues
 
 **Tasks:**
 
@@ -42,17 +42,17 @@ As you complete each phase, check it off above to mark it as done.
 
 **Files to modify:**
 
--   `apps/react/src/components/Button.tsx`
--   `apps/react/src/components/modals/ConfirmModal.tsx`
--   `apps/react/src/components/modals/InputModal.tsx`
--   `apps/react/src/components/modals/VisibilityModal.tsx`
+- `apps/react/src/components/Button.tsx`
+- `apps/react/src/components/modals/ConfirmModal.tsx`
+- `apps/react/src/components/modals/InputModal.tsx`
+- `apps/react/src/components/modals/VisibilityModal.tsx`
 
 **Acceptance criteria:**
 
--   `Button` supports `variant` prop with consistent styling
--   All button variants have proper dark mode support
--   Modal buttons use the `Button` component instead of inline styles
--   Existing tests pass
+- `Button` supports `variant` prop with consistent styling
+- All button variants have proper dark mode support
+- Modal buttons use the `Button` component instead of inline styles
+- Existing tests pass
 
 ---
 
@@ -62,10 +62,10 @@ As you complete each phase, check it off above to mark it as done.
 
 **Problem:** Multiple places style `<Link>` elements as buttons with repeated inline Tailwind classes:
 
--   `DeckStatsScreen.tsx`: "View attempt history" link (line 78)
--   `AttemptHistoryScreen.tsx`: "Back to stats" link (line 156)
--   `DeckPreviewScreen.tsx`: "Log In" and "Sign Up" links (lines 113-121)
--   `CoursePreviewScreen.tsx`: "Log In" and "Sign Up" links (lines 102-110)
+- `DeckStatsScreen.tsx`: "View attempt history" link (line 78)
+- `AttemptHistoryScreen.tsx`: "Back to stats" link (line 156)
+- `DeckPreviewScreen.tsx`: "Log In" and "Sign Up" links (lines 113-121)
+- `CoursePreviewScreen.tsx`: "Log In" and "Sign Up" links (lines 102-110)
 
 **Tasks:**
 
@@ -76,22 +76,22 @@ As you complete each phase, check it off above to mark it as done.
 
 **Files to create:**
 
--   `apps/react/src/components/LinkButton.tsx`
+- `apps/react/src/components/LinkButton.tsx`
 
 **Files to modify:**
 
--   `apps/react/src/components/index.ts`
--   `apps/react/src/screens/DeckStatsScreen/DeckStatsScreen.tsx`
--   `apps/react/src/screens/AttemptHistoryScreen/AttemptHistoryScreen.tsx`
--   `apps/react/src/screens/DeckPreviewScreen.tsx`
--   `apps/react/src/screens/CoursePreviewScreen.tsx`
+- `apps/react/src/components/index.ts`
+- `apps/react/src/screens/DeckStatsScreen/DeckStatsScreen.tsx`
+- `apps/react/src/screens/AttemptHistoryScreen/AttemptHistoryScreen.tsx`
+- `apps/react/src/screens/DeckPreviewScreen.tsx`
+- `apps/react/src/screens/CoursePreviewScreen.tsx`
 
 **Acceptance criteria:**
 
--   `LinkButton` renders correctly with all variants
--   Dark mode styling works correctly
--   All inline styled `Link` buttons are replaced
--   Existing tests pass
+- `LinkButton` renders correctly with all variants
+- Dark mode styling works correctly
+- All inline styled `Link` buttons are replaced
+- Existing tests pass
 
 ---
 
@@ -101,8 +101,8 @@ As you complete each phase, check it off above to mark it as done.
 
 **Problem:** The pattern `bg-white rounded-lg shadow p-6 space-y-4` is repeated 8+ times:
 
--   `DeckPreviewScreen.tsx`: 4 instances (lines 70, 81, 109, 129)
--   `CoursePreviewScreen.tsx`: 4 instances (lines 57, 68, 90, 96)
+- `DeckPreviewScreen.tsx`: 4 instances (lines 70, 81, 109, 129)
+- `CoursePreviewScreen.tsx`: 4 instances (lines 57, 68, 90, 96)
 
 **Tasks:**
 
@@ -113,20 +113,20 @@ As you complete each phase, check it off above to mark it as done.
 
 **Files to create:**
 
--   `apps/react/src/components/ContentCard.tsx`
+- `apps/react/src/components/ContentCard.tsx`
 
 **Files to modify:**
 
--   `apps/react/src/components/index.ts`
--   `apps/react/src/screens/DeckPreviewScreen.tsx`
--   `apps/react/src/screens/CoursePreviewScreen.tsx`
+- `apps/react/src/components/index.ts`
+- `apps/react/src/screens/DeckPreviewScreen.tsx`
+- `apps/react/src/screens/CoursePreviewScreen.tsx`
 
 **Acceptance criteria:**
 
--   `ContentCard` replaces all `bg-white rounded-lg shadow p-6` patterns
--   Dark mode styling works
--   Preview screens are simplified
--   Existing tests pass
+- `ContentCard` replaces all `bg-white rounded-lg shadow p-6` patterns
+- Dark mode styling works
+- Preview screens are simplified
+- Existing tests pass
 
 ---
 
@@ -136,7 +136,7 @@ As you complete each phase, check it off above to mark it as done.
 
 **Problem:** The pattern `bg-white rounded-lg shadow divide-y divide-gray-100` is repeated:
 
--   `CommunityScreen.tsx`: 3 instances (lines 65, 150, 177) for top decks, deck results, and course results
+- `CommunityScreen.tsx`: 3 instances (lines 65, 150, 177) for top decks, deck results, and course results
 
 **Tasks:**
 
@@ -146,19 +146,19 @@ As you complete each phase, check it off above to mark it as done.
 
 **Files to create:**
 
--   `apps/react/src/components/ListContainer.tsx`
+- `apps/react/src/components/ListContainer.tsx`
 
 **Files to modify:**
 
--   `apps/react/src/components/index.ts`
--   `apps/react/src/screens/CommunityScreen.tsx`
+- `apps/react/src/components/index.ts`
+- `apps/react/src/screens/CommunityScreen.tsx`
 
 **Acceptance criteria:**
 
--   `ListContainer` replaces repeated patterns
--   Hover states work correctly
--   Dark mode styling works
--   Existing tests pass
+- `ListContainer` replaces repeated patterns
+- Hover states work correctly
+- Dark mode styling works
+- Existing tests pass
 
 ---
 
@@ -176,19 +176,19 @@ As you complete each phase, check it off above to mark it as done.
 
 **Files to create:**
 
--   `apps/react/src/components/inputs/SearchInput.tsx`
+- `apps/react/src/components/inputs/SearchInput.tsx`
 
 **Files to modify:**
 
--   `apps/react/src/components/inputs/index.ts`
--   `apps/react/src/screens/CommunityScreen.tsx`
+- `apps/react/src/components/inputs/index.ts`
+- `apps/react/src/screens/CommunityScreen.tsx`
 
 **Acceptance criteria:**
 
--   `SearchInput` is used in `CommunityScreen`
--   Styling is consistent with other form inputs
--   Dark mode works
--   Existing tests pass
+- `SearchInput` is used in `CommunityScreen`
+- Styling is consistent with other form inputs
+- Dark mode works
+- Existing tests pass
 
 ---
 
@@ -211,20 +211,20 @@ As you complete each phase, check it off above to mark it as done.
 
 **Files to create:**
 
--   `apps/react/src/components/modals/ModalButtons.tsx`
+- `apps/react/src/components/modals/ModalButtons.tsx`
 
 **Files to modify:**
 
--   `apps/react/src/components/modals/ConfirmModal.tsx`
--   `apps/react/src/components/modals/InputModal.tsx`
--   `apps/react/src/components/modals/VisibilityModal.tsx`
+- `apps/react/src/components/modals/ConfirmModal.tsx`
+- `apps/react/src/components/modals/InputModal.tsx`
+- `apps/react/src/components/modals/VisibilityModal.tsx`
 
 **Acceptance criteria:**
 
--   `ModalButtons` reduces code duplication in modals
--   All three modals use the new component
--   Button variants (danger for delete, primary for save) are correct
--   Existing tests pass
+- `ModalButtons` reduces code duplication in modals
+- All three modals use the new component
+- Button variants (danger for delete, primary for save) are correct
+- Existing tests pass
 
 ---
 
@@ -234,8 +234,8 @@ As you complete each phase, check it off above to mark it as done.
 
 **Problem:** The `SegmentButton` component exists but the container styling is inline:
 
--   `CommunityScreen.tsx`: `<div className="flex gap-2 p-1 bg-gray-100 rounded-lg">` (line 103)
--   `AttemptHistoryScreen.tsx`: Toggle between "Text" and "Sheet music" views uses different inline styles (line 129)
+- `CommunityScreen.tsx`: `<div className="flex gap-2 p-1 bg-gray-100 rounded-lg">` (line 103)
+- `AttemptHistoryScreen.tsx`: Toggle between "Text" and "Sheet music" views uses different inline styles (line 129)
 
 **Tasks:**
 
@@ -246,20 +246,20 @@ As you complete each phase, check it off above to mark it as done.
 
 **Files to create:**
 
--   `apps/react/src/components/SegmentedControl.tsx`
+- `apps/react/src/components/SegmentedControl.tsx`
 
 **Files to modify:**
 
--   `apps/react/src/components/index.ts`
--   `apps/react/src/screens/CommunityScreen.tsx`
--   `apps/react/src/screens/AttemptHistoryScreen/AttemptHistoryScreen.tsx`
+- `apps/react/src/components/index.ts`
+- `apps/react/src/screens/CommunityScreen.tsx`
+- `apps/react/src/screens/AttemptHistoryScreen/AttemptHistoryScreen.tsx`
 
 **Acceptance criteria:**
 
--   `SegmentedControl` wraps `SegmentButton` children
--   Consistent styling across all usages
--   Dark mode support
--   Existing tests pass
+- `SegmentedControl` wraps `SegmentButton` children
+- Consistent styling across all usages
+- Dark mode support
+- Existing tests pass
 
 ---
 
@@ -269,9 +269,9 @@ As you complete each phase, check it off above to mark it as done.
 
 **Problem:** Page titles have inconsistent styling:
 
--   `AttemptHistoryScreen.tsx`: `<h1 className="text-xl font-semibold">` (line 127)
--   `DeckPreviewScreen.tsx`: `<h2 className="text-xl font-semibold text-gray-900">` (line 71)
--   `CoursePreviewScreen.tsx`: `<h2 className="text-xl font-semibold text-gray-900">` (line 58)
+- `AttemptHistoryScreen.tsx`: `<h1 className="text-xl font-semibold">` (line 127)
+- `DeckPreviewScreen.tsx`: `<h2 className="text-xl font-semibold text-gray-900">` (line 71)
+- `CoursePreviewScreen.tsx`: `<h2 className="text-xl font-semibold text-gray-900">` (line 58)
 
 **Tasks:**
 
@@ -281,21 +281,21 @@ As you complete each phase, check it off above to mark it as done.
 
 **Files to create:**
 
--   `apps/react/src/components/PageTitle.tsx`
+- `apps/react/src/components/PageTitle.tsx`
 
 **Files to modify:**
 
--   `apps/react/src/components/index.ts`
--   `apps/react/src/screens/AttemptHistoryScreen/AttemptHistoryScreen.tsx`
--   `apps/react/src/screens/DeckPreviewScreen.tsx`
--   `apps/react/src/screens/CoursePreviewScreen.tsx`
+- `apps/react/src/components/index.ts`
+- `apps/react/src/screens/AttemptHistoryScreen/AttemptHistoryScreen.tsx`
+- `apps/react/src/screens/DeckPreviewScreen.tsx`
+- `apps/react/src/screens/CoursePreviewScreen.tsx`
 
 **Acceptance criteria:**
 
--   `PageTitle` provides consistent heading styles
--   Dark mode text colors are correct
--   Preview screens and attempt history use the component
--   Existing tests pass
+- `PageTitle` provides consistent heading styles
+- Dark mode text colors are correct
+- Preview screens and attempt history use the component
+- Existing tests pass
 
 ---
 
@@ -305,9 +305,9 @@ As you complete each phase, check it off above to mark it as done.
 
 **Problem:** Empty state messages are styled inconsistently:
 
--   `CommunityScreen.tsx`: `<p className="text-center text-gray-500 py-8">No decks found</p>` (lines 146, 173)
--   `AttemptHistoryScreen.tsx`: `<div className="rounded-lg border border-gray-200 bg-white p-4 text-sm text-gray-700">No attempts yet.</div>` (line 72)
--   `StudyScreenEmptyState.tsx`: Uses different styling altogether
+- `CommunityScreen.tsx`: `<p className="text-center text-gray-500 py-8">No decks found</p>` (lines 146, 173)
+- `AttemptHistoryScreen.tsx`: `<div className="rounded-lg border border-gray-200 bg-white p-4 text-sm text-gray-700">No attempts yet.</div>` (line 72)
+- `StudyScreenEmptyState.tsx`: Uses different styling altogether
 
 **Tasks:**
 
@@ -318,20 +318,20 @@ As you complete each phase, check it off above to mark it as done.
 
 **Files to create:**
 
--   `apps/react/src/components/EmptyState.tsx`
+- `apps/react/src/components/EmptyState.tsx`
 
 **Files to modify:**
 
--   `apps/react/src/components/index.ts`
--   `apps/react/src/screens/CommunityScreen.tsx`
--   `apps/react/src/screens/AttemptHistoryScreen/AttemptHistoryScreen.tsx`
+- `apps/react/src/components/index.ts`
+- `apps/react/src/screens/CommunityScreen.tsx`
+- `apps/react/src/screens/AttemptHistoryScreen/AttemptHistoryScreen.tsx`
 
 **Acceptance criteria:**
 
--   `EmptyState` provides consistent empty state UI
--   Dark mode works correctly
--   All simple empty state messages use the component
--   Existing tests pass
+- `EmptyState` provides consistent empty state UI
+- Dark mode works correctly
+- All simple empty state messages use the component
+- Existing tests pass
 
 ---
 
@@ -397,16 +397,16 @@ components/
 
 **Files to modify:**
 
--   Multiple component files (move to new locations)
--   `apps/react/src/components/index.ts`
--   All files importing from components
+- Multiple component files (move to new locations)
+- `apps/react/src/components/index.ts`
+- All files importing from components
 
 **Acceptance criteria:**
 
--   Components are organized into logical subfolders
--   All imports still work correctly
--   `index.ts` exports maintain backward compatibility
--   Existing tests pass
+- Components are organized into logical subfolders
+- All imports still work correctly
+- `index.ts` exports maintain backward compatibility
+- Existing tests pass
 
 ---
 

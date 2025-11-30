@@ -32,8 +32,8 @@ accent: {
 }
 ```
 
--   Remove conflicting `.dark` overrides in `index.css`
--   Update base dark mode background to use new tokens
+- Remove conflicting `.dark` overrides in `index.css`
+- Update base dark mode background to use new tokens
 
 ---
 
@@ -43,8 +43,8 @@ accent: {
 
 ### Current State
 
--   3-column grid: back button | MFlash logo + subtitle | right icons (streak, account, community, midi)
--   Logo centered
+- 3-column grid: back button | MFlash logo + subtitle | right icons (streak, account, community, midi)
+- Logo centered
 
 ### Target Layout
 
@@ -76,8 +76,8 @@ height: 100%;
 
 ### Logo Section (left)
 
--   Logo icon + "MFlash" text (no subtitle in navbar)
--   Link to home `/`
+- Logo icon + "MFlash" text (no subtitle in navbar)
+- Link to home `/`
 
 ### Actions Section (right)
 
@@ -135,9 +135,9 @@ border-radius: 9999px;
 
 ### Back Button
 
--   Only show when `back` prop provided
--   Position: absolute left, or part of logo section
--   Icon-only, circular hover
+- Only show when `back` prop provided
+- Position: absolute left, or part of logo section
+- Icon-only, circular hover
 
 ---
 
@@ -195,7 +195,7 @@ border-radius: 6px;
 
 ### Danger Variant
 
--   Keep existing red styling
+- Keep existing red styling
 
 ---
 
@@ -215,8 +215,8 @@ border: 1px solid #e5e7eb;
 border-radius: 12px;
 ```
 
--   Remove heavy `shadow` class in dark mode
--   Keep subtle `shadow-sm` in light mode if preferred
+- Remove heavy `shadow` class in dark mode
+- Keep subtle `shadow-sm` in light mode if preferred
 
 ---
 
@@ -341,8 +341,8 @@ letterSpacing: {
 
 ## Exclusions
 
--   Login/Signup screens: keep as-is
--   Dark mode toggle: preserve
+- Login/Signup screens: keep as-is
+- Dark mode toggle: preserve
 
 ---
 
@@ -350,7 +350,7 @@ letterSpacing: {
 
 After each phase:
 
--   [ ] `yarn test:codex`
--   [ ] Light mode visual check
--   [ ] Dark mode visual check
--   [ ] Responsive check
+- [ ] `yarn test:codex`
+- [ ] Light mode visual check
+- [ ] Dark mode visual check
+- [ ] Responsive check
