@@ -7,12 +7,16 @@ import { toggleChordTone } from './toggleChordTone';
 
 interface ChordProgressionInputProps {
 	chordMemory: ChordMemorySettings;
+	textPrompt: string;
 	onChange: (chordMemory: ChordMemorySettings) => void;
+	onTextPromptChange: (textPrompt: string) => void;
 }
 
 export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
 	chordMemory,
+	textPrompt,
 	onChange,
+	onTextPromptChange,
 }) => {
 	const handleProgressionChange = (progression: string) => {
 		onChange({ ...chordMemory, progression, chordTones: parseChordProgression(progression) });
@@ -20,10 +24,6 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
 
 	const handleToggleTone = (chordIndex: number, tone: string) => {
 		onChange(toggleChordTone(chordMemory, chordIndex, tone));
-	};
-
-	const handleTextPromptChange = (textPrompt: string) => {
-		onChange({ ...chordMemory, textPrompt });
 	};
 
 	return (
@@ -39,8 +39,8 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
 				id="chord-text-prompt"
 				label="Text Prompt (optional)"
 				placeholder="e.g., Autumn Leaves - Verse"
-				value={chordMemory.textPrompt}
-				onChange={(e) => handleTextPromptChange(e.target.value)}
+				value={textPrompt}
+				onChange={(e) => onTextPromptChange(e.target.value)}
 			/>
 			{chordMemory.chordTones.length > 0 && (
 				<div className="flex flex-wrap gap-2">

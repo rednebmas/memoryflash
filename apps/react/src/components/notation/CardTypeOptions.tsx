@@ -39,7 +39,9 @@ export const CardTypeOptions: React.FC<CardTypeOptionsProps> = ({ settings, onCh
 			{settings.cardType === 'Chord Memory' && (
 				<ChordProgressionInput
 					chordMemory={settings.chordMemory}
+					textPrompt={settings.textPrompt}
 					onChange={(chordMemory) => onChange({ chordMemory })}
+					onTextPromptChange={(textPrompt) => onChange({ textPrompt })}
 				/>
 			)}
 		</div>
