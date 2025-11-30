@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Layout, Button, LinkButton, ContentCard, PageTitle } from '../components';
+import { Select } from '../components/inputs';
 import { MusicNotation } from '../components/MusicNotation';
 import { BasicErrorCard } from '../components/feedback/ErrorCard';
 import { Spinner } from '../components/feedback/Spinner';
@@ -83,15 +84,14 @@ export const DeckPreviewScreen: React.FC = () => {
 						<div>
 							<label
 								htmlFor="course-select"
-								className="block text-sm font-medium text-gray-700 mb-1"
+								className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
 							>
 								Add to course (optional)
 							</label>
-							<select
+							<Select
 								id="course-select"
 								value={selectedCourseId}
 								onChange={(e) => setSelectedCourseId(e.target.value)}
-								className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm"
 							>
 								<option value="">Imported Decks (default)</option>
 								{courses.map((course) => (
@@ -99,7 +99,7 @@ export const DeckPreviewScreen: React.FC = () => {
 										{course.name}
 									</option>
 								))}
-							</select>
+							</Select>
 						</div>
 						<Button onClick={handleImport} disabled={isImporting} className="w-full">
 							{isImporting ? 'Importing...' : 'Import Deck'}
