@@ -5,7 +5,6 @@ import { ChordMemoryChord } from 'MemoryFlashCore/src/types/Cards';
 export interface ChordMemorySettings {
 	progression: string;
 	chordTones: ChordMemoryChord[];
-	textPrompt: string;
 }
 
 export interface NotationSettingsState {
@@ -32,6 +31,5 @@ export const defaultSettings: NotationSettingsState = {
 	chordMemory: {
 		progression: '',
 		chordTones: [],
-		textPrompt: '',
 	},
 };

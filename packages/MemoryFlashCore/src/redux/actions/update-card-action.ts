@@ -9,7 +9,7 @@ function prepareQuestion(
 	cardType: string,
 	textPrompt?: string,
 ): MultiSheetQuestion {
-	if (cardType === 'Text Prompt') {
+	if (cardType === 'Text Prompt' || cardType === 'Chord Memory') {
 		return {
 			...question,
 			presentationModes: [{ id: 'Text Prompt', text: textPrompt ?? '' }],

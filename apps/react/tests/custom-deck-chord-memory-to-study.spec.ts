@@ -72,14 +72,16 @@ test('Create custom deck with Chord Memory card, study it, then edit it', async 
 	await expect(page.locator('#chord-progression')).toHaveValue('Cm7');
 	await expect(page.locator('#chord-text-prompt')).toHaveValue('C Minor 7 Practice');
 
+	// Update the card title and save
+	await page.fill('#chord-text-prompt', 'Updated Cm7 Practice');
+	await expect(page.locator('#chord-text-prompt')).toHaveValue('Updated Cm7 Practice');
+
 	await page.evaluate(() => {
 		window.scrollTo(0, 0);
 		document.querySelector('.overflow-scroll')?.scrollTo(0, 600);
 	});
 	await expect(output).toHaveScreenshot('custom-deck-chord-memory-edit.png', screenshotOpts);
 
-	// Update the card title and save
-	await page.fill('#chord-text-prompt', 'Updated Cm7 Practice');
 	const [updateResp] = await Promise.all([
 		page.waitForResponse(
 			(r) => r.url().includes('/cards/') && r.request().method() === 'PATCH',

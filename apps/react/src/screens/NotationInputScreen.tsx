@@ -54,7 +54,6 @@ export const NotationInputScreen = () => {
 					? {
 							progression: chordMemoryAnswer.chords.map((c) => c.chordName).join(' '),
 							chordTones: chordMemoryAnswer.chords,
-							textPrompt: text?.text || '',
 						}
 					: prev.chordMemory,
 			}));
@@ -88,7 +87,7 @@ export const NotationInputScreen = () => {
 			dispatch(setPresentationMode(CardTypeEnum.MultiSheet, 'Text Prompt'));
 			dispatch(addCardsToDeck(deckId, toAdd));
 		} else if (settings.cardType === 'Chord Memory') {
-			const text = settings.chordMemory.textPrompt || settings.chordMemory.progression;
+			const text = settings.textPrompt || settings.chordMemory.progression;
 			toAdd = previews.map((q) => ({
 				...q,
 				presentationModes: [{ id: 'Text Prompt', text }],
@@ -139,12 +138,7 @@ export const NotationInputScreen = () => {
 							keySig={settings.keySig}
 							previews={previews}
 							cardType={settings.cardType}
-							textPrompt={
-								settings.cardType === 'Chord Memory'
-									? settings.chordMemory.textPrompt ||
-										settings.chordMemory.progression
-									: settings.textPrompt
-							}
+							textPrompt={settings.textPrompt}
 							previewTextCard={settings.preview}
 						/>
 						<div className="w-full max-w-xs">
