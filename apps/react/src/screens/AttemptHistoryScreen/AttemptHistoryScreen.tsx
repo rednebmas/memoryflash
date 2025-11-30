@@ -81,22 +81,28 @@ const AttemptsList: React.FC<{
 			{attempts.map(({ attempt, card }) => (
 				<div
 					key={attempt._id}
-					className="rounded-lg border border-gray-200 bg-white p-3 shadow-sm"
+					className="rounded-xl border border-default bg-surface p-3 shadow-sm dark:shadow-none"
 				>
 					<div className="flex flex-col gap-2">
-						<div className="flex flex-wrap items-center justify-between gap-2 text-sm font-semibold text-gray-900">
+						<div className="flex flex-wrap items-center justify-between gap-2 text-sm font-semibold text-fg">
 							<span>{describeCard(card, deckName)}</span>
-							<span className="text-xs text-gray-600 sm:text-sm">
+							<span className="text-xs text-muted sm:text-sm">
 								{formatAttemptDate(attempt.attemptedAt)}
 							</span>
 						</div>
 						{viewMode === 'notation' && card.type === CardTypeEnum.MultiSheet && (
-							<div className="overflow-auto rounded border border-gray-100 bg-gray-50 p-2">
+							<div className="overflow-auto rounded-lg border border-default bg-app p-2">
 								<MultiSheetCardQuestion card={card} placement="answered" />
 							</div>
 						)}
-						<div className="flex items-center justify-between text-sm text-gray-700">
-							<span className={attempt.correct ? 'text-green-700' : 'text-red-700'}>
+						<div className="flex items-center justify-between text-sm text-muted">
+							<span
+								className={
+									attempt.correct
+										? 'text-green-600 dark:text-green-400'
+										: 'text-red-600 dark:text-red-400'
+								}
+							>
 								{attempt.correct ? 'Correct' : 'Incorrect'}
 							</span>
 							<span>{attempt.timeTaken.toFixed(1)}s</span>

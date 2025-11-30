@@ -17,7 +17,7 @@ export const ContentCard: React.FC<ContentCardProps> = ({
 	return (
 		<div
 			className={clsx(
-				'bg-white rounded-lg shadow p-6 dark:bg-gray-800',
+				'bg-surface rounded-xl border border-default p-6 shadow-sm dark:shadow-none',
 				spacing === 'sm' ? 'space-y-3' : 'space-y-4',
 				centered && 'text-center',
 				className,
