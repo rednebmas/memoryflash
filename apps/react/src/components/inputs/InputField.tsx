@@ -15,7 +15,7 @@ export const InputField: React.FC<InputFieldProps> = ({
 	...props
 }) => (
 	<div>
-		<label htmlFor={id} className="block text-sm font-medium leading-6 text-gray-900">
+		<label htmlFor={id} className="block text-sm font-medium leading-6 text-fg">
 			{label}
 		</label>
 		<div className="mt-2 relative">
