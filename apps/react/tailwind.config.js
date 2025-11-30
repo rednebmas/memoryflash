@@ -27,8 +27,10 @@ export default {
 					muted: 'rgba(255, 255, 255, 0.6)',
 				},
 				lm: {
-					bg: '#ffffff',
-					surface: '#f9fafb',
+					bg: '#f8f9fa',
+					surface: '#ffffff',
+					elevated: '#f3f4f6',
+					slightlyElevated: '#f5f6f7',
 					border: '#e5e7eb',
 					fg: '#111827',
 					muted: '#6b7280',

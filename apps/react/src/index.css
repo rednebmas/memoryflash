@@ -40,15 +40,15 @@ body,
 }
 
 .bg-surface {
-	@apply bg-white dark:bg-dm-surface;
+	@apply bg-lm-surface dark:bg-dm-surface;
 }
 
 .bg-elevated {
-	@apply bg-gray-50 dark:bg-dm-elevated;
+	@apply bg-lm-elevated dark:bg-dm-elevated;
 }
 
 .bg-slightly-elevated {
-	@apply bg-gray-50 dark:bg-dm-slightlyElevated;
+	@apply bg-lm-slightlyElevated dark:bg-dm-slightlyElevated;
 }
 
 /* Text */
@@ -75,7 +75,7 @@ body,
 
 /* Hover states */
 .hover\:bg-elevated:hover {
-	@apply bg-gray-50 dark:bg-dm-elevated;
+	@apply bg-lm-elevated dark:bg-dm-elevated;
 }
 
 /* Card utilities */

@@ -53,7 +53,7 @@ export const CoursePreviewScreen: React.FC = () => {
 
 	return (
 		<Layout subtitle="Course Preview">
-			<div className="max-w-md mx-auto space-y-6">
+			<div className="space-y-6">
 				<ContentCard>
 					<PageTitle as="h2">{preview.course.name}</PageTitle>
 					<p className="text-sm text-muted">

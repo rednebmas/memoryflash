@@ -67,7 +67,7 @@ export const DeckPreviewScreen: React.FC = () => {
 
 	return (
 		<Layout subtitle="Deck Preview">
-			<div className="max-w-md mx-auto space-y-6">
+			<div className="space-y-6">
 				<ContentCard>
 					<PageTitle as="h2">{preview.deck.name}</PageTitle>
 					{preview.course && <p className="caption">Course: {preview.course.name}</p>}

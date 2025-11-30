@@ -21,7 +21,7 @@ export const Navbar: React.FC<NavbarProps> = ({ right, back }) => {
 
 	return (
 		<nav className="sticky top-0 z-40 pt-4 px-4 bg-app">
-			<div className="mx-auto max-w-[1200px] h-[52px] flex items-center justify-between px-4 rounded-xl border border-default bg-app">
+			<div className="mx-auto max-w-[1200px] h-[52px] flex items-center justify-between px-4 rounded-xl border border-default bg-lm-surface dark:bg-dm-bg">
 				<div className="flex items-center gap-2">
 					{showBackButton && <BackButton back={back} onBack={() => navigate(-1)} />}
 					<Link to="/" className="text-xl font-semibold text-fg">
