@@ -14,7 +14,9 @@ const VISIBILITY_INFO: Record<Visibility, { label: string; description: string }
 const getTextColor = (isDisabled: boolean, checked: boolean, variant: 'label' | 'description') => {
 	if (isDisabled) return 'text-gray-400 dark:text-gray-500';
 	if (!checked) return variant === 'label' ? 'text-fg' : 'text-muted';
-	return variant === 'label' ? 'text-blue-900 dark:text-blue-100' : 'text-blue-700 dark:text-blue-300';
+	return variant === 'label'
+		? 'text-blue-900 dark:text-blue-100'
+		: 'text-blue-700 dark:text-blue-300';
 };
 
 export interface VisibilityModalProps extends Omit<ModalProps, 'children'> {
@@ -116,7 +118,9 @@ export const VisibilityModal: React.FC<VisibilityModalProps> = ({
 				</RadioGroup>
 				{warningForOptions[selected] && (
 					<div className="mt-4 p-3 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg">
-						<p className="text-sm text-amber-800 dark:text-amber-200">{warningForOptions[selected]}</p>
+						<p className="text-sm text-amber-800 dark:text-amber-200">
+							{warningForOptions[selected]}
+						</p>
 					</div>
 				)}
 			</div>

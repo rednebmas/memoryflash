@@ -94,9 +94,7 @@ export const CoursePreviewScreen: React.FC = () => {
 					</ContentCard>
 				) : (
 					<ContentCard centered>
-						<p className="text-muted">
-							Sign in to import this course to your library
-						</p>
+						<p className="text-muted">Sign in to import this course to your library</p>
 						<div className="flex gap-3 justify-center">
 							<LinkButton to="/auth/login">Log In</LinkButton>
 							<LinkButton to="/auth/sign-up" variant="outline">

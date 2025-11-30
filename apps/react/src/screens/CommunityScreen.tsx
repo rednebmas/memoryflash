@@ -160,9 +160,7 @@ const DeckResultsList: React.FC<DeckResultsListProps> = ({ decks }) => {
 					className="flex items-center justify-between p-4 hover:bg-lm-elevated dark:hover:bg-dm-elevated"
 				>
 					<div>
-						<div className="font-medium text-fg">
-							{deck.name}
-						</div>
+						<div className="font-medium text-fg">{deck.name}</div>
 						{deck.course && <div className="text-sm text-muted">{deck.course}</div>}
 					</div>
 				</Link>
@@ -188,9 +186,7 @@ const CourseResultsList: React.FC<CourseResultsListProps> = ({ courses }) => {
 					to={`/course/${course._id}/preview`}
 					className="flex items-center justify-between p-4 hover:bg-lm-elevated dark:hover:bg-dm-elevated"
 				>
-					<div className="font-medium text-fg">
-						{course.name}
-					</div>
+					<div className="font-medium text-fg">{course.name}</div>
 					<span className="text-sm text-muted">
 						{course.deckCount} {course.deckCount === 1 ? 'deck' : 'decks'} •{' '}
 						{course.totalCardCount} {course.totalCardCount === 1 ? 'card' : 'cards'}

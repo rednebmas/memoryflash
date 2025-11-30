@@ -51,10 +51,7 @@ export const LoginScreen: React.FunctionComponent<{}> = ({}) => {
 			<div className="flex items-center justify-between">
 				<div className="flex items-center">
 					<Checkbox id="remember-me" defaultChecked />
-					<label
-						htmlFor="remember-me"
-						className="ml-3 block text-sm leading-6 text-fg"
-					>
+					<label htmlFor="remember-me" className="ml-3 block text-sm leading-6 text-fg">
 						Remember me
 					</label>
 				</div>
@@ -71,10 +68,7 @@ export const LoginScreen: React.FunctionComponent<{}> = ({}) => {
 			</Button>
 			<p className="mt-6 text-center text-sm text-muted">
 				Not a member?{' '}
-				<Link
-					to="/auth/sign-up"
-					className="font-semibold text-accent hover:text-blue-400"
-				>
+				<Link to="/auth/sign-up" className="font-semibold text-accent hover:text-blue-400">
 					Sign up
 				</Link>
 			</p>

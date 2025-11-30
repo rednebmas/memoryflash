@@ -70,9 +70,7 @@ export const DeckPreviewScreen: React.FC = () => {
 			<div className="max-w-md mx-auto space-y-6">
 				<ContentCard>
 					<PageTitle as="h2">{preview.deck.name}</PageTitle>
-					{preview.course && (
-						<p className="caption">Course: {preview.course.name}</p>
-					)}
+					{preview.course && <p className="caption">Course: {preview.course.name}</p>}
 					<p className="caption">
 						{preview.deck.cardCount} {preview.deck.cardCount === 1 ? 'card' : 'cards'}
 					</p>
@@ -82,10 +80,7 @@ export const DeckPreviewScreen: React.FC = () => {
 					<ContentCard>
 						<h3 className="heading-sm">Import to My Library</h3>
 						<div>
-							<label
-								htmlFor="course-select"
-								className="label mb-1 block"
-							>
+							<label htmlFor="course-select" className="label mb-1 block">
 								Add to course (optional)
 							</label>
 							<Select

@@ -60,9 +60,7 @@ export const MultiSheetCardQuestion: React.FC<QuestionRender> = ({ card, placeme
 		let presentationModeData = activePresentationMode as PresentationModeStartCard;
 		return (
 			<div className="flex flex-col items-center justify-center text-center gap-2">
-				<span className="caption mt-auto">
-					{presentationModeData.textAbove}
-				</span>
+				<span className="caption mt-auto">{presentationModeData.textAbove}</span>
 				<span className="pt-3">{c.question.key}</span>
 				<div className="mb-auto">
 					<ProgressDots total={total} correctCount={correctCount} />
@@ -73,9 +71,7 @@ export const MultiSheetCardQuestion: React.FC<QuestionRender> = ({ card, placeme
 		let presentationModeData = activePresentationMode as PresentationModeStartCard;
 		return (
 			<div className="flex flex-col items-center justify-center text-center gap-2">
-				<span className="caption mt-auto">
-					{presentationModeData.textAbove}
-				</span>
+				<span className="caption mt-auto">{presentationModeData.textAbove}</span>
 				<span className="pt-3">{c.question.voices[0].stack[0].chordName}</span>
 				<div className="mb-auto">
 					<ProgressDots total={total} correctCount={correctCount} />

@@ -59,10 +59,7 @@ export const SignUpScreen: React.FunctionComponent<{}> = ({}) => {
 			<div className="flex items-center justify-between">
 				<div className="flex items-center">
 					<Checkbox id="remember-me" defaultChecked />
-					<label
-						htmlFor="remember-me"
-						className="ml-3 block text-sm leading-6 text-fg"
-					>
+					<label htmlFor="remember-me" className="ml-3 block text-sm leading-6 text-fg">
 						Remember me
 					</label>
 				</div>
