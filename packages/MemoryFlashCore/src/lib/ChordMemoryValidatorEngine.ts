@@ -26,6 +26,7 @@ export class ChordMemoryValidatorEngine {
 	handle({ onNotes, waiting, index, dispatch }: HandleArgs): void {
 		const added = this.computeAdded(onNotes);
 		this.prev = onNotes;
+
 		if (waiting || added.length === 0) return;
 
 		const chord = this.chords[index];
