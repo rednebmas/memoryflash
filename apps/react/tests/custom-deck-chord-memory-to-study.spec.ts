@@ -82,7 +82,7 @@ test('Create custom deck with Chord Memory card, study it, then edit it', async 
 	await page.fill('#chord-text-prompt', 'Updated Cm7 Practice');
 	const [updateResp] = await Promise.all([
 		page.waitForResponse(
-			(r) => r.url().includes(`/decks/${deckId}/cards`) && r.request().method() === 'PUT',
+			(r) => r.url().includes('/cards/') && r.request().method() === 'PATCH',
 		),
 		clickButton('Update Card'),
 	]);
