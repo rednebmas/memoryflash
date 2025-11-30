@@ -1,6 +1,6 @@
 import React from 'react';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
-import { CircleHover } from './CircleHover';
+import { CircleHover } from './ui/CircleHover';
 import { Modal } from './modals/Modal';
 import { useConsoleErrors } from '../utils/useConsoleErrors';
 import { isIOSDebug } from '../utils/isIOSDebug';

@@ -2,7 +2,7 @@ import { EllipsisVerticalIcon } from '@heroicons/react/24/outline';
 import React from 'react';
 import { Menu, MenuButton } from '@headlessui/react';
 import { DropdownMenu, DropdownItem } from './DropdownMenu';
-import { CircleHover } from './CircleHover';
+import { CircleHover } from './ui/CircleHover';
 import { InputModal } from './modals/InputModal';
 import { ConfirmModal } from './modals/ConfirmModal';
 import { VisibilityModal } from './modals/VisibilityModal';

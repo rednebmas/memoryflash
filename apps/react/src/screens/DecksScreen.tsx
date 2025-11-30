@@ -9,8 +9,8 @@ import {
 	InputModal,
 	CardOptionsMenu,
 } from '../components';
-import { BasicErrorCard } from '../components/ErrorCard';
-import { Spinner } from '../components/Spinner';
+import { BasicErrorCard } from '../components/feedback/ErrorCard';
+import { Spinner } from '../components/feedback/Spinner';
 import { getCourse } from 'MemoryFlashCore/src/redux/actions/get-course-action';
 import { decksSelector } from 'MemoryFlashCore/src/redux/selectors/decksSelector';
 import { useNetworkState } from 'MemoryFlashCore/src/redux/selectors/useNetworkState';

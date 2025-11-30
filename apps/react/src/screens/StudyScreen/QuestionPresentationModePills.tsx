@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pill } from '../../components/Pill';
+import { Pill } from '../../components/ui/Pill';
 import { setPresentationMode } from 'MemoryFlashCore/src/redux/actions/set-presentation-mode';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { Card } from 'MemoryFlashCore/src/types/Cards';

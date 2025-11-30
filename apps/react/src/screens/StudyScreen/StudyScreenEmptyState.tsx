@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
-import { Button } from '../../components/Button';
-import { BasicErrorCard } from '../../components/ErrorCard';
-import { Spinner } from '../../components/Spinner';
+import { Button } from '../../components/ui/Button';
+import { BasicErrorCard } from '../../components/feedback/ErrorCard';
+import { Spinner } from '../../components/feedback/Spinner';
 import { useDeckIdPath } from '../useDeckIdPath';
 import { useNetworkState } from 'MemoryFlashCore/src/redux/selectors/useNetworkState';
 import { useAppSelector } from 'MemoryFlashCore/src/redux/store';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { ChevronDownIcon } from '@heroicons/react/24/solid';
-import { CircleHover } from './CircleHover';
+import { CircleHover } from '../ui/CircleHover';
 
 interface SectionHeaderProps {
 	title: string;

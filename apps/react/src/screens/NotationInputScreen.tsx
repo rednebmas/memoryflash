@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Layout, Button } from '../components';
-import { BasicErrorCard } from '../components/ErrorCard';
+import { BasicErrorCard } from '../components/feedback/ErrorCard';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { questionsForAllMajorKeys } from 'MemoryFlashCore/src/lib/multiKeyTransposer';
 import { majorKeys } from 'MemoryFlashCore/src/lib/notes';

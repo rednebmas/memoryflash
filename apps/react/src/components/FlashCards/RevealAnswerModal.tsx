@@ -1,7 +1,7 @@
 import React from 'react';
 import { Modal } from '../modals/Modal';
 import { MusicNotation } from '../MusicNotation';
-import { Button } from '../Button';
+import { Button } from '../ui/Button';
 import { AnswerType, Card, CardTypeEnum, ChordMemoryAnswer } from 'MemoryFlashCore/src/types/Cards';
 
 export const canRevealAnswer = (card: Card): boolean => {

@@ -1,9 +1,16 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Layout, SectionHeader } from '../components';
-import { SegmentButton } from '../components/SegmentButton';
-import { BasicErrorCard } from '../components/ErrorCard';
-import { Spinner } from '../components/Spinner';
+import {
+	Layout,
+	SectionHeader,
+	ListContainer,
+	SegmentedControl,
+	SegmentButton,
+	EmptyState,
+} from '../components';
+import { BasicErrorCard } from '../components/feedback/ErrorCard';
+import { Spinner } from '../components/feedback/Spinner';
+import { SearchInput } from '../components/inputs';
 import {
 	searchCommunityDecks,
 	searchCommunityCourses,
@@ -62,7 +69,7 @@ export const CommunityScreen: React.FC = () => {
 				{leaderboard.length > 0 && (
 					<div>
 						<SectionHeader title="Top Decks" />
-						<div className="bg-white rounded-lg shadow divide-y divide-gray-100">
+						<ListContainer>
 							{isLoadingLeaderboard ? (
 								<Spinner show />
 							) : (
@@ -93,14 +100,14 @@ export const CommunityScreen: React.FC = () => {
 									</Link>
 								))
 							)}
-						</div>
+						</ListContainer>
 					</div>
 				)}
 
 				<div>
 					<SectionHeader title="Browse" />
 					<div className="space-y-4">
-						<div className="flex gap-2 p-1 bg-gray-100 rounded-lg">
+						<SegmentedControl>
 							<SegmentButton
 								text="Decks"
 								active={activeTab === 'decks'}
@@ -111,14 +118,12 @@ export const CommunityScreen: React.FC = () => {
 								active={activeTab === 'courses'}
 								onClick={() => handleTabChange('courses')}
 							/>
-						</div>
+						</SegmentedControl>
 
-						<input
-							type="text"
+						<SearchInput
 							placeholder={`Search ${activeTab}...`}
 							value={searchQuery}
 							onChange={(e) => setSearchQuery(e.target.value)}
-							className="block w-full rounded-md border-0 py-2 px-3 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm"
 						/>
 
 						<BasicErrorCard error={error} />
@@ -143,24 +148,26 @@ interface DeckResultsListProps {
 
 const DeckResultsList: React.FC<DeckResultsListProps> = ({ decks }) => {
 	if (decks.length === 0) {
-		return <p className="text-center text-gray-500 py-8">No decks found</p>;
+		return <EmptyState message="No decks found" />;
 	}
 
 	return (
-		<div className="bg-white rounded-lg shadow divide-y divide-gray-100">
+		<ListContainer>
 			{decks.map((deck) => (
 				<Link
 					key={deck._id}
 					to={`/deck/${deck._id}/preview`}
-					className="flex items-center justify-between p-4 hover:bg-gray-50"
+					className="flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700"
 				>
 					<div>
-						<div className="font-medium text-gray-900">{deck.name}</div>
+						<div className="font-medium text-gray-900 dark:text-gray-100">
+							{deck.name}
+						</div>
 						{deck.course && <div className="text-sm text-gray-500">{deck.course}</div>}
 					</div>
 				</Link>
 			))}
-		</div>
+		</ListContainer>
 	);
 };
 
@@ -170,24 +177,26 @@ interface CourseResultsListProps {
 
 const CourseResultsList: React.FC<CourseResultsListProps> = ({ courses }) => {
 	if (courses.length === 0) {
-		return <p className="text-center text-gray-500 py-8">No courses found</p>;
+		return <EmptyState message="No courses found" />;
 	}
 
 	return (
-		<div className="bg-white rounded-lg shadow divide-y divide-gray-100">
+		<ListContainer>
 			{courses.map((course) => (
 				<Link
 					key={course._id}
 					to={`/course/${course._id}/preview`}
-					className="flex items-center justify-between p-4 hover:bg-gray-50"
+					className="flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700"
 				>
-					<div className="font-medium text-gray-900">{course.name}</div>
+					<div className="font-medium text-gray-900 dark:text-gray-100">
+						{course.name}
+					</div>
 					<span className="text-sm text-gray-500">
 						{course.deckCount} {course.deckCount === 1 ? 'deck' : 'decks'} •{' '}
 						{course.totalCardCount} {course.totalCardCount === 1 ? 'card' : 'cards'}
 					</span>
 				</Link>
 			))}
-		</div>
+		</ListContainer>
 	);
 };

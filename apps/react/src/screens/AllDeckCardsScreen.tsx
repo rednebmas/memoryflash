@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { FlashCard, Layout } from '../components';
-import { BasicErrorCard } from '../components/ErrorCard';
-import { Spinner } from '../components/Spinner';
+import { BasicErrorCard } from '../components/feedback/ErrorCard';
+import { Spinner } from '../components/feedback/Spinner';
 import { getDeck } from 'MemoryFlashCore/src/redux/actions/get-deck-action';
 import { currDeckAllWithCorrectAttemptsSortedArray } from 'MemoryFlashCore/src/redux/selectors/currDeckCardsWithAttempts';
 import { useNetworkState } from 'MemoryFlashCore/src/redux/selectors/useNetworkState';

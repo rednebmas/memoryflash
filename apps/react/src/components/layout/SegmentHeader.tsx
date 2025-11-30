@@ -1,6 +1,6 @@
 import React from 'react';
-import { iconDisplay } from '../mocks/icon';
-import { SegmentButton } from './SegmentButton';
+import { iconDisplay } from '../../mocks/icon';
+import { SegmentButton } from '../ui/SegmentButton';
 
 interface SegmentHeaderProps {
 	segments: string[];

@@ -4,7 +4,7 @@ import { deleteCard } from 'MemoryFlashCore/src/redux/actions/delete-card-action
 import { CardWithAttempts } from 'MemoryFlashCore/src/redux/selectors/currDeckCardsWithAttempts';
 import { useAppDispatch } from 'MemoryFlashCore/src/redux/store';
 import { useIsCardOwner } from '../utils/useIsCardOwner';
-import { CircleHover } from './CircleHover';
+import { CircleHover } from './ui/CircleHover';
 import { ConfirmModal } from './modals/ConfirmModal';
 
 interface FlashCardDeleteButtonProps {

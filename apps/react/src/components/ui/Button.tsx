@@ -1,6 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
-import { Spinner } from './Spinner';
+import { Spinner } from '../feedback/Spinner';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'danger';
 
