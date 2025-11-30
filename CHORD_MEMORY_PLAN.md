@@ -8,15 +8,15 @@ This feature adds a new card type called "Chord Memory" to the NotationInputScre
 
 ## Progress
 
--   [x] Phase 1: Core Type Definitions
--   [x] Phase 2: Chord Tone Extraction Utility
--   [x] Phase 3: Chord Memory Answer Validator
--   [x] Phase 4: Update Card Type Dropdown
--   [x] Phase 5: Chord Memory Settings UI
--   [x] Phase 6: Optional Chord Tones UI
--   [x] Phase 7: NotationInputScreen Integration
--   [ ] Phase 8: Presentation Mode Support
--   [ ] Phase 9: End-to-End Testing
+- [x] Phase 1: Core Type Definitions
+- [x] Phase 2: Chord Tone Extraction Utility
+- [x] Phase 3: Chord Memory Answer Validator
+- [x] Phase 4: Update Card Type Dropdown
+- [x] Phase 5: Chord Memory Settings UI
+- [x] Phase 6: Optional Chord Tones UI
+- [x] Phase 7: NotationInputScreen Integration
+- [ ] Phase 8: Presentation Mode Support
+- [ ] Phase 9: End-to-End Testing
 
 ---
 
@@ -32,18 +32,18 @@ This feature adds a new card type called "Chord Memory" to the NotationInputScre
 
 **Files to modify:**
 
--   `packages/MemoryFlashCore/src/types/Cards.ts`
+- `packages/MemoryFlashCore/src/types/Cards.ts`
 
 **New Types:**
 
--   Add `ChordMemory` to the `AnswerType` enum
--   Create `ChordMemoryChord` type with `chordName` (string), `requiredTones` (array of pitch class strings like 'C', 'E', 'G'), and `optionalTones` (array of pitch classes that can be omitted)
--   Create `ChordMemoryAnswer` type extending `BaseAnswer` with type `ChordMemory` and an array of `ChordMemoryChord` objects
+- Add `ChordMemory` to the `AnswerType` enum
+- Create `ChordMemoryChord` type with `chordName` (string), `requiredTones` (array of pitch class strings like 'C', 'E', 'G'), and `optionalTones` (array of pitch classes that can be omitted)
+- Create `ChordMemoryAnswer` type extending `BaseAnswer` with type `ChordMemory` and an array of `ChordMemoryChord` objects
 
 **Acceptance criteria:**
 
--   Types compile without errors
--   Existing tests pass
+- Types compile without errors
+- Existing tests pass
 
 ---
 
@@ -59,18 +59,18 @@ This feature adds a new card type called "Chord Memory" to the NotationInputScre
 
 **Files to create:**
 
--   `packages/MemoryFlashCore/src/lib/chordTones.ts`
+- `packages/MemoryFlashCore/src/lib/chordTones.ts`
 
 **Implementation:**
 
--   Create `getChordTones(chordName: string)` function that uses `Chord.get()` from tonal library to extract pitch class notes from a chord name
--   Create `getDefaultChordMemoryChord(chordName: string)` helper that returns a `ChordMemoryChord` with all tones set as required and none optional
+- Create `getChordTones(chordName: string)` function that uses `Chord.get()` from tonal library to extract pitch class notes from a chord name
+- Create `getDefaultChordMemoryChord(chordName: string)` helper that returns a `ChordMemoryChord` with all tones set as required and none optional
 
 **Acceptance criteria:**
 
--   `getChordTones('Cmaj7')` returns `['C', 'E', 'G', 'B']`
--   `getChordTones('Dm7')` returns `['D', 'F', 'A', 'C']`
--   Unit test for chord tone extraction
+- `getChordTones('Cmaj7')` returns `['C', 'E', 'G', 'B']`
+- `getChordTones('Dm7')` returns `['D', 'F', 'A', 'C']`
+- Unit test for chord tone extraction
 
 ---
 
@@ -88,7 +88,7 @@ This feature adds a new card type called "Chord Memory" to the NotationInputScre
 
 **Files to create:**
 
--   `apps/react/src/components/answer-validators/ChordMemoryAnswerValidator.tsx`
+- `apps/react/src/components/answer-validators/ChordMemoryAnswerValidator.tsx`
 
 **Validation Logic:**
 
@@ -102,23 +102,23 @@ For each chord in the progression:
 
 **Acceptance criteria:**
 
--   Playing C4, E4, G4 for a "C" chord is correct
--   Playing C3, E5, G4 (different octaves) for "C" is also correct
--   Playing C, E, G, Bb for "C" is wrong (Bb not in chord)
--   Playing C, E only for "C" (if G is required) is incomplete
--   Playing C, E, G when G is optional also works
+- Playing C4, E4, G4 for a "C" chord is correct
+- Playing C3, E5, G4 (different octaves) for "C" is also correct
+- Playing C, E, G, Bb for "C" is wrong (Bb not in chord)
+- Playing C, E only for "C" (if G is required) is incomplete
+- Playing C, E, G when G is optional also works
 
 **Unit tests required:**
 
--   Create unit test file `packages/MemoryFlashCore/src/lib/__tests__/ChordMemoryValidator.test.ts`
--   Test correct chord with exact chord tones in same octave
--   Test correct chord with chord tones spread across different octaves
--   Test rejection when a non-chord-tone is played
--   Test incomplete chord (missing required tone) does not advance
--   Test chord with optional tone omitted still passes
--   Test chord with optional tone included still passes
--   Test playing optional tones does NOT mark the answer as incorrect (critical: optional tones are allowed to be played, just not required)
--   Test progression advances after correct chord played
+- Create unit test file `packages/MemoryFlashCore/src/lib/__tests__/ChordMemoryValidator.test.ts`
+- Test correct chord with exact chord tones in same octave
+- Test correct chord with chord tones spread across different octaves
+- Test rejection when a non-chord-tone is played
+- Test incomplete chord (missing required tone) does not advance
+- Test chord with optional tone omitted still passes
+- Test chord with optional tone included still passes
+- Test playing optional tones does NOT mark the answer as incorrect (critical: optional tones are allowed to be played, just not required)
+- Test progression advances after correct chord played
 
 ---
 
@@ -133,9 +133,9 @@ For each chord in the progression:
 
 **Files to modify:**
 
--   `apps/react/src/components/CardTypeDropdown.tsx`
--   `apps/react/src/components/notation/CardTypeOptions.tsx`
--   `apps/react/src/components/notation/defaultSettings.ts`
+- `apps/react/src/components/CardTypeDropdown.tsx`
+- `apps/react/src/components/notation/CardTypeOptions.tsx`
+- `apps/react/src/components/notation/defaultSettings.ts`
 
 **Type Update:**
 
@@ -143,8 +143,8 @@ Update the card type union from `'Sheet Music' | 'Text Prompt'` to include `'Cho
 
 **Acceptance criteria:**
 
--   Dropdown shows three options
--   Selecting "Chord Memory" updates settings state
+- Dropdown shows three options
+- Selecting "Chord Memory" updates settings state
 
 ---
 
@@ -154,10 +154,10 @@ Update the card type union from `'Sheet Music' | 'Text Prompt'` to include `'Cho
 
 **Architecture Notes:**
 
--   Settings state should have a top-level `chordMemory` key containing all chord memory settings
--   `CardTypeOptions` should receive the entire `settings` object, not individual props
--   Use `chordTones` instead of `parsedChords` for clarity
--   Single `onChange` callback that passes the entire updated state
+- Settings state should have a top-level `chordMemory` key containing all chord memory settings
+- `CardTypeOptions` should receive the entire `settings` object, not individual props
+- Use `chordTones` instead of `parsedChords` for clarity
+- Single `onChange` callback that passes the entire updated state
 
 **Tasks:**
 
@@ -168,16 +168,16 @@ Update the card type union from `'Sheet Music' | 'Text Prompt'` to include `'Cho
 
 **Files to modify:**
 
--   `apps/react/src/components/notation/defaultSettings.ts`
--   `apps/react/src/components/notation/CardTypeOptions.tsx`
--   `apps/react/src/components/notation/NotationSettings.tsx`
+- `apps/react/src/components/notation/defaultSettings.ts`
+- `apps/react/src/components/notation/CardTypeOptions.tsx`
+- `apps/react/src/components/notation/NotationSettings.tsx`
 
 **Acceptance criteria:**
 
--   Text input appears when "Chord Memory" selected
--   Chord progression string is parsed into individual chords
--   Each chord's tones are extracted and displayed
--   Invalid chord names show clear error feedback
+- Text input appears when "Chord Memory" selected
+- Chord progression string is parsed into individual chords
+- Each chord's tones are extracted and displayed
+- Invalid chord names show clear error feedback
 
 ---
 
@@ -197,9 +197,9 @@ Display each chord with its name and chord tones as toggleable chips. Filled = r
 
 **Acceptance criteria:**
 
--   Can toggle any tone between required/optional
--   Cannot make all tones optional
--   Visual distinction between required and optional
+- Can toggle any tone between required/optional
+- Cannot make all tones optional
+- Visual distinction between required and optional
 
 ---
 
@@ -219,13 +219,13 @@ Chord Memory does NOT need its own presentation mode. Existing presentation mode
 
 **Files to modify:**
 
--   `apps/react/src/screens/NotationInputScreen.tsx`
+- `apps/react/src/screens/NotationInputScreen.tsx`
 
 **Acceptance criteria:**
 
--   "Chord Memory" cards created with `ChordMemoryAnswer` type
--   Cards use existing presentation modes for display
--   Card saves to database correctly
+- "Chord Memory" cards created with `ChordMemoryAnswer` type
+- Cards use existing presentation modes for display
+- Card saves to database correctly
 
 ---
 
@@ -243,15 +243,15 @@ Chord Memory does NOT need its own presentation mode. Existing presentation mode
 
 **Files to modify:**
 
--   `apps/react/src/components/answer-validators/AnswerValidator.tsx`
--   `apps/react/src/components/FlashCards/RevealAnswerModal.tsx`
--   `apps/react/src/components/FlashCardOptionsMenu.tsx`
+- `apps/react/src/components/answer-validators/AnswerValidator.tsx`
+- `apps/react/src/components/FlashCards/RevealAnswerModal.tsx`
+- `apps/react/src/components/FlashCardOptionsMenu.tsx`
 
 **Acceptance criteria:**
 
--   ChordMemoryAnswerValidator is used for ChordMemory answer types
--   Reveal answer shows chord progression with tone indicators
--   Validation correctly checks chord tones, not exact notes
+- ChordMemoryAnswerValidator is used for ChordMemory answer types
+- Reveal answer shows chord progression with tone indicators
+- Validation correctly checks chord tones, not exact notes
 
 ---
 
@@ -269,50 +269,43 @@ Chord Memory does NOT need its own presentation mode. Existing presentation mode
 
 **Files to create:**
 
--   `apps/react/tests/chord-memory-create.spec.ts`
--   `apps/react/tests/chord-memory-study.spec.ts`
+- `apps/react/tests/chord-memory-create.spec.ts`
+- `apps/react/tests/chord-memory-study.spec.ts`
 
 **Test Scenarios with Screenshots:**
 
 1. **Create Card UI Screenshot:**
-
     - Navigate to NotationInputScreen
     - Select "Chord Memory" card type
     - Enter chord progression "Cmaj7 Dm7 G7 C"
     - Screenshot: `chord-memory-input-screen.png` showing the chord input UI with parsed chords and tones
 
 2. **Optional Tones UI Screenshot:**
-
     - Toggle the 7th of Cmaj7 to optional
     - Screenshot: `chord-memory-optional-tones.png` showing visual distinction between required/optional
 
 3. **Study Screen Screenshot:**
-
     - Create and save the Chord Memory card
     - Navigate to study screen
     - Screenshot: `chord-memory-study-screen.png` showing the card presentation
 
 4. **Study - Correct Voicing:**
-
     - Play C4-E4-G4-B4 (root position Cmaj7)
     - Verify progression advances
     - Play D3-F4-A4-C5 (Dm7 in different octaves)
     - Verify still accepted
 
 5. **Study - Wrong Note:**
-
     - Play C-E-G-Bb for Cmaj7
     - Verify rejection (wrong note indicator)
     - Screenshot: `chord-memory-wrong-note.png`
 
 6. **Study - Complete Progression:**
-
     - Play through all 4 chords correctly
     - Verify card completion
     - Screenshot: `chord-memory-complete.png`
 
 7. **Reveal Answer:**
-
     - Create a Chord Memory card with some optional tones
     - During study, click the card options menu and select "Reveal answer"
     - Verify modal shows the chord progression with clear indication of required vs optional tones
@@ -326,12 +319,12 @@ Chord Memory does NOT need its own presentation mode. Existing presentation mode
 
 **Acceptance criteria:**
 
--   All screenshot tests pass and match expected visual output
--   Card creation flow works end-to-end with correct data saved
--   Study validation correctly accepts any valid voicing
--   Study validation correctly rejects non-chord tones
--   Progress through chord progression works correctly
--   Screenshots capture: input UI, optional tones UI, study screen, wrong note state, completion state
+- All screenshot tests pass and match expected visual output
+- Card creation flow works end-to-end with correct data saved
+- Study validation correctly accepts any valid voicing
+- Study validation correctly rejects non-chord tones
+- Progress through chord progression works correctly
+- Screenshots capture: input UI, optional tones UI, study screen, wrong note state, completion state
 
 ---
 
@@ -341,9 +334,9 @@ Chord Memory does NOT need its own presentation mode. Existing presentation mode
 
 The `tonal` library is already installed and provides:
 
--   `Chord.get(name)` - Returns chord info including notes
--   `Note.chroma(name)` - Returns pitch class (0-11)
--   `Midi.midiToNoteName(midi)` - Converts MIDI to note name
+- `Chord.get(name)` - Returns chord info including notes
+- `Note.chroma(name)` - Returns pitch class (0-11)
+- `Midi.midiToNoteName(midi)` - Converts MIDI to note name
 
 ### Chord Input
 
@@ -363,19 +356,19 @@ Existing cards are unaffected—this adds a new answer type without changing exi
 
 **New Files:**
 
--   `packages/MemoryFlashCore/src/lib/chordTones.ts`
--   `apps/react/src/components/answer-validators/ChordMemoryAnswerValidator.tsx`
--   `apps/react/src/components/notation/ChordToneSelector.tsx`
--   `apps/react/tests/chord-memory-create.spec.ts`
--   `apps/react/tests/chord-memory-study.spec.ts`
+- `packages/MemoryFlashCore/src/lib/chordTones.ts`
+- `apps/react/src/components/answer-validators/ChordMemoryAnswerValidator.tsx`
+- `apps/react/src/components/notation/ChordToneSelector.tsx`
+- `apps/react/tests/chord-memory-create.spec.ts`
+- `apps/react/tests/chord-memory-study.spec.ts`
 
 **Modified Files:**
 
--   `packages/MemoryFlashCore/src/types/Cards.ts`
--   `packages/MemoryFlashCore/src/types/PresentationMode.ts`
--   `apps/react/src/components/CardTypeDropdown.tsx`
--   `apps/react/src/components/notation/CardTypeOptions.tsx`
--   `apps/react/src/components/notation/defaultSettings.ts`
--   `apps/react/src/screens/NotationInputScreen.tsx`
--   `apps/react/src/components/answer-validators/AnswerValidator.tsx`
--   `apps/react/src/components/FlashCards/MultiSheetCardQuestion.tsx`
+- `packages/MemoryFlashCore/src/types/Cards.ts`
+- `packages/MemoryFlashCore/src/types/PresentationMode.ts`
+- `apps/react/src/components/CardTypeDropdown.tsx`
+- `apps/react/src/components/notation/CardTypeOptions.tsx`
+- `apps/react/src/components/notation/defaultSettings.ts`
+- `apps/react/src/screens/NotationInputScreen.tsx`
+- `apps/react/src/components/answer-validators/AnswerValidator.tsx`
+- `apps/react/src/components/FlashCards/MultiSheetCardQuestion.tsx`
