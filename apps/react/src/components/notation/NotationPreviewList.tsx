@@ -41,6 +41,17 @@ export const NotationPreviewList: React.FC<NotationPreviewListProps> = ({
 	const others = previews.filter((p) => p.key !== keySig);
 	const showText = !!previewTextCard && cardType === 'Text Prompt';
 	const prompt = textPrompt ?? '';
+
+	if (cardType === 'Chord Memory') {
+		return (
+			<div className="flex flex-col items-center gap-5">
+				<div className="card-container flex flex-col items-center gap-2 w-[26rem]">
+					<TextCardPrompt text={prompt} total={0} />
+				</div>
+			</div>
+		);
+	}
+
 	return (
 		<div
 			className="flex flex-col items-center gap-5"

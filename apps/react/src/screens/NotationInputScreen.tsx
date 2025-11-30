@@ -7,7 +7,7 @@ import { majorKeys } from 'MemoryFlashCore/src/lib/notes';
 import { addCardsToDeck } from 'MemoryFlashCore/src/redux/actions/add-cards-to-deck';
 import { updateCard } from 'MemoryFlashCore/src/redux/actions/update-card-action';
 import { setPresentationMode } from 'MemoryFlashCore/src/redux/actions/set-presentation-mode';
-import { CardTypeEnum } from 'MemoryFlashCore/src/types/Cards';
+import { AnswerType, CardTypeEnum } from 'MemoryFlashCore/src/types/Cards';
 import { useDeckIdPath } from './useDeckIdPath';
 import { useNetworkState } from 'MemoryFlashCore/src/redux/selectors/useNetworkState';
 import { useParams } from 'react-router-dom';
@@ -77,14 +77,28 @@ export const NotationInputScreen = () => {
 				presentationModes: [{ id: 'Text Prompt', text: settings.textPrompt }],
 			}));
 			dispatch(setPresentationMode(CardTypeEnum.MultiSheet, 'Text Prompt'));
+			dispatch(addCardsToDeck(deckId, toAdd));
+		} else if (settings.cardType === 'Chord Memory') {
+			const text = settings.chordMemory.textPrompt || settings.chordMemory.progression;
+			toAdd = previews.map((q) => ({
+				...q,
+				presentationModes: [{ id: 'Text Prompt', text }],
+			}));
+			dispatch(setPresentationMode(CardTypeEnum.MultiSheet, 'Text Prompt'));
+			dispatch(
+				addCardsToDeck(deckId, toAdd, {
+					type: AnswerType.ChordMemory,
+					chords: settings.chordMemory.chordTones,
+				}),
+			);
 		} else {
 			toAdd = previews.map((q) => ({
 				...q,
 				presentationModes: [{ id: 'Sheet Music' }],
 			}));
 			dispatch(setPresentationMode(CardTypeEnum.MultiSheet, 'Sheet Music'));
+			dispatch(addCardsToDeck(deckId, toAdd));
 		}
-		dispatch(addCardsToDeck(deckId, toAdd));
 	};
 
 	const handleUpdate = () => {
@@ -116,7 +130,12 @@ export const NotationInputScreen = () => {
 							keySig={settings.keySig}
 							previews={previews}
 							cardType={settings.cardType}
-							textPrompt={settings.textPrompt}
+							textPrompt={
+								settings.cardType === 'Chord Memory'
+									? settings.chordMemory.textPrompt ||
+										settings.chordMemory.progression
+									: settings.textPrompt
+							}
 							previewTextCard={settings.preview}
 						/>
 						<div className="w-full max-w-xs">

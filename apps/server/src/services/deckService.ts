@@ -5,7 +5,7 @@ import { Deck } from '../models/Deck';
 import { UserDeckStats } from '../models/UserDeckStats';
 import { User } from 'MemoryFlashCore/src/types/User';
 import { MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
-import { CardTypeEnum, AnswerType } from 'MemoryFlashCore/src/types/Cards';
+import { CardTypeEnum, AnswerType, ChordMemoryChord } from 'MemoryFlashCore/src/types/Cards';
 import { Types } from 'mongoose';
 import { Visibility, VISIBILITIES, VISIBILITY_LEVEL } from 'MemoryFlashCore/src/types/Deck';
 
@@ -130,6 +130,7 @@ export async function addCardsToDeck(
 	deckId: string,
 	questions: MultiSheetQuestion[],
 	userId?: string,
+	answer?: { type: AnswerType; chords?: ChordMemoryChord[] },
 ) {
 	const now = Date.now();
 	const cards = questions.map((q, i) => ({
@@ -137,7 +138,7 @@ export async function addCardsToDeck(
 		deckId: new Types.ObjectId(deckId),
 		type: CardTypeEnum.MultiSheet,
 		question: q,
-		answer: { type: AnswerType.ExactMulti },
+		answer: answer ?? { type: AnswerType.ExactMulti },
 		...(userId ? { userId: new Types.ObjectId(userId) } : {}),
 	}));
 	const insertedCards = await Card.insertMany(cards);
