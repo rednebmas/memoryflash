@@ -53,10 +53,10 @@ export const CoursePreviewScreen: React.FC = () => {
 
 	return (
 		<Layout subtitle="Course Preview">
-			<div className="max-w-md mx-auto space-y-6">
+			<div className="space-y-6">
 				<ContentCard>
 					<PageTitle as="h2">{preview.course.name}</PageTitle>
-					<p className="text-sm text-gray-500">
+					<p className="text-sm text-muted">
 						{preview.course.deckCount}{' '}
 						{preview.course.deckCount === 1 ? 'deck' : 'decks'} •{' '}
 						{preview.course.totalCardCount}{' '}
@@ -66,16 +66,16 @@ export const CoursePreviewScreen: React.FC = () => {
 
 				{preview.decks.length > 0 && (
 					<ContentCard spacing="sm">
-						<h3 className="text-lg font-medium text-gray-900">Decks</h3>
-						<ul className="divide-y divide-gray-100">
+						<h3 className="text-lg font-medium text-fg">Decks</h3>
+						<ul className="divide-y divide-default">
 							{preview.decks.map((deck) => (
 								<li key={deck._id}>
 									<Link
 										to={`/deck/${deck._id}/preview`}
-										className="py-3 flex justify-between items-center hover:bg-gray-50 -mx-2 px-2 rounded"
+										className="py-3 flex justify-between items-center hover:bg-lm-elevated dark:hover:bg-dm-elevated -mx-2 px-2 rounded"
 									>
-										<span className="text-sm text-gray-900">{deck.name}</span>
-										<span className="text-xs text-gray-500">
+										<span className="text-sm text-fg">{deck.name}</span>
+										<span className="caption">
 											{deck.cardCount}{' '}
 											{deck.cardCount === 1 ? 'card' : 'cards'}
 										</span>
@@ -94,9 +94,7 @@ export const CoursePreviewScreen: React.FC = () => {
 					</ContentCard>
 				) : (
 					<ContentCard centered>
-						<p className="text-gray-600">
-							Sign in to import this course to your library
-						</p>
+						<p className="text-muted">Sign in to import this course to your library</p>
 						<div className="flex gap-3 justify-center">
 							<LinkButton to="/auth/login">Log In</LinkButton>
 							<LinkButton to="/auth/sign-up" variant="outline">

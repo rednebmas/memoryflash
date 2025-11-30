@@ -14,12 +14,12 @@ export const AuthForm: React.FC<AuthFormProps> = ({ title, onSubmit, children })
 				<OpenSettingsButton />
 			</div>
 			<div className="sm:mx-auto sm:w-full sm:max-w-md">
-				<h2 className="mt-6 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
+				<h2 className="mt-6 text-center text-2xl font-bold leading-9 tracking-tight text-fg">
 					{title}
 				</h2>
 			</div>
 			<div className="mt-10 sm:mx-auto sm:w-full sm:max-w-md">
-				<div className="bg-white px-6 py-12 shadow sm:rounded-lg sm:px-12">
+				<div className="bg-surface border border-default px-6 py-12 sm:rounded-lg sm:px-12">
 					<form className="space-y-6" onSubmit={onSubmit}>
 						{children}
 					</form>

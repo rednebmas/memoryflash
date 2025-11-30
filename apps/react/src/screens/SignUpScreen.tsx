@@ -59,15 +59,12 @@ export const SignUpScreen: React.FunctionComponent<{}> = ({}) => {
 			<div className="flex items-center justify-between">
 				<div className="flex items-center">
 					<Checkbox id="remember-me" defaultChecked />
-					<label
-						htmlFor="remember-me"
-						className="ml-3 block text-sm leading-6 text-gray-900"
-					>
+					<label htmlFor="remember-me" className="ml-3 block text-sm leading-6 text-fg">
 						Remember me
 					</label>
 				</div>
 				<div className="text-sm leading-6">
-					<a href="#" className="font-semibold text-blue-600 hover:text-blue-500">
+					<a href="#" className="font-semibold text-accent hover:text-blue-400">
 						Forgot password?
 					</a>
 				</div>
@@ -78,9 +75,9 @@ export const SignUpScreen: React.FunctionComponent<{}> = ({}) => {
 			<Button type="submit" loading={isLoading}>
 				Sign Up
 			</Button>
-			<p className="mt-6 text-center text-sm text-gray-500">
+			<p className="mt-6 text-center text-sm text-muted">
 				Already have an account?{' '}
-				<Link to="/auth/login" className="font-semibold text-blue-600 hover:text-blue-500">
+				<Link to="/auth/login" className="font-semibold text-accent hover:text-blue-400">
 					Log in
 				</Link>
 			</p>

@@ -19,7 +19,7 @@ export const ModalButtons: React.FC<ModalButtonsProps> = ({
 	confirmDisabled = false,
 }) => {
 	return (
-		<div className="mt-8 sm:flex sm:pl-4 gap-3 justify-end bg-gray-50 px-6 pt-3 pb-4 border-t border-gray-100 dark:bg-gray-900 dark:border-gray-700">
+		<div className="mt-8 sm:flex sm:pl-4 gap-3 justify-end bg-slightly-elevated px-6 pt-3 pb-4 border-t border-gray-100  dark:border-gray-700">
 			<Button
 				variant="outline"
 				onClick={onCancel}

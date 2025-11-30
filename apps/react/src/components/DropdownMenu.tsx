@@ -21,7 +21,7 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({ items }) => (
 		leaveFrom="transform opacity-100 scale-100"
 		leaveTo="transform opacity-0 scale-95"
 	>
-		<MenuItems className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+		<MenuItems className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-lg bg-surface border border-default shadow-lg focus:outline-none">
 			<div className="py-1">
 				{items.map((item, index) => (
 					<MenuItem key={index}>
@@ -29,8 +29,8 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({ items }) => (
 							<button
 								onClick={item.onClick}
 								className={clsx(
-									focus ? 'bg-gray-50 text-gray-900' : 'text-gray-700',
-									'block w-full px-4 py-2 text-left text-sm',
+									focus ? 'bg-gray-100 dark:bg-dm-elevated' : '',
+									'block w-full px-4 py-2 text-left text-sm text-fg',
 								)}
 							>
 								{item.label}

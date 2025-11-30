@@ -12,25 +12,25 @@ export type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 const variantStyles: Record<ButtonVariant, { enabled: string; disabled: string }> = {
 	primary: {
 		enabled:
-			'bg-blue-600 text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600',
-		disabled: 'bg-slate-300 text-slate-600 cursor-not-allowed shadow-none',
+			'bg-accent text-white hover:bg-accent-hover dark:bg-[#e8e8ea] dark:text-[#1a1a1a] dark:hover:bg-[#d4d4d6] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
+		disabled:
+			'bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-500',
 	},
 	secondary: {
 		enabled:
-			'bg-gray-100 text-gray-900 shadow-sm hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600',
+			'bg-gray-100 text-lm-fg hover:bg-gray-200 dark:bg-dm-elevated dark:text-dm-fg dark:hover:bg-white/15',
 		disabled:
-			'bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-gray-800 dark:text-gray-500',
+			'bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-dm-surface dark:text-gray-500',
 	},
 	outline: {
 		enabled:
-			'bg-white text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-100 dark:ring-gray-600 dark:hover:bg-gray-700',
-		disabled:
-			'bg-white text-gray-400 cursor-not-allowed ring-1 ring-inset ring-gray-200 dark:bg-gray-800 dark:text-gray-500 dark:ring-gray-700',
+			'bg-transparent text-lm-muted hover:bg-gray-100 dark:text-dm-muted dark:hover:bg-white/5',
+		disabled: 'bg-transparent text-gray-300 cursor-not-allowed dark:text-gray-600',
 	},
 	danger: {
 		enabled:
-			'bg-red-600 text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600',
-		disabled: 'bg-red-300 text-red-100 cursor-not-allowed shadow-none',
+			'bg-red-600 text-white hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600',
+		disabled: 'bg-red-300 text-red-100 cursor-not-allowed',
 	},
 };
 
@@ -41,7 +41,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 	) => {
 		const isDisabled = loading || disabled;
 		const baseClasses =
-			'inline-flex justify-center items-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 transition-colors';
+			'inline-flex justify-center items-center rounded-md px-4 py-2 text-sm font-medium transition-all duration-150';
 		const styles = variantStyles[variant];
 		return (
 			<button
@@ -55,7 +55,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 				{...props}
 			>
 				{loading ? (
-					<Spinner svgClassName="w-5 h-5 text-transparent fill-gray-100" />
+					<Spinner svgClassName="w-5 h-5 text-transparent fill-current" />
 				) : (
 					children
 				)}

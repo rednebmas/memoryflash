@@ -56,13 +56,13 @@ export const AccountScreen: React.FC<AccountScreenProps> = () => {
 	return (
 		<Layout>
 			<main>
-				<h3 className="px-4 mb-2 lg:px-8 text-sm font-normal leading-6 text-gray-400">
+				<h3 className="px-4 mb-2 lg:px-8 text-sm font-normal leading-6 text-muted">
 					PROFILE
 				</h3>
-				<div className="px-4 py-2 lg:px-6 lg:py-3 bg-white mx-4 shadow rounded-lg">
+				<div className="px-4 py-2 lg:px-6 lg:py-3 bg-surface mx-4 border border-default rounded-lg">
 					<div className="mx-auto md:px-2 ">
 						<div>
-							<dl className="mt-0 divide-y divide-gray-100 text-sm leading-6">
+							<dl className="mt-0 divide-y divide-default text-sm leading-6">
 								<ProfileRow
 									label="First name"
 									value={profileData.firstName}
@@ -87,7 +87,7 @@ export const AccountScreen: React.FC<AccountScreenProps> = () => {
 			<div className="text-center">
 				<button
 					type="button"
-					className="rounded-full bg-white mt-4 px-6 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+					className="rounded-full bg-surface mt-4 px-6 py-1.5 text-sm font-semibold text-fg ring-1 ring-inset ring-default hover:bg-lm-elevated dark:hover:bg-dm-elevated"
 					onClick={() => dispatch(logout())}
 				>
 					Logout

@@ -1,0 +1,40 @@
+/*
+ * Typography utilities
+ * Consistent text styles with automatic dark mode support
+ */
+
+/* Headings */
+.heading-lg {
+	@apply text-3xl font-semibold tracking-tight text-fg;
+}
+
+.heading-md {
+	@apply text-2xl font-semibold tracking-tight text-fg;
+}
+
+.heading-sm {
+	@apply text-xl font-semibold tracking-tight text-fg;
+}
+
+/* Body text */
+.body-lg {
+	@apply text-base font-normal text-fg;
+}
+
+.body-md {
+	@apply text-sm font-medium text-fg;
+}
+
+.body-sm {
+	@apply text-xs font-normal text-fg;
+}
+
+/* Labels */
+.label {
+	@apply text-sm font-medium text-fg;
+}
+
+/* Captions and hints */
+.caption {
+	@apply text-xs font-normal text-muted;
+}

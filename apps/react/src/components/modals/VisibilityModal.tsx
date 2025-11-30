@@ -12,9 +12,11 @@ const VISIBILITY_INFO: Record<Visibility, { label: string; description: string }
 };
 
 const getTextColor = (isDisabled: boolean, checked: boolean, variant: 'label' | 'description') => {
-	if (isDisabled) return 'text-gray-400';
-	if (!checked) return variant === 'label' ? 'text-gray-900' : 'text-gray-500';
-	return variant === 'label' ? 'text-blue-900' : 'text-blue-700';
+	if (isDisabled) return 'text-gray-400 dark:text-gray-500';
+	if (!checked) return variant === 'label' ? 'text-fg' : 'text-muted';
+	return variant === 'label'
+		? 'text-blue-900 dark:text-blue-100'
+		: 'text-blue-700 dark:text-blue-300';
 };
 
 export interface VisibilityModalProps extends Omit<ModalProps, 'children'> {
@@ -57,14 +59,14 @@ export const VisibilityModal: React.FC<VisibilityModalProps> = ({
 											clsx(
 												'relative flex rounded-lg px-4 py-3 border focus:outline-none',
 												isDisabled
-													? 'cursor-not-allowed bg-gray-50 border-gray-200 opacity-60'
+													? 'cursor-not-allowed bg-gray-50 dark:bg-dm-elevated border-gray-200 dark:border-dm-border opacity-60'
 													: 'cursor-pointer',
 												!isDisabled &&
 													checked &&
-													'bg-blue-50 border-blue-500',
+													'bg-blue-50 dark:bg-blue-900/30 border-blue-500',
 												!isDisabled &&
 													!checked &&
-													'bg-white border-gray-200 hover:bg-gray-50',
+													'bg-surface border-default hover:bg-lm-elevated dark:hover:bg-dm-elevated',
 											)
 										}
 									>
@@ -115,8 +117,10 @@ export const VisibilityModal: React.FC<VisibilityModalProps> = ({
 					</div>
 				</RadioGroup>
 				{warningForOptions[selected] && (
-					<div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-						<p className="text-sm text-amber-800">{warningForOptions[selected]}</p>
+					<div className="mt-4 p-3 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg">
+						<p className="text-sm text-amber-800 dark:text-amber-200">
+							{warningForOptions[selected]}
+						</p>
 					</div>
 				)}
 			</div>

@@ -7,20 +7,19 @@ interface CircleHoverProps {
 }
 
 export const CircleHover: React.FC<CircleHoverProps> = ({ children, link, onClick }) => {
-	const content = (
-		<div
-			className="p-2 hover:bg-gray-200 active:bg-gray-200 rounded-full cursor-pointer hover:bg-opacity-50 transition-all"
-			onClick={onClick}
-		>
+	const className =
+		'w-9 h-9 flex items-center justify-center rounded-full cursor-pointer transition-all duration-150 hover:bg-gray-200 dark:hover:bg-white/15 text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2';
+
+	if (link) {
+		return (
+			<Link to={link} className={className}>
+				{children}
+			</Link>
+		);
+	}
+	return (
+		<div className={className} onClick={onClick} tabIndex={0}>
 			{children}
 		</div>
-	);
-
-	return link ? (
-		<Link to={link} className="inline-block">
-			{content}
-		</Link>
-	) : (
-		content
 	);
 };
