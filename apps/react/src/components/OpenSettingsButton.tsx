@@ -1,6 +1,6 @@
 import React from 'react';
 import { Cog6ToothIcon } from '@heroicons/react/24/outline';
-import { CircleHover } from './CircleHover';
+import { CircleHover } from './ui/CircleHover';
 import { isIOSDebug } from '../utils/isIOSDebug';
 
 export const OpenSettingsButton: React.FC = () => {

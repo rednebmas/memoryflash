@@ -2,12 +2,12 @@ import { ChevronLeftIcon, ArrowPathIcon, GlobeAltIcon } from '@heroicons/react/2
 import clsx from 'clsx';
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { CircleHover } from './CircleHover';
-import { MidiInputsDropdown } from './MidiInputsDropdown';
-import { AccountNavButton } from './navigation/AccountNavButton';
-import { isIOSDebug } from '../utils/isIOSDebug';
-import { ConsoleErrorsButton } from './ConsoleErrorsButton';
-import { StreakChip } from './StreakChip';
+import { CircleHover } from '../ui/CircleHover';
+import { MidiInputsDropdown } from '../MidiInputsDropdown';
+import { AccountNavButton } from '../navigation/AccountNavButton';
+import { isIOSDebug } from '../../utils/isIOSDebug';
+import { ConsoleErrorsButton } from '../ConsoleErrorsButton';
+import { StreakChip } from '../StreakChip';
 
 interface LayoutProps {
 	children: React.ReactNode;

@@ -1,18 +1,23 @@
-export * from './Layout';
+// UI Components
+export * from './ui';
+
+// Layout Components
+export * from './layout';
+
+// Feedback Components
+export * from './feedback';
+
+// Form Inputs
+export * from './inputs';
+
+// Modals
+export * from './modals';
+
+// Other Components
 export * from './FlashCard';
 export * from '../screens/StudyScreen/StudyScreen';
-export * from './SectionCard';
-export * from './SectionData';
-export * from './SectionHeader';
-export * from './SegmentHeader';
 export * from './graphics';
 export * from './AuthForm';
-export * from './inputs';
-export * from './Button';
-export * from './modals/Modal';
-export * from './modals/InputModal';
-export * from './modals/ConfirmModal';
-export * from './modals/VisibilityModal';
 export * from './CardOptionsMenu';
 export * from './ConsoleErrorsButton';
 export * from './TranspositionSelector';

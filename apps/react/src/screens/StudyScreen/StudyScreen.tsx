@@ -1,9 +1,9 @@
 import { ListBulletIcon, PresentationChartLineIcon, PlusIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { CircleHover } from '../../components/CircleHover';
+import { CircleHover } from '../../components/ui/CircleHover';
 import { FlashCard } from '../../components/FlashCard';
-import { Layout } from '../../components/Layout';
+import { Layout } from '../../components/layout/Layout';
 import { MidiInputsDropdown } from '../../components/MidiInputsDropdown';
 import { StudyScreenEmptyState } from './StudyScreenEmptyState';
 import { AnswerValidator } from '../../components/answer-validators/AnswerValidator';

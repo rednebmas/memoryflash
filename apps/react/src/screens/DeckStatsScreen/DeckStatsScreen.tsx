@@ -1,9 +1,8 @@
 import React, { useEffect } from 'react';
 import { CartesianGrid, Label, Line, LineChart, Tooltip, XAxis, YAxis } from 'recharts';
-import { Layout } from '../../components';
-import { BasicErrorCard } from '../../components/ErrorCard';
-import { Spinner } from '../../components/Spinner';
-import { Link } from 'react-router-dom';
+import { Layout, LinkButton } from '../../components';
+import { BasicErrorCard } from '../../components/feedback/ErrorCard';
+import { Spinner } from '../../components/feedback/Spinner';
 import { getDeck } from 'MemoryFlashCore/src/redux/actions/get-deck-action';
 import { getStatsDeck } from 'MemoryFlashCore/src/redux/actions/get-deck-stats-action';
 import { attemptsStatsSelector } from 'MemoryFlashCore/src/redux/selectors/attemptsStatsSelector';
@@ -70,18 +69,13 @@ export const DeckStatsScreen: React.FunctionComponent<DeckStatsScreenProps> = ({
 					<div>Number of cards: {numCards}</div>
 					<div>Median time to answer: {median.toFixed(1)}s</div>
 					<div>Total time studying: {(totalTimeSpent / 60).toFixed(1)} minutes</div>
-
 					{deckId && (
 						<div className="flex w-full justify-center pt-4">
-							<Link
-								to={`/study/${deckId}/attempts`}
-								className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-800 hover:bg-gray-50"
-							>
+							<LinkButton to={`/study/${deckId}/attempts`} variant="outline">
 								View attempt history
-							</Link>
+							</LinkButton>
 						</div>
-					)}
-
+					)}{' '}
 					<div className="mt-8 flex flex-col gap-2 svg-dark-mode">
 						<div
 							className="text-black font-bold text-center"
@@ -133,7 +127,6 @@ export const DeckStatsScreen: React.FunctionComponent<DeckStatsScreenProps> = ({
 							/>
 						</LineChart>
 					</div>
-
 					<TimeSpentChart timeSpentPerDay={timeSpentPerDay} medianPerDay={medianPerDay} />
 				</div>
 			</div>

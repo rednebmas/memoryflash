@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Layout, Button } from '../components';
-import { BasicErrorCard } from '../components/ErrorCard';
-import { Spinner } from '../components/Spinner';
+import { Layout, Button, LinkButton, ContentCard, PageTitle } from '../components';
+import { BasicErrorCard } from '../components/feedback/ErrorCard';
+import { Spinner } from '../components/feedback/Spinner';
 import {
 	getCoursePreview,
 	clearCoursePreview,
@@ -54,18 +54,18 @@ export const CoursePreviewScreen: React.FC = () => {
 	return (
 		<Layout subtitle="Course Preview">
 			<div className="max-w-md mx-auto space-y-6">
-				<div className="bg-white rounded-lg shadow p-6 space-y-4">
-					<h2 className="text-xl font-semibold text-gray-900">{preview.course.name}</h2>
+				<ContentCard>
+					<PageTitle as="h2">{preview.course.name}</PageTitle>
 					<p className="text-sm text-gray-500">
 						{preview.course.deckCount}{' '}
 						{preview.course.deckCount === 1 ? 'deck' : 'decks'} •{' '}
 						{preview.course.totalCardCount}{' '}
 						{preview.course.totalCardCount === 1 ? 'card' : 'cards'}
 					</p>
-				</div>
+				</ContentCard>
 
 				{preview.decks.length > 0 && (
-					<div className="bg-white rounded-lg shadow p-6 space-y-3">
+					<ContentCard spacing="sm">
 						<h3 className="text-lg font-medium text-gray-900">Decks</h3>
 						<ul className="divide-y divide-gray-100">
 							{preview.decks.map((deck) => (
@@ -83,35 +83,27 @@ export const CoursePreviewScreen: React.FC = () => {
 								</li>
 							))}
 						</ul>
-					</div>
+					</ContentCard>
 				)}
 
 				{user ? (
-					<div className="bg-white rounded-lg shadow p-6 space-y-4">
+					<ContentCard>
 						<Button onClick={handleImport} disabled={isImporting} className="w-full">
 							{isImporting ? 'Importing...' : 'Import Entire Course'}
 						</Button>
-					</div>
+					</ContentCard>
 				) : (
-					<div className="bg-white rounded-lg shadow p-6 text-center space-y-4">
+					<ContentCard centered>
 						<p className="text-gray-600">
 							Sign in to import this course to your library
 						</p>
 						<div className="flex gap-3 justify-center">
-							<Link
-								to="/auth/login"
-								className="inline-flex justify-center rounded-md bg-blue-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-400"
-							>
-								Log In
-							</Link>
-							<Link
-								to="/auth/sign-up"
-								className="inline-flex justify-center rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-							>
+							<LinkButton to="/auth/login">Log In</LinkButton>
+							<LinkButton to="/auth/sign-up" variant="outline">
 								Sign Up
-							</Link>
+							</LinkButton>
 						</div>
-					</div>
+					</ContentCard>
 				)}
 			</div>
 		</Layout>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { UserCircleIcon } from '@heroicons/react/24/outline';
-import { CircleHover } from '../CircleHover';
+import { CircleHover } from '../ui/CircleHover';
 
 interface AccountNavButtonProps {}
 

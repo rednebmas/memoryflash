@@ -1,8 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Layout } from '../../components';
-import { BasicErrorCard } from '../../components/ErrorCard';
-import { Spinner } from '../../components/Spinner';
+import {
+	Layout,
+	LinkButton,
+	SegmentedControl,
+	SegmentButton,
+	PageTitle,
+	EmptyState,
+} from '../../components';
+import { BasicErrorCard } from '../../components/feedback/ErrorCard';
+import { Spinner } from '../../components/feedback/Spinner';
 import { getDeck } from 'MemoryFlashCore/src/redux/actions/get-deck-action';
 import { currDeckAllWithAttemptsSelector } from 'MemoryFlashCore/src/redux/selectors/currDeckCardsWithAttempts';
 import { useNetworkState } from 'MemoryFlashCore/src/redux/selectors/useNetworkState';
@@ -69,9 +75,7 @@ const AttemptsList: React.FC<{
 	deckName?: string;
 }> = ({ attempts, viewMode, deckName }) =>
 	attempts.length === 0 ? (
-		<div className="rounded-lg border border-gray-200 bg-white p-4 text-sm text-gray-700">
-			No attempts yet.
-		</div>
+		<EmptyState message="No attempts yet." />
 	) : (
 		<div className="flex flex-col gap-3">
 			{attempts.map(({ attempt, card }) => (
@@ -124,39 +128,26 @@ export const AttemptHistoryScreen: React.FC = () => {
 				<Spinner show={isLoading && attempts.length === 0} />
 				<BasicErrorCard error={error} />
 				<div className="flex flex-wrap items-center justify-between gap-2">
-					<h1 className="text-xl font-semibold">Attempt history</h1>
+					<PageTitle>Attempt history</PageTitle>
 					<div className="flex flex-wrap items-center gap-3">
-						<div className="flex rounded-lg border border-gray-200 bg-white p-1 text-xs font-medium text-gray-800 shadow-sm">
-							<button
-								type="button"
-								className={`rounded-md px-3 py-1 ${
-									viewMode === 'text'
-										? 'bg-gray-900 text-white'
-										: 'hover:bg-gray-50'
-								}`}
+						<SegmentedControl variant="compact">
+							<SegmentButton
+								text="Text"
+								active={viewMode === 'text'}
 								onClick={() => setViewMode('text')}
-							>
-								Text
-							</button>
-							<button
-								type="button"
-								className={`rounded-md px-3 py-1 ${
-									viewMode === 'notation'
-										? 'bg-gray-900 text-white'
-										: 'hover:bg-gray-50'
-								}`}
+								variant="compact"
+							/>
+							<SegmentButton
+								text="Sheet music"
+								active={viewMode === 'notation'}
 								onClick={() => setViewMode('notation')}
-							>
-								Sheet music
-							</button>
-						</div>
+								variant="compact"
+							/>
+						</SegmentedControl>
 						{deckId && (
-							<Link
-								to={`/study/${deckId}/stats`}
-								className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-800 hover:bg-gray-50"
-							>
+							<LinkButton to={`/study/${deckId}/stats`} variant="outline">
 								Back to stats
-							</Link>
+							</LinkButton>
 						)}
 					</div>
 				</div>

@@ -3,6 +3,7 @@ import { Modal, ModalProps } from './Modal';
 import { Visibility, VISIBILITIES } from 'MemoryFlashCore/src/types/Deck';
 import { RadioGroup, Radio, Label, Description, Field } from '@headlessui/react';
 import clsx from 'clsx';
+import { ModalButtons } from './ModalButtons';
 
 const VISIBILITY_INFO: Record<Visibility, { label: string; description: string }> = {
 	private: { label: 'Private', description: 'Only you can see this' },
@@ -119,23 +120,12 @@ export const VisibilityModal: React.FC<VisibilityModalProps> = ({
 					</div>
 				)}
 			</div>
-			<div className="mt-6 sm:flex sm:pl-4 gap-3 justify-end bg-gray-50 px-6 pt-3 pb-4 border-t border-gray-100">
-				<button
-					type="button"
-					onClick={onClose}
-					className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto mb-3 sm:mb-0"
-				>
-					Cancel
-				</button>
-				<button
-					type="button"
-					onClick={() => onSave(selected)}
-					disabled={isSaving}
-					className="inline-flex w-full justify-center rounded-md bg-blue-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-400 disabled:opacity-50 sm:w-auto"
-				>
-					{isSaving ? 'Saving...' : 'Save'}
-				</button>
-			</div>
+			<ModalButtons
+				onCancel={onClose}
+				onConfirm={() => onSave(selected)}
+				confirmText={isSaving ? 'Saving...' : 'Save'}
+				confirmDisabled={isSaving}
+			/>
 		</Modal>
 	);
 };

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { SectionHeader } from '../SectionHeader';
-import { Card } from '../Card';
+import { SectionHeader } from '../layout/SectionHeader';
+import { Card } from '../ui/Card';
 
 interface SettingsSectionProps {
 	title: string;

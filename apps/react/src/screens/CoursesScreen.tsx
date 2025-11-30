@@ -19,8 +19,8 @@ import {
 	SectionData,
 	SectionHeader,
 } from '../components';
-import { BasicErrorCard } from '../components/ErrorCard';
-import { Spinner } from '../components/Spinner';
+import { BasicErrorCard } from '../components/feedback/ErrorCard';
+import { Spinner } from '../components/feedback/Spinner';
 
 const getVisibilityWarnings = (
 	currentVisibility: Visibility,
