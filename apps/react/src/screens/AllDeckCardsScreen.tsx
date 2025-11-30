@@ -1,7 +1,9 @@
+import { PresentationChartLineIcon } from '@heroicons/react/24/outline';
 import React, { useEffect } from 'react';
 import { FlashCard, Layout } from '../components';
 import { BasicErrorCard } from '../components/feedback/ErrorCard';
 import { Spinner } from '../components/feedback/Spinner';
+import { CircleHover } from '../components/ui/CircleHover';
 import { getDeck } from 'MemoryFlashCore/src/redux/actions/get-deck-action';
 import { currDeckAllWithCorrectAttemptsSortedArray } from 'MemoryFlashCore/src/redux/selectors/currDeckCardsWithAttempts';
 import { useNetworkState } from 'MemoryFlashCore/src/redux/selectors/useNetworkState';
@@ -28,7 +30,13 @@ export const AllDeckCardsScreen: React.FunctionComponent<AllDeckCardsScreenProps
 	}
 
 	return (
-		<Layout>
+		<Layout
+			right={
+				<CircleHover link={`/study/${deckId}/stats`}>
+					<PresentationChartLineIcon className="w-5 h-5 stroke-2" />
+				</CircleHover>
+			}
+		>
 			<Spinner show={isLoading && deck.length === 0} />
 			<BasicErrorCard error={error} />
 			<div className="flex flex-col items-center">

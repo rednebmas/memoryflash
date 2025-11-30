@@ -10,9 +10,8 @@ interface PillProps {
 
 export const Pill: React.FunctionComponent<PillProps> = ({ text, theme, onClick, ring = true }) => {
 	const colorClasses = {
-		// https://tailwindui.com/components/application-ui/elements/badges
-		gray: 'bg-gray-50 text-gray-600 ring-gray-500/10',
-		green: 'bg-green-50 text-green-700 ring-green-600/20',
+		gray: 'bg-gray-50 text-gray-600 ring-gray-500/10 dark:bg-dm-surface dark:text-dm-fg dark:ring-dm-border',
+		green: 'bg-green-50 text-green-700 ring-green-600/20 dark:bg-green-800/30 dark:text-green-400 dark:ring-green-500/30',
 	};
 
 	return (
@@ -24,7 +23,6 @@ export const Pill: React.FunctionComponent<PillProps> = ({ text, theme, onClick,
 			)}
 			onMouseDown={(e) => e.preventDefault()}
 			onClick={onClick}
-			// role='button'
 			tabIndex={0}
 		>
 			{text}

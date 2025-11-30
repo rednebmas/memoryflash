@@ -17,6 +17,29 @@ export default {
 			colors: {
 				btn: '#274535',
 				card: '#E8E7E7',
+				dm: {
+					bg: '#0f0f11',
+					surface: '#1e1e20',
+					elevated: 'rgba(223, 223, 255, 0.09)',
+					border: 'rgba(255, 255, 255, 0.1)',
+					fg: '#fcfcfd',
+					muted: 'rgba(255, 255, 255, 0.6)',
+				},
+				lm: {
+					bg: '#ffffff',
+					surface: '#f9fafb',
+					border: '#e5e7eb',
+					fg: '#111827',
+					muted: '#6b7280',
+				},
+				accent: {
+					DEFAULT: '#2657d5',
+					hover: '#1e4bb8',
+				},
+			},
+			letterSpacing: {
+				tighter: '-0.05em',
+				tight: '-0.025em',
 			},
 		},
 		fontFamily: {

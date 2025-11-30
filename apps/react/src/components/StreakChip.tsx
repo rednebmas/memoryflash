@@ -27,13 +27,14 @@ export const StreakChip: React.FC<StreakChipProps> = ({ className }) => {
 	return (
 		<div
 			className={clsx(
-				'inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-xs font-semibold text-orange-800 shadow-sm',
+				'inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium',
+				'bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
 				animate ? 'animate-bounce' : '',
 				className,
 			)}
 			aria-label={`Current streak ${displayCount} days`}
 		>
-			<span className="text-base">🔥</span>
+			<span>🔥</span>
 			<span>{displayCount}</span>
 		</div>
 	);

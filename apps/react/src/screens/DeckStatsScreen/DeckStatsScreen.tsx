@@ -1,8 +1,10 @@
+import { ListBulletIcon } from '@heroicons/react/24/outline';
 import React, { useEffect } from 'react';
 import { CartesianGrid, Label, Line, LineChart, Tooltip, XAxis, YAxis } from 'recharts';
 import { Layout, LinkButton } from '../../components';
 import { BasicErrorCard } from '../../components/feedback/ErrorCard';
 import { Spinner } from '../../components/feedback/Spinner';
+import { CircleHover } from '../../components/ui/CircleHover';
 import { getDeck } from 'MemoryFlashCore/src/redux/actions/get-deck-action';
 import { getStatsDeck } from 'MemoryFlashCore/src/redux/actions/get-deck-stats-action';
 import { attemptsStatsSelector } from 'MemoryFlashCore/src/redux/selectors/attemptsStatsSelector';
@@ -60,7 +62,14 @@ export const DeckStatsScreen: React.FunctionComponent<DeckStatsScreenProps> = ({
 		.map((d, i) => ({ ...d, i }));
 
 	return (
-		<Layout subtitle={deck?.name}>
+		<Layout
+			subtitle={deck?.name}
+			right={
+				<CircleHover link={`/study/${deckId}/list`}>
+					<ListBulletIcon className="w-5 h-5 stroke-2" />
+				</CircleHover>
+			}
+		>
 			<div className="flex gap-8 flex-col">
 				<Spinner show={isLoading} />
 				<BasicErrorCard error={error} />

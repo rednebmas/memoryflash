@@ -4,7 +4,6 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { CircleHover } from '../../components/ui/CircleHover';
 import { FlashCard } from '../../components/FlashCard';
 import { Layout } from '../../components/layout/Layout';
-import { MidiInputsDropdown } from '../../components/MidiInputsDropdown';
 import { StudyScreenEmptyState } from './StudyScreenEmptyState';
 import { AnswerValidator } from '../../components/answer-validators/AnswerValidator';
 import { Keyboard } from '../../components/keyboard/KeyBoard';
@@ -24,8 +23,6 @@ import { Metronome } from './Metronome';
 import { QuestionPresentationModePills } from './QuestionPresentationModePills';
 import Timer from './Timer';
 import useWindowResize from './useWindowResize';
-import { AccountNavButton } from '../../components/navigation/AccountNavButton';
-import { StreakChip } from '../../components/StreakChip';
 import { IS_TEST_ENV } from '../../utils/constants';
 import { isCardOwner } from '../../utils/useIsCardOwner';
 
@@ -135,25 +132,20 @@ export const StudyScreen = () => {
 			back={`/course/${deck?.courseId}`}
 			contentClassName="max-w-none sm:px-0 lg:px-0"
 			right={
-				<div className="flex items-center gap-4 ml-2">
-					<StreakChip />
-					<div className="pl-1">
-						<Metronome bpm={bpm} />
-					</div>
+				<>
+					<Metronome bpm={bpm} />
 					<CircleHover link={`stats`}>
-						<PresentationChartLineIcon className="w-6 h-6 stroke-2" />
+						<PresentationChartLineIcon className="w-5 h-5 stroke-2" />
 					</CircleHover>
 					<CircleHover link={`list`}>
-						<ListBulletIcon className="w-6 h-6 stroke-2" />
+						<ListBulletIcon className="w-5 h-5 stroke-2" />
 					</CircleHover>
 					{course && user && course.userId === user._id && (
 						<CircleHover link={`/study/${deckId}/notation`}>
-							<PlusIcon className="w-6 h-6 stroke-2" />
+							<PlusIcon className="w-5 h-5 stroke-2" />
 						</CircleHover>
 					)}
-					<MidiInputsDropdown />
-					<AccountNavButton />
-				</div>
+				</>
 			}
 			subtitle={course && deck && `${course?.name} · ${deck?.name}`}
 		>
