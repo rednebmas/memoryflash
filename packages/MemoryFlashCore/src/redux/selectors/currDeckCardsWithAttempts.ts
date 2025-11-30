@@ -22,10 +22,11 @@ export const compareByAttemptTime = (a: CardWithAttempts, b: CardWithAttempts) =
 const selectDeckId = (state: ReduxState) => state.scheduler.deck;
 const selectCards = (state: ReduxState) => state.cards;
 const selectAttempts = (state: ReduxState) => state.attempts;
-const selectHiddenCardIds = (state: ReduxState) => {
-	const deckId = state.scheduler.deck;
-	if (!deckId) return [] as string[];
-	const stats = Object.values(state.userDeckStats.entities).find((s) => s.deckId === deckId);
+
+export const selectHiddenCardIds = (state: ReduxState, deckId?: string) => {
+	const id = deckId ?? state.scheduler.deck;
+	if (!id) return [] as string[];
+	const stats = Object.values(state.userDeckStats.entities).find((s) => s.deckId === id);
 	return stats?.hiddenCardIds ?? [];
 };
 
