@@ -50,6 +50,7 @@ const CustomisedKey: React.FC<{
 	const pressed = onNotes.find((note) => note.number === midi) !== undefined;
 	const { cards, index } = useAppSelector(sessionCardsSelector);
 	const card = cards[index];
+	const pendingClear = useAppSelector((state) => state.midi.pendingClearClickedNotes);
 
 	const noteIsCorrect = !useAppSelector((state) => state.midi.wrongNotes).includes(midi);
 	let whiteKeyStartColor = '#FFF';
@@ -81,12 +82,16 @@ const CustomisedKey: React.FC<{
 				}
 			}}
 			onMouseUp={() => {
-				if (!noteIsCorrect || !card) {
+				// Remove on mouse up if:
+				// 1. It's a wrong note (so user can fix mistakes), OR
+				// 2. Chord was just completed (pendingClear is true)
+				if (pressed && (!noteIsCorrect || pendingClear)) {
 					dispatch(midiActions.removeNote(midi));
 				}
 			}}
 			onMouseLeave={() => {
-				if ((pressed && !noteIsCorrect) || !card) {
+				// Only remove wrong notes on mouse leave
+				if (pressed && !noteIsCorrect) {
 					dispatch(midiActions.removeNote(midi));
 				}
 			}}

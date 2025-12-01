@@ -35,7 +35,7 @@ export class ValidatorEngine {
 		if (this.isCorrect(projected)) {
 			this.onCorrect(index, dispatch);
 		} else if (this.hasWrongNotes(projected.added, projected.expectedOnBeat)) {
-			this.onWrong(projected.added, projected.expectedAdded, onNotes, dispatch);
+			this.onWrong(projected.added, projected.expectedOnBeat, added, dispatch);
 		}
 	}
 
@@ -98,21 +98,21 @@ export class ValidatorEngine {
 	}
 
 	private onWrong(
-		onNotesProjected: number[],
-		expectedProjected: number[],
-		onNotesRaw: number[],
+		addedProjected: number[],
+		expectedOnBeat: number[],
+		addedRaw: number[],
 		dispatch: AppDispatch,
 	): void {
-		console.log('[validation] onWrong', onNotesProjected, expectedProjected);
+		console.log('[validation] onWrong', addedProjected, expectedOnBeat);
 
 		dispatch(recordAttempt(false));
-		const wrong = onNotesProjected.find((n) => !expectedProjected.includes(n));
-		if (typeof wrong === 'number')
-			dispatch(midiActions.addWrongNote(onNotesRaw[onNotesProjected.indexOf(wrong)]));
+		const wrongIdx = addedProjected.findIndex((n) => !expectedOnBeat.includes(n));
+		if (wrongIdx !== -1) dispatch(midiActions.addWrongNote(addedRaw[wrongIdx]));
 		dispatch(midiActions.waitUntilEmpty());
 	}
 
 	private onCorrect(index: number, dispatch: AppDispatch): void {
+		dispatch(midiActions.requestClearClickedNotes());
 		dispatch(midiActions.waitUntilEmpty());
 		const nextIndex = index + 1;
 		if (nextIndex + 1 == this.timeline.beats.length) {

@@ -20,6 +20,7 @@ export interface MidiReduxState {
 	availableMidiDevices: MidiInput[];
 	selectedInput?: string;
 	selectedOutput?: string;
+	pendingClearClickedNotes: boolean;
 }
 
 const initialState: MidiReduxState = {
@@ -28,6 +29,7 @@ const initialState: MidiReduxState = {
 	waitingUntilEmpty: false,
 	waitingUntilEmptyNotes: [],
 	availableMidiDevices: [],
+	pendingClearClickedNotes: false,
 };
 
 const midiSlice = createSlice({
@@ -50,12 +52,33 @@ const midiSlice = createSlice({
 			);
 		},
 		removeNote(state, action: PayloadAction<number>) {
+			const wasWrongNote = state.wrongNotes.includes(action.payload);
+			const wasClicked = state.notes.find((n) => n.number === action.payload)?.clicked;
 			state.notes = state.notes.filter((note) => note.number !== action.payload);
 			state.wrongNotes = state.wrongNotes.filter((note) => note !== action.payload);
 			state.waitingUntilEmptyNotes = state.waitingUntilEmptyNotes.filter(
 				(note) => note.number !== action.payload,
 			);
-			if (state.waitingUntilEmpty && state.waitingUntilEmptyNotes.length === 0) {
+
+			// If pending clear and a clicked note was released, clear all clicked notes
+			if (state.pendingClearClickedNotes && wasClicked) {
+				const clickedNotes = state.notes.filter((note) => note.clicked);
+				state.wrongNotes = state.wrongNotes.filter(
+					(wn) => !clickedNotes.find((n) => n.number === wn),
+				);
+				state.notes = state.notes.filter((note) => !note.clicked);
+				state.waitingUntilEmptyNotes = state.waitingUntilEmptyNotes.filter(
+					(note) => !note.clicked,
+				);
+				state.pendingClearClickedNotes = false;
+			}
+
+			// Clear waiting if no notes left, OR if we just removed a wrong note and no wrong notes remain
+			if (
+				state.waitingUntilEmpty &&
+				(state.waitingUntilEmptyNotes.length === 0 ||
+					(wasWrongNote && state.wrongNotes.length === 0))
+			) {
 				state.waitingUntilEmpty = false;
 			}
 
@@ -100,27 +123,33 @@ const midiSlice = createSlice({
 			state.selectedOutput = action.payload;
 		},
 		waitUntilEmpty(state) {
-			state.waitingUntilEmpty = true;
-			state.waitingUntilEmptyNotes = state.notes;
+			if (state.notes.length === 0) {
+				state.waitingUntilEmpty = false;
+				state.waitingUntilEmptyNotes = [];
+			} else {
+				state.waitingUntilEmpty = true;
+				state.waitingUntilEmptyNotes = state.notes;
+			}
 		},
-
-		// ok the thing with the click keyboard is
-		// you want to clear clicked notes after key press is UP
-		// that's when you want to remove
-		// unforntunately, waitUntilEmpty must also be called when a wrong note appears
-		// but we don't clear clicked
-
-		/*
 		clearClickedNotes(state) {
+			const clickedNotes = state.notes.filter((note) => note.clicked);
 			state.wrongNotes = state.wrongNotes.filter(
-				(wn) => !state.notes.find((n) => n.number === wn)?.clicked,
+				(wn) => !clickedNotes.find((n) => n.number === wn),
 			);
 			state.notes = state.notes.filter((note) => !note.clicked);
-			// if (state.notes.length === 0 && state.waitingUntilEmpty) {
-			// 	state.waitingUntilEmpty = false;
-			// }
+			state.waitingUntilEmptyNotes = state.waitingUntilEmptyNotes.filter(
+				(note) => !note.clicked,
+			);
+			if (state.waitingUntilEmpty && state.waitingUntilEmptyNotes.length === 0) {
+				state.waitingUntilEmpty = false;
+			}
+			state.pendingClearClickedNotes = false;
 		},
-		*/
+		requestClearClickedNotes(state) {
+			// Set flag to clear clicked notes on next mouse up
+			// This allows the user to see the correct notes before they disappear
+			state.pendingClearClickedNotes = true;
+		},
 	},
 });
 

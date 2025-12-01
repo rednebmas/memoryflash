@@ -82,6 +82,7 @@ export class ChordMemoryValidatorEngine {
 	}
 
 	private onCorrect(index: number, dispatch: AppDispatch): void {
+		dispatch(midiActions.requestClearClickedNotes());
 		dispatch(midiActions.waitUntilEmpty());
 		const nextIndex = index + 1;
 		if (nextIndex >= this.chords.length) {
