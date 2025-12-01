@@ -1,5 +1,5 @@
 import React from 'react';
-import { InputField } from '../inputs';
+import { InputField, TextAreaField } from '../inputs';
 import { ChordToneDisplay } from './ChordToneDisplay';
 import { ChordMemorySettings } from './defaultSettings';
 import { parseChordProgression } from './parseChordProgression';
@@ -35,7 +35,7 @@ export const ChordProgressionInput: React.FC<ChordProgressionInputProps> = ({
 				value={chordMemory.progression}
 				onChange={(e) => handleProgressionChange(e.target.value)}
 			/>
-			<InputField
+			<TextAreaField
 				id="chord-text-prompt"
 				label="Text Prompt (optional)"
 				placeholder="e.g., Autumn Leaves - Verse"

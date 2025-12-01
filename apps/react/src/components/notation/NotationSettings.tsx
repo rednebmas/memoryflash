@@ -2,11 +2,10 @@ import React from 'react';
 import { TranspositionSelector } from '../TranspositionSelector';
 import { majorKeys } from 'MemoryFlashCore/src/lib/notes';
 import { NotationSettingsState } from './defaultSettings';
-import { NoteSettings } from './NoteSettings';
+import { SheetMusicSettings } from './SheetMusicSettings';
 import { SettingsSection } from './SettingsSection';
 import { RangeSettings } from './RangeSettings';
 import { CardTypeOptions } from './CardTypeOptions';
-import { BarsSetting } from './BarsSetting';
 
 interface NotationSettingsProps {
 	settings: NotationSettingsState;
@@ -28,11 +27,18 @@ export const NotationSettings: React.FC<NotationSettingsProps> = ({ settings, on
 		(selected, i) => selected && i !== currentKeyIdx,
 	);
 
+	const isChordMemory = settings.cardType === 'Chord Memory';
+
 	return (
 		<div className="space-y-4">
-			<NoteSettings keySig={settings.keySig} onChange={update} />
 			<CardTypeOptions settings={settings} onChange={update} />
-			<BarsSetting bars={settings.bars} setBars={(n) => update({ bars: n })} />
+			{!isChordMemory && (
+				<SheetMusicSettings
+					keySig={settings.keySig}
+					bars={settings.bars}
+					onChange={update}
+				/>
+			)}
 			<SettingsSection
 				title="Transpositions"
 				collapsible={true}
