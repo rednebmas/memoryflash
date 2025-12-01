@@ -19,11 +19,13 @@ export const AnyOctaveAnswerValidator: React.FC<{ card: Card }> = ({ card }) => 
 			if (!answerNotesChroma.includes(onNotesChroma[i])) {
 				dispatch(recordAttempt(false));
 				dispatch(midiActions.addWrongNote(onNotes[i].number));
+				dispatch(midiActions.waitUntilEmpty());
 				return;
 			}
 		}
 
 		if (onNotes.length === answer.notes.length) {
+			dispatch(midiActions.requestClearClickedNotes());
 			dispatch(recordAttempt(true));
 			console.log('Correct!');
 		}
