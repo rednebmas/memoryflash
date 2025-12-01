@@ -122,3 +122,58 @@ body,
 .dark .recharts-tooltip-label {
 	@apply text-black;
 }
+
+/* Card animations */
+@keyframes card-correct {
+	0% {
+		transform: scale(1);
+	}
+	50% {
+		transform: scale(1.05);
+	}
+	100% {
+		transform: scale(1);
+	}
+}
+
+@keyframes card-incorrect {
+	0%,
+	100% {
+		transform: translateY(0);
+	}
+	20% {
+		transform: translateY(-4px);
+	}
+	40% {
+		transform: translateY(4px);
+	}
+	60% {
+		transform: translateY(-3px);
+	}
+	80% {
+		transform: translateY(2px);
+	}
+}
+
+.animate-card-correct {
+	animation: card-correct 0.3s ease-in-out;
+}
+
+.animate-card-incorrect {
+	animation: card-incorrect 0.4s ease-in-out;
+}
+
+@keyframes confetti {
+	0% {
+		transform: translateY(0) rotate(0deg) scale(1);
+		opacity: 1;
+	}
+	100% {
+		transform: translateY(-150px) rotate(720deg) scale(0);
+		opacity: 0;
+	}
+}
+
+.animate-confetti {
+	animation: confetti 1s ease-out forwards;
+}
