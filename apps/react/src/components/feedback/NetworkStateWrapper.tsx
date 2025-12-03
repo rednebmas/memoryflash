@@ -20,12 +20,13 @@ export const NetworkStateWrapper: React.FC<NetworkStateWrapperProps> = ({
 	const showSpinner =
 		isLoading &&
 		(showSpinnerWhen === 'always' || (showSpinnerWhen === 'no-children' && !hasData));
+	const showChildren = !isLoading || hasData;
 
 	return (
 		<>
 			<Spinner show={showSpinner} />
 			<BasicErrorCard error={error} />
-			{children}
+			{showChildren && children}
 		</>
 	);
 };

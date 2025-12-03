@@ -10,10 +10,10 @@ This project prefers a highly componentized React codebase that avoids duplicate
 - **Styling**: Use Tailwind CSS utility classes. Share common styling through base components rather than repeating class strings.
 - **Git**: Do not commit .png files
 - **Formatting**: Code is formatted with Prettier using tabs. Run `npx prettier --write` before committing. Don't add comments to code unless absolutely necessary.
-- **Testing**: After changes, run `yarn test:codex` from the repository root to ensure all tests pass.
 - **Type Safety**: You are not allowed to use `any` or `unknown`.
-- **Redux**: Compose selectors and helpers rather than copy/pasting logic.
+- **Redux**: Compose selectors and helpers rather than copy/pasting logic. UI components should avoid data manipulation—use Redux selectors to transform and format data instead of doing it in components.
 - **Error Handling**: Keep error handling reasonable but not excessive. This is a small app - simple null checks and basic 404s are fine. Don't over-engineer with detailed error types for every edge case.
 - **Unit Tests**: Write unit tests for important service functions, especially those involving business logic or data transformations.
+- **Testing**: After changes, run `yarn test:codex` from the repository root to ensure all tests pass.
 
 Follow these guidelines to keep the codebase clean and maintainable.

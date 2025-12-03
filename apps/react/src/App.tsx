@@ -18,6 +18,7 @@ import { useDarkMode } from './utils/useDarkMode';
 import { DeckStatsScreen } from './screens/DeckStatsScreen/DeckStatsScreen';
 import { AccountScreen } from './screens/AccountScreen/AccountScreen';
 import { AttemptHistoryScreen } from './screens/AttemptHistoryScreen/AttemptHistoryScreen';
+import { StreakActivityScreen } from './screens/StreakActivityScreen/StreakActivityScreen';
 import { useAppDispatch } from 'MemoryFlashCore/src/redux/store';
 import { refreshUser } from 'MemoryFlashCore/src/redux/actions/refresh-user-action';
 
@@ -80,6 +81,10 @@ export default function App() {
 					<Route
 						path="/study/:deckId/stats"
 						element={<AuthenticatedRoute screen={<DeckStatsScreen />} />}
+					/>
+					<Route
+						path="/streak"
+						element={<AuthenticatedRoute screen={<StreakActivityScreen />} />}
 					/>
 					<Route
 						path="/study/:deckId/attempts"
