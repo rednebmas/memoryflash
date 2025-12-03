@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import clsx from 'clsx';
 import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
 
@@ -25,10 +26,12 @@ export const StreakChip: React.FC<StreakChipProps> = ({ className }) => {
 	}, [count]);
 
 	return (
-		<div
+		<Link
+			to="/streak"
 			className={clsx(
 				'inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium',
 				'bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
+				'hover:bg-orange-100 dark:hover:bg-orange-900/50 transition-colors',
 				animate ? 'animate-bounce' : '',
 				className,
 			)}
@@ -36,6 +39,6 @@ export const StreakChip: React.FC<StreakChipProps> = ({ className }) => {
 		>
 			<span>🔥</span>
 			<span>{displayCount}</span>
-		</div>
+		</Link>
 	);
 };

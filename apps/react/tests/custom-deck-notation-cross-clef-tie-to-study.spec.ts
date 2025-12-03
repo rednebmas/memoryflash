@@ -24,7 +24,7 @@ test('Study cross-clef tied chord', async ({ page, clickButton }) => {
 	const deckId = await createDeck(page, courseId, 'My Deck');
 	await page.waitForURL(new RegExp(`/study/${deckId}/notation`));
 	await page.getByLabel('Key').selectOption('E');
-	await page.getByLabel('Count').fill('1');
+	await page.getByLabel('Bars').fill('1');
 
 	await clickButton('h');
 	await clickButton('+8');

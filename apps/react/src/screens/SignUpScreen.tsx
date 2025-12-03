@@ -70,9 +70,9 @@ export const SignUpScreen: React.FunctionComponent<{}> = ({}) => {
 				</div>
 			</div>
 
-			<div className="text-red-600">{error}</div>
+			{error && <div className="text-red-600">{error}</div>}
 
-			<Button type="submit" loading={isLoading}>
+			<Button type="submit" loading={isLoading} className="w-full">
 				Sign Up
 			</Button>
 			<p className="mt-6 text-center text-sm text-muted">

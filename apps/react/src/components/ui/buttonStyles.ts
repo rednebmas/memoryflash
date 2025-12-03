@@ -5,7 +5,7 @@ export const buttonBaseClasses =
 
 export const variantEnabledStyles: Record<ButtonVariant, string> = {
 	primary:
-		'bg-accent text-white hover:bg-accent-hover dark:bg-[#e8e8ea] dark:text-[#1a1a1a] dark:hover:bg-[#d4d4d6] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
+		'bg-accent text-white hover:bg-accent-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
 	secondary:
 		'bg-gray-100 text-lm-fg hover:bg-gray-200 dark:bg-dm-elevated dark:text-dm-fg dark:hover:bg-white/15',
 	outline:
