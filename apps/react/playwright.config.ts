@@ -20,6 +20,14 @@ export default defineConfig({
 	use: {
 		baseURL: 'http://localhost:4173',
 		screenshot: 'only-on-failure',
+		// Normalize rendering differences between macOS and Linux in CI runs.
+		launchOptions: {
+			args: [
+				'--force-device-scale-factor=1',
+				'--disable-font-subpixel-positioning',
+				'--disable-lcd-text',
+			],
+		},
 	},
 	reporter: [['html', { open: 'never' }]],
 });
