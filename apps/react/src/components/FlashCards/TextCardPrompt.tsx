@@ -19,7 +19,7 @@ export const TextCardPrompt: React.FC<TextCardPromptProps> = ({
 			components={{
 				h1: ({ children }) => <p className="heading-lg">{children}</p>,
 				h2: ({ children }) => <p className="caption">{children}</p>,
-				p: ({ children }) => <p className="heading-lg">{children}</p>,
+				p: ({ children }) => <p className="heading-md">{children}</p>,
 			}}
 		>
 			{text}

@@ -49,13 +49,13 @@ export const FlashCard = forwardRef<HTMLDivElement, FlashCardProps>(
 		return (
 			<div
 				ref={ref}
-				className={`card-container flex flex-col items-center min-w-[15rem] m-h-60 m-4 ${className}`}
+				className={`relative card-container flex flex-col justify-between items-center min-w-[15rem] m-h-60 m-4 ${className}`}
 				style={{
 					opacity,
 					transition: 'opacity 0.5s ease',
 				}}
 			>
-				<div className="w-full flex justify-end -mb-2">
+				<div className="absolute right-1 top-1">
 					<FlashCardOptionsMenu card={card} showEdit={showEdit} showDelete={showDelete} />
 				</div>
 				<div className="text-4xl font-medium flex flex-1 justify-center items-center">
