@@ -78,7 +78,7 @@ test('Create custom deck with Chord Memory card, study it, then edit it', async 
 
 	await page.evaluate(() => {
 		window.scrollTo(0, 0);
-		document.querySelector('.overflow-scroll')?.scrollTo(0, 600);
+		document.querySelector('.overflow-y-auto')?.scrollTo(0, 600);
 	});
 	await expect(output).toHaveScreenshot('custom-deck-chord-memory-edit.png', screenshotOpts);
 
