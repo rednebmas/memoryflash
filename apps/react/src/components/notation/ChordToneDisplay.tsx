@@ -14,7 +14,7 @@ const ToneChip: React.FC<ToneChipProps> = ({ tone, required, onToggle }) => (
 		className={`px-2 py-0.5 rounded text-xs font-medium transition-colors ${
 			required
 				? 'bg-blue-600 text-white'
-				: 'bg-gray-200 text-gray-600 border border-dashed border-gray-400'
+				: 'bg-gray-200 dark:bg-gray-600 text-gray-600 dark:text-gray-200 border border-dashed border-gray-400 dark:border-gray-500'
 		}`}
 	>
 		{tone}
@@ -32,7 +32,7 @@ export const ChordToneDisplay: React.FC<ChordToneDisplayProps> = ({ chord, onTog
 
 	return (
 		<div
-			className={`rounded-lg p-2 text-sm ${isInvalid ? 'bg-red-100 text-red-800' : 'bg-gray-100'}`}
+			className={`rounded-lg p-2 text-sm ${isInvalid ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200' : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200'}`}
 		>
 			<div className="font-medium mb-1">{chord.chordName}</div>
 			{isInvalid ? (

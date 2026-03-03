@@ -9,6 +9,7 @@ import { useIsCardOwner } from '../utils/useIsCardOwner';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { updateHiddenCards } from 'MemoryFlashCore/src/redux/actions/update-hidden-cards-action';
 import { deleteCard } from 'MemoryFlashCore/src/redux/actions/delete-card-action';
+import { recordAttempt } from 'MemoryFlashCore/src/redux/actions/record-attempt-action';
 import {
 	CardWithAttempts,
 	selectHiddenCardIds,
@@ -52,7 +53,10 @@ export const FlashCardOptionsMenu: React.FC<FlashCardOptionsMenuProps> = ({
 	if (canReveal) {
 		items.unshift({
 			label: 'Reveal answer',
-			onClick: () => setShowAnswer(true),
+			onClick: () => {
+				dispatch(recordAttempt(false));
+				setShowAnswer(true);
+			},
 		});
 	}
 

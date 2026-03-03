@@ -14,6 +14,16 @@ This project prefers a highly componentized React codebase that avoids duplicate
 - **Redux**: Compose selectors and helpers rather than copy/pasting logic. UI components should avoid data manipulation—use Redux selectors to transform and format data instead of doing it in components.
 - **Error Handling**: Keep error handling reasonable but not excessive. This is a small app - simple null checks and basic 404s are fine. Don't over-engineer with detailed error types for every edge case.
 - **Unit Tests**: Write unit tests for important service functions, especially those involving business logic or data transformations.
-- **Testing**: After changes, run `yarn test:codex` from the repository root to ensure all tests pass.
+- **Testing**: After changes, run `yarn test:codex` from the repository root to ensure all tests pass. Requires `dangerouslyDisableSandbox` (MongoMemoryServer binds to `0.0.0.0`).
+
+## Screenshot Tests (Remote)
+
+Screenshot tests run via GitHub Actions since they need Playwright with a browser.
+
+1. Run `./scripts/test-screenshots-remote.sh` (`dangerouslyDisableSandbox` required) — pushes a temp branch, triggers the `test.yml` workflow
+2. Parse the branch name from stdout (format: `screenshot-test-<timestamp>`)
+3. Poll for the run ID: `gh run list --workflow=test.yml --branch=$BRANCH --limit=1 --json databaseId,status`
+4. Watch it: `gh run watch $RUN_ID`
+5. Clean up: `git push origin --delete $BRANCH`
 
 Follow these guidelines to keep the codebase clean and maintainable.
