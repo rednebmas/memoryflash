@@ -1,11 +1,11 @@
 {
-  "permissions": {
-    "allow": [
-      "Bash(find:*)",
-      "Bash(cat:*)",
-      "Bash(yarn workspace:*)",
-      "Bash(git commit:*)",
-      "Bash(git add:*)"
-    ]
-  }
+	"permissions": {
+		"allow": [
+			"Bash(find:*)",
+			"Bash(cat:*)",
+			"Bash(yarn workspace:*)",
+			"Bash(git commit:*)",
+			"Bash(git add:*)"
+		]
+	}
 }
