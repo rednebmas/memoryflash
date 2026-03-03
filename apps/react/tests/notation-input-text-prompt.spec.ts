@@ -13,7 +13,7 @@ test('NotationInputScreen text prompt card type', async ({ page }) => {
 	await page.waitForTimeout(200);
 	await page.evaluate(() => {
 		window.scrollTo(0, 0);
-		document.querySelector('.overflow-scroll')?.scrollTo(0, 300);
+		document.querySelector('.overflow-y-auto')?.scrollTo(0, 300);
 	});
 
 	await expect(output).toHaveScreenshot('notation-input-text-prompt.png', screenshotOpts);

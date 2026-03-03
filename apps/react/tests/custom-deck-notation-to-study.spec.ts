@@ -94,7 +94,7 @@ test('Create custom deck, add notation and text cards, then study', async ({
 	await expect(page.locator('#text-prompt')).toHaveValue(promptText);
 	await page.evaluate(() => {
 		window.scrollTo(0, 0);
-		document.querySelector('.overflow-scroll')?.scrollTo(0, 600);
+		document.querySelector('.overflow-y-auto')?.scrollTo(0, 600);
 	});
 	await expect(output).toHaveScreenshot(
 		'custom-deck-notation-to-study-notation-input-edit.png',

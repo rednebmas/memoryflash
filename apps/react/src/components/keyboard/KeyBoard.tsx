@@ -7,8 +7,8 @@ import { WhiteKey } from './WhiteKey';
 
 export const Keyboard = () => {
 	return (
-		<div className="p-4 flex justify-center">
-			<div className="relative flex justify-center">
+		<div className="p-4 flex justify-center w-full overflow-x-auto">
+			<div className="relative flex justify-center min-w-max">
 				{/* <div className='relative flex justify-center rounded-xl overflow-hidden '> */}
 				{[1, 2, 3, 4, 5].map((octave) => (
 					<KeyBoardKeys key={octave} rootMidi={36 + (octave - 1) * 12} />

@@ -18,7 +18,7 @@ test('NotationInputScreen E major G# rendering', async ({ page }) => {
 	// Wait a bit for rendering
 	await page.evaluate(() => {
 		window.scrollTo(0, 0);
-		document.querySelector('.overflow-scroll')?.scrollTo(0, 300);
+		document.querySelector('.overflow-y-auto')?.scrollTo(0, 300);
 	});
 
 	await expect(output).toHaveScreenshot('notation-input-e-major-g-sharp.png', screenshotOpts);

@@ -19,7 +19,10 @@ export const Layout: React.FC<LayoutProps> = ({
 	back,
 }) => {
 	return (
-		<div className="h-screen w-full flex flex-col overflow-scroll bg-app" onScroll={onScroll}>
+		<div
+			className="h-screen w-full flex flex-col overflow-y-auto overflow-x-hidden bg-app"
+			onScroll={onScroll}
+		>
 			<Navbar right={right} back={back} />
 			<div
 				className={clsx(

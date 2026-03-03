@@ -6,7 +6,8 @@
 	"scripts": {
 		"dev": "concurrently \"yarn workspace MemoryFlashServer dev\" \"yarn workspace MemoryFlashReact dev\"",
 		"test": "yarn workspace MemoryFlashServer test && yarn workspace MemoryFlashCore test && yarn workspace MemoryFlashReact test:screenshots",
-		"test:codex": "yarn workspace MemoryFlashServer build && yarn workspace MemoryFlashReact build && yarn workspace MemoryFlashServer test && yarn workspace MemoryFlashCore test"
+		"test:codex": "yarn workspace MemoryFlashServer build && yarn workspace MemoryFlashReact build && yarn workspace MemoryFlashServer test && yarn workspace MemoryFlashCore test",
+		"test:screenshots:remote": "./scripts/test-screenshots-remote.sh"
 	},
 	"workspaces": [
 		"apps/*",

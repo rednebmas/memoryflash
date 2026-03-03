@@ -16,7 +16,7 @@ export async function setStaticScroll(
 	await page.evaluate(
 		({ windowTop: winTop, overflowTop: overTop }) => {
 			window.scrollTo(0, winTop);
-			document.querySelector('.overflow-scroll')?.scrollTo(0, overTop);
+			document.querySelector('.overflow-y-auto')?.scrollTo(0, overTop);
 		},
 		{ windowTop, overflowTop },
 	);
