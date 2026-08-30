@@ -3,6 +3,7 @@ import { CardTypeDropdown } from '../CardTypeDropdown';
 import { TextAreaField, Checkbox } from '../inputs';
 import { SettingsSection } from './SettingsSection';
 import { ChordProgressionInput } from './ChordProgressionInput';
+import { AiGenerateInput } from './AiGenerateInput';
 import { NotationSettingsState } from './defaultSettings';
 
 interface CardTypeOptionsProps {
@@ -43,6 +44,9 @@ export const CardTypeOptions: React.FC<CardTypeOptionsProps> = ({ settings, onCh
 					onChange={(chordMemory) => onChange({ chordMemory })}
 					onTextPromptChange={(textPrompt) => onChange({ textPrompt })}
 				/>
+			)}
+			{settings.cardType === 'Generate with AI' && (
+				<AiGenerateInput ai={settings.ai} onChange={(ai) => onChange({ ai })} />
 			)}
 		</div>
 	</SettingsSection>

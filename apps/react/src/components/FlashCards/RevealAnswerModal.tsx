@@ -3,6 +3,7 @@ import { Modal } from '../modals/Modal';
 import { MusicNotation } from '../MusicNotation';
 import { Button } from '../ui/Button';
 import { AnswerType, Card, CardTypeEnum, ChordMemoryAnswer } from 'MemoryFlashCore/src/types/Cards';
+import { displayChordSymbol, prettyChordSymbol } from 'MemoryFlashCore/src/lib/romanNumerals';
 
 export const canRevealAnswer = (card: Card): boolean => {
 	if (card.type !== CardTypeEnum.MultiSheet) return false;
@@ -20,7 +21,10 @@ const ChordMemoryReveal: React.FC<{ answer: ChordMemoryAnswer }> = ({ answer }) 
 	<div className="flex flex-wrap gap-4 justify-center">
 		{answer.chords.map((chord, i) => (
 			<div key={i} className="flex flex-col items-center gap-1">
-				<span className="font-semibold">{chord.chordName}</span>
+				<span className="font-semibold">{displayChordSymbol(chord, answer)}</span>
+				{answer.notation === 'romanNumerals' && (
+					<span className="caption">{prettyChordSymbol(chord.chordName)}</span>
+				)}
 				<div className="flex gap-1">
 					{chord.requiredTones.map((tone) => (
 						<span

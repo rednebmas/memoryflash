@@ -5,7 +5,7 @@ import { MultiSheetQuestion } from '../../types/MultiSheetCard';
 import { Answer } from '../../types/Cards';
 
 export const addCardsToDeck =
-	(deckId: string, questions: MultiSheetQuestion[], answer?: Answer): AppThunk =>
+	(deckId: string, questions: MultiSheetQuestion[], answer?: Answer | Answer[]): AppThunk =>
 	async (dispatch, _, { api }) => {
 		await networkCallWithReduxState(dispatch, 'addCardsToDeck', async () => {
 			const res = await api.post(`/decks/${deckId}/cards`, {

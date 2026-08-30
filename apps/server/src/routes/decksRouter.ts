@@ -10,7 +10,9 @@ import {
 	updateDeckVisibility,
 	getDeckPreview,
 	importDeck,
+	getOwnedDeck,
 } from '../services/deckService';
+import { generateSongCards, getExistingChordCards } from '../services/aiCardService';
 import { User } from 'MemoryFlashCore/src/types/User';
 import { getDeckStats } from '../services/statsService';
 
@@ -78,6 +80,18 @@ router.post('/:id/cards', isAuthenticated, async (req, res, next) => {
 			answer,
 		);
 		return res.json({ cards });
+	} catch (error) {
+		next(error);
+	}
+});
+
+router.post('/:id/generate-cards', isAuthenticated, async (req, res, next) => {
+	try {
+		const deck = await getOwnedDeck(req.params.id, (req.user as User)._id.toString());
+		if (!deck) return res.status(404).json({ error: 'Not found or not authorized' });
+		const existing = await getExistingChordCards(req.params.id);
+		const song = await generateSongCards(req.body, existing);
+		return res.json({ song });
 	} catch (error) {
 		next(error);
 	}

@@ -1,10 +1,13 @@
 import { majorKeys } from 'MemoryFlashCore/src/lib/notes';
 import { CardType } from '../CardTypeDropdown';
-import { ChordMemoryChord } from 'MemoryFlashCore/src/types/Cards';
+import { ChordMemoryChord, ChordNotation } from 'MemoryFlashCore/src/types/Cards';
+import { GenerateCardsInput } from 'MemoryFlashCore/src/types/GeneratedCards';
 
 export interface ChordMemorySettings {
 	progression: string;
 	chordTones: ChordMemoryChord[];
+	key: string;
+	notation: ChordNotation;
 }
 
 export interface NotationSettingsState {
@@ -17,6 +20,7 @@ export interface NotationSettingsState {
 	textPrompt: string;
 	preview: boolean;
 	chordMemory: ChordMemorySettings;
+	ai: GenerateCardsInput;
 }
 
 export const defaultSettings: NotationSettingsState = {
@@ -31,5 +35,8 @@ export const defaultSettings: NotationSettingsState = {
 	chordMemory: {
 		progression: '',
 		chordTones: [],
+		key: '',
+		notation: 'chordNames',
 	},
+	ai: { text: '', instructions: '', splitLongSections: true, romanVariants: false },
 };

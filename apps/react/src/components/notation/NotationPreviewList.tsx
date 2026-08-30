@@ -4,6 +4,7 @@ import { TextCardPrompt } from '../FlashCards/TextCardPrompt';
 import { ScoreEditor } from './ScoreEditor';
 import { MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { CardType } from '../CardTypeDropdown';
+import { GeneratedCardsReview } from './GeneratedCardsReview';
 
 interface PreviewCardProps {
 	notation: React.ReactNode;
@@ -41,6 +42,8 @@ export const NotationPreviewList: React.FC<NotationPreviewListProps> = ({
 	const others = previews.filter((p) => p.key !== keySig);
 	const showText = !!previewTextCard && cardType === 'Text Prompt';
 	const prompt = textPrompt ?? '';
+
+	if (cardType === 'Generate with AI') return <GeneratedCardsReview />;
 
 	if (cardType === 'Chord Memory') {
 		return (

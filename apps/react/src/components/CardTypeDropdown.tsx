@@ -1,7 +1,7 @@
 import React from 'react';
 import Dropdown from './Dropdown';
 
-export type CardType = 'Sheet Music' | 'Text Prompt' | 'Chord Memory';
+export type CardType = 'Sheet Music' | 'Text Prompt' | 'Chord Memory' | 'Generate with AI';
 
 export interface CardTypeDropdownProps {
 	value: CardType;
@@ -13,6 +13,7 @@ export const CardTypeDropdown: React.FC<CardTypeDropdownProps> = ({ value, onCha
 		{ label: 'Sheet Music', onClick: () => onChange('Sheet Music') },
 		{ label: 'Text Prompt', onClick: () => onChange('Text Prompt') },
 		{ label: 'Chord Memory', onClick: () => onChange('Chord Memory') },
+		{ label: 'Generate with AI', onClick: () => onChange('Generate with AI') },
 	];
 	return <Dropdown label={value} items={items} />;
 };

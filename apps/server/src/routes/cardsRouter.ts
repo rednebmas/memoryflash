@@ -11,6 +11,7 @@ router.patch('/:id', isAuthenticated, async (req, res, next) => {
 			req.params.id,
 			req.body.question,
 			(req.user as User)._id.toString(),
+			req.body.answer,
 		);
 		return res.json({ card });
 	} catch (error) {

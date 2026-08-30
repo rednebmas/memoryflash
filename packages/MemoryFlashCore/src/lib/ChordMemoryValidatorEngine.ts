@@ -3,7 +3,9 @@ import { midiActions } from '../redux/slices/midiSlice';
 import { schedulerActions } from '../redux/slices/schedulerSlice';
 import { recordAttempt } from '../redux/actions/record-attempt-action';
 import { AppDispatch } from '../redux/store';
-import { ChordMemoryChord } from '../types/Cards';
+import { ChordMemoryChord, ChordNotation } from '../types/Cards';
+import { chordNameToChromas, tonesToChromas } from './chordTones';
+import { chordSymbolToChordName } from './romanNumerals';
 
 interface HandleArgs {
 	onNotes: number[];
@@ -17,6 +19,8 @@ export interface ChordMemoryResult {
 	isIncomplete: boolean;
 	wrongNotes: number[];
 }
+
+const midiToChroma = (midi: number): number | null => Note.chroma(Midi.midiToNoteName(midi));
 
 export class ChordMemoryValidatorEngine {
 	private prev: number[] = [];
@@ -35,57 +39,65 @@ export class ChordMemoryValidatorEngine {
 		const result = this.validate(onNotes, chord);
 
 		if (result.isCorrect) {
-			this.onCorrect(index, dispatch);
+			dispatch(midiActions.requestClearClickedNotes());
+			dispatch(midiActions.waitUntilEmpty());
+			this.advance(index, dispatch);
 		} else if (result.wrongNotes.length > 0) {
-			this.onWrong(result.wrongNotes[0], dispatch);
+			dispatch(midiActions.addWrongNote(result.wrongNotes[0]));
+			dispatch(midiActions.waitUntilEmpty());
+			this.fail(dispatch);
 		}
 	}
 
+	handleSymbol(
+		symbol: string,
+		notation: ChordNotation,
+		index: number,
+		dispatch: AppDispatch,
+		key?: string,
+	): boolean {
+		const chord = this.chords[index];
+		if (!chord) return false;
+		const chordName = chordSymbolToChordName(symbol, notation, key);
+		const correct =
+			chordName !== null &&
+			this.validateChromas(chordNameToChromas(chordName), chord).isCorrect;
+		if (correct) this.advance(index, dispatch);
+		else this.fail(dispatch);
+		return correct;
+	}
+
 	validate(onNotes: number[], chord: ChordMemoryChord): ChordMemoryResult {
-		const playedChromas = onNotes.map((n) => Note.chroma(Midi.midiToNoteName(n)));
-		const requiredChromas = chord.requiredTones.map((t) => Note.chroma(t));
-		const optionalChromas = chord.optionalTones.map((t) => Note.chroma(t));
-		const allowedChromas = new Set([...requiredChromas, ...optionalChromas]);
+		const chromas = onNotes.map(midiToChroma);
+		const result = this.validateChromas(chromas, chord);
+		const wrongNotes = onNotes.filter((_, i) => result.wrongNotes.includes(i));
+		return { ...result, wrongNotes };
+	}
 
+	validateChromas(chromas: Array<number | null>, chord: ChordMemoryChord): ChordMemoryResult {
+		const requiredChromas = tonesToChromas(chord.requiredTones);
+		const allowed = new Set([...requiredChromas, ...tonesToChromas(chord.optionalTones)]);
 		const wrongNotes: number[] = [];
-		for (let i = 0; i < onNotes.length; i++) {
-			const chroma = playedChromas[i];
-			if (typeof chroma === 'number' && !allowedChromas.has(chroma)) {
-				wrongNotes.push(onNotes[i]);
-			}
-		}
+		chromas.forEach((chroma, i) => {
+			if (typeof chroma === 'number' && !allowed.has(chroma)) wrongNotes.push(i);
+		});
+		if (wrongNotes.length > 0) return { isCorrect: false, isIncomplete: false, wrongNotes };
 
-		if (wrongNotes.length > 0) {
-			return { isCorrect: false, isIncomplete: false, wrongNotes };
-		}
-
-		const playedChromaSet = new Set(playedChromas.filter((c) => c !== null));
-		const hasAllRequired = requiredChromas.every(
-			(c) => typeof c === 'number' && playedChromaSet.has(c),
-		);
-
-		if (hasAllRequired) {
-			return { isCorrect: true, isIncomplete: false, wrongNotes: [] };
-		}
-
-		return { isCorrect: false, isIncomplete: true, wrongNotes: [] };
+		const played = new Set(chromas);
+		const hasAllRequired = requiredChromas.every((c) => played.has(c));
+		return { isCorrect: hasAllRequired, isIncomplete: !hasAllRequired, wrongNotes: [] };
 	}
 
 	private computeAdded(onNotes: number[]): number[] {
 		return onNotes.filter((n) => !this.prev.includes(n));
 	}
 
-	private onWrong(wrongNote: number, dispatch: AppDispatch): void {
+	private fail(dispatch: AppDispatch): void {
 		dispatch(recordAttempt(false));
-		dispatch(midiActions.addWrongNote(wrongNote));
-		dispatch(midiActions.waitUntilEmpty());
 	}
 
-	private onCorrect(index: number, dispatch: AppDispatch): void {
-		dispatch(midiActions.requestClearClickedNotes());
-		dispatch(midiActions.waitUntilEmpty());
-		const nextIndex = index + 1;
-		if (nextIndex >= this.chords.length) {
+	private advance(index: number, dispatch: AppDispatch): void {
+		if (index + 1 >= this.chords.length) {
 			dispatch(recordAttempt(true));
 		} else {
 			dispatch(schedulerActions.incrementMultiPartCardIndex());

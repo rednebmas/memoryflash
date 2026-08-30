@@ -7,6 +7,8 @@ import { majorKeys } from 'MemoryFlashCore/src/lib/notes';
 import { addCardsToDeck } from 'MemoryFlashCore/src/redux/actions/add-cards-to-deck';
 import { updateCard } from 'MemoryFlashCore/src/redux/actions/update-card-action';
 import { setPresentationMode } from 'MemoryFlashCore/src/redux/actions/set-presentation-mode';
+import { generatedCardsActions } from 'MemoryFlashCore/src/redux/slices/generatedCardsSlice';
+import { generatedCardsPayloadSelector } from 'MemoryFlashCore/src/redux/selectors/generatedCardsSelector';
 import { AnswerType, CardTypeEnum, ChordMemoryAnswer } from 'MemoryFlashCore/src/types/Cards';
 import { useDeckIdPath } from './useDeckIdPath';
 import { useNetworkState } from 'MemoryFlashCore/src/redux/selectors/useNetworkState';
@@ -18,6 +20,7 @@ import {
 	NotationPreviewList,
 } from '../components/notation';
 import { ScoreEditorProvider } from '../components/notation/ScoreEditor';
+import { buildCardsToAdd, textPromptFor } from '../components/notation/buildCardsToAdd';
 import { MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
 
@@ -33,9 +36,11 @@ export const NotationInputScreen = () => {
 	const { deckId } = useDeckIdPath();
 	const { cardId } = useParams();
 	const card = useAppSelector((state) => (cardId ? state.cards.entities[cardId] : undefined));
+	const generated = useAppSelector(generatedCardsPayloadSelector);
 	const initialQuestion = card?.type === CardTypeEnum.MultiSheet ? card.question : undefined;
 	const { isLoading: isUpdating, error: updateError } = useNetworkState('updateCard');
 	const { isLoading: isAdding, error: addError } = useNetworkState('addCardsToDeck');
+	const isAi = settings.cardType === 'Generate with AI';
 	useEffect(() => {
 		if (card && card.type === CardTypeEnum.MultiSheet) {
 			const text = card.question.presentationModes?.find((p) => p.id === 'Text Prompt');
@@ -48,12 +53,13 @@ export const NotationInputScreen = () => {
 				selected: majorKeys.map((_, i) => i === idx),
 				cardType: isChordMemory ? 'Chord Memory' : text ? 'Text Prompt' : 'Sheet Music',
 				textPrompt: text?.text || '',
-				// If editing a Text Prompt card, default to previewing the text prompt
 				preview: !!text,
 				chordMemory: chordMemoryAnswer
 					? {
 							progression: chordMemoryAnswer.chords.map((c) => c.chordName).join(' '),
 							chordTones: chordMemoryAnswer.chords,
+							key: chordMemoryAnswer.key ?? '',
+							notation: chordMemoryAnswer.notation ?? 'chordNames',
 						}
 					: prev.chordMemory,
 			}));
@@ -76,50 +82,37 @@ export const NotationInputScreen = () => {
 	};
 
 	const handleAdd = () => {
-		if (!deckId || !complete) return;
-
-		let toAdd = previews;
-		if (settings.cardType === 'Text Prompt') {
-			toAdd = previews.map((q) => ({
-				...q,
-				presentationModes: [{ id: 'Text Prompt', text: settings.textPrompt }],
-			}));
+		if (!deckId) return;
+		if (isAi) {
 			dispatch(setPresentationMode(CardTypeEnum.MultiSheet, 'Text Prompt'));
-			dispatch(addCardsToDeck(deckId, toAdd));
-		} else if (settings.cardType === 'Chord Memory') {
-			const text = settings.textPrompt || settings.chordMemory.progression;
-			toAdd = previews.map((q) => ({
-				...q,
-				presentationModes: [{ id: 'Text Prompt', text }],
-			}));
-			dispatch(setPresentationMode(CardTypeEnum.MultiSheet, 'Text Prompt'));
-			dispatch(
-				addCardsToDeck(deckId, toAdd, {
-					type: AnswerType.ChordMemory,
-					chords: settings.chordMemory.chordTones,
-				}),
+			dispatch(addCardsToDeck(deckId, generated.questions, generated.answers)).then(() =>
+				dispatch(generatedCardsActions.clear()),
 			);
-		} else {
-			toAdd = previews.map((q) => ({
-				...q,
-				presentationModes: [{ id: 'Sheet Music' }],
-			}));
-			dispatch(setPresentationMode(CardTypeEnum.MultiSheet, 'Sheet Music'));
-			dispatch(addCardsToDeck(deckId, toAdd));
+			return;
 		}
+		if (!complete) return;
+		const { questions, answer, presentationMode } = buildCardsToAdd(settings, previews);
+		dispatch(setPresentationMode(CardTypeEnum.MultiSheet, presentationMode));
+		dispatch(addCardsToDeck(deckId, questions, answer));
 	};
 
 	const handleUpdate = () => {
 		if (cardId && previews[0]) {
-			dispatch(updateCard(cardId, previews[0], settings.cardType, settings.textPrompt));
+			const { answer } = buildCardsToAdd(settings, previews);
+			dispatch(
+				updateCard(cardId, previews[0], settings.cardType, textPromptFor(settings), answer),
+			);
 		}
 	};
 
 	const handleReset = () => {
 		setResetCount((c) => c + 1);
+		if (isAi) dispatch(generatedCardsActions.clear());
 	};
 
 	const error = updateError || addError;
+	const canAdd = isAi ? generated.questions.length > 0 : complete;
+	const addLabel = isAi ? `Create ${generated.questions.length} cards` : 'Add Card';
 
 	return (
 		<Layout subtitle="Notation Input">
@@ -148,11 +141,11 @@ export const NotationInputScreen = () => {
 								</Button>
 								<Button
 									onClick={cardId ? handleUpdate : handleAdd}
-									disabled={!cardId && !complete}
+									disabled={!cardId && !canAdd}
 									loading={cardId ? isUpdating : isAdding}
 									className="w-full"
 								>
-									{cardId ? 'Update Card' : 'Add Card'}
+									{cardId ? 'Update Card' : addLabel}
 								</Button>
 							</div>
 						</div>

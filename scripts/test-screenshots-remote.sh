@@ -7,12 +7,14 @@ TEMP_BRANCH="screenshot-test-$(date +%s)"
 
 echo "Creating temporary branch: $TEMP_BRANCH"
 
-# Stash any changes (including untracked)
-STASH_RESULT=$(git stash push -u -m "temp-screenshot-test" 2>&1) || true
+# Stash helpers: only ever pop a stash this script created (stashes are
+# shared across worktrees, so a bare `git stash pop` can grab someone else's)
+stash_changes() {
+    git stash push -u -m "$1" >/dev/null 2>&1 || true
+    [[ "$(git stash list --format=%s -n 1)" == *"$1"* ]]
+}
 HAS_STASH=false
-if [[ "$STASH_RESULT" != *"No local changes"* ]]; then
-    HAS_STASH=true
-fi
+stash_changes "temp-screenshot-test" && HAS_STASH=true
 
 # Create and switch to temp branch
 git checkout -b "$TEMP_BRANCH"
@@ -33,17 +35,11 @@ git push origin "$TEMP_BRANCH"
 echo "Triggering workflow on $TEMP_BRANCH..."
 gh workflow run test.yml --ref "$TEMP_BRANCH"
 
-# Stash changes again before switching back (so we can restore them)
-if [ "$HAS_STASH" = true ]; then
-    git stash push -u -m "restore-to-original"
-fi
-
-# Switch back to original branch
+# Restore the original branch with the uncommitted changes it started with
 git checkout "$ORIGINAL_BRANCH"
-
-# Restore uncommitted changes to original branch
 if [ "$HAS_STASH" = true ]; then
-    git stash pop
+    git restore --source="$TEMP_BRANCH" --staged --worktree .
+    git reset -q
 fi
 
 # Delete local temp branch

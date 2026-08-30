@@ -1,5 +1,6 @@
 import { BaseAnswer, CardTypeBase, CardTypeEnum, StaffEnum } from './Cards';
 import type { Duration } from '../lib/measure';
+import { PresentationMode } from './PresentationMode';
 
 export type NoteTie = {
 	toNext?: number[];
@@ -27,6 +28,7 @@ export type MultiSheetQuestion = {
 	_8va?: boolean;
 	key: string;
 	voices: Voice[];
+	presentationModes?: PresentationMode[];
 };
 export type MultiSheetCard = CardTypeBase<CardTypeEnum.MultiSheet, MultiSheetQuestion>;
 

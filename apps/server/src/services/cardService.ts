@@ -3,8 +3,14 @@ import Attempt from '../models/Attempt';
 import { Card } from '../models/Card';
 import { Deck } from '../models/Deck';
 import { MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
+import { Answer } from 'MemoryFlashCore/src/types/Cards';
 
-export async function updateCard(cardId: string, question: MultiSheetQuestion, userId: string) {
+export async function updateCard(
+	cardId: string,
+	question: MultiSheetQuestion,
+	userId: string,
+	answer?: Answer,
+) {
 	const card = await Card.findById(cardId);
 	if (!card) return null;
 	const deck = await Deck.findById(card.deckId);
@@ -13,6 +19,7 @@ export async function updateCard(cardId: string, question: MultiSheetQuestion, u
 	if (!course || course.userId?.toString() !== userId) return null;
 
 	card.question = question;
+	if (answer) card.answer = answer;
 	await card.save();
 	return card;
 }

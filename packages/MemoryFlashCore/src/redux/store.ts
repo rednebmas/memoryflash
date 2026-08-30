@@ -13,6 +13,7 @@ import { communityReducer } from './slices/communitySlice';
 import { coursesReducer } from './slices/coursesSlice';
 import { decksReducer } from './slices/decksSlice';
 import { feedReducer } from './slices/feedSlice';
+import { generatedCardsReducer } from './slices/generatedCardsSlice';
 import { midiReducer } from './slices/midiSlice';
 import { networkReducer } from './slices/networkSlice';
 import { schedulerReducer } from './slices/schedulerSlice';
@@ -28,6 +29,7 @@ const appReducer = combineReducers({
 	courses: coursesReducer,
 	decks: decksReducer,
 	feed: feedReducer,
+	generatedCards: generatedCardsReducer,
 	midi: midiReducer,
 	network: networkReducer,
 	scheduler: schedulerReducer,

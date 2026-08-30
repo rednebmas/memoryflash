@@ -5,7 +5,7 @@ import { Deck } from '../models/Deck';
 import { UserDeckStats } from '../models/UserDeckStats';
 import { User } from 'MemoryFlashCore/src/types/User';
 import { MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
-import { CardTypeEnum, AnswerType, ChordMemoryChord } from 'MemoryFlashCore/src/types/Cards';
+import { CardTypeEnum, AnswerType, Answer } from 'MemoryFlashCore/src/types/Cards';
 import { Types } from 'mongoose';
 import { Visibility, VISIBILITIES, VISIBILITY_LEVEL } from 'MemoryFlashCore/src/types/Deck';
 
@@ -97,21 +97,24 @@ export async function createDeck(courseId: string, name: string) {
 	return deck;
 }
 
-export async function renameDeck(deckId: string, name: string, userId: string) {
+export async function getOwnedDeck(deckId: string, userId: string) {
 	const deck = await Deck.findById(deckId);
 	if (!deck) return null;
 	const course = await Course.findById(deck.courseId);
-	if (course?.userId?.toString() !== userId) return null;
+	return course?.userId?.toString() === userId ? deck : null;
+}
+
+export async function renameDeck(deckId: string, name: string, userId: string) {
+	const deck = await getOwnedDeck(deckId, userId);
+	if (!deck) return null;
 	deck.name = name;
 	await deck.save();
 	return deck;
 }
 
 export async function deleteDeckById(deckId: string, userId: string) {
-	const deck = await Deck.findById(deckId);
+	const deck = await getOwnedDeck(deckId, userId);
 	if (!deck) return;
-	const course = await Course.findById(deck.courseId);
-	if (course?.userId?.toString() !== userId) return;
 	await Deck.deleteOne({ _id: deckId });
 
 	await Course.updateOne({ _id: deck.courseId }, { $pull: { decks: deck._id } });
@@ -130,15 +133,17 @@ export async function addCardsToDeck(
 	deckId: string,
 	questions: MultiSheetQuestion[],
 	userId?: string,
-	answer?: { type: AnswerType; chords?: ChordMemoryChord[] },
+	answer?: Answer | Answer[],
 ) {
 	const now = Date.now();
+	const answerFor = (i: number): Answer =>
+		(Array.isArray(answer) ? answer[i] : answer) ?? { type: AnswerType.ExactMulti };
 	const cards = questions.map((q, i) => ({
 		uid: `custom-${deckId}-${now}-${i}`,
 		deckId: new Types.ObjectId(deckId),
 		type: CardTypeEnum.MultiSheet,
 		question: q,
-		answer: answer ?? { type: AnswerType.ExactMulti },
+		answer: answerFor(i),
 		...(userId ? { userId: new Types.ObjectId(userId) } : {}),
 	}));
 	const insertedCards = await Card.insertMany(cards);

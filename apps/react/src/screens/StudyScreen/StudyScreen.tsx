@@ -6,6 +6,9 @@ import { Layout } from '../../components/layout/Layout';
 import { StudyScreenEmptyState } from './StudyScreenEmptyState';
 import { AnswerValidator } from '../../components/answer-validators/AnswerValidator';
 import { Keyboard } from '../../components/keyboard/KeyBoard';
+import { ChordNamePad } from '../../components/chord-pad/ChordNamePad';
+import { ChordInputModeToggle } from '../../components/chord-pad/ChordInputModeToggle';
+import { showChordPadSelector } from 'MemoryFlashCore/src/redux/selectors/chordInputModeSelector';
 import { ChordMemoryDebugDialog } from '../../components/ChordMemoryDebugDialog';
 import { CardCarousel } from '../../components/CardCarousel';
 import { getDeck } from 'MemoryFlashCore/src/redux/actions/get-deck-action';
@@ -37,6 +40,7 @@ export const StudyScreen = () => {
 		deck?.courseId ? state.courses.entities[deck.courseId] : undefined,
 	);
 	const user = useAppSelector((state) => state.auth.user);
+	const showChordPad = useAppSelector(showChordPadSelector);
 
 	const timeSinceCardStart = () => (currStartTime > 0 ? (Date.now() - currStartTime) / 1000 : 0);
 
@@ -92,9 +96,12 @@ export const StudyScreen = () => {
 				activePresentationMode={activePresentationMode}
 			/>
 			<div>
-				<QuestionPresentationModePills card={cards[index]} />
+				<div className="flex justify-center items-center gap-3 flex-wrap">
+					<QuestionPresentationModePills card={cards[index]} />
+					<ChordInputModeToggle />
+				</div>
 				{cards[index] && <ChordMemoryDebugDialog card={cards[index]} />}
-				<Keyboard />
+				{showChordPad ? <ChordNamePad /> : <Keyboard />}
 				{!IS_TEST_ENV && (
 					<div className="text-center text-xs">
 						tooLongTime: {tooLongTime.toFixed(0)}s, bpm: {bpm}, median:{' '}

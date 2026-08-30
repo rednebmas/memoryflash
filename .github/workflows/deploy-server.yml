@@ -20,7 +20,7 @@ jobs:
             - name: install node
               uses: actions/setup-node@v3
               with:
-                  node-version: 20
+                  node-version: 24
                   cache: 'yarn'
             - name: commits
               run: git log -15 --graph --pretty=format:'%h -%d %s (%cr) <%an>' --abbrev-commit
@@ -32,7 +32,7 @@ jobs:
               run: |
                   SKIP_PLAYWRIGHT=true yarn install
                   touch app.yaml
-                  echo 'runtime: nodejs20' >> app.yaml
+                  echo 'runtime: nodejs24' >> app.yaml
                   echo 'env: standard' >> app.yaml
                   echo 'service: default' >> app.yaml
                   echo 'instance_class: F2' >> app.yaml
@@ -43,6 +43,8 @@ jobs:
                   echo '  SESSION_SECRET_KEY: ${{ secrets.PROD_SESSION_SECRET_KEY }}'  >> app.yaml
                   echo '  MONGO_URI: mongodb+srv://${{ secrets.MONGO_AUTH }}@memoryflash.r6ngiew.mongodb.net/?retryWrites=true&w=majority&appName=memoryflash'  >> app.yaml
                   echo '  FRONT_END_URL: https://mflash.riker.tech'  >> app.yaml
+                  echo '  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}'  >> app.yaml
+                  echo '  OPENAI_MODEL: gpt-5.6-sol'  >> app.yaml
                   echo 'automatic_scaling:' >> app.yaml
                   echo '  max_instances: 1' >> app.yaml
                   echo '' >> app.yaml

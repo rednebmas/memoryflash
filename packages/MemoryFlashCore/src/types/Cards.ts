@@ -33,9 +33,12 @@ export type ChordMemoryChord = {
 	requiredTones: string[]; // pitch classes like 'C', 'E', 'G'
 	optionalTones: string[]; // pitch classes that can be omitted
 };
+export type ChordNotation = 'chordNames' | 'romanNumerals';
 export type ChordMemoryAnswer = BaseAnswer & {
 	type: AnswerType.ChordMemory;
 	chords: ChordMemoryChord[];
+	key?: string; // 'C' (major) or 'Am' (minor); required for roman numerals
+	notation?: ChordNotation;
 };
 export type Answer = AnyOctaveAnswer | ExactAnswer | MultiExactAnswer | ChordMemoryAnswer;
 

@@ -28,36 +28,39 @@ export const NotationSettings: React.FC<NotationSettingsProps> = ({ settings, on
 	);
 
 	const isChordMemory = settings.cardType === 'Chord Memory';
+	const isAi = settings.cardType === 'Generate with AI';
 
 	return (
 		<div className="space-y-4">
 			<CardTypeOptions settings={settings} onChange={update} />
-			{!isChordMemory && (
+			{!isChordMemory && !isAi && (
 				<SheetMusicSettings
 					keySig={settings.keySig}
 					bars={settings.bars}
 					onChange={update}
 				/>
 			)}
-			<SettingsSection
-				title="Transpositions"
-				collapsible={true}
-				collapsedByDefault={true}
-				hintText={!hasTranspositions ? 'No transpositions' : undefined}
-			>
-				<div className="space-y-4">
-					<RangeSettings
-						lowest={settings.lowest}
-						highest={settings.highest}
-						onChange={update}
-					/>
-					<TranspositionSelector
-						selected={settings.selected}
-						onChange={(selected) => update({ selected })}
-						currentKeySig={settings.keySig}
-					/>
-				</div>
-			</SettingsSection>
+			{!isAi && (
+				<SettingsSection
+					title="Transpositions"
+					collapsible={true}
+					collapsedByDefault={true}
+					hintText={!hasTranspositions ? 'No transpositions' : undefined}
+				>
+					<div className="space-y-4">
+						<RangeSettings
+							lowest={settings.lowest}
+							highest={settings.highest}
+							onChange={update}
+						/>
+						<TranspositionSelector
+							selected={settings.selected}
+							onChange={(selected) => update({ selected })}
+							currentKeySig={settings.keySig}
+						/>
+					</div>
+				</SettingsSection>
+			)}
 		</div>
 	);
 };
