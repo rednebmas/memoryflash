@@ -11,6 +11,7 @@ const baseState: SchedulerState = {
 	answeredCards: [],
 	multiPartCardIndex: 0,
 	sessionReviews: {},
+	sessionTicks: 0,
 };
 
 describe('schedulerSlice', () => {
@@ -25,6 +26,23 @@ describe('schedulerSlice', () => {
 		expect(next.currCard).to.equal('b');
 		expect(next.nextCards).to.deep.equal(['b']);
 		expect(next.answeredCards).to.deep.equal(['c']);
+	});
+
+	it('inserts a card at its gap, clamped to the queue length', () => {
+		const state: SchedulerState = { ...baseState, currCard: 'a', nextCards: ['a', 'b', 'c'] };
+		const near = schedulerReducer(state, schedulerActions.insertCard({ cardId: 'x', gap: 2 }));
+		const far = schedulerReducer(state, schedulerActions.insertCard({ cardId: 'x', gap: 10 }));
+		expect(near.nextCards).to.deep.equal(['a', 'b', 'x', 'c']);
+		expect(far.nextCards).to.deep.equal(['a', 'b', 'c', 'x']);
+	});
+
+	it('only requeues a missed card when the scheduler asks for it', () => {
+		const state: SchedulerState = { ...baseState, currCard: 'a', nextCards: ['a', 'b'] };
+		const miss = (requeue: boolean) =>
+			schedulerReducer(state, schedulerActions.markCurrIncorrect({ cardId: 'a', requeue }));
+		expect(miss(true).nextCards).to.deep.equal(['a', 'a', 'a', 'b']);
+		expect(miss(false).nextCards).to.deep.equal(['a', 'b']);
+		expect(miss(false).incorrect).to.equal(true);
 	});
 
 	it('scheduledCardsSelector ignores missing ids', () => {

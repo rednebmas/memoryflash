@@ -14,6 +14,7 @@ export type UserDeckStatsType = {
 	medianHistory: MedianHistory;
 	hiddenCardIds: string[];
 	reviews?: CardReviews;
+	recallClock?: number;
 	scheduler?: SchedulerChoice;
 	createdAt: Date;
 	updatedAt: Date;

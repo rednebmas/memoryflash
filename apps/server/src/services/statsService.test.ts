@@ -139,8 +139,9 @@ describe('processAttempt', () => {
 		await saveAttempt(missed, false, 'recall');
 
 		const stats = await UserDeckStats.findOne({ userId: ids.userId, deckId: ids.deckId });
-		expect(stats!.reviews![ids.cardId.toString()].interval).to.equal(3);
-		expect(stats!.reviews![missed.cardId.toString()].interval).to.equal(1);
+		expect(stats!.reviews![ids.cardId.toString()]).to.deep.equal({ rung: 0, due: 3 });
+		expect(stats!.reviews![missed.cardId.toString()]).to.deep.equal({ rung: 0, due: 4 });
+		expect(stats!.recallClock).to.equal(2);
 		expect(stats!.attempts[ids.cardId.toString()]).to.equal(5);
 		expect(stats!.attempts[missed.cardId.toString()]).to.equal(undefined);
 	});

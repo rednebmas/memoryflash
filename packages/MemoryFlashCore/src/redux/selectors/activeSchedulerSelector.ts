@@ -38,26 +38,9 @@ export const currDeckReviewsSelector = createSelector(
 	(stats, sessionReviews) => ({ ...stats?.reviews, ...sessionReviews }),
 );
 
-export const nextDueSelector = createSelector(
-	[currDeckWithAttemptsSelector, currDeckReviewsSelector],
-	(cards, reviews): string | undefined =>
-		Object.keys(cards)
-			.flatMap((id) => (reviews[id] ? [reviews[id].due] : []))
-			.sort()[0],
-);
-
-const deckLoadingSelector = (state: ReduxState) =>
-	state.network._[`getDeck${state.scheduler.deck}`]?.isLoading ?? true;
-
-export const caughtUpSelector = createSelector(
-	[
-		activeSchedulerSelector,
-		currDeckWithAttemptsSelector,
-		(state: ReduxState) => state.scheduler.currCard,
-		deckLoadingSelector,
-	],
-	(active, cards, currCard, loading) =>
-		active === 'recall' && !loading && !currCard && Object.keys(cards).length > 0,
+export const currDeckClockSelector = createSelector(
+	[currDeckStatsSelector, (state: ReduxState) => state.scheduler.sessionTicks],
+	(stats, sessionTicks) => (stats?.recallClock ?? 0) + sessionTicks,
 );
 
 export const schedulerOptionsSelector = createSelector([autoSchedulerSelector], (auto) => [

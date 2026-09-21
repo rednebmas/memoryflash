@@ -4,6 +4,7 @@ import { nextReview } from '../../lib/schedulers/nextReview';
 import { Attempt } from '../../types/Attempt';
 import {
 	activeSchedulerSelector,
+	currDeckClockSelector,
 	currDeckReviewsSelector,
 } from '../selectors/activeSchedulerSelector';
 import { selectActivePresentationMode } from '../selectors/activePresentationModeSelector';
@@ -21,8 +22,18 @@ const recordSessionReview =
 	(dispatch, getState) => {
 		if (attempt.scheduler !== 'recall') return;
 		const prev = currDeckReviewsSelector(getState())[attempt.cardId];
-		const review = nextReview(prev, attempt.correct, new Date(attempt.attemptedAt));
+		const review = nextReview(prev, attempt.correct, currDeckClockSelector(getState()));
 		dispatch(schedulerActions.setSessionReview({ cardId: attempt.cardId, review }));
+	};
+
+const requeueAtGap =
+	(attempt: Attempt): SyncAppThunk =>
+	(dispatch, getState) => {
+		const review = getState().scheduler.sessionReviews[attempt.cardId];
+		const gap = review && schedulers[attempt.scheduler ?? 'speed'].requeueGap(review);
+		if (!gap) return;
+		dispatch(schedule(attempt.deckId, { to: gap, exclude: attempt.cardId }));
+		dispatch(schedulerActions.insertCard({ cardId: attempt.cardId, gap }));
 	};
 
 export const recordAttempt =
@@ -32,13 +43,14 @@ export const recordAttempt =
 		const { currStartTime, batchId, currCard: currCardId } = getState().scheduler;
 
 		if (!userId || !currCardId) return;
+		const scheduler = schedulers[activeSchedulerSelector(getState())];
 		if (!correct) {
-			dispatch(schedulerActions.markCurrIncorrect(currCardId));
+			const requeue = scheduler.requeueOnMiss;
+			dispatch(schedulerActions.markCurrIncorrect({ cardId: currCardId, requeue }));
 			return;
 		}
 
 		const card = currDeckAllWithAttemptsSelector(getState())[currCardId];
-		const scheduler = schedulers[activeSchedulerSelector(getState())];
 		const timeTaken = (Date.now() - currStartTime) / 1000;
 
 		// if the user takes too long to answer, we don't want to record the attempt
@@ -74,6 +86,7 @@ export const recordAttempt =
 		console.log(`[scheduling] Recording attempt: ${correct}`);
 
 		dispatch(schedulerActions.dequeueNextCard());
+		dispatch(requeueAtGap(attempt));
 		if (getState().scheduler.nextCards.length < 3) {
 			dispatch(schedule(card.deckId));
 		}

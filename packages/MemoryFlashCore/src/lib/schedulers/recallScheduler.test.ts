@@ -1,34 +1,29 @@
 import { expect } from 'chai';
 import { recallScheduler } from './recallScheduler';
-import { makeCard, makeContext, NOW } from './testHelpers';
-
-const review = (daysFromNow: number) => ({
-	interval: 3,
-	ease: 2.5,
-	due: new Date(NOW.getTime() + daysFromNow * 86400000).toISOString(),
-});
+import { makeCard, makeContext } from './testHelpers';
 
 describe('recallScheduler', () => {
 	const cards = ['a', 'b', 'c', 'd'].map((id) => makeCard(id));
 
-	it('schedules the most overdue cards first, then new cards', () => {
-		const reviews = { b: review(-1), c: review(-5) };
-		const picked = recallScheduler.pickNext(makeContext({ cards, reviews }));
+	it('schedules ready cards by due position, then new cards, then waiting cards', () => {
+		const reviews = { b: { rung: 1, due: 9 }, c: { rung: 0, due: 4 }, d: { rung: 3, due: 30 } };
+		const picked = recallScheduler.pickNext(makeContext({ cards, reviews, clock: 10 }));
 		expect(picked).to.deep.equal(['c', 'b', 'a', 'd']);
 	});
 
-	it('does not schedule cards due in the future', () => {
-		const reviews = { a: review(2), b: review(3), c: review(-1), d: review(9) };
-		expect(recallScheduler.pickNext(makeContext({ cards, reviews }))).to.deep.equal(['c']);
+	it('never runs dry on a small deck where every card is still waiting', () => {
+		const reviews = { a: { rung: 5, due: 90 }, b: { rung: 4, due: 50 } };
+		const ctx = makeContext({ cards: cards.slice(0, 2), reviews, clock: 10 });
+		expect(recallScheduler.pickNext(ctx)).to.deep.equal(['b', 'a']);
 	});
 
-	it('skips cards that are already queued', () => {
-		const picked = recallScheduler.pickNext(makeContext({ cards, queued: ['a', 'b'] }));
-		expect(picked).to.deep.equal(['c', 'd']);
+	it('skips queued cards and respects the requested count', () => {
+		const ctx = makeContext({ cards, queued: ['a'], count: 2 });
+		expect(recallScheduler.pickNext(ctx)).to.deep.equal(['b', 'c']);
 	});
 
-	it('schedules nothing when caught up', () => {
-		const reviews = { a: review(1), b: review(1), c: review(1), d: review(1) };
-		expect(recallScheduler.pickNext(makeContext({ cards, reviews }))).to.deep.equal([]);
+	it('requeues inline only while the gap fits in the queue', () => {
+		expect(recallScheduler.requeueGap({ rung: 1, due: 0 })).to.equal(5);
+		expect(recallScheduler.requeueGap({ rung: 3, due: 0 })).to.equal(undefined);
 	});
 });

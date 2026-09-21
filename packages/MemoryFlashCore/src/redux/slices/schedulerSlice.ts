@@ -12,6 +12,7 @@ export interface SchedulerState {
 	incorrect?: boolean;
 	multiPartCardIndex: number;
 	sessionReviews: CardReviews;
+	sessionTicks: number;
 }
 
 const initialState: SchedulerState = {
@@ -21,6 +22,7 @@ const initialState: SchedulerState = {
 	answeredCards: [],
 	multiPartCardIndex: 0,
 	sessionReviews: {},
+	sessionTicks: 0,
 };
 
 const dequeueNextCard = (state: SchedulerState) => {
@@ -61,11 +63,13 @@ const schedulerSlice = createSlice({
 		setParsingDeck: (state, action: PayloadAction<string>) => {
 			state.deck = action.payload;
 			state.sessionReviews = {};
+			state.sessionTicks = 0;
 			resetQueue(state);
 		},
 		resetQueue,
 		setSessionReview(state, action: PayloadAction<{ cardId: string; review: CardReview }>) {
 			state.sessionReviews[action.payload.cardId] = action.payload.review;
+			state.sessionTicks += 1;
 		},
 		startFromBeginningOfCurrentCard: (state) => {
 			state.multiPartCardIndex = 0;
@@ -73,19 +77,19 @@ const schedulerSlice = createSlice({
 		incrementMultiPartCardIndex(state) {
 			state.multiPartCardIndex += 1;
 		},
-		markCurrIncorrect(state, action: PayloadAction<string>) {
+		markCurrIncorrect(state, action: PayloadAction<{ cardId: string; requeue: boolean }>) {
 			state.incorrect = true;
-			console.log(`[scheduling] Marking card as incorrect`);
+			const { cardId, requeue } = action.payload;
+			if (!requeue) return;
 
 			// So basically, in order to move to the next card, you must answer the current card correctly twice
-			if (state.nextCards[1] !== action.payload) {
-				console.log(`[scheduling] Queuing incorrect card`);
-				state.nextCards.unshift(action.payload);
-			}
-			if (state.nextCards[2] !== action.payload) {
-				console.log(`[scheduling] Queuing incorrect card again`);
-				state.nextCards.unshift(action.payload);
-			}
+			if (state.nextCards[1] !== cardId) state.nextCards.unshift(cardId);
+			if (state.nextCards[2] !== cardId) state.nextCards.unshift(cardId);
+		},
+		insertCard(state, action: PayloadAction<{ cardId: string; gap: number }>) {
+			const index = Math.min(action.payload.gap, state.nextCards.length);
+			state.nextCards.splice(index, 0, action.payload.cardId);
+			if (!state.currCard) pickupNextCard(state);
 		},
 		removeCard(state, action: PayloadAction<string>) {
 			state.nextCards = state.nextCards.filter((id) => id !== action.payload);

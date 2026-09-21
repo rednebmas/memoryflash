@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { CircleHover } from '../../components/ui/CircleHover';
 import { Layout } from '../../components/layout/Layout';
 import { StudyScreenEmptyState } from './StudyScreenEmptyState';
-import { StudyCaughtUpState } from './StudyCaughtUpState';
 import { useScheduleDeck } from './useScheduleDeck';
 import { SchedulerPicker } from '../../components/SchedulerPicker';
 import { AnswerValidator } from '../../components/answer-validators/AnswerValidator';
@@ -82,7 +81,6 @@ export const StudyScreen = () => {
 			subtitle={course && deck && `${course?.name} · ${deck?.name}`}
 		>
 			<StudyScreenEmptyState />
-			<StudyCaughtUpState />
 			<CardCarousel
 				cards={cards}
 				index={index}

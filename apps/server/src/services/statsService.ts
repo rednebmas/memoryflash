@@ -7,7 +7,6 @@ import { StatsByCardId } from 'MemoryFlashCore/src/types/StatsByCardType';
 import { User } from 'MemoryFlashCore/src/types/User';
 import { MedianHistoryValue } from 'MemoryFlashCore/src/types/UserDeckStats';
 import { nextReview } from 'MemoryFlashCore/src/lib/schedulers/nextReview';
-import { CardReview } from 'MemoryFlashCore/src/lib/schedulers/types';
 import { updateFeedWithAttempt } from './feedService';
 
 export async function getDeckStats(deckId: string, user: User, timezone: string) {
@@ -55,7 +54,7 @@ export async function processAttempt(doc: AttemptDoc) {
 	}
 
 	try {
-		await updateReview(doc, attemptedAt);
+		await updateReview(doc);
 		if (doc.correct) await updateMedian(doc, attemptedAt);
 	} catch (error) {
 		console.error('Error updating deck stats:', error);
@@ -64,19 +63,22 @@ export async function processAttempt(doc: AttemptDoc) {
 
 const UPSERT = { new: true, upsert: true, setDefaultsOnInsert: true };
 
-type StatsFields = { [path: string]: number | string | string[] | CardReview };
+type StatsFields = { [path: string]: string | string[] };
 
 export const setUserDeckStats = (deckId: string, userId: string, fields: StatsFields) =>
 	UserDeckStats.findOneAndUpdate({ userId, deckId }, { $set: fields }, UPSERT);
 
-async function updateReview(doc: AttemptDoc, attemptedAt: Date) {
+async function updateReview(doc: AttemptDoc) {
 	if (doc.scheduler !== 'recall') return;
+	const filter = { userId: doc.userId, deckId: doc.deckId };
 	const cardId = doc.cardId.toString();
-	const stats = await UserDeckStats.findOne({ userId: doc.userId, deckId: doc.deckId });
-	const review = nextReview(stats?.reviews?.[cardId], doc.correct, attemptedAt);
-	await setUserDeckStats(doc.deckId.toString(), doc.userId.toString(), {
-		[`reviews.${cardId}`]: review,
-	});
+	const stats = await UserDeckStats.findOne(filter);
+	const review = nextReview(stats?.reviews?.[cardId], doc.correct, stats?.recallClock ?? 0);
+	await UserDeckStats.findOneAndUpdate(
+		filter,
+		{ $set: { [`reviews.${cardId}`]: review }, $inc: { recallClock: 1 } },
+		UPSERT,
+	);
 }
 
 async function updateMedian(doc: AttemptDoc, attemptedAt: Date) {

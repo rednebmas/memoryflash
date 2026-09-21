@@ -34,6 +34,10 @@ const UserDeckStatsSchema = new Schema<UserDeckStatsDoc>(
 			type: Schema.Types.Mixed,
 			default: {},
 		},
+		recallClock: {
+			type: Number,
+			default: 0,
+		},
 		scheduler: {
 			type: String,
 			required: false,

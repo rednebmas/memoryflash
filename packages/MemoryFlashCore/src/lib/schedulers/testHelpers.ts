@@ -40,7 +40,8 @@ export const makeContext = (overrides: Partial<ScheduleContext>): ScheduleContex
 	cards: [],
 	reviews: {},
 	queued: [],
-	now: NOW.getTime(),
+	count: 4,
+	clock: 0,
 	random: () => 0.5,
 	...overrides,
 });
