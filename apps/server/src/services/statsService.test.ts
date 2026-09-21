@@ -115,4 +115,42 @@ describe('processAttempt', () => {
 		expect(updatedStats!.medianTimeTaken).to.equal(10);
 		expect(updatedStats!.medianHistory.length).to.equal(3);
 	});
+
+	const saveAttempt = (
+		ids: {
+			userId: mongoose.Types.ObjectId;
+			deckId: mongoose.Types.ObjectId;
+			cardId: mongoose.Types.ObjectId;
+		},
+		correct: boolean,
+		scheduler?: string,
+	) => new Attempt({ ...ids, batchId: 'batch1', correct, timeTaken: 5, scheduler }).save();
+
+	const newIds = () => ({
+		userId: new mongoose.Types.ObjectId(),
+		deckId: new mongoose.Types.ObjectId(),
+		cardId: new mongoose.Types.ObjectId(),
+	});
+
+	it('should write review state for recall attempts, correct or not', async () => {
+		const ids = newIds();
+		const missed = { ...ids, cardId: new mongoose.Types.ObjectId() };
+		await saveAttempt(ids, true, 'recall');
+		await saveAttempt(missed, false, 'recall');
+
+		const stats = await UserDeckStats.findOne({ userId: ids.userId, deckId: ids.deckId });
+		expect(stats!.reviews![ids.cardId.toString()].interval).to.equal(3);
+		expect(stats!.reviews![missed.cardId.toString()].interval).to.equal(1);
+		expect(stats!.attempts[ids.cardId.toString()]).to.equal(5);
+		expect(stats!.attempts[missed.cardId.toString()]).to.equal(undefined);
+	});
+
+	it('should leave review state untouched for speed attempts', async () => {
+		const ids = newIds();
+		await saveAttempt(ids, true, 'speed');
+		await saveAttempt(ids, true);
+
+		const stats = await UserDeckStats.findOne({ userId: ids.userId, deckId: ids.deckId });
+		expect(stats!.reviews ?? {}).to.deep.equal({});
+	});
 });

@@ -1,5 +1,6 @@
 import ObjectId from 'bson-objectid';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { CardReview, CardReviews } from '../../lib/schedulers/types';
 
 export interface SchedulerState {
 	deck?: string;
@@ -10,6 +11,7 @@ export interface SchedulerState {
 	currStartTime: number;
 	incorrect?: boolean;
 	multiPartCardIndex: number;
+	sessionReviews: CardReviews;
 }
 
 const initialState: SchedulerState = {
@@ -18,6 +20,7 @@ const initialState: SchedulerState = {
 	nextCards: [],
 	answeredCards: [],
 	multiPartCardIndex: 0,
+	sessionReviews: {},
 };
 
 const dequeueNextCard = (state: SchedulerState) => {
@@ -39,6 +42,12 @@ const pickupNextCard = (state: SchedulerState) => {
 	state.incorrect = undefined;
 };
 
+const resetQueue = (state: SchedulerState) => {
+	state.answeredCards = [];
+	state.nextCards = [];
+	state.currCard = undefined;
+};
+
 const schedulerSlice = createSlice({
 	name: 'scheduler',
 	initialState,
@@ -51,9 +60,12 @@ const schedulerSlice = createSlice({
 		},
 		setParsingDeck: (state, action: PayloadAction<string>) => {
 			state.deck = action.payload;
-			state.answeredCards = [];
-			state.nextCards = [];
-			state.currCard = undefined;
+			state.sessionReviews = {};
+			resetQueue(state);
+		},
+		resetQueue,
+		setSessionReview(state, action: PayloadAction<{ cardId: string; review: CardReview }>) {
+			state.sessionReviews[action.payload.cardId] = action.payload.review;
 		},
 		startFromBeginningOfCurrentCard: (state) => {
 			state.multiPartCardIndex = 0;

@@ -10,6 +10,7 @@ const baseState: SchedulerState = {
 	nextCards: [],
 	answeredCards: [],
 	multiPartCardIndex: 0,
+	sessionReviews: {},
 };
 
 describe('schedulerSlice', () => {

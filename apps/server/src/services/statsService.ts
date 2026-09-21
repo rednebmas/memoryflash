@@ -5,7 +5,9 @@ import { calculateMedian } from 'MemoryFlashCore/src/lib/median';
 import { roundToTenth } from 'MemoryFlashCore/src/lib/rounding';
 import { StatsByCardId } from 'MemoryFlashCore/src/types/StatsByCardType';
 import { User } from 'MemoryFlashCore/src/types/User';
-import { MedianHistory, MedianHistoryValue } from 'MemoryFlashCore/src/types/UserDeckStats';
+import { MedianHistoryValue } from 'MemoryFlashCore/src/types/UserDeckStats';
+import { nextReview } from 'MemoryFlashCore/src/lib/schedulers/nextReview';
+import { CardReview } from 'MemoryFlashCore/src/lib/schedulers/types';
 import { updateFeedWithAttempt } from './feedService';
 
 export async function getDeckStats(deckId: string, user: User, timezone: string) {
@@ -52,47 +54,44 @@ export async function processAttempt(doc: AttemptDoc) {
 		console.error('Failed to update feed for attempt', error);
 	}
 
-	if (!doc.correct) {
-		return;
-	}
-
 	try {
-		const userDeckStats = await UserDeckStats.findOne({
-			userId: doc.userId,
-			deckId: doc.deckId,
-		});
-
-		if (userDeckStats) {
-			const attempts = { ...userDeckStats.attempts };
-			attempts[doc.cardId.toString()] = doc.timeTaken;
-			const timeTakenArray = Object.values(attempts);
-			const median = roundToTenth(calculateMedian(timeTakenArray));
-
-			const update: any = {
-				$set: {
-					[`attempts.${doc.cardId.toString()}`]: doc.timeTaken,
-					medianTimeTaken: median, // Update the median in the document
-				},
-			};
-
-			if (median !== userDeckStats.medianTimeTaken) {
-				let medianHistory: MedianHistoryValue = { median, date: doc.attemptedAt };
-				update.$push = { medianHistory };
-			}
-
-			await UserDeckStats.findOneAndUpdate({ _id: userDeckStats._id }, update);
-		} else {
-			let medianHistory: MedianHistory = [{ median: doc.timeTaken, date: doc.attemptedAt }];
-			const newUserDeckStats = new UserDeckStats({
-				userId: doc.userId,
-				deckId: doc.deckId,
-				attempts: { [doc.cardId.toString()]: doc.timeTaken },
-				medianTimeTaken: roundToTenth(doc.timeTaken),
-				medianHistory,
-			});
-			await newUserDeckStats.save();
-		}
+		await updateReview(doc, attemptedAt);
+		if (doc.correct) await updateMedian(doc, attemptedAt);
 	} catch (error) {
-		console.error('Error updating median:', error);
+		console.error('Error updating deck stats:', error);
 	}
+}
+
+const UPSERT = { new: true, upsert: true, setDefaultsOnInsert: true };
+
+type StatsFields = { [path: string]: number | string | string[] | CardReview };
+
+export const setUserDeckStats = (deckId: string, userId: string, fields: StatsFields) =>
+	UserDeckStats.findOneAndUpdate({ userId, deckId }, { $set: fields }, UPSERT);
+
+async function updateReview(doc: AttemptDoc, attemptedAt: Date) {
+	if (doc.scheduler !== 'recall') return;
+	const cardId = doc.cardId.toString();
+	const stats = await UserDeckStats.findOne({ userId: doc.userId, deckId: doc.deckId });
+	const review = nextReview(stats?.reviews?.[cardId], doc.correct, attemptedAt);
+	await setUserDeckStats(doc.deckId.toString(), doc.userId.toString(), {
+		[`reviews.${cardId}`]: review,
+	});
+}
+
+async function updateMedian(doc: AttemptDoc, attemptedAt: Date) {
+	const filter = { userId: doc.userId, deckId: doc.deckId };
+	const cardId = doc.cardId.toString();
+	const stats = await UserDeckStats.findOne(filter);
+	const attempts = { ...stats?.attempts, [cardId]: doc.timeTaken };
+	const median = roundToTenth(calculateMedian(Object.values(attempts)));
+	const medianHistory: MedianHistoryValue = { median, date: attemptedAt };
+	await UserDeckStats.findOneAndUpdate(
+		filter,
+		{
+			$set: { [`attempts.${cardId}`]: doc.timeTaken, medianTimeTaken: median },
+			...(median !== stats?.medianTimeTaken ? { $push: { medianHistory } } : {}),
+		},
+		UPSERT,
+	);
 }

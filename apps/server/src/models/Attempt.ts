@@ -15,6 +15,7 @@ const attemptSchema = new Schema<AttemptDoc>({
 	correct: { type: Boolean, required: true },
 	timeTaken: { type: Number, required: true },
 	presentationMode: { type: String, required: false },
+	scheduler: { type: String, required: false },
 	attemptedAt: { type: Date, default: Date.now, required: true },
 });
 

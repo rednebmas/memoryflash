@@ -1,3 +1,4 @@
+import { CardReviews, SchedulerChoice } from '../lib/schedulers/types';
 import { MongoId } from './helper-types';
 
 export type MedianHistoryValue = { median: number; date: Date };
@@ -12,6 +13,8 @@ export type UserDeckStatsType = {
 	medianTimeTaken: number;
 	medianHistory: MedianHistory;
 	hiddenCardIds: string[];
+	reviews?: CardReviews;
+	scheduler?: SchedulerChoice;
 	createdAt: Date;
 	updatedAt: Date;
 };

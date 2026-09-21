@@ -1,9 +1,8 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { ReduxState } from '../store';
-import { Card } from '../../types/Cards';
-import { Attempt } from '../../types/Attempt';
+import { CardWithAttempts } from '../../types/CardWithAttempts';
 
-export type CardWithAttempts = Card & { attempts: Attempt[]; hidden?: boolean };
+export type { CardWithAttempts };
 
 export const filterCorrect = (cards: { [key: string]: CardWithAttempts }) => {
 	const result: typeof cards = {};

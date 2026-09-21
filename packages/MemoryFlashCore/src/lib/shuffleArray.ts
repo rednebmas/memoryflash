@@ -1,4 +1,4 @@
-export function shuffleArray<T>(array: T[]): T[] {
+export function shuffleArray<T>(array: T[], random: () => number = Math.random): T[] {
 	// Create a shallow copy of the array
 	let copy = array.slice();
 	let currentIndex = copy.length,
@@ -7,7 +7,7 @@ export function shuffleArray<T>(array: T[]): T[] {
 	// While there remain elements to shuffle...
 	while (currentIndex != 0) {
 		// Pick a remaining element...
-		randomIndex = Math.floor(Math.random() * currentIndex);
+		randomIndex = Math.floor(random() * currentIndex);
 		currentIndex--;
 
 		// And swap it with the current element.

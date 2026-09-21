@@ -6,7 +6,6 @@ import {
 	addCardsToDeck,
 	renameDeck,
 	deleteDeckById,
-	updateHiddenCards,
 	updateDeckVisibility,
 	getDeckPreview,
 	importDeck,
@@ -14,7 +13,9 @@ import {
 } from '../services/deckService';
 import { generateSongCards, getExistingChordCards } from '../services/aiCardService';
 import { User } from 'MemoryFlashCore/src/types/User';
-import { getDeckStats } from '../services/statsService';
+import { getDeckStats, setUserDeckStats } from '../services/statsService';
+import { SCHEDULER_CHOICES } from 'MemoryFlashCore/src/lib/schedulers/types';
+import { z } from 'zod';
 
 const router = Router();
 
@@ -112,11 +113,21 @@ router.patch('/:id', isAuthenticated, async (req, res, next) => {
 
 router.patch('/:id/hidden-cards', isAuthenticated, async (req, res, next) => {
 	try {
-		const stats = await updateHiddenCards(
-			req.params.id,
-			(req.user as User)._id.toString(),
-			req.body.hiddenCardIds || [],
-		);
+		const stats = await setUserDeckStats(req.params.id, (req.user as User)._id.toString(), {
+			hiddenCardIds: req.body.hiddenCardIds || [],
+		});
+		return res.json({ stats });
+	} catch (error) {
+		next(error);
+	}
+});
+
+router.patch('/:id/scheduler', isAuthenticated, async (req, res, next) => {
+	try {
+		const scheduler = z.enum(SCHEDULER_CHOICES).parse(req.body.scheduler);
+		const stats = await setUserDeckStats(req.params.id, (req.user as User)._id.toString(), {
+			scheduler,
+		});
 		return res.json({ stats });
 	} catch (error) {
 		next(error);

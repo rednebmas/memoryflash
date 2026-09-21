@@ -30,6 +30,14 @@ const UserDeckStatsSchema = new Schema<UserDeckStatsDoc>(
 			type: [String],
 			default: [],
 		},
+		reviews: {
+			type: Schema.Types.Mixed,
+			default: {},
+		},
+		scheduler: {
+			type: String,
+			required: false,
+		},
 	},
 	{
 		toJSON: {

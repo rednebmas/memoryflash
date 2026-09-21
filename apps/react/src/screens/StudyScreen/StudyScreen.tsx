@@ -4,6 +4,9 @@ import { useEffect, useState } from 'react';
 import { CircleHover } from '../../components/ui/CircleHover';
 import { Layout } from '../../components/layout/Layout';
 import { StudyScreenEmptyState } from './StudyScreenEmptyState';
+import { StudyCaughtUpState } from './StudyCaughtUpState';
+import { useScheduleDeck } from './useScheduleDeck';
+import { SchedulerPicker } from '../../components/SchedulerPicker';
 import { AnswerValidator } from '../../components/answer-validators/AnswerValidator';
 import { Keyboard } from '../../components/keyboard/KeyBoard';
 import { ChordNamePad } from '../../components/chord-pad/ChordNamePad';
@@ -11,15 +14,13 @@ import { ChordInputModeToggle } from '../../components/chord-pad/ChordInputModeT
 import { showChordPadSelector } from 'MemoryFlashCore/src/redux/selectors/chordInputModeSelector';
 import { ChordMemoryDebugDialog } from '../../components/ChordMemoryDebugDialog';
 import { CardCarousel } from '../../components/CardCarousel';
-import { getDeck } from 'MemoryFlashCore/src/redux/actions/get-deck-action';
-import { schedule } from 'MemoryFlashCore/src/redux/actions/schedule-cards-action';
 import { selectActivePresentationMode } from 'MemoryFlashCore/src/redux/selectors/activePresentationModeSelector';
 import {
 	attemptsStatsSelector,
 	bpmSelector,
 } from 'MemoryFlashCore/src/redux/selectors/attemptsStatsSelector';
 import { sessionCardsSelector } from 'MemoryFlashCore/src/redux/selectors/scheduledCardsSelector';
-import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
+import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { useDeckIdPath } from '../useDeckIdPath';
 import { Metronome } from './Metronome';
 import { QuestionPresentationModePills } from './QuestionPresentationModePills';
@@ -27,7 +28,6 @@ import Timer from './Timer';
 import { IS_TEST_ENV } from '../../utils/constants';
 
 export const StudyScreen = () => {
-	const dispatch = useAppDispatch();
 	const { cards, index } = useAppSelector(sessionCardsSelector);
 	const [hideFutureCards, setHideFutureCards] = useState(false);
 	const attemptsStats = useAppSelector(attemptsStatsSelector);
@@ -44,13 +44,7 @@ export const StudyScreen = () => {
 
 	const timeSinceCardStart = () => (currStartTime > 0 ? (Date.now() - currStartTime) / 1000 : 0);
 
-	useEffect(() => {
-		if (deckId) {
-			dispatch(getDeck(deckId)).then(() => {
-				dispatch(schedule(deckId));
-			});
-		}
-	}, [deckId, dispatch]);
+	useScheduleDeck(deckId);
 
 	useEffect(() => {
 		if (tooLongTime <= 0) return;
@@ -88,6 +82,7 @@ export const StudyScreen = () => {
 			subtitle={course && deck && `${course?.name} · ${deck?.name}`}
 		>
 			<StudyScreenEmptyState />
+			<StudyCaughtUpState />
 			<CardCarousel
 				cards={cards}
 				index={index}
@@ -99,6 +94,7 @@ export const StudyScreen = () => {
 				<div className="flex justify-center items-center gap-3 flex-wrap">
 					<QuestionPresentationModePills card={cards[index]} />
 					<ChordInputModeToggle />
+					<SchedulerPicker />
 				</div>
 				{cards[index] && <ChordMemoryDebugDialog card={cards[index]} />}
 				{showChordPad ? <ChordNamePad /> : <Keyboard />}

@@ -1,14 +1,29 @@
 import ObjectId from 'bson-objectid';
+import { schedulers } from '../../lib/schedulers';
+import { nextReview } from '../../lib/schedulers/nextReview';
 import { Attempt } from '../../types/Attempt';
+import {
+	activeSchedulerSelector,
+	currDeckReviewsSelector,
+} from '../selectors/activeSchedulerSelector';
 import { selectActivePresentationMode } from '../selectors/activePresentationModeSelector';
 import { attemptsStatsSelector } from '../selectors/attemptsStatsSelector';
 import { currDeckAllWithAttemptsSelector } from '../selectors/currDeckCardsWithAttempts';
 import { attemptsActions } from '../slices/attemptsSlice';
 import { midiActions } from '../slices/midiSlice';
 import { schedulerActions } from '../slices/schedulerSlice';
-import { AppThunk } from '../store';
+import { AppThunk, SyncAppThunk } from '../store';
 import { schedule } from './schedule-cards-action';
 import { updateLocalStreak } from './update-local-streak-action';
+
+const recordSessionReview =
+	(attempt: Attempt): SyncAppThunk =>
+	(dispatch, getState) => {
+		if (attempt.scheduler !== 'recall') return;
+		const prev = currDeckReviewsSelector(getState())[attempt.cardId];
+		const review = nextReview(prev, attempt.correct, new Date(attempt.attemptedAt));
+		dispatch(schedulerActions.setSessionReview({ cardId: attempt.cardId, review }));
+	};
 
 export const recordAttempt =
 	(correct: boolean): AppThunk =>
@@ -23,13 +38,14 @@ export const recordAttempt =
 		}
 
 		const card = currDeckAllWithAttemptsSelector(getState())[currCardId];
+		const scheduler = schedulers[activeSchedulerSelector(getState())];
 		const timeTaken = (Date.now() - currStartTime) / 1000;
 
 		// if the user takes too long to answer, we don't want to record the attempt
 		const attemptsStats = attemptsStatsSelector(getState());
 		if (!attemptsStats) return;
 		const { length, tooLongTime } = attemptsStats;
-		if (correct && timeTaken > tooLongTime && length > 10) {
+		if (scheduler.discardSlowAttempts && timeTaken > tooLongTime && length > 10) {
 			console.log(`[scheduling] Not recording attempt, user took too long!`);
 			dispatch(midiActions.waitUntilEmpty());
 			dispatch(schedulerActions.dequeueNextCard());
@@ -48,10 +64,12 @@ export const recordAttempt =
 			timeTaken: Math.min(60, (Date.now() - currStartTime) / 1000),
 			attemptedAt: new Date().toISOString(),
 			presentationMode: selectActivePresentationMode(getState()),
+			scheduler: scheduler.id,
 		};
 
 		dispatch(midiActions.waitUntilEmpty());
 		dispatch(attemptsActions.upsert([attempt]));
+		dispatch(recordSessionReview(attempt));
 
 		console.log(`[scheduling] Recording attempt: ${correct}`);
 

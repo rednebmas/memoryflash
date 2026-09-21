@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { SCHEDULER_IDS } from '../lib/schedulers/types';
 import { MongoId } from './helper-types';
 
 export const zAttempt = z.object({
@@ -11,6 +12,7 @@ export const zAttempt = z.object({
 	timeTaken: z.number(),
 	presentationMode: z.string().nullable(),
 	attemptedAt: z.string(),
+	scheduler: z.enum(SCHEDULER_IDS).optional(),
 });
 
 export type Attempt = z.infer<typeof zAttempt>;
