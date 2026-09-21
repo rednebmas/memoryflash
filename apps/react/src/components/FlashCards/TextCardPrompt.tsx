@@ -14,7 +14,14 @@ export const TextCardPrompt: React.FC<TextCardPromptProps> = ({
 	correctCount = 0,
 }) => (
 	<div className="flex flex-col items-center justify-center text-center gap-2">
-		<ReactMarkdown className="prose prose-sm max-w-none dark:prose-invert pt-3">
+		<ReactMarkdown
+			className="max-w-none pt-3 flex flex-col items-center gap-1"
+			components={{
+				h1: ({ children }) => <p className="heading-lg">{children}</p>,
+				h2: ({ children }) => <p className="caption">{children}</p>,
+				p: ({ children }) => <p className="heading-md">{children}</p>,
+			}}
+		>
 			{text}
 		</ReactMarkdown>
 		<div className="mb-auto">
