@@ -2,6 +2,7 @@ import { createSelector } from '@reduxjs/toolkit';
 import { DEFAULT_RHYTHM, StepGrade, TIERS_MS } from '../../lib/rhythm/types';
 import { deadlineMs, expectedMs } from '../../lib/rhythm/grade';
 import { hasRhythm, stepBeats } from '../../lib/rhythm/stepBeats';
+import { resolveLadder } from '../../lib/rhythm/tempoLadder';
 import { ReduxState } from '../store';
 import { currDeckStatsSelector } from './activeSchedulerSelector';
 import { bpmSelector } from './attemptsStatsSelector';
@@ -13,6 +14,21 @@ export const deckRhythmSettingsSelector = createSelector(
 	[currDeckStatsSelector],
 	(stats) => stats?.rhythm ?? DEFAULT_RHYTHM,
 );
+
+export const deckLadderSelector = createSelector(
+	[
+		currDeckStatsSelector,
+		deckRhythmSettingsSelector,
+		(s: ReduxState) => s.rhythm.sessionLadder,
+		(s: ReduxState) => s.scheduler.deck,
+	],
+	(stats, settings, session, deckId) => {
+		const stored = session && session.deckId === deckId ? session.ladder : stats?.rhythmLadder;
+		return resolveLadder(stored, settings.bpm);
+	},
+);
+
+export const deckTempoSelector = createSelector([deckLadderSelector], (ladder) => ladder.bpm);
 
 export const rhythmLatencyMsSelector = (state: ReduxState) => state.settings.rhythmLatencyMs ?? 0;
 
@@ -32,8 +48,8 @@ export const rhythmActiveSelector = createSelector(
 );
 
 export const metronomeBpmSelector = createSelector(
-	[rhythmModeSelector, deckRhythmSettingsSelector, bpmSelector],
-	(mode, settings, adaptive) => (mode ? settings.bpm : adaptive.bpm),
+	[rhythmModeSelector, deckTempoSelector, bpmSelector],
+	(mode, tempo, adaptive) => (mode ? tempo : adaptive.bpm),
 );
 
 export const currRhythmCardSelector = createSelector(
@@ -61,8 +77,8 @@ export const nextDeadlineMsSelector = createSelector(
 );
 
 export const currTimingSelector = createSelector(
-	[currRhythmCardSelector, currStepBeatsSelector, deckRhythmSettingsSelector],
-	(card, beats, { bpm, strictness }) => ({
+	[currRhythmCardSelector, currStepBeatsSelector, deckRhythmSettingsSelector, deckTempoSelector],
+	(card, beats, { strictness }, bpm) => ({
 		bpm,
 		strictness,
 		steps: beats.map((_, i) => card?.steps[i]),

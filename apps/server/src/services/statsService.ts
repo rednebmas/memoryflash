@@ -1,6 +1,7 @@
 import Attempt, { AttemptDoc } from '../models/Attempt';
 import { Card } from '../models/Card';
-import { RhythmSettings } from 'MemoryFlashCore/src/lib/rhythm/types';
+import { DEFAULT_RHYTHM, RhythmSettings } from 'MemoryFlashCore/src/lib/rhythm/types';
+import { stepLadder } from 'MemoryFlashCore/src/lib/rhythm/tempoLadder';
 import { UserDeckStats } from '../models/UserDeckStats';
 import { calculateMedian } from 'MemoryFlashCore/src/lib/median';
 import { roundToTenth } from 'MemoryFlashCore/src/lib/rounding';
@@ -56,6 +57,7 @@ export async function processAttempt(doc: AttemptDoc) {
 
 	try {
 		await updateReview(doc);
+		await updateLadder(doc);
 		if (doc.correct) await updateMedian(doc, attemptedAt);
 	} catch (error) {
 		console.error('Error updating deck stats:', error);
@@ -80,6 +82,16 @@ async function updateReview(doc: AttemptDoc) {
 		{ $set: { [`reviews.${cardId}`]: review }, $inc: { recallClock: 1 } },
 		UPSERT,
 	);
+}
+
+async function updateLadder(doc: AttemptDoc) {
+	if (!doc.timing) return;
+	const filter = { userId: doc.userId, deckId: doc.deckId };
+	const stats = await UserDeckStats.findOne(filter);
+	const startBpm = (stats?.rhythm ?? DEFAULT_RHYTHM).bpm;
+	const attempt = { bpm: doc.timing.bpm, correct: doc.correct };
+	const rhythmLadder = stepLadder(stats?.rhythmLadder, startBpm, attempt);
+	await UserDeckStats.findOneAndUpdate(filter, { $set: { rhythmLadder } }, UPSERT);
 }
 
 async function updateMedian(doc: AttemptDoc, attemptedAt: Date) {

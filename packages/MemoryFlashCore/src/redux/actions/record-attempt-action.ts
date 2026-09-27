@@ -10,7 +10,13 @@ import {
 import { selectActivePresentationMode } from '../selectors/activePresentationModeSelector';
 import { attemptsStatsSelector } from '../selectors/attemptsStatsSelector';
 import { currDeckAllWithAttemptsSelector } from '../selectors/currDeckCardsWithAttempts';
-import { attemptTimingSelector, rhythmReportSelector } from '../selectors/rhythmSelectors';
+import {
+	attemptTimingSelector,
+	deckLadderSelector,
+	deckRhythmSettingsSelector,
+	rhythmReportSelector,
+} from '../selectors/rhythmSelectors';
+import { stepLadder } from '../../lib/rhythm/tempoLadder';
 import { attemptsActions } from '../slices/attemptsSlice';
 import { midiActions } from '../slices/midiSlice';
 import { rhythmActions } from '../slices/rhythmSlice';
@@ -26,6 +32,16 @@ const recordSessionReview =
 		const prev = currDeckReviewsSelector(getState())[attempt.cardId];
 		const review = nextReview(prev, attempt.correct, currDeckClockSelector(getState()));
 		dispatch(schedulerActions.setSessionReview({ cardId: attempt.cardId, review }));
+	};
+
+const stepSessionLadder =
+	(attempt: Attempt): SyncAppThunk =>
+	(dispatch, getState) => {
+		if (!attempt.timing) return;
+		const { bpm } = deckRhythmSettingsSelector(getState());
+		const result = { bpm: attempt.timing.bpm, correct: attempt.correct };
+		const ladder = stepLadder(deckLadderSelector(getState()), bpm, result);
+		dispatch(rhythmActions.setSessionLadder({ deckId: attempt.deckId, ladder }));
 	};
 
 const requeueAtGap =
@@ -88,6 +104,7 @@ export const recordAttempt =
 		dispatch(midiActions.waitUntilEmpty());
 		dispatch(attemptsActions.upsert([attempt]));
 		dispatch(recordSessionReview(attempt));
+		dispatch(stepSessionLadder(attempt));
 
 		console.log(`[scheduling] Recording attempt: ${correct}`);
 

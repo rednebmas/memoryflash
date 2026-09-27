@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Grid, StepGrade } from '../../lib/rhythm/types';
+import { TempoLadder } from '../../lib/rhythm/tempoLadder';
 
 export type RhythmCardState = {
 	batchId: string;
@@ -16,6 +17,7 @@ export interface RhythmState {
 	grid?: Grid;
 	card?: RhythmCardState;
 	lastReport?: RhythmReport;
+	sessionLadder?: { deckId: string; ladder: TempoLadder };
 }
 
 type GradePayload = {
@@ -53,6 +55,9 @@ const rhythmSlice = createSlice({
 		},
 		markMissReported(state, action: PayloadAction<string>) {
 			cardFor(state, action.payload).missReported = true;
+		},
+		setSessionLadder(state, action: PayloadAction<RhythmState['sessionLadder']>) {
+			state.sessionLadder = action.payload;
 		},
 		setLastReport(state, action: PayloadAction<RhythmReport | undefined>) {
 			state.lastReport = action.payload;

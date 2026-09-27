@@ -46,6 +46,10 @@ const UserDeckStatsSchema = new Schema<UserDeckStatsDoc>(
 			type: Schema.Types.Mixed,
 			required: false,
 		},
+		rhythmLadder: {
+			type: Schema.Types.Mixed,
+			required: false,
+		},
 	},
 	{
 		toJSON: {

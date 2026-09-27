@@ -175,4 +175,18 @@ describe('processAttempt', () => {
 		const saved = await Attempt.findById(attempt._id);
 		expect(saved!.toJSON().timing).to.deep.equal(timing);
 	});
+
+	it('should step the tempo ladder when a timed attempt is saved', async () => {
+		const ids = newIds();
+		const rhythm = { enabled: true, bpm: 90, strictness: 'normal' as const };
+		await setUserDeckStats(ids.deckId.toString(), ids.userId.toString(), { rhythm });
+		const timing = { bpm: 90, strictness: 'normal', offsetsMs: [0] };
+		await new Attempt({ ...ids, batchId: 'b', correct: false, timeTaken: 3, timing }).save();
+		const stats = await UserDeckStats.findOne({ userId: ids.userId, deckId: ids.deckId });
+		expect(stats!.toJSON().rhythmLadder).to.deep.equal({
+			startBpm: 90,
+			bpm: 90,
+			recent: [false],
+		});
+	});
 });

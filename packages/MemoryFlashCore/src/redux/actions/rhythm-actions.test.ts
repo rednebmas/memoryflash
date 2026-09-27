@@ -12,7 +12,7 @@ import { settingsActions } from '../slices/settingsSlice';
 import { userDeckStatsActions } from '../slices/userDeckStatsSlice';
 import { AppDispatch } from '../store';
 import { makeTestStore } from '../testStore';
-import { nextDeadlineMsSelector } from '../selectors/rhythmSelectors';
+import { metronomeBpmSelector, nextDeadlineMsSelector } from '../selectors/rhythmSelectors';
 import { markStepMissed } from './rhythm-actions';
 import { schedule } from './schedule-cards-action';
 
@@ -54,7 +54,7 @@ const playChord = (store: Store, engine: ChordMemoryValidatorEngine, times: numb
 const lastAttempt = (store: Store) =>
 	store.posted[store.posted.length - 1] as {
 		correct: boolean;
-		timing?: { offsetsMs: (number | null)[] };
+		timing?: { bpm: number; offsetsMs: (number | null)[] };
 	};
 
 describe('rhythm grading', () => {
@@ -145,5 +145,24 @@ describe('rhythm grading', () => {
 		playChord(store, engine, [2000, 2000, 2000]);
 		await Promise.resolve();
 		expect(nextDeadlineMsSelector(store.getState())).to.equal(undefined);
+	});
+
+	it('raises the deck tempo after 7 of 8 cards are played in time', async () => {
+		const store = setup();
+		for (let card = 0; card < 8; card++) {
+			const engine = new ChordMemoryValidatorEngine([C_MAJOR, C_MAJOR, C_MAJOR]);
+			const t = 10000 * (card + 1);
+			[0, 500, 1000].forEach((beat) =>
+				playChord(store, engine, [t + beat, t + beat, t + beat]),
+			);
+			await Promise.resolve();
+		}
+		expect(metronomeBpmSelector(store.getState())).to.equal(125);
+		const engine = new ChordMemoryValidatorEngine([C_MAJOR, C_MAJOR, C_MAJOR]);
+		[0, 500, 1000].forEach((beat) =>
+			playChord(store, engine, [99000 + beat, 99000 + beat, 99000 + beat]),
+		);
+		await Promise.resolve();
+		expect(lastAttempt(store).timing?.bpm).to.equal(125);
 	});
 });

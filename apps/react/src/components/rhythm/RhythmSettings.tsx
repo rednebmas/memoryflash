@@ -1,7 +1,11 @@
 import React from 'react';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { updateDeckRhythm } from 'MemoryFlashCore/src/redux/actions/update-deck-rhythm-action';
-import { deckRhythmSettingsSelector } from 'MemoryFlashCore/src/redux/selectors/rhythmSelectors';
+import {
+	deckRhythmSettingsSelector,
+	deckTempoSelector,
+} from 'MemoryFlashCore/src/redux/selectors/rhythmSelectors';
+import { LADDER_DESCRIPTION } from 'MemoryFlashCore/src/lib/rhythm/tempoLadder';
 import {
 	RHYTHM_BPM_OPTIONS,
 	RhythmSettings as RhythmSettingsType,
@@ -17,6 +21,7 @@ export const RhythmSettings: React.FC = () => {
 	const dispatch = useAppDispatch();
 	const deckId = useAppSelector((state) => state.scheduler.deck);
 	const settings = useAppSelector(deckRhythmSettingsSelector);
+	const tempo = useAppSelector(deckTempoSelector);
 	if (!deckId) return null;
 	const update = (change: Partial<RhythmSettingsType>) =>
 		dispatch(updateDeckRhythm(deckId, { ...settings, ...change }));
@@ -32,7 +37,7 @@ export const RhythmSettings: React.FC = () => {
 			{settings.enabled && (
 				<div className="flex flex-wrap items-center gap-3">
 					<InlineSelect
-						label="Tempo"
+						label="Start tempo"
 						value={settings.bpm}
 						options={BPM_OPTIONS}
 						onChange={(bpm) => update({ bpm })}
@@ -44,6 +49,9 @@ export const RhythmSettings: React.FC = () => {
 						onChange={(strictness) => update({ strictness })}
 					/>
 					<CalibrateLatency />
+					<p className="caption w-full">
+						Now at {tempo} bpm. {LADDER_DESCRIPTION}
+					</p>
 				</div>
 			)}
 			<p className="caption">
