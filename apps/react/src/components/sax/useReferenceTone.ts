@@ -2,30 +2,31 @@ import { useEffect } from 'react';
 import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import {
 	currentNoteMidiSelector,
-	saxReferenceToneSelector,
+	saxToneModeSelector,
+	saxToneMsSelector,
 	saxTypeSelector,
 } from 'MemoryFlashCore/src/redux/selectors/instrumentSelector';
 import { writtenMidiToFrequency } from 'MemoryFlashCore/src/lib/saxPitch';
 import { playTone } from './playTone';
 
-const TONE_MS = 1000;
 const ECHO_MS = 300;
 
 export const useReferenceTone = (muteFor: (ms: number) => void) => {
-	const enabled = useAppSelector(saxReferenceToneSelector);
+	const mode = useAppSelector(saxToneModeSelector);
+	const toneMs = useAppSelector(saxToneMsSelector);
 	const midi = useAppSelector(currentNoteMidiSelector);
 	const saxType = useAppSelector(saxTypeSelector);
 	const currCard = useAppSelector((state) => state.scheduler.currCard);
 
 	const play = () => {
 		if (midi === undefined) return;
-		muteFor(TONE_MS + ECHO_MS);
-		playTone(writtenMidiToFrequency(midi, saxType), TONE_MS);
+		if (mode !== 'headphones') muteFor(toneMs + ECHO_MS);
+		playTone(writtenMidiToFrequency(midi, saxType), toneMs);
 	};
 
 	useEffect(() => {
-		if (enabled) play();
-	}, [currCard, enabled]);
+		if (mode !== 'off') play();
+	}, [currCard, mode]);
 
 	return midi === undefined ? undefined : play;
 };

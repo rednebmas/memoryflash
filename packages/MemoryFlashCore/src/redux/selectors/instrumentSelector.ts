@@ -3,12 +3,14 @@ import { ReduxState } from '../store';
 import { AnswerType, CardTypeEnum } from '../../types/Cards';
 import { sessionCardsSelector } from './scheduledCardsSelector';
 import { DEFAULT_HOLD_MS } from '../../lib/saxPitch';
+import { DEFAULT_TONE_MS } from '../../lib/saxTone';
 import { singleNoteMidi, singleNoteName } from '../../lib/noteNames';
 
 export const instrumentSelector = (state: ReduxState) => state.settings.instrument ?? 'piano';
 export const showSaxFingeringsSelector = (state: ReduxState) => !!state.settings.showSaxFingerings;
 export const saxTypeSelector = (state: ReduxState) => state.settings.saxType ?? 'alto';
-export const saxReferenceToneSelector = (state: ReduxState) => !!state.settings.saxReferenceTone;
+export const saxToneModeSelector = (state: ReduxState) => state.settings.saxToneMode ?? 'off';
+export const saxToneMsSelector = (state: ReduxState) => state.settings.saxToneMs ?? DEFAULT_TONE_MS;
 export const saxAnyOctaveSelector = (state: ReduxState) => !!state.settings.saxAnyOctave;
 export const saxHoldMsSelector = (state: ReduxState) => state.settings.saxHoldMs ?? DEFAULT_HOLD_MS;
 

@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { PresentationModeIds } from '../../types/PresentationMode';
 import { SaxType } from '../../lib/saxPitch';
+import { ToneMode } from '../../lib/saxTone';
 
 export type ChordInputMode = 'piano' | 'names';
 export type Instrument = 'piano' | 'sax' | 'names';
@@ -12,7 +13,8 @@ export interface SettingsState {
 	instrument?: Instrument;
 	saxType?: SaxType;
 	saxHoldMs?: number;
-	saxReferenceTone?: boolean;
+	saxToneMode?: ToneMode;
+	saxToneMs?: number;
 	saxAnyOctave?: boolean;
 }
 
@@ -45,8 +47,11 @@ const settingsSlice = createSlice({
 		setSaxHoldMs(state, action: PayloadAction<number>) {
 			state.saxHoldMs = action.payload;
 		},
-		setSaxReferenceTone(state, action: PayloadAction<boolean>) {
-			state.saxReferenceTone = action.payload;
+		setSaxToneMode(state, action: PayloadAction<ToneMode>) {
+			state.saxToneMode = action.payload;
+		},
+		setSaxToneMs(state, action: PayloadAction<number>) {
+			state.saxToneMs = action.payload;
 		},
 		setSaxAnyOctave(state, action: PayloadAction<boolean>) {
 			state.saxAnyOctave = action.payload;
