@@ -5,7 +5,7 @@ import { CircleHover } from '../../components/ui/CircleHover';
 import { Layout } from '../../components/layout/Layout';
 import { StudyScreenEmptyState } from './StudyScreenEmptyState';
 import { useScheduleDeck } from './useScheduleDeck';
-import { SchedulerPicker } from '../../components/SchedulerPicker';
+import { DeckSettingsButton } from '../../components/DeckSettingsButton';
 import { AnswerValidator } from '../../components/answer-validators/AnswerValidator';
 import { ChordInputModeToggle } from '../../components/chord-pad/ChordInputModeToggle';
 import { InstrumentToggle } from '../../components/sax/InstrumentToggle';
@@ -69,6 +69,7 @@ export const StudyScreen = () => {
 					<CircleHover link={`list`}>
 						<ListBulletIcon className="w-5 h-5 stroke-2" />
 					</CircleHover>
+					<DeckSettingsButton />
 					{course && user && course.userId === user._id && (
 						<CircleHover link={`/study/${deckId}/notation`}>
 							<PlusIcon className="w-5 h-5 stroke-2" />
@@ -91,7 +92,6 @@ export const StudyScreen = () => {
 					<QuestionPresentationModePills card={cards[index]} />
 					<ChordInputModeToggle />
 					<InstrumentToggle />
-					<SchedulerPicker />
 				</div>
 				{cards[index] && <ChordMemoryDebugDialog card={cards[index]} />}
 				<StudyInput />
