@@ -3,11 +3,13 @@ import { ReduxState } from '../store';
 import { AnswerType, CardTypeEnum } from '../../types/Cards';
 import { sessionCardsSelector } from './scheduledCardsSelector';
 import { DEFAULT_HOLD_MS } from '../../lib/saxPitch';
-import { singleNoteName } from '../../lib/noteNames';
+import { singleNoteMidi, singleNoteName } from '../../lib/noteNames';
 
 export const instrumentSelector = (state: ReduxState) => state.settings.instrument ?? 'piano';
 export const showSaxFingeringsSelector = (state: ReduxState) => !!state.settings.showSaxFingerings;
 export const saxTypeSelector = (state: ReduxState) => state.settings.saxType ?? 'alto';
+export const saxReferenceToneSelector = (state: ReduxState) => !!state.settings.saxReferenceTone;
+export const saxAnyOctaveSelector = (state: ReduxState) => !!state.settings.saxAnyOctave;
 export const saxHoldMsSelector = (state: ReduxState) => state.settings.saxHoldMs ?? DEFAULT_HOLD_MS;
 
 export const currentSheetCardSelector = createSelector(
@@ -39,4 +41,8 @@ export const currentCardIsNaturalSelector = createSelector([currentSheetCardSele
 				v.stack.every((s) => s.notes.every((n) => n.name.length === 1)),
 			)
 		: false,
+);
+
+export const currentNoteMidiSelector = createSelector([currentSheetCardSelector], (card) =>
+	card ? singleNoteMidi(card.question) : undefined,
 );

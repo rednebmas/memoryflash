@@ -7,7 +7,10 @@ import { saveSetting } from 'MemoryFlashCore/src/redux/actions/save-setting-acti
 import { saxTypeSelector } from 'MemoryFlashCore/src/redux/selectors/instrumentSelector';
 import { SAX_TYPES, SaxType } from 'MemoryFlashCore/src/lib/saxPitch';
 import { Select } from '../inputs/Select';
-import { SaxFingeringsToggle } from './SaxFingerings';
+import { SaxOptions } from './SaxOptions';
+import { useReferenceTone } from './useReferenceTone';
+import { CircleHover } from '../ui/CircleHover';
+import { SpeakerWaveIcon } from '@heroicons/react/24/outline';
 import { useSaxMicInput } from './useSaxMicInput';
 import { SaxHoldSetting } from './SaxHoldSetting';
 
@@ -36,12 +39,18 @@ const HoldProgressBar: React.FC<{ progress: number }> = ({ progress }) => (
 export const SaxStudyPanel: React.FC = () => {
 	const dispatch = useAppDispatch();
 	const saxType = useAppSelector(saxTypeSelector);
-	const { heard, progress, ready, error } = useSaxMicInput();
+	const { heard, progress, ready, error, muteFor } = useSaxMicInput();
+	const playNote = useReferenceTone(muteFor);
 
 	return (
 		<div className="flex flex-col items-center gap-4 py-6">
 			<div className="flex items-center gap-4">
 				<ListeningStatus heard={heard} ready={ready} error={error} />
+				{playNote && (
+					<CircleHover onClick={playNote}>
+						<SpeakerWaveIcon className="w-5 h-5 stroke-2" />
+					</CircleHover>
+				)}
 				<Select
 					className="w-36"
 					aria-label="Saxophone type"
@@ -61,7 +70,7 @@ export const SaxStudyPanel: React.FC = () => {
 				<SaxHoldSetting />
 				<HoldProgressBar progress={progress} />
 			</div>
-			<SaxFingeringsToggle />
+			<SaxOptions />
 		</div>
 	);
 };

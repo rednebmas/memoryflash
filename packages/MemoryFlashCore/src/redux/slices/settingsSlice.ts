@@ -12,6 +12,8 @@ export interface SettingsState {
 	instrument?: Instrument;
 	saxType?: SaxType;
 	saxHoldMs?: number;
+	saxReferenceTone?: boolean;
+	saxAnyOctave?: boolean;
 }
 
 const initialState: SettingsState = {
@@ -42,6 +44,12 @@ const settingsSlice = createSlice({
 		},
 		setSaxHoldMs(state, action: PayloadAction<number>) {
 			state.saxHoldMs = action.payload;
+		},
+		setSaxReferenceTone(state, action: PayloadAction<boolean>) {
+			state.saxReferenceTone = action.payload;
+		},
+		setSaxAnyOctave(state, action: PayloadAction<boolean>) {
+			state.saxAnyOctave = action.payload;
 		},
 	},
 });

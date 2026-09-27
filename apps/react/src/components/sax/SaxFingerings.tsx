@@ -9,7 +9,7 @@ import {
 } from 'MemoryFlashCore/src/lib/saxFingerings';
 import { MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { showSaxFingeringsSelector } from 'MemoryFlashCore/src/redux/selectors/instrumentSelector';
-import { Checkbox } from '../inputs/Checkbox';
+import { SettingCheckbox } from '../inputs/SettingCheckbox';
 import { SaxFingeringChart } from './SaxFingeringChart';
 
 type SaxNoteProps = { fingering: SaxNoteFingering; compact?: boolean };
@@ -34,15 +34,11 @@ export const SaxFingeringsToggle: React.FC = () => {
 	const dispatch = useAppDispatch();
 	const show = useAppSelector(showSaxFingeringsSelector);
 	return (
-		<label className="flex items-center justify-center gap-2 text-sm">
-			<Checkbox
-				checked={show}
-				onChange={(e) =>
-					dispatch(saveSetting(settingsActions.setShowSaxFingerings(e.target.checked)))
-				}
-			/>
-			Show saxophone fingerings
-		</label>
+		<SettingCheckbox
+			label="Show saxophone fingerings"
+			checked={show}
+			onChange={(on) => dispatch(saveSetting(settingsActions.setShowSaxFingerings(on)))}
+		/>
 	);
 };
 

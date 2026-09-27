@@ -1,13 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { midiActions } from 'MemoryFlashCore/src/redux/slices/midiSlice';
 import {
 	currentCardIsNaturalSelector,
+	currentNoteMidiSelector,
+	saxAnyOctaveSelector,
 	saxHoldMsSelector,
 	saxTypeSelector,
 } from 'MemoryFlashCore/src/redux/selectors/instrumentSelector';
 import {
 	PitchState,
+	foldToOctaveOf,
 	frequencyToWrittenMidi,
 	holdProgress,
 	initialPitchState,
@@ -21,17 +24,27 @@ export const useSaxMicInput = () => {
 	const saxType = useAppSelector(saxTypeSelector);
 	const holdMs = useLatest(useAppSelector(saxHoldMsSelector));
 	const naturalsOnly = useLatest(useAppSelector(currentCardIsNaturalSelector));
+	const anyOctave = useLatest(useAppSelector(saxAnyOctaveSelector));
+	const target = useLatest(useAppSelector(currentNoteMidiSelector));
+	const mutedUntil = useRef(0);
 	const [heard, setHeard] = useState<number>();
 	const [progress, setProgress] = useState(0);
 	const [ready, setReady] = useState(false);
 	const [error, setError] = useState<string>();
 
+	const toWrittenMidi = (frequency: number) => {
+		const midi = frequencyToWrittenMidi(frequency, saxType, naturalsOnly.current);
+		return foldToOctaveOf(midi, anyOctave.current ? target.current : undefined);
+	};
+	const muteFor = (ms: number) => {
+		mutedUntil.current = Date.now() + ms;
+	};
+
 	useEffect(() => {
 		let pitch: PitchState = initialPitchState;
 		const onFrame = (frequency?: number) => {
-			const midi = frequency
-				? frequencyToWrittenMidi(frequency, saxType, naturalsOnly.current)
-				: undefined;
+			const muted = Date.now() < mutedUntil.current;
+			const midi = frequency && !muted ? toWrittenMidi(frequency) : undefined;
 			const { state, on, off } = stabilizePitch(pitch, midi, holdMs.current);
 			pitch = state;
 			if (off !== undefined) dispatch(midiActions.removeNote(off));
@@ -48,5 +61,5 @@ export const useSaxMicInput = () => {
 		};
 	}, [saxType]);
 
-	return { heard, progress, ready, error };
+	return { heard, progress, ready, error, muteFor };
 };

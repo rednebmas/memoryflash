@@ -25,6 +25,12 @@ export function frequencyToWrittenMidi(
 	return naturalsOnly ? nearestNatural(midi) : Math.round(midi);
 }
 
+export const writtenMidiToFrequency = (midi: number, saxType: SaxType) =>
+	440 * 2 ** ((midi - SAX_TRANSPOSITION[saxType] - 69) / 12);
+
+export const foldToOctaveOf = (midi: number, target?: number) =>
+	target !== undefined && (midi - target) % 12 === 0 ? target : midi;
+
 export const FRAME_MS = 1000 / 60;
 export const DEFAULT_HOLD_MS = 250;
 export const SAX_HOLD_OPTIONS_MS = [250, 500, 750, 1000, 1500];

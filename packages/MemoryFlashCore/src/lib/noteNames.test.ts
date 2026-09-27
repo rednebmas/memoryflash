@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { StaffEnum } from '../types/Cards';
-import { isSameNoteName, singleNoteName } from './noteNames';
+import { isSameNoteName, singleNoteMidi, singleNoteName } from './noteNames';
 
 const question = (names: string[]) => ({
 	key: 'C',
@@ -15,6 +15,11 @@ const question = (names: string[]) => ({
 describe('noteNames', () => {
 	it('names a single-note card', () => {
 		expect(singleNoteName(question(['F#']))).to.equal('F#');
+	});
+
+	it('gives the midi number of a single-note card', () => {
+		expect(singleNoteMidi(question(['F']))).to.equal(65);
+		expect(singleNoteMidi(question(['C', 'E']))).to.equal(undefined);
 	});
 
 	it('has no single name for multi-note cards', () => {

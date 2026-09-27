@@ -3,7 +3,9 @@ import { Midi } from 'tonal';
 import {
 	PitchState,
 	PitchStep,
+	foldToOctaveOf,
 	frequencyToWrittenMidi,
+	writtenMidiToFrequency,
 	holdProgress,
 	initialPitchState,
 	stabilizePitch,
@@ -49,6 +51,25 @@ describe('frequencyToWrittenMidi', () => {
 
 	it('rounds slightly out of tune notes to the nearest pitch', () => {
 		expect(frequencyToWrittenMidi(446, 'alto')).to.equal(69 + 9);
+	});
+});
+
+describe('writtenMidiToFrequency', () => {
+	it('plays the concert pitch the sax actually sounds', () => {
+		expect(writtenMidiToFrequency(Midi.toMidi('C5')!, 'alto')).to.be.closeTo(311.13, 0.01);
+		expect(writtenMidiToFrequency(Midi.toMidi('C5')!, 'tenor')).to.be.closeTo(233.08, 0.01);
+	});
+});
+
+describe('foldToOctaveOf', () => {
+	it('treats the right note in another octave as the target', () => {
+		expect(foldToOctaveOf(77, 65)).to.equal(65);
+		expect(foldToOctaveOf(53, 65)).to.equal(65);
+	});
+
+	it('leaves other notes and missing targets alone', () => {
+		expect(foldToOctaveOf(67, 65)).to.equal(67);
+		expect(foldToOctaveOf(77)).to.equal(77);
 	});
 });
 
