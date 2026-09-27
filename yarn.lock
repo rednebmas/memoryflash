@@ -2111,6 +2111,7 @@ __metadata:
     eslint-plugin-react-hooks: "npm:^4.6.0"
     eslint-plugin-react-refresh: "npm:^0.4.3"
     lodash: "npm:^4.17.21"
+    pitchy: "npm:^4.1.0"
     postcss: "npm:^8.4.31"
     react: "npm:^18.2.0"
     react-dom: "npm:^18.2.0"
@@ -3946,6 +3947,13 @@ __metadata:
   version: 4.2.3
   resolution: "fecha@npm:4.2.3"
   checksum: 10c0/0e895965959cf6a22bb7b00f0bf546f2783836310f510ddf63f463e1518d4c96dec61ab33fdfd8e79a71b4856a7c865478ce2ee8498d560fe125947703c9b1cf
+  languageName: node
+  linkType: hard
+
+"fft.js@npm:^4.0.4":
+  version: 4.0.4
+  resolution: "fft.js@npm:4.0.4"
+  checksum: 10c0/ea9bf9df38204281078629e32e0176035e8121410bb8db67b5544520faa6f567734774afb87eafc31cb43339995295d3d72202917b4f43942be4eca8dd54b226
   languageName: node
   linkType: hard
 
@@ -6460,6 +6468,15 @@ __metadata:
   version: 4.0.6
   resolution: "pirates@npm:4.0.6"
   checksum: 10c0/00d5fa51f8dded94d7429700fb91a0c1ead00ae2c7fd27089f0c5b63e6eca36197fe46384631872690a66f390c5e27198e99006ab77ae472692ab9c2ca903f36
+  languageName: node
+  linkType: hard
+
+"pitchy@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "pitchy@npm:4.1.0"
+  dependencies:
+    fft.js: "npm:^4.0.4"
+  checksum: 10c0/e3c3b2774a0885cb0c51d15508f5e11b8f0d294175385fe5db2c1311757a6d7ca0e4b6742012d25ba25e674e9549e06a92e7d61231d74ea9804b5e8b1ed4db03
   languageName: node
   linkType: hard
 

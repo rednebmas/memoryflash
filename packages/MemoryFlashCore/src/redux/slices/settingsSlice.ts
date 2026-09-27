@@ -1,12 +1,16 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { PresentationModeIds } from '../../types/PresentationMode';
+import { SaxType } from '../../lib/saxPitch';
 
 export type ChordInputMode = 'piano' | 'names';
+export type Instrument = 'piano' | 'sax';
 
 export interface SettingsState {
 	presentationModes: { [cardType: string]: PresentationModeIds };
 	chordInputMode?: ChordInputMode;
 	showSaxFingerings?: boolean;
+	instrument?: Instrument;
+	saxType?: SaxType;
 }
 
 const initialState: SettingsState = {
@@ -28,6 +32,12 @@ const settingsSlice = createSlice({
 		},
 		setShowSaxFingerings(state, action: PayloadAction<boolean>) {
 			state.showSaxFingerings = action.payload;
+		},
+		setInstrument(state, action: PayloadAction<Instrument>) {
+			state.instrument = action.payload;
+		},
+		setSaxType(state, action: PayloadAction<SaxType>) {
+			state.saxType = action.payload;
 		},
 	},
 });
