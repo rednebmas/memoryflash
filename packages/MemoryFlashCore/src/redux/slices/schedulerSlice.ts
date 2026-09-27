@@ -44,6 +44,14 @@ const pickupNextCard = (state: SchedulerState) => {
 	state.incorrect = undefined;
 };
 
+const MISS_REQUEUE_GAPS = [2, 4];
+
+const insertApart = (queue: string[], cardId: string, gap: number) => {
+	const index = Math.min(gap, queue.length);
+	if (queue[index - 1] === cardId || queue[index] === cardId) return;
+	queue.splice(index, 0, cardId);
+};
+
 const resetQueue = (state: SchedulerState) => {
 	state.answeredCards = [];
 	state.nextCards = [];
@@ -81,14 +89,10 @@ const schedulerSlice = createSlice({
 			state.incorrect = true;
 			const { cardId, requeue } = action.payload;
 			if (!requeue) return;
-
-			// So basically, in order to move to the next card, you must answer the current card correctly twice
-			if (state.nextCards[1] !== cardId) state.nextCards.unshift(cardId);
-			if (state.nextCards[2] !== cardId) state.nextCards.unshift(cardId);
+			MISS_REQUEUE_GAPS.forEach((gap) => insertApart(state.nextCards, cardId, gap));
 		},
 		insertCard(state, action: PayloadAction<{ cardId: string; gap: number }>) {
-			const index = Math.min(action.payload.gap, state.nextCards.length);
-			state.nextCards.splice(index, 0, action.payload.cardId);
+			insertApart(state.nextCards, action.payload.cardId, action.payload.gap);
 			if (!state.currCard) pickupNextCard(state);
 		},
 		removeCard(state, action: PayloadAction<string>) {

@@ -40,9 +40,28 @@ describe('schedulerSlice', () => {
 		const state: SchedulerState = { ...baseState, currCard: 'a', nextCards: ['a', 'b'] };
 		const miss = (requeue: boolean) =>
 			schedulerReducer(state, schedulerActions.markCurrIncorrect({ cardId: 'a', requeue }));
-		expect(miss(true).nextCards).to.deep.equal(['a', 'a', 'a', 'b']);
+		expect(miss(true).nextCards).to.deep.equal(['a', 'b', 'a']);
 		expect(miss(false).nextCards).to.deep.equal(['a', 'b']);
 		expect(miss(false).incorrect).to.equal(true);
+	});
+
+	it('spaces out a missed card so it never plays twice in a row', () => {
+		const state: SchedulerState = {
+			...baseState,
+			currCard: 'a',
+			nextCards: ['a', 'b', 'c', 'd'],
+		};
+		const next = schedulerReducer(
+			state,
+			schedulerActions.markCurrIncorrect({ cardId: 'a', requeue: true }),
+		);
+		expect(next.nextCards).to.deep.equal(['a', 'b', 'a', 'c', 'a', 'd']);
+	});
+
+	it('does not insert a card next to itself', () => {
+		const state: SchedulerState = { ...baseState, currCard: 'a', nextCards: ['a', 'x'] };
+		const next = schedulerReducer(state, schedulerActions.insertCard({ cardId: 'x', gap: 1 }));
+		expect(next.nextCards).to.deep.equal(['a', 'x']);
 	});
 
 	it('scheduledCardsSelector ignores missing ids', () => {
