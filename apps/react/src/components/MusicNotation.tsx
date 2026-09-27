@@ -20,6 +20,8 @@ import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { Chord } from 'tonal';
 import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
 import { buildScoreTimeline } from 'MemoryFlashCore/src/lib/scoreTimeline';
+import { barSlot, barsPerLine } from 'MemoryFlashCore/src/lib/notationLayout';
+import useWindowResize from '../screens/StudyScreen/useWindowResize';
 
 const VF = {
 	Stave,
@@ -45,6 +47,8 @@ const NOTE_AREA_RIGHT_PADDING = 26;
 const SINGLE_STAFF_HEIGHT = 160;
 const DOUBLE_STAFF_MIN_HEIGHT = 220;
 const STAFF_BOTTOM_PADDING = 20;
+const LINE_GAP = 30;
+const PAGE_GUTTER = 32;
 const NOTE_SHADOW_BLUR = 2;
 const NOTE_STYLE_MAP: Record<string, { light: string; dark: string }> = {
 	highlight: { light: '#22c55e', dark: '#7e22ce' },
@@ -124,6 +128,7 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 	const divRef = useRef<HTMLDivElement>(null);
 	const multiPartCardIndex = useAppSelector((s) => s.scheduler.multiPartCardIndex);
 	const timeline = useMemo(() => buildScoreTimeline(data), [data]);
+	const { width: windowWidth } = useWindowResize();
 
 	useEffect(() => {
 		const div = divRef.current;
@@ -139,11 +144,13 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 
 		const bars = calcBars(data);
 		const beatsPerBar = beatsPerBarOf(data);
-		const width = BAR_WIDTH * bars;
+		const perLine = barsPerLine(bars, windowWidth - PAGE_GUTTER, BAR_WIDTH);
+		const lines = Math.ceil(bars / perLine);
+		const width = BAR_WIDTH * perLine;
 		const trebleOn = data.voices.some((v) => v.staff === StaffEnum.Treble);
 		const bassOn = data.voices.some((v) => v.staff === StaffEnum.Bass);
-		const initialHeight =
-			trebleOn && bassOn ? STAFF_GAP + SINGLE_STAFF_HEIGHT * 2 : SINGLE_STAFF_HEIGHT;
+		const lineHeight = (trebleOn && bassOn ? STAFF_GAP : 0) + SINGLE_STAFF_HEIGHT + LINE_GAP;
+		const initialHeight = lineHeight * lines;
 
 		const renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
 		renderer.resize(width + RENDER_PADDING, initialHeight);
@@ -161,16 +168,17 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 		);
 
 		for (let bar = 0; bar < bars; bar++) {
-			const x = bar * BAR_WIDTH;
-			const isFirstBar = bar === 0;
+			const slot = barSlot(bar, perLine);
+			const x = slot.column * BAR_WIDTH;
+			const lineY = slot.line * lineHeight;
+			const isFirstBar = slot.isLineStart;
 
 			const buildStaff = (staffType: StaffEnum, y: number): StaffRenderData => {
 				const stave = new VF.Stave(x, y, BAR_WIDTH);
 				if (isFirstBar) {
-					stave
-						.addClef(staffType === StaffEnum.Treble ? 'treble' : 'bass')
-						.addTimeSignature(`${beatsPerBar}/4`)
-						.addKeySignature(data.key);
+					stave.addClef(staffType === StaffEnum.Treble ? 'treble' : 'bass');
+					if (bar === 0) stave.addTimeSignature(`${beatsPerBar}/4`);
+					stave.addKeySignature(data.key);
 				}
 				if (isFirstBar) {
 					const minStart = x + FIRST_MEASURE_MIN_LEFT_PADDING;
@@ -310,10 +318,10 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 			};
 
 			const staffEntries: StaffRenderData[] = [];
-			const trebleY = STAFF_TOP_OFFSET;
+			const trebleY = STAFF_TOP_OFFSET + lineY;
 			if (trebleOn) staffEntries.push(buildStaff(StaffEnum.Treble, trebleY));
 			if (bassOn) {
-				const bassY = trebleOn ? trebleY + STAFF_GAP : STAFF_TOP_OFFSET;
+				const bassY = trebleOn ? trebleY + STAFF_GAP : trebleY;
 				staffEntries.push(buildStaff(StaffEnum.Bass, bassY));
 			}
 
@@ -385,7 +393,7 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 			svg.style.height = `${desiredHeight}px`;
 			div.style.height = `${desiredHeight}px`;
 		}
-	}, [data, multiPartCardIndex, allNotesClassName, highlightClassName, hideChords]);
+	}, [data, multiPartCardIndex, allNotesClassName, highlightClassName, hideChords, windowWidth]);
 
 	return <div className="svg-dark-mode" ref={divRef} />;
 };
