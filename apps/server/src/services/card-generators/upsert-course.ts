@@ -2,6 +2,8 @@ import { CardTypeBase, CardTypeEnum } from 'MemoryFlashCore/src/types/Cards';
 import { DeckWithoutGeneratedFields as IDeck } from 'MemoryFlashCore/src/types/Deck';
 import { upsertDeckWithCards } from './upsert-deck-with-cards';
 import { CourseDoc } from '../../models/Course';
+import { Deck } from '../../models/Deck';
+import { purgeDeck } from '../deckService';
 
 export async function upsertCourse<T extends CardTypeEnum, Q extends {}>(
 	course: CourseDoc,
@@ -28,8 +30,15 @@ export async function upsertCourse<T extends CardTypeEnum, Q extends {}>(
 		decks.map(([deck, cards]) => upsertDeckWithCards(deck, cards)),
 	);
 
+	const previousDeckIds = course.decks.map(String);
 	course.decks = decksContainer.map((container) => container.deck._id);
 	await course.save();
+
+	const keptDeckIds = course.decks.map(String);
+	const staleDecks = await Deck.find({
+		_id: { $in: previousDeckIds.filter((id) => !keptDeckIds.includes(id)) },
+	});
+	await Promise.all(staleDecks.map(purgeDeck));
 
 	return { course, decks: decksContainer.map((c) => c.deck) };
 }

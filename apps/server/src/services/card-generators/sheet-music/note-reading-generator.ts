@@ -11,49 +11,41 @@ type Level = { section: string; name: string; adds: StaffNote[] };
 
 const COURSE_NAME = 'Sheet Music';
 
-const on = (staff: Staff, notes: string[]) => notes.map((note) => ({ staff, note }));
-
-const ledgerLevels = (section: string, staff: Staff, above: string[], below: string[]): Level[] =>
-	Array.from({ length: Math.max(above.length, below.length) }, (_, i) => {
-		const notes = [above[i], below[i]].filter(Boolean);
-		return { section, name: notes.join(' & '), adds: on(staff, notes) };
-	});
+const on = (staff: Staff, notes: string) => notes.split(' ').map((note) => ({ staff, note }));
 
 export const noteReadingLevels: Level[] = [
 	{
 		section: 'Treble Clef',
 		name: 'FACE (Spaces)',
-		adds: on(StaffEnum.Treble, ['F4', 'A4', 'C5', 'E5']),
+		adds: on(StaffEnum.Treble, 'F4 A4 C5 E5'),
 	},
 	{
 		section: 'Treble Clef',
 		name: 'EGBDF (Lines)',
-		adds: on(StaffEnum.Treble, ['E4', 'G4', 'B4', 'D5', 'F5']),
+		adds: on(StaffEnum.Treble, 'E4 G4 B4 D5 F5'),
 	},
 	{
 		section: 'Bass Clef',
 		name: 'ACEG (Spaces)',
-		adds: on(StaffEnum.Bass, ['A2', 'C3', 'E3', 'G3']),
+		adds: on(StaffEnum.Bass, 'A2 C3 E3 G3'),
 	},
 	{
 		section: 'Bass Clef',
 		name: 'GBDFA (Lines)',
-		adds: on(StaffEnum.Bass, ['G2', 'B2', 'D3', 'F3', 'A3']),
+		adds: on(StaffEnum.Bass, 'G2 B2 D3 F3 A3'),
 	},
-	{ section: 'Bass Clef', name: 'Both Clefs', adds: [] },
-	...ledgerLevels(
-		'Treble Clef Ledger Lines',
-		StaffEnum.Treble,
-		['G5', 'A5', 'B5', 'C6', 'D6', 'E6', 'F6', 'G6'],
-		['D4', 'C4', 'B3', 'A3', 'G3', 'F3'],
-	),
-	...ledgerLevels(
-		'Bass Clef Ledger Lines',
-		StaffEnum.Bass,
-		['B3', 'C4', 'D4', 'E4', 'F4', 'G4'],
-		['F2', 'E2', 'D2', 'C2', 'B1', 'A1', 'G1', 'F1'],
-	),
-	{ section: 'Review', name: 'Everything', adds: [] },
+	{ section: 'Both Clefs', name: 'Both Clefs', adds: [] },
+	{
+		section: 'Ledger Lines',
+		name: 'Treble Ledger Lines',
+		adds: on(StaffEnum.Treble, 'G5 A5 B5 C6 D6 E6 F6 G6 D4 C4 B3 A3 G3 F3'),
+	},
+	{
+		section: 'Ledger Lines',
+		name: 'Bass Ledger Lines',
+		adds: on(StaffEnum.Bass, 'B3 C4 D4 E4 F4 G4 F2 E2 D2 C2 B1 A1 G1 F1'),
+	},
+	{ section: 'Ledger Lines', name: 'Everything', adds: [] },
 ];
 
 export function createNoteCard(deckUid: string, { staff, note }: StaffNote): MultiSheetCard {

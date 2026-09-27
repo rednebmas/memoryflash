@@ -114,8 +114,11 @@ export async function renameDeck(deckId: string, name: string, userId: string) {
 
 export async function deleteDeckById(deckId: string, userId: string) {
 	const deck = await getOwnedDeck(deckId, userId);
-	if (!deck) return;
-	await Deck.deleteOne({ _id: deckId });
+	if (deck) await purgeDeck(deck);
+}
+
+export async function purgeDeck(deck: { _id: Types.ObjectId | string; courseId: string }) {
+	await Deck.deleteOne({ _id: deck._id });
 
 	await Course.updateOne({ _id: deck.courseId }, { $pull: { decks: deck._id } });
 
