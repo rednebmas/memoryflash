@@ -12,15 +12,16 @@ import {
 import { prettyChordSymbol } from 'MemoryFlashCore/src/lib/romanNumerals';
 import { AnswerStrip } from './AnswerStrip';
 import { PadKey } from './PadKey';
+import { useTemporaryFlag } from '../../utils/useTemporaryFlag';
 
-const WRONG_FLASH_MS = 500;
+export const WRONG_FLASH_MS = 500;
 
 export const ChordNamePad: React.FC = () => {
 	const dispatch = useAppDispatch();
 	const { notation, key, total, committed, rows } = useAppSelector(chordPadSelector);
 	const currCard = useAppSelector((s) => s.scheduler.currCard);
 	const [pending, setPending] = useState<PendingChord>(EMPTY_PENDING);
-	const [wrong, setWrong] = useState(false);
+	const [wrong, flashWrong] = useTemporaryFlag(WRONG_FLASH_MS);
 	const symbol = renderPending(pending, notation);
 
 	useEffect(() => setPending(EMPTY_PENDING), [currCard]);
@@ -30,16 +31,10 @@ export const ChordNamePad: React.FC = () => {
 		dispatch(
 			answerChordSymbol(symbol, (correct) => {
 				setPending(EMPTY_PENDING);
-				if (!correct) setWrong(true);
+				if (!correct) flashWrong();
 			}),
 		);
 	};
-
-	useEffect(() => {
-		if (!wrong) return;
-		const timer = setTimeout(() => setWrong(false), WRONG_FLASH_MS);
-		return () => clearTimeout(timer);
-	}, [wrong]);
 
 	const press = (label: string) => {
 		if (label === ENTER) return commit();

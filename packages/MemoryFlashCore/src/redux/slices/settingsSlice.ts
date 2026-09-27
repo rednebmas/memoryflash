@@ -3,7 +3,7 @@ import { PresentationModeIds } from '../../types/PresentationMode';
 import { SaxType } from '../../lib/saxPitch';
 
 export type ChordInputMode = 'piano' | 'names';
-export type Instrument = 'piano' | 'sax';
+export type Instrument = 'piano' | 'sax' | 'names';
 
 export interface SettingsState {
 	presentationModes: { [cardType: string]: PresentationModeIds };

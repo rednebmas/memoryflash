@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { settingsActions } from 'MemoryFlashCore/src/redux/slices/settingsSlice';
+import { saveSetting } from 'MemoryFlashCore/src/redux/actions/save-setting-action';
 import {
 	currentSheetCardSelector,
 	saxHoldMsSelector,
@@ -19,7 +20,9 @@ export const SaxHoldSetting: React.FC = () => {
 			<Select
 				className="w-36"
 				value={holdMs}
-				onChange={(e) => dispatch(settingsActions.setSaxHoldMs(Number(e.target.value)))}
+				onChange={(e) =>
+					dispatch(saveSetting(settingsActions.setSaxHoldMs(Number(e.target.value))))
+				}
 			>
 				{SAX_HOLD_OPTIONS_MS.map((ms) => (
 					<option key={ms} value={ms}>

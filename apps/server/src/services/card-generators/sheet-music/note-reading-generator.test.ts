@@ -10,8 +10,10 @@ import {
 	generateNoteReadingDecks,
 } from './note-reading-generator';
 
-const deckNotes = (name: string) => {
-	const found = generateNoteReadingDecks('course').find(([deck]) => deck.name === name);
+const deckNotes = (name: string, section?: string) => {
+	const found = generateNoteReadingDecks('course').find(
+		([deck]) => deck.name === name && (!section || deck.section === section),
+	);
 	return found![1]
 		.map((card) =>
 			card.question.voices.map(
@@ -31,9 +33,11 @@ describe('note reading generator', () => {
 		]);
 	});
 
-	it('accumulates notes per clef', () => {
-		expect(deckNotes('EGBDF (Lines)')).to.have.length(9);
-		expect(deckNotes('GBDFA (Lines)')).to.have.length(9);
+	it('drills lines and spaces separately before combining them', () => {
+		expect(deckNotes('EGBDF (Lines)')).to.have.length(5);
+		expect(deckNotes('GBDFA (Lines)')).to.have.length(5);
+		expect(deckNotes('All Lines & Spaces', 'Treble Clef')).to.have.length(9);
+		expect(deckNotes('All Lines & Spaces', 'Bass Clef')).to.include('Bass G2');
 		expect(deckNotes('Both Clefs')).to.have.length(18);
 	});
 
@@ -74,7 +78,7 @@ describe('note reading generator', () => {
 			const courses = await Course.find({ name: 'Sheet Music' });
 			expect(courses).to.have.length(1);
 			expect(courses[0].userId).to.equal(undefined);
-			expect(courses[0].decks).to.have.length(8);
+			expect(courses[0].decks).to.have.length(10);
 			expect(await Card.countDocuments()).to.be.greaterThan(0);
 		});
 	});

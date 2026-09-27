@@ -1,10 +1,6 @@
 import { PresentationModeIds } from '../../types/PresentationMode';
 import { settingsActions } from '../slices/settingsSlice';
-import { AppThunk } from '../store';
+import { saveSetting } from './save-setting-action';
 
-export const setPresentationMode =
-	(cardType: string, mode: PresentationModeIds): AppThunk =>
-	async (dispatch, getState, { persistStore }) => {
-		dispatch(settingsActions.setPresentationMode({ cardType, mode }));
-		persistStore(getState());
-	};
+export const setPresentationMode = (cardType: string, mode: PresentationModeIds) =>
+	saveSetting(settingsActions.setPresentationMode({ cardType, mode }));

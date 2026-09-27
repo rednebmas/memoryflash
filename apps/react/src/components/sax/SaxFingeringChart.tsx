@@ -65,10 +65,13 @@ const SaxKeyShape: React.FC<{ shape: KeyShape; pressed: boolean }> = ({ shape, p
 	);
 };
 
-export const SaxFingeringChart: React.FC<{ keys: SaxKey[] }> = ({ keys }) => (
+export const SaxFingeringChart: React.FC<{ keys: SaxKey[]; className?: string }> = ({
+	keys,
+	className = 'w-32 h-72',
+}) => (
 	<svg
 		viewBox="0 0 120 280"
-		className="w-32 h-72"
+		className={className}
 		role="img"
 		aria-label={`Pressed keys: ${keys.join(', ') || 'none'}`}
 	>

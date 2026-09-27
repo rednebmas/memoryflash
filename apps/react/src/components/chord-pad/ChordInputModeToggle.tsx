@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { ChordInputMode, settingsActions } from 'MemoryFlashCore/src/redux/slices/settingsSlice';
+import { saveSetting } from 'MemoryFlashCore/src/redux/actions/save-setting-action';
 import {
 	chordInputModeSelector,
 	currentCardAcceptsChordNamesSelector,
@@ -21,7 +22,7 @@ export const ChordInputModeToggle: React.FC = () => {
 		<SegmentedPicker
 			options={MODES}
 			value={mode}
-			onChange={(value) => dispatch(settingsActions.setChordInputMode(value))}
+			onChange={(value) => dispatch(saveSetting(settingsActions.setChordInputMode(value)))}
 		/>
 	);
 };

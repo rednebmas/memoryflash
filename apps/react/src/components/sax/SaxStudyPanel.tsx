@@ -3,13 +3,11 @@ import clsx from 'clsx';
 import { Midi } from 'tonal';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { settingsActions } from 'MemoryFlashCore/src/redux/slices/settingsSlice';
-import {
-	currentSheetCardSelector,
-	saxTypeSelector,
-} from 'MemoryFlashCore/src/redux/selectors/instrumentSelector';
+import { saveSetting } from 'MemoryFlashCore/src/redux/actions/save-setting-action';
+import { saxTypeSelector } from 'MemoryFlashCore/src/redux/selectors/instrumentSelector';
 import { SAX_TYPES, SaxType } from 'MemoryFlashCore/src/lib/saxPitch';
 import { Select } from '../inputs/Select';
-import { SaxFingerings } from './SaxFingerings';
+import { SaxFingeringsToggle } from './SaxFingerings';
 import { useSaxMicInput } from './useSaxMicInput';
 
 type ListeningStatusProps = { heard?: number; ready: boolean; error?: string };
@@ -36,7 +34,6 @@ const HoldProgressBar: React.FC<{ progress: number }> = ({ progress }) => (
 
 export const SaxStudyPanel: React.FC = () => {
 	const dispatch = useAppDispatch();
-	const card = useAppSelector(currentSheetCardSelector);
 	const saxType = useAppSelector(saxTypeSelector);
 	const { heard, progress, ready, error } = useSaxMicInput();
 
@@ -49,7 +46,7 @@ export const SaxStudyPanel: React.FC = () => {
 					aria-label="Saxophone type"
 					value={saxType}
 					onChange={(e) =>
-						dispatch(settingsActions.setSaxType(e.target.value as SaxType))
+						dispatch(saveSetting(settingsActions.setSaxType(e.target.value as SaxType)))
 					}
 				>
 					{SAX_TYPES.map((type) => (
@@ -60,7 +57,7 @@ export const SaxStudyPanel: React.FC = () => {
 				</Select>
 			</div>
 			<HoldProgressBar progress={progress} />
-			{card && <SaxFingerings question={card.question} />}
+			<SaxFingeringsToggle />
 		</div>
 	);
 };
