@@ -18,8 +18,9 @@ import {
 } from 'MemoryFlashCore/src/lib/saxPitch';
 import { listenForPitch } from './listenForPitch';
 import { useLatest } from '../../utils/useLatest';
+import { PitchFrame } from 'MemoryFlashCore/src/lib/rhythm/types';
 
-export const useSaxMicInput = () => {
+export const useSaxMicInput = (onPitchFrame?: (frame: PitchFrame) => void) => {
 	const dispatch = useAppDispatch();
 	const saxType = useAppSelector(saxTypeSelector);
 	const holdMs = useLatest(useAppSelector(saxHoldMsSelector));
@@ -27,6 +28,7 @@ export const useSaxMicInput = () => {
 	const anyOctave = useLatest(useAppSelector(saxAnyOctaveSelector));
 	const target = useLatest(useAppSelector(currentNoteMidiSelector));
 	const mutedUntil = useRef(0);
+	const frameListener = useLatest(onPitchFrame);
 	const [heard, setHeard] = useState<number>();
 	const [progress, setProgress] = useState(0);
 	const [ready, setReady] = useState(false);
@@ -42,13 +44,17 @@ export const useSaxMicInput = () => {
 
 	useEffect(() => {
 		let pitch: PitchState = initialPitchState;
-		const onFrame = (frequency?: number) => {
+		let candidateSince = 0;
+		const onFrame = (frequency: number | undefined, timeMs: number) => {
 			const muted = Date.now() < mutedUntil.current;
 			const midi = frequency && !muted ? toWrittenMidi(frequency) : undefined;
+			frameListener.current?.({ timeMs, midi });
 			const { state, on, off } = stabilizePitch(pitch, midi, holdMs.current);
+			if (state.candidate !== pitch.candidate) candidateSince = timeMs;
 			pitch = state;
 			if (off !== undefined) dispatch(midiActions.removeNote(off));
-			if (on !== undefined) dispatch(midiActions.addNote(on));
+			if (on !== undefined)
+				dispatch(midiActions.addNote({ number: on, time: candidateSince }));
 			setHeard(state.candidate ?? state.active);
 			setProgress(holdProgress(state, holdMs.current));
 		};

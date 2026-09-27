@@ -18,7 +18,7 @@ const resumeOnGesture = (context: AudioContext, onReady: (ready: boolean) => voi
 };
 
 export async function listenForPitch(
-	onFrame: (frequency?: number) => void,
+	onFrame: (frequency: number | undefined, timeMs: number) => void,
 	onReady: (ready: boolean) => void,
 ) {
 	const stream = await navigator.mediaDevices.getUserMedia({
@@ -31,11 +31,13 @@ export async function listenForPitch(
 	context.createMediaStreamSource(stream).connect(analyser);
 	const detector = PitchDetector.forFloat32Array(analyser.fftSize);
 	const buffer = new Float32Array(analyser.fftSize);
+	const halfWindowMs = (analyser.fftSize / 2 / context.sampleRate) * 1000;
 
 	const interval = setInterval(() => {
 		analyser.getFloatTimeDomainData(buffer);
 		const [frequency, clarity] = detector.findPitch(buffer, context.sampleRate);
-		onFrame(clarity >= MIN_CLARITY && rms(buffer) >= MIN_RMS ? frequency : undefined);
+		const heard = clarity >= MIN_CLARITY && rms(buffer) >= MIN_RMS ? frequency : undefined;
+		onFrame(heard, performance.now() - halfWindowMs);
 	}, FRAME_MS);
 
 	return () => {

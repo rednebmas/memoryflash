@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { ValidatorEngine } from './ValidatorEngine';
-import { ScoreTimeline } from './scoreTimeline';
+import { buildScoreTimeline, ScoreTimeline } from './scoreTimeline';
+import { StaffEnum } from '../types/Cards';
 import { createMockDispatch } from './createMockDispatch';
 import { toMidiNotes } from './addedNotes';
 
@@ -76,5 +77,30 @@ describe('ValidatorEngine legato', () => {
 		});
 		expect(second.actions.map((a) => a.type)).to.include('midi/waitUntilEmpty');
 		expect(second.actions.map((a) => a.type)).to.not.include('midi/addWrongNote');
+	});
+});
+
+describe('ValidatorEngine rests', () => {
+	it('accepts the note after a rest', () => {
+		const timeline = buildScoreTimeline({
+			key: 'C',
+			voices: [
+				{
+					staff: StaffEnum.Treble,
+					stack: [
+						{ notes: [{ name: 'C', octave: 4 }], duration: 'q' },
+						{ notes: [], duration: 'q', rest: true },
+						{ notes: [{ name: 'E', octave: 4 }], duration: 'h' },
+					],
+				},
+			],
+		});
+		expect(timeline.beats).to.deep.equal([0, 2, 4]);
+		const engine = new ValidatorEngine(timeline);
+		const { actions, dispatch } = createMockDispatch();
+		const args = { waitingNotes: [], waiting: false, index: 1, dispatch };
+		engine.handle({ ...args, notes: toMidiNotes([64]) });
+		expect(actions.map((a) => a.type)).to.not.include('midi/addWrongNote');
+		expect(actions.map((a) => a.type)).to.include('midi/waitUntilEmpty');
 	});
 });

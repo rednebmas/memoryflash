@@ -70,9 +70,9 @@ export function buildScoreTimeline(question: MultiSheetQuestion): ScoreTimeline 
 			continuing = nextContinuing;
 		});
 	});
-	const beats = Array.from(new Set(events.flatMap((e) => [e.start, e.end]).concat(0))).sort(
-		(a, b) => a - b,
-	);
+	const starts = events.map((e) => e.start);
+	const end = Math.max(0, ...events.map((e) => e.end));
+	const beats = Array.from(new Set([...starts, end])).sort((a, b) => a - b);
 
 	return { events, beats };
 }

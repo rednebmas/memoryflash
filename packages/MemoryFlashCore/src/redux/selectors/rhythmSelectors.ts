@@ -30,7 +30,10 @@ export const deckLadderSelector = createSelector(
 
 export const deckTempoSelector = createSelector([deckLadderSelector], (ladder) => ladder.bpm);
 
-export const rhythmLatencyMsSelector = (state: ReduxState) => state.settings.rhythmLatencyMs ?? 0;
+export const rhythmLatencyMsSelector = (state: ReduxState) =>
+	(instrumentSelector(state) === 'sax'
+		? state.settings.saxRhythmLatencyMs
+		: state.settings.rhythmLatencyMs) ?? 0;
 
 export const currStepBeatsSelector = createSelector([sessionCardsSelector], ({ cards, index }) =>
 	cards[index] ? stepBeats(cards[index]) : [],
@@ -39,7 +42,8 @@ export const currStepBeatsSelector = createSelector([sessionCardsSelector], ({ c
 export const rhythmModeSelector = createSelector(
 	[deckRhythmSettingsSelector, instrumentSelector, chordInputModeSelector],
 	(settings, instrument, inputMode) =>
-		settings.enabled && instrument === 'piano' && inputMode === 'piano',
+		settings.enabled &&
+		(instrument === 'sax' || (instrument === 'piano' && inputMode === 'piano')),
 );
 
 export const rhythmActiveSelector = createSelector(
@@ -66,10 +70,19 @@ export const nextDeadlineMsSelector = createSelector(
 		(s: ReduxState) => s.rhythm.grid,
 		deckRhythmSettingsSelector,
 		rhythmLatencyMsSelector,
+		instrumentSelector,
 	],
-	(active, card, beats, index, grid, settings, latencyMs): number | undefined => {
+	(active, card, beats, index, grid, settings, latencyMs, instrument): number | undefined => {
 		const beat = beats[index];
-		if (!active || !grid || !card || card.anchorMs === undefined || beat == null) return;
+		if (
+			!active ||
+			instrument === 'sax' ||
+			!grid ||
+			!card ||
+			card.anchorMs === undefined ||
+			beat == null
+		)
+			return;
 		if (card.steps[index]) return;
 		const expected = expectedMs(card.anchorMs, card.anchorBeat ?? 0, beat, grid.beatMs);
 		return deadlineMs(expected, settings.strictness) + latencyMs;

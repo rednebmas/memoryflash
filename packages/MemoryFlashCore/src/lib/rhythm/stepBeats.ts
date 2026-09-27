@@ -3,8 +3,7 @@ import { MultiSheetQuestion } from '../../types/MultiSheetCard';
 import { buildScoreTimeline } from '../scoreTimeline';
 
 const exactStepBeats = (question: MultiSheetQuestion): (number | null)[] => {
-	const { events, beats } = buildScoreTimeline(question);
-	return beats.slice(0, -1).map((beat) => (events.some((e) => e.start === beat) ? beat : null));
+	return buildScoreTimeline(question).beats.slice(0, -1);
 };
 
 const chordStepBeats = (question: MultiSheetQuestion, chordCount: number): (number | null)[] => {

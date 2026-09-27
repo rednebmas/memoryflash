@@ -27,7 +27,15 @@ export const DEFAULT_RHYTHM: RhythmSettings = { enabled: false, bpm: 80, strictn
 
 export type Grid = { originMs: number; beatMs: number };
 export type TimedNote = { number: number; time: number };
-export type StepGrade = { onsetMs: number; offsetMs: number | null; tier: TimingTier };
+export type StepGrade = {
+	onsetMs: number;
+	offsetMs: number | null;
+	tier: TimingTier;
+	coverage?: number;
+};
+
+export const COVERAGE_TIERS = { perfect: 0.9, good: 0.82, ok: 0.75 };
+export type PitchFrame = { timeMs: number; midi?: number };
 
 export const RHYTHM_BPM_OPTIONS = Array.from({ length: 33 }, (_, i) => 40 + i * 5);
 

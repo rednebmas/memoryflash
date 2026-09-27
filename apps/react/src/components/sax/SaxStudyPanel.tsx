@@ -12,6 +12,8 @@ import { useReferenceTone } from './useReferenceTone';
 import { CircleHover } from '../ui/CircleHover';
 import { SpeakerWaveIcon } from '@heroicons/react/24/outline';
 import { useSaxMicInput } from './useSaxMicInput';
+import { useSaxRhythm } from './useSaxRhythm';
+import { saxRhythmActiveSelector } from 'MemoryFlashCore/src/redux/selectors/saxRhythmSelectors';
 import { SaxHoldSetting } from './SaxHoldSetting';
 
 type ListeningStatusProps = { heard?: number; ready: boolean; error?: string };
@@ -39,7 +41,9 @@ const HoldProgressBar: React.FC<{ progress: number }> = ({ progress }) => (
 export const SaxStudyPanel: React.FC = () => {
 	const dispatch = useAppDispatch();
 	const saxType = useAppSelector(saxTypeSelector);
-	const { heard, progress, ready, error, muteFor } = useSaxMicInput();
+	const rhythm = useSaxRhythm();
+	const rhythmActive = useAppSelector(saxRhythmActiveSelector);
+	const { heard, progress, ready, error, muteFor } = useSaxMicInput(rhythm.onFrame);
 	const playNote = useReferenceTone(muteFor);
 
 	return (
@@ -67,8 +71,12 @@ export const SaxStudyPanel: React.FC = () => {
 				</Select>
 			</div>
 			<div className="flex flex-col items-center gap-2">
-				<SaxHoldSetting />
-				<HoldProgressBar progress={progress} />
+				{rhythmActive ? (
+					<p className="text-sm text-muted">Hold each note for its full length</p>
+				) : (
+					<SaxHoldSetting />
+				)}
+				<HoldProgressBar progress={rhythmActive ? rhythm.coverage : progress} />
 			</div>
 			<SaxOptions />
 		</div>

@@ -1,5 +1,8 @@
 import { chordOnset, expectedMs, isRollTooSlow, snapAnchor, tierFor } from '../../lib/rhythm/grade';
+import { StepGrade } from '../../lib/rhythm/types';
 import { MidiNote } from '../slices/midiSlice';
+import { schedulerActions } from '../slices/schedulerSlice';
+import { saxRhythmActiveSelector } from '../selectors/saxRhythmSelectors';
 import { rhythmActions } from '../slices/rhythmSlice';
 import {
 	currRhythmCardSelector,
@@ -10,6 +13,8 @@ import {
 } from '../selectors/rhythmSelectors';
 import { ReduxState, SyncAppThunk } from '../store';
 import { recordAttempt } from './record-attempt-action';
+import { saveSetting } from './save-setting-action';
+import { settingsActions } from '../slices/settingsSlice';
 
 const gradeContext = (state: ReduxState, index: number) => {
 	const grid = state.rhythm.grid;
@@ -54,4 +59,34 @@ export const markStepMissed =
 		const grade = { onsetMs: performance.now(), offsetMs: null, tier: 'miss' as const };
 		dispatch(rhythmActions.gradeStep({ batchId: ctx.batchId, index, grade }));
 		dispatch(reportRhythmMiss());
+	};
+
+export const anchorSaxCard =
+	(onsetMs: number, beat: number): SyncAppThunk =>
+	(dispatch, getState) => {
+		const state = getState();
+		const grid = state.rhythm.grid;
+		if (!saxRhythmActiveSelector(state) || !grid) return;
+		if (currRhythmCardSelector(state)?.anchorMs !== undefined) return;
+		const ms = snapAnchor(onsetMs - rhythmLatencyMsSelector(state), grid);
+		dispatch(rhythmActions.setAnchor({ batchId: state.scheduler.batchId, ms, beat }));
+	};
+
+export const reportCoverageStep =
+	(index: number, grade: StepGrade, isLast: boolean): SyncAppThunk =>
+	(dispatch, getState) => {
+		dispatch(rhythmActions.gradeStep({ batchId: getState().scheduler.batchId, index, grade }));
+		if (grade.tier === 'miss') dispatch(reportRhythmMiss());
+		if (isLast) dispatch(recordAttempt(true));
+		else dispatch(schedulerActions.incrementMultiPartCardIndex());
+	};
+
+export const saveRhythmLatency =
+	(ms: number): SyncAppThunk =>
+	(dispatch, getState) => {
+		const sax = getState().settings.instrument === 'sax';
+		const action = sax
+			? settingsActions.setSaxRhythmLatencyMs
+			: settingsActions.setRhythmLatencyMs;
+		dispatch(saveSetting(action(ms)));
 	};

@@ -37,7 +37,7 @@ describe('stepBeats', () => {
 			],
 			exact,
 		);
-		expect(stepBeats(card)).to.deep.equal([0, null, 2]);
+		expect(stepBeats(card)).to.deep.equal([0, 2]);
 	});
 
 	it('skips tied continuations and merges two voices', () => {

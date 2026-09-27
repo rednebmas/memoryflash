@@ -5,13 +5,15 @@ import { AnyOctaveAnswerValidator } from './AnyOctaveAnswerValidator';
 import { ChordMemoryAnswerValidator } from './ChordMemoryAnswerValidator';
 import { ExactMultiAnswerValidator } from './ExactMultiAnswerValidator';
 import { UnExactMultiAnswerValidator } from './UnExactMultiAnswerValidator';
+import { saxRhythmActiveSelector } from 'MemoryFlashCore/src/redux/selectors/saxRhythmSelectors';
 
 export const AnswerValidator: React.FC<{ card: Card | undefined }> = ({ card }) => {
 	const presentationModesByQuestionType = useAppSelector(
 		(state) => state.settings.presentationModes,
 	);
 
-	if (!card) return null;
+	const saxRhythm = useAppSelector(saxRhythmActiveSelector);
+	if (!card || saxRhythm) return null;
 
 	let activePresentationMode: PresentationModeIds | undefined =
 		presentationModesByQuestionType[card.type];

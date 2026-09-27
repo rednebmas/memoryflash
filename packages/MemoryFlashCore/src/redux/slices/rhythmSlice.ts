@@ -53,6 +53,14 @@ const rhythmSlice = createSlice({
 				card.anchorBeat = payload.anchor.beat;
 			}
 		},
+		setAnchor(
+			state,
+			{ payload }: PayloadAction<{ batchId: string; ms: number; beat: number }>,
+		) {
+			const card = cardFor(state, payload.batchId);
+			card.anchorMs = payload.ms;
+			card.anchorBeat = payload.beat;
+		},
 		markMissReported(state, action: PayloadAction<string>) {
 			cardFor(state, action.payload).missReported = true;
 		},

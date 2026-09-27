@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { calibrationOffsetMs } from 'MemoryFlashCore/src/lib/rhythm/calibrate';
-import { saveSetting } from 'MemoryFlashCore/src/redux/actions/save-setting-action';
-import { settingsActions } from 'MemoryFlashCore/src/redux/slices/settingsSlice';
+import { saveRhythmLatency } from 'MemoryFlashCore/src/redux/actions/rhythm-actions';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { metronomeClock } from '../metronome/metronomeClock';
 
@@ -35,7 +34,7 @@ export const useCalibration = () => {
 			counted,
 			taps.current.filter((t) => t >= from),
 		);
-		if (offset !== null) dispatch(saveSetting(settingsActions.setRhythmLatencyMs(offset)));
+		if (offset !== null) dispatch(saveRhythmLatency(offset));
 	};
 
 	const start = () => {

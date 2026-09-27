@@ -2,19 +2,13 @@ import { expect } from 'chai';
 import { makeCard } from '../../lib/schedulers/testHelpers';
 import { ChordMemoryValidatorEngine } from '../../lib/ChordMemoryValidatorEngine';
 import { AnswerType, CardTypeEnum, StaffEnum } from '../../types/Cards';
-import { UserDeckStatsType } from '../../types/UserDeckStats';
-import { authActions } from '../slices/authSlice';
-import { cardsActions } from '../slices/cardsSlice';
 import { MidiNote } from '../slices/midiSlice';
 import { rhythmActions } from '../slices/rhythmSlice';
-import { schedulerActions } from '../slices/schedulerSlice';
 import { settingsActions } from '../slices/settingsSlice';
-import { userDeckStatsActions } from '../slices/userDeckStatsSlice';
 import { AppDispatch } from '../store';
-import { makeTestStore } from '../testStore';
+import { setupRhythmStore } from '../testStore';
 import { metronomeBpmSelector, nextDeadlineMsSelector } from '../selectors/rhythmSelectors';
 import { markStepMissed } from './rhythm-actions';
-import { schedule } from './schedule-cards-action';
 
 const C_MAJOR = { chordName: 'C', requiredTones: ['C', 'E', 'G'], optionalTones: [] };
 const chordStack = { notes: ['C', 'E', 'G'].map((name) => ({ name, octave: 4 })), duration: 'q' };
@@ -26,20 +20,7 @@ const rhythmCard = (id: string) => ({
 	answer: { type: AnswerType.ChordMemory, chords: [C_MAJOR, C_MAJOR, C_MAJOR] },
 });
 
-const setup = () => {
-	const store = makeTestStore();
-	store.dispatch(authActions.setUser({ _id: 'u' } as never));
-	store.dispatch(cardsActions.upsert([rhythmCard('a'), rhythmCard('b')] as never));
-	const rhythm = { enabled: true, bpm: 120, strictness: 'normal' as const };
-	store.dispatch(
-		userDeckStatsActions.upsert([{ _id: 's', deckId: 'd1', rhythm } as UserDeckStatsType]),
-	);
-	store.dispatch(settingsActions.setChordInputMode('piano'));
-	store.dispatch(schedulerActions.setParsingDeck('d1'));
-	store.dispatch(schedule('d1'));
-	store.dispatch(rhythmActions.setGrid({ originMs: 0, beatMs: 500 }));
-	return store;
-};
+const setup = () => setupRhythmStore([rhythmCard('a'), rhythmCard('b')]);
 
 type Store = ReturnType<typeof setup>;
 
