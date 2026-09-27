@@ -19,6 +19,7 @@ import {
 	generateBluesDecks,
 } from './services/card-generators/blues/basic-blues-generator';
 import { generatePopCourse } from './services/card-generators/pop/basic-I-V-vi-IV';
+import { generateNoteReadingCourse } from './services/card-generators/sheet-music/note-reading-generator';
 import { replayAttemptsForUser } from './services/attemptsService';
 import Attempt from './models/Attempt';
 import { singleHandedTritoneSub251 } from './services/card-generators/ii-V-i/ii-bII7-I-progression-generator';
@@ -79,6 +80,7 @@ const initApp = async () => {
 			// seedData();
 			// generateIntervalDecks();
 			console.log(`Server is running on http://${APP_DOMAIN}:${PORT}`);
+			await generateNoteReadingCourse();
 			// await Attempt.updateMany(
 			// 	{ timeTaken: { $gt: 60 } },
 			// 	{ $set: { timeTaken: 60 } },
