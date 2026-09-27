@@ -1,6 +1,13 @@
 import { expect } from 'chai';
 import { Midi } from 'tonal';
-import { PitchStep, frequencyToWrittenMidi, initialPitchState, stabilizePitch } from './saxPitch';
+import {
+	PitchState,
+	PitchStep,
+	frequencyToWrittenMidi,
+	holdProgress,
+	initialPitchState,
+	stabilizePitch,
+} from './saxPitch';
 
 const feed = (frames: (number | undefined)[]) => {
 	const events: string[] = [];
@@ -12,6 +19,12 @@ const feed = (frames: (number | undefined)[]) => {
 	}, initialPitchState);
 	return events;
 };
+
+const after = (frames: (number | undefined)[]) =>
+	frames.reduce<PitchState>(
+		(state, midi) => stabilizePitch(state, midi).state,
+		initialPitchState,
+	);
 
 const repeat = (midi: number | undefined, n: number) => Array(n).fill(midi);
 
@@ -30,28 +43,60 @@ describe('frequencyToWrittenMidi', () => {
 });
 
 describe('stabilizePitch', () => {
-	it('ignores brief blips', () => {
-		expect(feed([...repeat(60, 3), ...repeat(undefined, 10)])).to.deep.equal([]);
+	it('requires holding a note for half a second', () => {
+		expect(feed([...repeat(60, 25), ...repeat(undefined, 10)])).to.deep.equal([]);
+		expect(feed(repeat(60, 30))).to.deep.equal(['on 60']);
+	});
+
+	it('uses a custom hold duration', () => {
+		const frames = repeat(60, 15);
+		const events = frames.reduce<PitchStep>(
+			(step, midi) => stabilizePitch(step.state, midi, 250),
+			{ state: initialPitchState },
+		);
+		expect(events.state.active).to.equal(60);
+		expect(holdProgress(after(repeat(60, 15)), 1000)).to.equal(0.25);
+	});
+
+	it('keeps the hold through a brief wobble', () => {
+		expect(feed([...repeat(60, 15), ...repeat(61, 2), ...repeat(60, 15)])).to.deep.equal([
+			'on 60',
+		]);
+	});
+
+	it('restarts the hold when the pitch changes', () => {
+		expect(feed([...repeat(60, 20), ...repeat(62, 20)])).to.deep.equal([]);
 	});
 
 	it('turns a sustained note on and off after silence', () => {
-		expect(feed([...repeat(60, 20), ...repeat(undefined, 10)])).to.deep.equal([
+		expect(feed([...repeat(60, 40), ...repeat(undefined, 10)])).to.deep.equal([
 			'on 60',
 			'off 60',
 		]);
 	});
 
 	it('survives a short dropout mid-note', () => {
-		expect(feed([...repeat(60, 10), ...repeat(undefined, 3), ...repeat(60, 10)])).to.deep.equal(
+		expect(feed([...repeat(60, 40), ...repeat(undefined, 3), ...repeat(60, 10)])).to.deep.equal(
 			['on 60'],
 		);
 	});
 
 	it('switches directly between notes', () => {
-		expect(feed([...repeat(60, 10), ...repeat(62, 10)])).to.deep.equal([
+		expect(feed([...repeat(60, 40), ...repeat(62, 40)])).to.deep.equal([
 			'on 60',
 			'off 60',
 			'on 62',
 		]);
+	});
+});
+
+describe('holdProgress', () => {
+	it('fills while a note is held and is full once it counts', () => {
+		expect(holdProgress(after(repeat(60, 15)))).to.equal(0.5);
+		expect(holdProgress(after(repeat(60, 40)))).to.equal(1);
+	});
+
+	it('is empty in silence', () => {
+		expect(holdProgress(after(repeat(undefined, 10)))).to.equal(0);
 	});
 });

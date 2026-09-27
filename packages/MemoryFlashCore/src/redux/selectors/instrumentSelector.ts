@@ -2,9 +2,11 @@ import { createSelector } from '@reduxjs/toolkit';
 import { ReduxState } from '../store';
 import { AnswerType, CardTypeEnum } from '../../types/Cards';
 import { sessionCardsSelector } from './scheduledCardsSelector';
+import { DEFAULT_HOLD_MS } from '../../lib/saxPitch';
 
 export const instrumentSelector = (state: ReduxState) => state.settings.instrument ?? 'piano';
 export const saxTypeSelector = (state: ReduxState) => state.settings.saxType ?? 'alto';
+export const saxHoldMsSelector = (state: ReduxState) => state.settings.saxHoldMs ?? DEFAULT_HOLD_MS;
 
 export const currentSheetCardSelector = createSelector(
 	[sessionCardsSelector],

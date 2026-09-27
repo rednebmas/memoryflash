@@ -11,6 +11,7 @@ export interface SettingsState {
 	showSaxFingerings?: boolean;
 	instrument?: Instrument;
 	saxType?: SaxType;
+	saxHoldMs?: number;
 }
 
 const initialState: SettingsState = {
@@ -38,6 +39,9 @@ const settingsSlice = createSlice({
 		},
 		setSaxType(state, action: PayloadAction<SaxType>) {
 			state.saxType = action.payload;
+		},
+		setSaxHoldMs(state, action: PayloadAction<number>) {
+			state.saxHoldMs = action.payload;
 		},
 	},
 });
