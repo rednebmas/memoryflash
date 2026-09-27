@@ -21,6 +21,7 @@ export async function listenForPitch(
 	onFrame: (frequency?: number) => void,
 	onReady: (ready: boolean) => void,
 ) {
+	if (navigator.audioSession) navigator.audioSession.type = 'play-and-record';
 	const stream = await navigator.mediaDevices.getUserMedia({
 		audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
 	});
@@ -43,5 +44,6 @@ export async function listenForPitch(
 		stopResuming();
 		stream.getTracks().forEach((track) => track.stop());
 		context.close();
+		if (navigator.audioSession) navigator.audioSession.type = 'auto';
 	};
 }
