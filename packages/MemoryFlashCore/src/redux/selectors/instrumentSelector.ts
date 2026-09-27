@@ -32,3 +32,11 @@ export const noteNamesModeSelector = createSelector(
 	[instrumentSelector, currentNoteNameSelector],
 	(instrument, name) => instrument === 'names' && !!name,
 );
+
+export const currentCardIsNaturalSelector = createSelector([currentSheetCardSelector], (card) =>
+	card
+		? card.question.voices.every((v) =>
+				v.stack.every((s) => s.notes.every((n) => n.name.length === 1)),
+			)
+		: false,
+);

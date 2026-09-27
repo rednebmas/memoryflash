@@ -1,15 +1,13 @@
 import { CardWithAttempts } from '../../types/CardWithAttempts';
-import { CardTypeEnum } from '../../types/Cards';
 import { calculateMedian } from '../median';
 import { shuffleArray } from '../shuffleArray';
 import { CARDS_PER_BATCH, Scheduler, ScheduleContext } from './types';
 
-const REPETITIONS = 2;
 const MAX_TRIES = CARDS_PER_BATCH * 5;
 
 type Bucket = {
 	weight: number;
-	repeats: boolean;
+	cards: CardWithAttempts[];
 	take: () => CardWithAttempts | undefined;
 };
 
@@ -25,7 +23,8 @@ const takeSlowest = (cards: CardWithAttempts[], median: number, random: () => nu
 	}
 };
 
-const buildBuckets = ({ cards, random }: ScheduleContext): Bucket[] => {
+const buildBuckets = ({ cards: all, queued, random }: ScheduleContext): Bucket[] => {
+	const cards = all.filter((card) => !queued.includes(card._id));
 	const unseen = cards.filter((card) => card.attempts.length === 0);
 	const seen = cards.filter((card) => card.attempts.length > 0);
 	const median = calculateMedian(seen.map(lastTime));
@@ -38,33 +37,30 @@ const buildBuckets = ({ cards, random }: ScheduleContext): Bucket[] => {
 		random,
 	);
 	return [
-		{ weight: unseen.length ? 6 : 0, repeats: true, take: () => unseen.shift() },
-		{ weight: fast.length ? 1 : 0, repeats: false, take: () => fast.shift() },
-		{ weight: slow.length ? 6 : 0, repeats: true, take: takeSlowest(slow, median, random) },
+		{ weight: 6, cards: unseen, take: () => unseen.shift() },
+		{ weight: 1, cards: fast, take: () => fast.shift() },
+		{ weight: 6, cards: slow, take: takeSlowest(slow, median, random) },
 	];
 };
 
-const pickBucket = (buckets: Bucket[], totalWeight: number, rand: number) => {
+const pickBucket = (buckets: Bucket[], rand: number) => {
+	const live = buckets.filter((bucket) => bucket.cards.length > 0);
+	const total = live.reduce((acc, bucket) => acc + bucket.weight, 0);
 	let cumulative = 0;
-	return buckets.find((bucket) => {
-		cumulative += bucket.weight / totalWeight;
+	return live.find((bucket) => {
+		cumulative += bucket.weight / total;
 		return rand < cumulative;
 	});
 };
 
-const copiesOf = (card: CardWithAttempts, bucket: Bucket) =>
-	bucket.repeats && card.type === CardTypeEnum.MultiSheet ? REPETITIONS : 1;
-
 const pickNext = (ctx: ScheduleContext): string[] => {
 	const buckets = buildBuckets(ctx);
-	const totalWeight = buckets.reduce((acc, bucket) => acc + bucket.weight, 0);
 	const scheduled: string[] = [];
-	let tries = totalWeight ? MAX_TRIES : 0;
+	let tries = MAX_TRIES;
 	while (scheduled.length < CARDS_PER_BATCH && tries-- > 0) {
-		const bucket = pickBucket(buckets, totalWeight, ctx.random());
-		const card = bucket?.take();
-		if (!bucket || !card || scheduled.includes(card._id)) continue;
-		for (let i = 0; i < copiesOf(card, bucket); i++) scheduled.push(card._id);
+		const card = pickBucket(buckets, ctx.random())?.take();
+		if (!card) break;
+		if (!scheduled.includes(card._id)) scheduled.push(card._id);
 	}
 	return scheduled;
 };

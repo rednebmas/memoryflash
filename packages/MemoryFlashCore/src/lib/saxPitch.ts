@@ -8,12 +8,25 @@ const SAX_TRANSPOSITION: Record<SaxType, number> = {
 	baritone: 21,
 };
 
-export function frequencyToWrittenMidi(frequency: number, saxType: SaxType): number {
-	return Math.round(69 + 12 * Math.log2(frequency / 440)) + SAX_TRANSPOSITION[saxType];
+const NATURAL_CHROMAS = [0, 2, 4, 5, 7, 9, 11];
+
+const nearestNatural = (midi: number) => {
+	const candidates = [-1, 0, 1, 2].map((offset) => Math.floor(midi) + offset);
+	const naturals = candidates.filter((c) => NATURAL_CHROMAS.includes(((c % 12) + 12) % 12));
+	return naturals.reduce((best, c) => (Math.abs(c - midi) < Math.abs(best - midi) ? c : best));
+};
+
+export function frequencyToWrittenMidi(
+	frequency: number,
+	saxType: SaxType,
+	naturalsOnly = false,
+): number {
+	const midi = 69 + 12 * Math.log2(frequency / 440) + SAX_TRANSPOSITION[saxType];
+	return naturalsOnly ? nearestNatural(midi) : Math.round(midi);
 }
 
 export const FRAME_MS = 1000 / 60;
-export const DEFAULT_HOLD_MS = 500;
+export const DEFAULT_HOLD_MS = 250;
 export const SAX_HOLD_OPTIONS_MS = [250, 500, 750, 1000, 1500];
 const holdFrames = (holdMs: number) => Math.max(1, Math.round(holdMs / FRAME_MS));
 const GRACE_FRAMES = 4;

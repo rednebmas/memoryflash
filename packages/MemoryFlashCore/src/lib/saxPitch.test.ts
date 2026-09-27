@@ -12,7 +12,7 @@ import {
 const feed = (frames: (number | undefined)[]) => {
 	const events: string[] = [];
 	frames.reduce((state, midi) => {
-		const step: PitchStep = stabilizePitch(state, midi);
+		const step: PitchStep = stabilizePitch(state, midi, 500);
 		if (step.off !== undefined) events.push(`off ${step.off}`);
 		if (step.on !== undefined) events.push(`on ${step.on}`);
 		return step.state;
@@ -22,7 +22,7 @@ const feed = (frames: (number | undefined)[]) => {
 
 const after = (frames: (number | undefined)[]) =>
 	frames.reduce<PitchState>(
-		(state, midi) => stabilizePitch(state, midi).state,
+		(state, midi) => stabilizePitch(state, midi, 500).state,
 		initialPitchState,
 	);
 
@@ -35,6 +35,16 @@ describe('frequencyToWrittenMidi', () => {
 		const concertBb3 = Midi.midiToFreq(Midi.toMidi('Bb3')!);
 		expect(frequencyToWrittenMidi(concertBb3, 'tenor')).to.equal(Midi.toMidi('C5'));
 		expect(frequencyToWrittenMidi(concertBb3, 'soprano')).to.equal(Midi.toMidi('C4'));
+	});
+
+	it('snaps to the nearest natural note when asked', () => {
+		const sharpishF = Midi.midiToFreq(Midi.toMidi('Ab3')! + 0.6);
+		expect(frequencyToWrittenMidi(sharpishF, 'alto')).to.equal(Midi.toMidi('F#4'));
+		expect(frequencyToWrittenMidi(sharpishF, 'alto', true)).to.equal(Midi.toMidi('F4'));
+		const flatC = Midi.midiToFreq(Midi.toMidi('Eb4')! - 0.45);
+		expect(frequencyToWrittenMidi(flatC, 'alto', true)).to.equal(Midi.toMidi('C5'));
+		const lowE = Midi.midiToFreq(Midi.toMidi('G3')! + 0.4);
+		expect(frequencyToWrittenMidi(lowE, 'alto', true)).to.equal(Midi.toMidi('E4'));
 	});
 
 	it('rounds slightly out of tune notes to the nearest pitch', () => {
@@ -92,8 +102,8 @@ describe('stabilizePitch', () => {
 
 describe('holdProgress', () => {
 	it('fills while a note is held and is full once it counts', () => {
-		expect(holdProgress(after(repeat(60, 15)))).to.equal(0.5);
-		expect(holdProgress(after(repeat(60, 40)))).to.equal(1);
+		expect(holdProgress(after(repeat(60, 15)), 500)).to.equal(0.5);
+		expect(holdProgress(after(repeat(60, 40)), 500)).to.equal(1);
 	});
 
 	it('is empty in silence', () => {
