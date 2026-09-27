@@ -3,12 +3,21 @@ import { Modal } from '../modals/Modal';
 import { MusicNotation } from '../MusicNotation';
 import { Button } from '../ui/Button';
 import { AnswerType, Card, CardTypeEnum, ChordMemoryAnswer } from 'MemoryFlashCore/src/types/Cards';
+import { MultiSheetCard } from 'MemoryFlashCore/src/types/MultiSheetCard';
+import { SaxFingerings } from '../sax/SaxFingerings';
 import { displayChordSymbol, prettyChordSymbol } from 'MemoryFlashCore/src/lib/romanNumerals';
 
-export const canRevealAnswer = (card: Card): boolean => {
-	if (card.type !== CardTypeEnum.MultiSheet) return false;
-	const hasTextPrompt = card.question.presentationModes?.some((m) => m.id === 'Text Prompt');
-	return hasTextPrompt || card.answer.type === AnswerType.ChordMemory;
+export const canRevealAnswer = (card: Card): boolean => card.type === CardTypeEnum.MultiSheet;
+
+const hasTextPrompt = (card: MultiSheetCard) =>
+	card.question.presentationModes?.some((m) => m.id === 'Text Prompt');
+
+const revealDescription = (card: MultiSheetCard) => {
+	if (card.answer.type === AnswerType.ChordMemory)
+		return 'Play all blue tones (gray tones are optional).';
+	if (hasTextPrompt(card))
+		return "Here's the sheet music you recorded when creating this prompt.";
+	return 'Play these notes:';
 };
 
 interface RevealAnswerModalProps {
@@ -58,14 +67,10 @@ export const RevealAnswerModal: React.FC<RevealAnswerModalProps> = ({ isOpen, on
 		<Modal
 			isOpen={isOpen}
 			onClose={onClose}
-			title={isChordMemory ? 'Chord progression' : 'Original sheet music'}
+			title={isChordMemory ? 'Chord progression' : 'Answer'}
 		>
 			<div className="p-6 space-y-4">
-				<p className="text-muted text-sm">
-					{isChordMemory
-						? 'Play all blue tones (gray tones are optional).'
-						: "Here's the sheet music you recorded when creating this prompt."}
-				</p>
+				<p className="text-muted text-sm">{revealDescription(card)}</p>
 				<div className="flex justify-center">
 					{chordMemoryAnswer ? (
 						<ChordMemoryReveal answer={chordMemoryAnswer} />
@@ -73,6 +78,7 @@ export const RevealAnswerModal: React.FC<RevealAnswerModalProps> = ({ isOpen, on
 						<MusicNotation data={card.question} />
 					)}
 				</div>
+				{!isChordMemory && <SaxFingerings question={card.question} />}
 				<Button onClick={onClose}>Close</Button>
 			</div>
 		</Modal>

@@ -6,6 +6,7 @@ export type ChordInputMode = 'piano' | 'names';
 export interface SettingsState {
 	presentationModes: { [cardType: string]: PresentationModeIds };
 	chordInputMode?: ChordInputMode;
+	showSaxFingerings?: boolean;
 }
 
 const initialState: SettingsState = {
@@ -24,6 +25,9 @@ const settingsSlice = createSlice({
 		},
 		setChordInputMode(state, action: PayloadAction<ChordInputMode>) {
 			state.chordInputMode = action.payload;
+		},
+		setShowSaxFingerings(state, action: PayloadAction<boolean>) {
+			state.showSaxFingerings = action.payload;
 		},
 	},
 });
