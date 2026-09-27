@@ -25,7 +25,8 @@ export type RhythmSettings = z.infer<typeof zRhythmSettings>;
 
 export const DEFAULT_RHYTHM: RhythmSettings = { enabled: false, bpm: 80, strictness: 'normal' };
 
-export type Grid = { originMs: number; beatMs: number };
+/** originMs is always a downbeat; barMs is set by the metronome clock. */
+export type Grid = { originMs: number; beatMs: number; barMs?: number };
 export type TimedNote = { number: number; time: number };
 export type StepGrade = {
 	onsetMs: number;

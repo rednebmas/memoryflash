@@ -2,6 +2,7 @@ import { MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { Answer, AnswerType, ChordMemoryAnswer } from 'MemoryFlashCore/src/types/Cards';
 import { PresentationModeIds } from 'MemoryFlashCore/src/types/PresentationMode';
 import { NotationSettingsState } from './defaultSettings';
+import { segmentQuestion } from 'MemoryFlashCore/src/lib/recording/bars';
 
 export interface CardsToAdd {
 	questions: MultiSheetQuestion[];
@@ -34,10 +35,17 @@ const withMode = (previews: MultiSheetQuestion[], mode: PresentationModeIds, tex
 		],
 	}));
 
+const segmentAll = (previews: MultiSheetQuestion[], sizes: number[]) =>
+	sizes.length
+		? sizes.flatMap((size) => previews.flatMap((q) => segmentQuestion(q, size)))
+		: previews;
+
 export function buildCardsToAdd(
 	settings: NotationSettingsState,
-	previews: MultiSheetQuestion[],
+	allPreviews: MultiSheetQuestion[],
 ): CardsToAdd {
+	const isChordMemory = settings.cardType === 'Chord Memory';
+	const previews = isChordMemory ? allPreviews : segmentAll(allPreviews, settings.segmentBars);
 	if (settings.cardType === 'Sheet Music') {
 		return {
 			questions: withMode(previews, 'Sheet Music', ''),
@@ -45,7 +53,6 @@ export function buildCardsToAdd(
 		};
 	}
 	const questions = withMode(previews, 'Text Prompt', textPromptFor(settings));
-	const answer =
-		settings.cardType === 'Chord Memory' ? chordMemoryAnswerFromSettings(settings) : undefined;
+	const answer = isChordMemory ? chordMemoryAnswerFromSettings(settings) : undefined;
 	return { questions, answer, presentationMode: 'Text Prompt' };
 }

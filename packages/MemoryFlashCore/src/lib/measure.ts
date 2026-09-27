@@ -1,6 +1,10 @@
 export type BaseDuration = 'w' | 'h' | 'q' | '8' | '16' | '32' | '64';
 export type Duration = BaseDuration | `${BaseDuration}d`;
 
+export const DEFAULT_BEATS_PER_BAR = 4;
+export const beatsPerBarOf = (question: { beatsPerBar?: number }) =>
+	question.beatsPerBar ?? DEFAULT_BEATS_PER_BAR;
+
 export const durationBeats: Record<Duration, number> = {
 	w: 4,
 	wd: 6,

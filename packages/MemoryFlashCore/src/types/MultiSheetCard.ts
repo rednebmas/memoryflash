@@ -28,6 +28,7 @@ export type MultiSheetQuestion = {
 	_8va?: boolean;
 	key: string;
 	voices: Voice[];
+	beatsPerBar?: number;
 	presentationModes?: PresentationMode[];
 };
 export type MultiSheetCard = CardTypeBase<CardTypeEnum.MultiSheet, MultiSheetQuestion>;

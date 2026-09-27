@@ -2,7 +2,6 @@ import { Grid } from 'MemoryFlashCore/src/lib/rhythm/types';
 import { contextTimeToPerfMs, getAudioContext } from '../../utils/audioContext';
 
 const SOUNDS = { accent: '/kick-getting-laid.wav', beat: '/tick.wav' };
-const BEATS_PER_BAR = 4;
 const LOOKAHEAD_S = 0.1;
 const TICK_MS = 25;
 const DRIFT_MS = 2;
@@ -20,6 +19,7 @@ class MetronomeClock {
 	private nextTime = 0;
 	private count = 0;
 	private bpm = 60;
+	private beatsPerBar = 4;
 	private grid?: Grid;
 	private onGrid?: GridListener;
 	private clickListeners = new Set<ClickListener>();
@@ -56,6 +56,10 @@ class MetronomeClock {
 		this.bpm = bpm;
 	}
 
+	setBeatsPerBar(beats: number) {
+		this.beatsPerBar = beats;
+	}
+
 	onClick(listener: ClickListener) {
 		this.clickListeners.add(listener);
 		return () => this.clickListeners.delete(listener);
@@ -64,23 +68,25 @@ class MetronomeClock {
 	private schedule(ctx: AudioContext, buffers: Buffers) {
 		while (this.nextTime < ctx.currentTime + LOOKAHEAD_S) {
 			const source = ctx.createBufferSource();
-			source.buffer = this.count % BEATS_PER_BAR === 0 ? buffers.accent : buffers.beat;
+			const beatInBar = this.count % this.beatsPerBar;
+			source.buffer = beatInBar === 0 ? buffers.accent : buffers.beat;
 			source.connect(ctx.destination);
 			source.start(this.nextTime);
-			this.emitClick(contextTimeToPerfMs(ctx, this.nextTime));
+			this.emitClick(contextTimeToPerfMs(ctx, this.nextTime), beatInBar);
 			this.nextTime += 60 / this.bpm;
 			this.count += 1;
 		}
 	}
 
-	private emitClick(perfMs: number) {
+	private emitClick(perfMs: number, beatInBar: number) {
 		const beatMs = 60000 / this.bpm;
+		const barMs = beatMs * this.beatsPerBar;
 		this.clickListeners.forEach((listener) => listener(perfMs));
-		if (this.grid && this.grid.beatMs === beatMs) {
+		if (this.grid && this.grid.beatMs === beatMs && this.grid.barMs === barMs) {
 			const drift = Math.abs(perfMs - this.grid.originMs) % beatMs;
 			if (Math.min(drift, beatMs - drift) <= DRIFT_MS) return;
 		}
-		this.grid = { originMs: perfMs, beatMs };
+		this.grid = { originMs: perfMs - beatInBar * beatMs, beatMs, barMs };
 		this.onGrid?.(this.grid);
 	}
 }

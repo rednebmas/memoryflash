@@ -1,4 +1,5 @@
-import { Note } from 'tonal';
+import { Midi, Note } from 'tonal';
+import { majorKey } from '@tonaljs/key';
 import { MultiSheetQuestion, SheetNote } from '../types/MultiSheetCard';
 
 export const NOTE_LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
@@ -19,3 +20,10 @@ export function singleNoteMidi(question: MultiSheetQuestion): number | undefined
 
 export const isSameNoteName = (answer: string, expected: string) =>
 	Note.pitchClass(answer) === Note.pitchClass(expected);
+
+export function midiToSheetNote(midi: number, key: string): SheetNote {
+	const sharps = majorKey(key).alteration > 0;
+	const name = Midi.midiToNoteName(midi, { sharps });
+	const match = name.match(/([A-G][#b]?)(-?\d+)/);
+	return { name: match?.[1] ?? 'C', octave: parseInt(match?.[2] ?? '4') };
+}

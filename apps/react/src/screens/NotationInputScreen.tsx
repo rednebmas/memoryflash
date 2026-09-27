@@ -50,6 +50,7 @@ export const NotationInputScreen = () => {
 			setSettings((prev) => ({
 				...prev,
 				keySig: card.question.key,
+				beatsPerBar: card.question.beatsPerBar ?? 4,
 				selected: majorKeys.map((_, i) => i === idx),
 				cardType: isChordMemory ? 'Chord Memory' : text ? 'Text Prompt' : 'Sheet Music',
 				textPrompt: text?.text || '',
@@ -112,7 +113,12 @@ export const NotationInputScreen = () => {
 
 	const error = updateError || addError;
 	const canAdd = isAi ? generated.questions.length > 0 : complete;
-	const addLabel = isAi ? `Create ${generated.questions.length} cards` : 'Add Card';
+	const cardCount = isAi
+		? generated.questions.length
+		: complete
+			? buildCardsToAdd(settings, previews).questions.length
+			: 1;
+	const addLabel = cardCount === 1 ? 'Add Card' : `Add ${cardCount} cards`;
 
 	return (
 		<Layout subtitle="Notation Input">
@@ -121,6 +127,8 @@ export const NotationInputScreen = () => {
 				resetSignal={resetCount}
 				onChange={handleScoreChange}
 				initialQuestion={initialQuestion}
+				beatsPerBar={settings.beatsPerBar}
+				paused={settings.inputMode === 'record'}
 			>
 				<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 					<div>

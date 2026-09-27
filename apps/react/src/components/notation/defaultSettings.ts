@@ -15,6 +15,9 @@ export interface NotationSettingsState {
 	lowest: string;
 	highest: string;
 	bars: number;
+	beatsPerBar: number;
+	inputMode: 'step' | 'record';
+	segmentBars: number[];
 	selected: boolean[];
 	cardType: CardType;
 	textPrompt: string;
@@ -28,6 +31,9 @@ export const defaultSettings: NotationSettingsState = {
 	lowest: 'C3',
 	highest: 'C5',
 	bars: 1,
+	beatsPerBar: 4,
+	inputMode: 'step',
+	segmentBars: [],
 	selected: [true, ...new Array(majorKeys.length - 1).fill(false)],
 	cardType: 'Sheet Music',
 	textPrompt: '# Markdown\nIs supported!',

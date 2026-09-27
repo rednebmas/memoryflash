@@ -3,7 +3,10 @@ import { useAppDispatch } from 'MemoryFlashCore/src/redux/store';
 import { rhythmActions } from 'MemoryFlashCore/src/redux/slices/rhythmSlice';
 import { metronomeClock } from './metronome/metronomeClock';
 
-export const MetronomeSound: React.FC<{ bpm: number }> = ({ bpm }) => {
+export const MetronomeSound: React.FC<{ bpm: number; beatsPerBar: number }> = ({
+	bpm,
+	beatsPerBar,
+}) => {
 	const dispatch = useAppDispatch();
 
 	useEffect(() => {
@@ -12,6 +15,7 @@ export const MetronomeSound: React.FC<{ bpm: number }> = ({ bpm }) => {
 	}, []);
 
 	useEffect(() => metronomeClock.setBpm(bpm), [bpm]);
+	useEffect(() => metronomeClock.setBeatsPerBar(beatsPerBar), [beatsPerBar]);
 
 	return null;
 };

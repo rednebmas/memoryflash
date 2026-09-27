@@ -34,11 +34,7 @@ export const NotationSettings: React.FC<NotationSettingsProps> = ({ settings, on
 		<div className="space-y-4">
 			<CardTypeOptions settings={settings} onChange={update} />
 			{!isChordMemory && !isAi && (
-				<SheetMusicSettings
-					keySig={settings.keySig}
-					bars={settings.bars}
-					onChange={update}
-				/>
+				<SheetMusicSettings settings={settings} onChange={update} />
 			)}
 			{!isAi && (
 				<SettingsSection

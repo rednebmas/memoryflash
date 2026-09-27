@@ -15,7 +15,7 @@ import {
 import { majorKey, minorKey } from '@tonaljs/key';
 import { MultiSheetQuestion, Voice } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { calcBars } from 'MemoryFlashCore/src/lib/calcBars';
-import { durationBeats } from 'MemoryFlashCore/src/lib/measure';
+import { beatsPerBarOf, durationBeats } from 'MemoryFlashCore/src/lib/measure';
 import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { Chord } from 'tonal';
 import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
@@ -36,7 +36,6 @@ const VF = {
 };
 
 const BAR_WIDTH = 300;
-const BEATS_PER_MEASURE = 4;
 const RENDER_PADDING = 2;
 const STAFF_TOP_OFFSET = 20;
 const STAFF_GAP = 100;
@@ -97,14 +96,14 @@ type StaffRenderData = {
 	voice: VFVoice | null;
 };
 
-// Split a flat stack into measures of up to BEATS_PER_MEASURE beats
-function splitMeasures(indexed: IndexedSn[]) {
+// Split a flat stack into measures of up to beatsPerBar beats
+function splitMeasures(indexed: IndexedSn[], beatsPerBar: number) {
 	const measures: IndexedSn[][] = [];
 	let current: IndexedSn[] = [];
 	let sum = 0;
 	for (const item of indexed) {
 		const dur = durationBeats[item.sn.duration];
-		if (sum + dur > BEATS_PER_MEASURE) {
+		if (sum + dur > beatsPerBar) {
 			measures.push(current);
 			current = [];
 			sum = 0;
@@ -139,6 +138,7 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 		const baseNoteColor = resolveNoteColor(allNotesClassName, isDark);
 
 		const bars = calcBars(data);
+		const beatsPerBar = beatsPerBarOf(data);
 		const width = BAR_WIDTH * bars;
 		const trebleOn = data.voices.some((v) => v.staff === StaffEnum.Treble);
 		const bassOn = data.voices.some((v) => v.staff === StaffEnum.Bass);
@@ -151,7 +151,7 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 
 		// Prepare per-voice, per-measure stacks
 		const voiceIndexed = data.voices.map((v) => v.stack.map((sn, idx) => ({ sn, idx })));
-		const measuresByVoice = voiceIndexed.map(splitMeasures);
+		const measuresByVoice = voiceIndexed.map((v) => splitMeasures(v, beatsPerBar));
 		const chordMeasures = measuresByVoice[0];
 
 		const diatonic = new Set(
@@ -169,7 +169,7 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 				if (isFirstBar) {
 					stave
 						.addClef(staffType === StaffEnum.Treble ? 'treble' : 'bass')
-						.addTimeSignature('4/4')
+						.addTimeSignature(`${beatsPerBar}/4`)
 						.addKeySignature(data.key);
 				}
 				if (isFirstBar) {
@@ -184,7 +184,7 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 
 				const vIdx = data.voices.findIndex((v) => v.staff === staffType);
 				const stack = vIdx >= 0 ? measuresByVoice[vIdx][bar] || [] : [];
-				let beat = 0;
+				let beat = bar * beatsPerBar;
 				const notes: StaveNote[] = [];
 				const tieSpecs: StaffRenderData['tieSpecs'] = [];
 				let pendingTie: { note: StaveNote; indices: number[] } | null = null;
@@ -294,7 +294,7 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 
 					if (textNotes.length) {
 						textVoice = new VF.Voice({
-							num_beats: BEATS_PER_MEASURE,
+							num_beats: beatsPerBar,
 							beat_value: 4,
 						})
 							.setStrict(false)
@@ -321,7 +321,7 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 			staffEntries.forEach((entry) => {
 				if (!entry.notes.length) return;
 				entry.voice = new VF.Voice({
-					num_beats: BEATS_PER_MEASURE,
+					num_beats: beatsPerBar,
 					beat_value: 4,
 				})
 					.setStrict(false)

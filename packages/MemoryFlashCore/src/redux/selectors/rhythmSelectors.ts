@@ -3,6 +3,8 @@ import { DEFAULT_RHYTHM, StepGrade, TIERS_MS } from '../../lib/rhythm/types';
 import { deadlineMs, expectedMs } from '../../lib/rhythm/grade';
 import { hasRhythm, stepBeats } from '../../lib/rhythm/stepBeats';
 import { resolveLadder } from '../../lib/rhythm/tempoLadder';
+import { beatsPerBarOf, DEFAULT_BEATS_PER_BAR } from '../../lib/measure';
+import { CardTypeEnum } from '../../types/Cards';
 import { ReduxState } from '../store';
 import { currDeckStatsSelector } from './activeSchedulerSelector';
 import { bpmSelector } from './attemptsStatsSelector';
@@ -49,6 +51,16 @@ export const rhythmModeSelector = createSelector(
 export const rhythmActiveSelector = createSelector(
 	[rhythmModeSelector, currStepBeatsSelector, (s: ReduxState) => s.rhythm.grid],
 	(mode, beats, grid) => mode && !!grid && hasRhythm(beats),
+);
+
+export const currBeatsPerBarSelector = createSelector(
+	[sessionCardsSelector],
+	({ cards, index }) => {
+		const card = cards[index];
+		return card?.type === CardTypeEnum.MultiSheet
+			? beatsPerBarOf(card.question)
+			: DEFAULT_BEATS_PER_BAR;
+	},
 );
 
 export const metronomeBpmSelector = createSelector(

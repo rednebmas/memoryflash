@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { MetronomeSound } from '../../components/MetronomeSound';
 import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import {
+	currBeatsPerBarSelector,
 	metronomeBpmSelector,
 	rhythmModeSelector,
 } from 'MemoryFlashCore/src/redux/selectors/rhythmSelectors';
@@ -13,6 +14,7 @@ export const Metronome: React.FunctionComponent = () => {
 	const [playing, setPlaying] = useState(false);
 	const bpm = useAppSelector(metronomeBpmSelector);
 	const rhythmMode = useAppSelector(rhythmModeSelector);
+	const beatsPerBar = useAppSelector(currBeatsPerBarSelector);
 	const onNotes = useAppSelector((state) => state.midi.notes);
 	const toggleKeyOn = onNotes.find((note) => note.number === 25);
 	useUpdateEffect(() => {
@@ -29,7 +31,7 @@ export const Metronome: React.FunctionComponent = () => {
 			}}
 			title={needsStart ? 'Start the metronome to play in time' : undefined}
 		>
-			{playing && <MetronomeSound bpm={bpm} />}
+			{playing && <MetronomeSound bpm={bpm} beatsPerBar={beatsPerBar} />}
 			<div
 				className={clsx(
 					'h-7 w-7 rounded-full flex items-center justify-center bg-blue-500  hover:ring ring-blue-400 ring-2 transition',

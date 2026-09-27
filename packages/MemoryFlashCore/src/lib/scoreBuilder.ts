@@ -1,7 +1,12 @@
 import { Score, ScoreMeasure } from './score';
 import { MultiSheetQuestion, StackedNotes } from '../types/MultiSheetCard';
 import { StaffEnum } from '../types/Cards';
-import { createRestDurations, durationBeats } from './measure';
+import {
+	beatsPerBarOf,
+	createRestDurations,
+	DEFAULT_BEATS_PER_BAR,
+	durationBeats,
+} from './measure';
 
 type Staff = StaffEnum.Treble | StaffEnum.Bass;
 
@@ -34,10 +39,16 @@ export function scoreToQuestion(score: Score, key: string): MultiSheetQuestion {
 		if (stack.some((s) => s.notes.length) || (!voices.length && staff === StaffEnum.Treble))
 			voices.push({ staff, stack });
 	}
-	return { key, voices };
+	const { beatsPerMeasure } = score;
+	return beatsPerMeasure === DEFAULT_BEATS_PER_BAR
+		? { key, voices }
+		: { key, voices, beatsPerBar: beatsPerMeasure };
 }
 
-export function questionToScore(question: MultiSheetQuestion, beatsPerMeasure = 4): Score {
+export function questionToScore(
+	question: MultiSheetQuestion,
+	beatsPerMeasure = beatsPerBarOf(question),
+): Score {
 	const score = new Score(beatsPerMeasure);
 	for (const v of question.voices) {
 		const staff = v.staff as Staff;

@@ -13,11 +13,10 @@ import { StepTimeController } from 'MemoryFlashCore/src/lib/stepTimeController';
 import { questionToScore, scoreToQuestion } from 'MemoryFlashCore/src/lib/scoreBuilder';
 import { Duration, BaseDuration } from 'MemoryFlashCore/src/lib/measure';
 import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
-import { SheetNote, MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
+import { MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { Staff, Score } from 'MemoryFlashCore/src/lib/score';
 import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
-import { Midi } from 'tonal';
-import { majorKey } from '@tonaljs/key';
+import { midiToSheetNote } from 'MemoryFlashCore/src/lib/noteNames';
 
 type ScoreChangeHandler = (q: MultiSheetQuestion, full: boolean) => void;
 
@@ -32,6 +31,7 @@ interface ScoreEditorContextValue {
 	staff: Staff;
 	setStaff: (s: Staff) => void;
 	addRest: () => void;
+	replaceQuestion: (question: MultiSheetQuestion) => void;
 	question: MultiSheetQuestion;
 }
 
@@ -41,13 +41,6 @@ export const useScoreEditor = () => {
 	const ctx = useContext(ScoreEditorContext);
 	if (!ctx) throw new Error('Score editor context is missing');
 	return ctx;
-};
-
-const toSheet = (m: number, key: string): SheetNote => {
-	const useSharps = majorKey(key).alteration > 0;
-	const name = Midi.midiToNoteName(m, { sharps: useSharps });
-	const match = name.match(/([A-G][#b]?)(\d+)/)!;
-	return { name: match[1], octave: parseInt(match[2]) };
 };
 
 const STAVES: Staff[] = [StaffEnum.Treble, StaffEnum.Bass];
@@ -66,18 +59,31 @@ const isFull = (score: Score) => {
 	});
 };
 
-function useStepCtrl(
-	keySig: string,
-	resetSignal: number,
-	notify: ScoreChangeHandler,
-	initialQuestion?: MultiSheetQuestion,
-) {
+type StepCtrlOptions = {
+	keySig: string;
+	resetSignal: number;
+	notify: ScoreChangeHandler;
+	initialQuestion?: MultiSheetQuestion;
+	beatsPerBar: number;
+	paused: boolean;
+};
+
+function useStepCtrl({
+	keySig,
+	resetSignal,
+	notify,
+	initialQuestion,
+	beatsPerBar,
+	paused,
+}: StepCtrlOptions) {
 	const controllerFactory = useMemo(
 		() => () =>
 			new StepTimeController(
-				initialQuestion ? questionToScore(initialQuestion) : new Score(),
+				initialQuestion
+					? questionToScore(initialQuestion, beatsPerBar)
+					: new Score(beatsPerBar),
 			),
-		[initialQuestion],
+		[initialQuestion, beatsPerBar],
 	);
 	const ctrlRef = useRef(controllerFactory());
 	const [dur, setDurState] = useState<BaseDuration>('q');
@@ -99,7 +105,7 @@ function useStepCtrl(
 		let displayScore = ctrl.score;
 		if (maxChord.current.length > 0) {
 			displayScore = ctrl.score.clone();
-			const sheetNotes = maxChord.current.map((m) => toSheet(m, keySig));
+			const sheetNotes = maxChord.current.map((m) => midiToSheetNote(m, keySig));
 			const indexes = sheetNotes.map((_, i) => i);
 			const previewDurations = ctrl.durations.length ? ctrl.durations : durations;
 			previewDurations.forEach((duration, index) => {
@@ -131,6 +137,7 @@ function useStepCtrl(
 	}, [applyDur]);
 
 	useEffect(() => {
+		if (paused) return;
 		if (!shallowEqual(prev.current, midi)) {
 			if (midi.length > 0) {
 				const set = new Set(maxChord.current);
@@ -138,17 +145,17 @@ function useStepCtrl(
 				maxChord.current = Array.from(set).sort((a, b) => a - b);
 			}
 			if (midi.length === 0 && prev.current.length > 0) {
-				const sheetNotes = maxChord.current.map((m) => toSheet(m, keySig));
+				const sheetNotes = maxChord.current.map((m) => midiToSheetNote(m, keySig));
 				ctrlRef.current.input(sheetNotes);
 				maxChord.current = [];
 			}
 			prev.current = [...midi];
 			emit();
 		}
-	}, [emit, midi, keySig]);
+	}, [emit, midi, keySig, paused]);
 
 	useEffect(() => {
-		ctrlRef.current = new StepTimeController();
+		ctrlRef.current = new StepTimeController(new Score(beatsPerBar));
 		applyDurRef.current();
 		ctrlRef.current.setStaff(staffRef.current);
 		maxChord.current = [];
@@ -201,7 +208,19 @@ function useStepCtrl(
 		emit();
 	}, [emit]);
 
+	const replaceQuestion = useCallback(
+		(next: MultiSheetQuestion) => {
+			ctrlRef.current = new StepTimeController(questionToScore(next, beatsPerBar));
+			applyDurRef.current();
+			ctrlRef.current.setStaff(staffRef.current);
+			maxChord.current = [];
+			emitRef.current();
+		},
+		[beatsPerBar],
+	);
+
 	return {
+		replaceQuestion,
 		dur,
 		dotted,
 		durations,
@@ -221,17 +240,19 @@ interface ProviderProps {
 	resetSignal: number;
 	onChange: ScoreChangeHandler;
 	initialQuestion?: MultiSheetQuestion;
+	beatsPerBar?: number;
+	paused?: boolean;
 	children: React.ReactNode;
 }
 
 export const ScoreEditorProvider: React.FC<ProviderProps> = ({
-	keySig,
-	resetSignal,
 	onChange,
-	initialQuestion,
+	beatsPerBar = 4,
+	paused = false,
 	children,
+	...rest
 }) => {
-	const value = useStepCtrl(keySig, resetSignal, onChange, initialQuestion);
+	const value = useStepCtrl({ ...rest, notify: onChange, beatsPerBar, paused });
 	return <ScoreEditorContext.Provider value={value}>{children}</ScoreEditorContext.Provider>;
 };
 
