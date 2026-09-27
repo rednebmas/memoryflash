@@ -6,6 +6,8 @@ import { isCardOwner } from '../utils/useIsCardOwner';
 import useWindowResize from '../screens/StudyScreen/useWindowResize';
 import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { Confetti } from './feedback/Confetti';
+import { FadingCard } from './FadingCard';
+import { usePrefersReducedMotion } from '../utils/useMediaQuery';
 
 const getBestTime = (card: CardWithAttempts) => {
 	const correctAttempts = card.attempts.filter((a) => a.correct);
@@ -37,6 +39,7 @@ export const CardCarousel: React.FC<CardCarouselProps> = ({
 	const prevIncorrectRef = useRef(incorrect);
 	const prevIndexRef = useRef(index);
 	const prevBestTimeRef = useRef<number | null>(null);
+	const reducedMotion = usePrefersReducedMotion();
 
 	const updateTranslation = () => {
 		let totalWidth = 0;
@@ -128,6 +131,8 @@ export const CardCarousel: React.FC<CardCarouselProps> = ({
 		if (animationState === 'incorrect') return 'animate-card-incorrect';
 		return '';
 	};
+
+	if (reducedMotion) return <FadingCard card={cards[index]} index={index} user={user} />;
 
 	return (
 		<div className="flex flex-1 relative" ref={cardContainerRef}>

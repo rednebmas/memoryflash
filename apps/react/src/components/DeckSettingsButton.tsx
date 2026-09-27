@@ -7,7 +7,6 @@ import { CircleHover } from './ui/CircleHover';
 import { Modal } from './modals/Modal';
 import { Button } from './ui/Button';
 import { SchedulerPicker } from './SchedulerPicker';
-import { SaxHoldSetting } from './sax/SaxHoldSetting';
 
 export const DeckSettingsButton: React.FC = () => {
 	const [isOpen, setIsOpen] = useState(false);
@@ -26,7 +25,6 @@ export const DeckSettingsButton: React.FC = () => {
 						<SchedulerPicker />
 						<p className="caption">{schedulers[active].description}</p>
 					</div>
-					<SaxHoldSetting />
 					<Button onClick={close}>Close</Button>
 				</div>
 			</Modal>

@@ -2,23 +2,18 @@ import React from 'react';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { settingsActions } from 'MemoryFlashCore/src/redux/slices/settingsSlice';
 import { saveSetting } from 'MemoryFlashCore/src/redux/actions/save-setting-action';
-import {
-	currentSheetCardSelector,
-	saxHoldMsSelector,
-} from 'MemoryFlashCore/src/redux/selectors/instrumentSelector';
+import { saxHoldMsSelector } from 'MemoryFlashCore/src/redux/selectors/instrumentSelector';
 import { SAX_HOLD_OPTIONS_MS } from 'MemoryFlashCore/src/lib/saxPitch';
 import { Select } from '../inputs/Select';
 
 export const SaxHoldSetting: React.FC = () => {
 	const dispatch = useAppDispatch();
-	const card = useAppSelector(currentSheetCardSelector);
 	const holdMs = useAppSelector(saxHoldMsSelector);
-	if (!card) return null;
 	return (
-		<div className="space-y-2">
-			<p className="text-sm font-medium">Saxophone hold time</p>
+		<label className="flex items-center gap-2 text-sm text-muted whitespace-nowrap">
+			Hold note for
 			<Select
-				className="w-36"
+				className="w-24 !py-1"
 				value={holdMs}
 				onChange={(e) =>
 					dispatch(saveSetting(settingsActions.setSaxHoldMs(Number(e.target.value))))
@@ -26,11 +21,10 @@ export const SaxHoldSetting: React.FC = () => {
 			>
 				{SAX_HOLD_OPTIONS_MS.map((ms) => (
 					<option key={ms} value={ms}>
-						{ms / 1000} seconds
+						{ms / 1000}s
 					</option>
 				))}
 			</Select>
-			<p className="caption">How long to hold a note before it counts as your answer.</p>
-		</div>
+		</label>
 	);
 };

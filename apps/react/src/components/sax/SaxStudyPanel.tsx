@@ -9,6 +9,7 @@ import { SAX_TYPES, SaxType } from 'MemoryFlashCore/src/lib/saxPitch';
 import { Select } from '../inputs/Select';
 import { SaxFingeringsToggle } from './SaxFingerings';
 import { useSaxMicInput } from './useSaxMicInput';
+import { SaxHoldSetting } from './SaxHoldSetting';
 
 type ListeningStatusProps = { heard?: number; ready: boolean; error?: string };
 
@@ -56,7 +57,10 @@ export const SaxStudyPanel: React.FC = () => {
 					))}
 				</Select>
 			</div>
-			<HoldProgressBar progress={progress} />
+			<div className="flex flex-col items-center gap-2">
+				<SaxHoldSetting />
+				<HoldProgressBar progress={progress} />
+			</div>
 			<SaxFingeringsToggle />
 		</div>
 	);
