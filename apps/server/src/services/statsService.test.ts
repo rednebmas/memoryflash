@@ -5,7 +5,7 @@ import Attempt from '../models/Attempt';
 import Course from '../models/Course';
 import { Deck } from '../models/Deck';
 import { UserFeed } from '../models/UserFeed';
-import { processAttempt } from './statsService';
+import { processAttempt, setUserDeckStats } from './statsService';
 import { expect } from 'chai';
 import { calculateMedian } from 'MemoryFlashCore/src/lib/median';
 
@@ -153,5 +153,26 @@ describe('processAttempt', () => {
 
 		const stats = await UserDeckStats.findOne({ userId: ids.userId, deckId: ids.deckId });
 		expect(stats!.reviews ?? {}).to.deep.equal({});
+	});
+
+	it('should store rhythm settings per user and deck', async () => {
+		const { userId, deckId } = newIds();
+		const rhythm = { enabled: true, bpm: 90, strictness: 'tight' as const };
+		const stats = await setUserDeckStats(deckId.toString(), userId.toString(), { rhythm });
+		expect(stats!.toJSON().rhythm).to.deep.equal(rhythm);
+	});
+
+	it('should keep timing offsets on an attempt', async () => {
+		const ids = newIds();
+		const timing = { bpm: 90, strictness: 'normal', offsetsMs: [5, null, -12] };
+		const attempt = await new Attempt({
+			...ids,
+			batchId: 'b',
+			correct: true,
+			timeTaken: 3,
+			timing,
+		}).save();
+		const saved = await Attempt.findById(attempt._id);
+		expect(saved!.toJSON().timing).to.deep.equal(timing);
 	});
 });

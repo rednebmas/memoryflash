@@ -1,5 +1,6 @@
 import Attempt, { AttemptDoc } from '../models/Attempt';
 import { Card } from '../models/Card';
+import { RhythmSettings } from 'MemoryFlashCore/src/lib/rhythm/types';
 import { UserDeckStats } from '../models/UserDeckStats';
 import { calculateMedian } from 'MemoryFlashCore/src/lib/median';
 import { roundToTenth } from 'MemoryFlashCore/src/lib/rounding';
@@ -63,7 +64,7 @@ export async function processAttempt(doc: AttemptDoc) {
 
 const UPSERT = { new: true, upsert: true, setDefaultsOnInsert: true };
 
-type StatsFields = { [path: string]: string | string[] };
+type StatsFields = { [path: string]: string | string[] | RhythmSettings };
 
 export const setUserDeckStats = (deckId: string, userId: string, fields: StatsFields) =>
 	UserDeckStats.findOneAndUpdate({ userId, deckId }, { $set: fields }, UPSERT);

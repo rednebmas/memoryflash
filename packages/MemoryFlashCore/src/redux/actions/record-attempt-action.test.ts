@@ -5,48 +5,13 @@ import { cardsActions } from '../slices/cardsSlice';
 import { schedulerActions } from '../slices/schedulerSlice';
 import { settingsActions } from '../slices/settingsSlice';
 import { authActions } from '../slices/authSlice';
-import { Action, combineReducers } from '@reduxjs/toolkit';
-import { attemptsReducer } from '../slices/attemptsSlice';
-import { authReducer } from '../slices/authSlice';
-import { cardsReducer } from '../slices/cardsSlice';
-import { midiReducer } from '../slices/midiSlice';
-import { networkReducer } from '../slices/networkSlice';
-import { schedulerReducer } from '../slices/schedulerSlice';
-import { settingsReducer } from '../slices/settingsSlice';
-import { userDeckStatsReducer } from '../slices/userDeckStatsSlice';
-import { userStatsReducer } from '../slices/userStatsSlice';
-import { AppThunk, ReduxState, SyncAppThunk } from '../store';
 import { recordAttempt } from './record-attempt-action';
 import { schedule } from './schedule-cards-action';
-
-const reducer = combineReducers({
-	attempts: attemptsReducer,
-	auth: authReducer,
-	cards: cardsReducer,
-	midi: midiReducer,
-	network: networkReducer,
-	scheduler: schedulerReducer,
-	settings: settingsReducer,
-	userDeckStats: userDeckStatsReducer,
-	userStats: userStatsReducer,
-});
-
-const extra = { api: { post: async () => ({ data: {} }) } };
-
-const makeStore = () => {
-	let state = reducer(undefined, { type: 'init' });
-	const getState = (): ReduxState => state as never;
-	const dispatch = (action: Action | AppThunk | SyncAppThunk): void | Promise<void> => {
-		if (typeof action === 'function')
-			return action(dispatch as never, getState, extra as never);
-		state = reducer(state, action);
-	};
-	return { dispatch, getState };
-};
+import { makeTestStore } from '../testStore';
 
 describe('recordAttempt with the recall scheduler', () => {
 	it('re-asks a known card after 2, then 5+, then as many other cards as an 8 card deck allows', async () => {
-		const store = makeStore();
+		const store = makeTestStore();
 		const cards = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'].map((id) => ({
 			...makeCard(id),
 			answer: { type: AnswerType.ChordMemory, chords: [] },

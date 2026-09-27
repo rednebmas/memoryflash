@@ -16,6 +16,7 @@ const attemptSchema = new Schema<AttemptDoc>({
 	timeTaken: { type: Number, required: true },
 	presentationMode: { type: String, required: false },
 	scheduler: { type: String, required: false },
+	timing: { type: Schema.Types.Mixed, required: false },
 	attemptedAt: { type: Date, default: Date.now, required: true },
 });
 

@@ -78,7 +78,13 @@ const CustomisedKey: React.FC<{
 			className={`cursor-pointer ${className}`}
 			onMouseDown={() => {
 				if (!pressed) {
-					dispatch(midiActions.addNote({ number: midi, clicked: true }));
+					dispatch(
+						midiActions.addNote({
+							number: midi,
+							clicked: true,
+							time: performance.now(),
+						}),
+					);
 				}
 			}}
 			onMouseUp={() => {

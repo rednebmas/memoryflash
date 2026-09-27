@@ -17,9 +17,9 @@ describe('midiSlice', () => {
 			// Simulate: user clicks notes to complete a chord
 			let state = midiReducer(
 				initialState,
-				midiActions.addNote({ number: 60, clicked: true }),
+				midiActions.addNote({ number: 60, clicked: true, time: 0 }),
 			);
-			state = midiReducer(state, midiActions.addNote({ number: 64, clicked: true }));
+			state = midiReducer(state, midiActions.addNote({ number: 64, clicked: true, time: 0 }));
 			expect(state.notes.length).to.equal(2);
 
 			// Validator detects correct chord and requests clear (not immediate clear)

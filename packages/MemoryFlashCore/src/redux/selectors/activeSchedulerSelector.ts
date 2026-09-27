@@ -7,7 +7,7 @@ import { chordInputModeSelector } from './chordInputModeSelector';
 import { currDeckWithAttemptsSelector } from './currDeckCardsWithAttempts';
 import { userDeckStatsByDeckIdSelector } from './userDeckStatsByDeckIdSelector';
 
-const currDeckStatsSelector = createSelector(
+export const currDeckStatsSelector = createSelector(
 	[userDeckStatsByDeckIdSelector, (state: ReduxState) => state.scheduler.deck],
 	(statsByDeckId, deckId) => (deckId ? statsByDeckId[deckId] : undefined),
 );

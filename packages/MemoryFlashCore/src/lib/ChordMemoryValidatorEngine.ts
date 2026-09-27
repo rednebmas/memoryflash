@@ -2,17 +2,12 @@ import { Midi, Note } from 'tonal';
 import { midiActions } from '../redux/slices/midiSlice';
 import { schedulerActions } from '../redux/slices/schedulerSlice';
 import { recordAttempt } from '../redux/actions/record-attempt-action';
+import { reportStepOnset } from '../redux/actions/rhythm-actions';
 import { AppDispatch } from '../redux/store';
 import { ChordMemoryChord, ChordNotation } from '../types/Cards';
+import { AddedNotesTracker, HandleArgs } from './addedNotes';
 import { chordNameToChromas, tonesToChromas } from './chordTones';
 import { chordSymbolToChordName } from './romanNumerals';
-
-interface HandleArgs {
-	onNotes: number[];
-	waiting: boolean;
-	index: number;
-	dispatch: AppDispatch;
-}
 
 export interface ChordMemoryResult {
 	isCorrect: boolean;
@@ -23,13 +18,14 @@ export interface ChordMemoryResult {
 const midiToChroma = (midi: number): number | null => Note.chroma(Midi.midiToNoteName(midi));
 
 export class ChordMemoryValidatorEngine {
-	private prev: number[] = [];
+	private tracker = new AddedNotesTracker();
 
 	constructor(private chords: ChordMemoryChord[]) {}
 
-	handle({ onNotes, waiting, index, dispatch }: HandleArgs): void {
-		const added = this.computeAdded(onNotes);
-		this.prev = onNotes;
+	handle(args: HandleArgs): void {
+		const { waiting, index, dispatch } = args;
+		const added = this.tracker.next(args);
+		const onNotes = args.notes.map((n) => n.number);
 
 		if (waiting || added.length === 0) return;
 
@@ -39,6 +35,7 @@ export class ChordMemoryValidatorEngine {
 		const result = this.validate(onNotes, chord);
 
 		if (result.isCorrect) {
+			dispatch(reportStepOnset(index, args.notes));
 			dispatch(midiActions.requestClearClickedNotes());
 			dispatch(midiActions.waitUntilEmpty());
 			this.advance(index, dispatch);
@@ -86,10 +83,6 @@ export class ChordMemoryValidatorEngine {
 		const played = new Set(chromas);
 		const hasAllRequired = requiredChromas.every((c) => played.has(c));
 		return { isCorrect: hasAllRequired, isIncomplete: !hasAllRequired, wrongNotes: [] };
-	}
-
-	private computeAdded(onNotes: number[]): number[] {
-		return onNotes.filter((n) => !this.prev.includes(n));
 	}
 
 	private fail(dispatch: AppDispatch): void {

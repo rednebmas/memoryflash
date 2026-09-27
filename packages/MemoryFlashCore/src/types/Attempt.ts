@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { SCHEDULER_IDS } from '../lib/schedulers/types';
+import { RHYTHM_STRICTNESS } from '../lib/rhythm/types';
 import { MongoId } from './helper-types';
 
 export const zAttempt = z.object({
@@ -13,6 +14,13 @@ export const zAttempt = z.object({
 	presentationMode: z.string().nullable(),
 	attemptedAt: z.string(),
 	scheduler: z.enum(SCHEDULER_IDS).optional(),
+	timing: z
+		.object({
+			bpm: z.number(),
+			strictness: z.enum(RHYTHM_STRICTNESS),
+			offsetsMs: z.array(z.number().nullable()),
+		})
+		.optional(),
 });
 
 export type Attempt = z.infer<typeof zAttempt>;

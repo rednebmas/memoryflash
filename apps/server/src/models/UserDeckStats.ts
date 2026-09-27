@@ -42,6 +42,10 @@ const UserDeckStatsSchema = new Schema<UserDeckStatsDoc>(
 			type: String,
 			required: false,
 		},
+		rhythm: {
+			type: Schema.Types.Mixed,
+			required: false,
+		},
 	},
 	{
 		toJSON: {

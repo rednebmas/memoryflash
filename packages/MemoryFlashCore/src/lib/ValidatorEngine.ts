@@ -2,45 +2,38 @@ import { activeNotesAt, arraysEqual, ScoreTimeline } from './scoreTimeline';
 import { midiActions } from '../redux/slices/midiSlice';
 import { schedulerActions } from '../redux/slices/schedulerSlice';
 import { recordAttempt } from '../redux/actions/record-attempt-action';
+import { reportStepOnset } from '../redux/actions/rhythm-actions';
 import { AppDispatch } from '../redux/store';
+import { AddedNotesTracker, HandleArgs } from './addedNotes';
 
 export type ProjectFn = (midi: number) => number;
-
-interface HandleArgs {
-	onNotes: number[];
-	waiting: boolean;
-	index: number;
-	dispatch: AppDispatch;
-}
 
 /**
  * Once you've pressed all the notes at the current index, that note is good, you never need
  * to press it again.
  */
 export class ValidatorEngine {
-	private prev: number[] = [];
+	private tracker = new AddedNotesTracker();
 	constructor(
 		private timeline: ScoreTimeline,
 		private project: ProjectFn = (n) => n,
 	) {}
 
-	handle({ onNotes, waiting, index, dispatch }: HandleArgs): void {
-		const added = this.computeAdded(onNotes);
-		this.prev = onNotes;
+	handle(args: HandleArgs): void {
+		const { waiting, index, dispatch } = args;
+		const added = this.tracker.next(args);
+		const onNotes = args.notes.map((n) => n.number);
 		if (waiting || added.length === 0) return;
 
 		const beat = this.buildBeatContext(index);
 		this.logBeat(beat, added);
 		const projected = this.projectBeat({ onNotes, added, ...beat });
 		if (this.isCorrect(projected)) {
+			dispatch(reportStepOnset(index, args.notes));
 			this.onCorrect(index, dispatch);
 		} else if (this.hasWrongNotes(projected.added, projected.expectedOnBeat)) {
 			this.onWrong(projected.added, projected.expectedOnBeat, added, dispatch);
 		}
-	}
-
-	private computeAdded(onNotes: number[]): number[] {
-		return onNotes.filter((n) => !this.prev.includes(n));
 	}
 
 	private buildBeatContext(index: number) {

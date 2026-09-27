@@ -10,8 +10,10 @@ import {
 import { selectActivePresentationMode } from '../selectors/activePresentationModeSelector';
 import { attemptsStatsSelector } from '../selectors/attemptsStatsSelector';
 import { currDeckAllWithAttemptsSelector } from '../selectors/currDeckCardsWithAttempts';
+import { attemptTimingSelector, rhythmReportSelector } from '../selectors/rhythmSelectors';
 import { attemptsActions } from '../slices/attemptsSlice';
 import { midiActions } from '../slices/midiSlice';
+import { rhythmActions } from '../slices/rhythmSlice';
 import { schedulerActions } from '../slices/schedulerSlice';
 import { AppThunk, SyncAppThunk } from '../store';
 import { schedule } from './schedule-cards-action';
@@ -52,12 +54,15 @@ export const recordAttempt =
 
 		const card = currDeckAllWithAttemptsSelector(getState())[currCardId];
 		const timeTaken = (Date.now() - currStartTime) / 1000;
+		const timing = attemptTimingSelector(getState());
+		dispatch(rhythmActions.setLastReport(rhythmReportSelector(getState())));
 
 		// if the user takes too long to answer, we don't want to record the attempt
 		const attemptsStats = attemptsStatsSelector(getState());
 		if (!attemptsStats) return;
 		const { length, tooLongTime } = attemptsStats;
-		if (scheduler.discardSlowAttempts && timeTaken > tooLongTime && length > 10) {
+		const discardSlow = scheduler.discardSlowAttempts && !timing;
+		if (discardSlow && timeTaken > tooLongTime && length > 10) {
 			console.log(`[scheduling] Not recording attempt, user took too long!`);
 			dispatch(midiActions.waitUntilEmpty());
 			dispatch(schedulerActions.dequeueNextCard());
@@ -77,6 +82,7 @@ export const recordAttempt =
 			attemptedAt: new Date().toISOString(),
 			presentationMode: selectActivePresentationMode(getState()),
 			scheduler: scheduler.id,
+			timing,
 		};
 
 		dispatch(midiActions.waitUntilEmpty());

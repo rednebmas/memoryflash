@@ -1,4 +1,5 @@
 import { CardReviews, SchedulerChoice } from '../lib/schedulers/types';
+import { RhythmSettings } from '../lib/rhythm/types';
 import { MongoId } from './helper-types';
 
 export type MedianHistoryValue = { median: number; date: Date };
@@ -16,6 +17,7 @@ export type UserDeckStatsType = {
 	reviews?: CardReviews;
 	recallClock?: number;
 	scheduler?: SchedulerChoice;
+	rhythm?: RhythmSettings;
 	createdAt: Date;
 	updatedAt: Date;
 };

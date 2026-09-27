@@ -15,6 +15,8 @@ import { generateSongCards, getExistingChordCards } from '../services/aiCardServ
 import { User } from 'MemoryFlashCore/src/types/User';
 import { getDeckStats, setUserDeckStats } from '../services/statsService';
 import { SCHEDULER_CHOICES } from 'MemoryFlashCore/src/lib/schedulers/types';
+import { zRhythmSettings } from 'MemoryFlashCore/src/lib/rhythm/types';
+import { Err } from '../middleware/errorHandler';
 import { z } from 'zod';
 
 const router = Router();
@@ -127,6 +129,19 @@ router.patch('/:id/scheduler', isAuthenticated, async (req, res, next) => {
 		const scheduler = z.enum(SCHEDULER_CHOICES).parse(req.body.scheduler);
 		const stats = await setUserDeckStats(req.params.id, (req.user as User)._id.toString(), {
 			scheduler,
+		});
+		return res.json({ stats });
+	} catch (error) {
+		next(error);
+	}
+});
+
+router.patch('/:id/rhythm', isAuthenticated, async (req, res, next) => {
+	try {
+		const rhythm = zRhythmSettings.safeParse(req.body.rhythm);
+		if (!rhythm.success) throw new Err('Invalid rhythm settings', 400);
+		const stats = await setUserDeckStats(req.params.id, (req.user as User)._id.toString(), {
+			rhythm: rhythm.data,
 		});
 		return res.json({ stats });
 	} catch (error) {

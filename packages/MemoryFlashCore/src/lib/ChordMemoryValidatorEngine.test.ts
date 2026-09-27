@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { ChordMemoryValidatorEngine } from './ChordMemoryValidatorEngine';
 import { ChordMemoryChord } from '../types/Cards';
 import { createMockDispatch } from './createMockDispatch';
+import { toMidiNotes } from './addedNotes';
 
 describe('ChordMemoryValidatorEngine', () => {
 	describe('validate', () => {
@@ -104,7 +105,13 @@ describe('ChordMemoryValidatorEngine', () => {
 			};
 			const engine = new ChordMemoryValidatorEngine([cMajor]);
 			const { actions, dispatch } = createMockDispatch();
-			engine.handle({ onNotes: [60, 64, 67], waiting: true, index: 0, dispatch });
+			engine.handle({
+				notes: toMidiNotes([60, 64, 67]),
+				waitingNotes: [],
+				waiting: true,
+				index: 0,
+				dispatch,
+			});
 			expect(actions).to.have.length(0);
 		});
 
@@ -121,7 +128,13 @@ describe('ChordMemoryValidatorEngine', () => {
 			};
 			const engine = new ChordMemoryValidatorEngine([cAug, fMinor]);
 			const { actions, dispatch } = createMockDispatch();
-			engine.handle({ onNotes: [60, 64, 68], waiting: false, index: 0, dispatch });
+			engine.handle({
+				notes: toMidiNotes([60, 64, 68]),
+				waitingNotes: [],
+				waiting: false,
+				index: 0,
+				dispatch,
+			});
 			const actionTypes = actions.map((a) => a.type).filter(Boolean);
 			expect(actionTypes).to.include('scheduler/incrementMultiPartCardIndex');
 		});
@@ -134,7 +147,13 @@ describe('ChordMemoryValidatorEngine', () => {
 			};
 			const engine = new ChordMemoryValidatorEngine([dSus4]);
 			const { actions, dispatch } = createMockDispatch();
-			engine.handle({ onNotes: [62, 67, 69], waiting: false, index: 0, dispatch });
+			engine.handle({
+				notes: toMidiNotes([62, 67, 69]),
+				waitingNotes: [],
+				waiting: false,
+				index: 0,
+				dispatch,
+			});
 			expect(actions.length).to.be.greaterThan(0);
 			const actionTypes = actions.map((a) => a.type).filter(Boolean);
 			expect(actionTypes).to.include('midi/waitUntilEmpty');
@@ -148,7 +167,13 @@ describe('ChordMemoryValidatorEngine', () => {
 			};
 			const engine = new ChordMemoryValidatorEngine([bm7b5]);
 			const { actions, dispatch } = createMockDispatch();
-			engine.handle({ onNotes: [59, 62, 65, 69, 60], waiting: false, index: 0, dispatch });
+			engine.handle({
+				notes: toMidiNotes([59, 62, 65, 69, 60]),
+				waitingNotes: [],
+				waiting: false,
+				index: 0,
+				dispatch,
+			});
 			const actionTypes = actions.map((a) => a.type).filter(Boolean);
 			expect(actionTypes).to.include('midi/addWrongNote');
 			expect(actionTypes).to.include('midi/waitUntilEmpty');

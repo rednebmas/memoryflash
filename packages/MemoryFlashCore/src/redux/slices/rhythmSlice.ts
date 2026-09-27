@@ -1,0 +1,64 @@
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { Grid, StepGrade } from '../../lib/rhythm/types';
+
+export type RhythmCardState = {
+	batchId: string;
+	anchorMs?: number;
+	anchorBeat?: number;
+	lastEndMs: number;
+	steps: { [index: number]: StepGrade };
+	missReported: boolean;
+};
+
+export type RhythmReport = { cardId: string; steps: StepGrade[] };
+
+export interface RhythmState {
+	grid?: Grid;
+	card?: RhythmCardState;
+	lastReport?: RhythmReport;
+}
+
+type GradePayload = {
+	batchId: string;
+	index: number;
+	grade: StepGrade;
+	endMs?: number;
+	anchor?: { ms: number; beat: number };
+};
+
+const initialState: RhythmState = {};
+
+const cardFor = (state: RhythmState, batchId: string): RhythmCardState => {
+	if (state.card?.batchId !== batchId) {
+		state.card = { batchId, lastEndMs: -Infinity, steps: {}, missReported: false };
+	}
+	return state.card;
+};
+
+const rhythmSlice = createSlice({
+	name: 'rhythm',
+	initialState,
+	reducers: {
+		setGrid(state, action: PayloadAction<Grid | undefined>) {
+			state.grid = action.payload;
+		},
+		gradeStep(state, { payload }: PayloadAction<GradePayload>) {
+			const card = cardFor(state, payload.batchId);
+			card.steps[payload.index] = payload.grade;
+			if (payload.endMs !== undefined) card.lastEndMs = payload.endMs;
+			if (payload.anchor) {
+				card.anchorMs = payload.anchor.ms;
+				card.anchorBeat = payload.anchor.beat;
+			}
+		},
+		markMissReported(state, action: PayloadAction<string>) {
+			cardFor(state, action.payload).missReported = true;
+		},
+		setLastReport(state, action: PayloadAction<RhythmReport | undefined>) {
+			state.lastReport = action.payload;
+		},
+	},
+});
+
+export const rhythmReducer = rhythmSlice.reducer;
+export const rhythmActions = rhythmSlice.actions;

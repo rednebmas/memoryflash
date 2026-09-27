@@ -7,8 +7,9 @@ type MidiInput = {
 	type: 'input' | 'output';
 };
 
-type MidiNote = {
+export type MidiNote = {
 	number: number;
+	time: number;
 	clicked?: boolean;
 };
 
@@ -36,20 +37,25 @@ const midiSlice = createSlice({
 	name: 'midi',
 	initialState,
 	reducers: {
-		addNote(state, action: PayloadAction<number | MidiNote>) {
-			const note: MidiNote =
-				typeof action.payload === 'number' ? { number: action.payload } : action.payload;
-			const existingNote = state.notes.find((n) => n.number === note.number);
-			if (!existingNote) {
-				// UnExactMultiAnswerValidator depends on this sorting
-				state.notes = [...state.notes, note].sort((a, b) => a.number - b.number);
-			}
+		addNote: {
+			prepare: (input: number | MidiNote) => {
+				const note = typeof input === 'number' ? { number: input } : input;
+				return { payload: { time: performance.now(), ...note } };
+			},
+			reducer: (state, action: PayloadAction<MidiNote>) => {
+				const note = action.payload;
+				const existingNote = state.notes.find((n) => n.number === note.number);
+				if (!existingNote) {
+					// UnExactMultiAnswerValidator depends on this sorting
+					state.notes = [...state.notes, note].sort((a, b) => a.number - b.number);
+				}
 
-			console.log(
-				'[midiSlice][addNote] ',
-				state.notes.map((n) => `${Midi.midiToNoteName(n.number)}`).join(', '),
-				`(${state.notes.map((n) => n.number).join(', ')})`,
-			);
+				console.log(
+					'[midiSlice][addNote] ',
+					state.notes.map((n) => `${Midi.midiToNoteName(n.number)}`).join(', '),
+					`(${state.notes.map((n) => n.number).join(', ')})`,
+				);
+			},
 		},
 		removeNote(state, action: PayloadAction<number>) {
 			const wasWrongNote = state.wrongNotes.includes(action.payload);

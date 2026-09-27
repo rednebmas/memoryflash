@@ -85,7 +85,7 @@ export const MidiToRedux: React.FunctionComponent<MidiToReduxProps> = ({}) => {
 			WebMidi.getInputById(selectedInputId)?.addListener('noteon', (e) => {
 				const note = Midi.midiToNoteName(e.note.number);
 				// console.log('Note On:', e.note.number, note);
-				dispatch(midiActions.addNote(e.note.number));
+				dispatch(midiActions.addNote({ number: e.note.number, time: e.timestamp }));
 				if (e.note.number === 24) {
 					window.location.reload();
 				}

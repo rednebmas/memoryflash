@@ -22,6 +22,8 @@ import { sessionCardsSelector } from 'MemoryFlashCore/src/redux/selectors/schedu
 import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { useDeckIdPath } from '../useDeckIdPath';
 import { Metronome } from './Metronome';
+import { RhythmDeadline } from '../../components/rhythm/RhythmDeadline';
+import { TimingStrip } from '../../components/rhythm/TimingStrip';
 import { QuestionPresentationModePills } from './QuestionPresentationModePills';
 import Timer from './Timer';
 import { IS_TEST_ENV } from '../../utils/constants';
@@ -63,7 +65,7 @@ export const StudyScreen = () => {
 			contentClassName="max-w-none sm:px-0 lg:px-0"
 			right={
 				<>
-					<Metronome bpm={bpm} />
+					<Metronome />
 					<CircleHover link={`stats`}>
 						<PresentationChartLineIcon className="w-5 h-5 stroke-2" />
 					</CircleHover>
@@ -89,6 +91,7 @@ export const StudyScreen = () => {
 				activePresentationMode={activePresentationMode}
 			/>
 			<SaxFingeringHint />
+			<TimingStrip />
 			<div>
 				<div className="flex justify-center items-center gap-3 flex-wrap">
 					<QuestionPresentationModePills card={cards[index]} />
@@ -113,6 +116,7 @@ export const StudyScreen = () => {
 				)}
 			</div>
 			<AnswerValidator card={cards[index]} />
+			<RhythmDeadline />
 		</Layout>
 	);
 };

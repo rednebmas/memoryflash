@@ -16,6 +16,7 @@ export interface SettingsState {
 	saxToneMode?: ToneMode;
 	saxToneMs?: number;
 	saxAnyOctave?: boolean;
+	rhythmLatencyMs?: number;
 }
 
 const initialState: SettingsState = {
@@ -55,6 +56,9 @@ const settingsSlice = createSlice({
 		},
 		setSaxAnyOctave(state, action: PayloadAction<boolean>) {
 			state.saxAnyOctave = action.payload;
+		},
+		setRhythmLatencyMs(state, action: PayloadAction<number>) {
+			state.rhythmLatencyMs = action.payload;
 		},
 	},
 });

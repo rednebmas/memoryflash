@@ -1,11 +1,10 @@
-let context: AudioContext | undefined;
+import { getAudioContext } from '../../utils/audioContext';
 
 const FADE_S = 0.03;
 const VOLUME = 0.3;
 
 export function playTone(frequency: number, ms: number) {
-	context ??= new AudioContext();
-	context.resume();
+	const context = getAudioContext();
 	const start = context.currentTime;
 	const end = start + ms / 1000;
 	const oscillator = context.createOscillator();

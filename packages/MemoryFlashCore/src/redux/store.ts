@@ -16,6 +16,7 @@ import { feedReducer } from './slices/feedSlice';
 import { generatedCardsReducer } from './slices/generatedCardsSlice';
 import { midiReducer } from './slices/midiSlice';
 import { networkReducer } from './slices/networkSlice';
+import { rhythmReducer } from './slices/rhythmSlice';
 import { schedulerReducer } from './slices/schedulerSlice';
 import { settingsReducer } from './slices/settingsSlice';
 import { userDeckStatsReducer } from './slices/userDeckStatsSlice';
@@ -32,6 +33,7 @@ const appReducer = combineReducers({
 	generatedCards: generatedCardsReducer,
 	midi: midiReducer,
 	network: networkReducer,
+	rhythm: rhythmReducer,
 	scheduler: schedulerReducer,
 	settings: settingsReducer,
 	userDeckStats: userDeckStatsReducer,
