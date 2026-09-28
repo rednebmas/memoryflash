@@ -1,10 +1,27 @@
+type AudioSessionNavigator = Navigator & { audioSession?: { type: string } };
+
+const GESTURES = ['pointerdown', 'keydown', 'touchend'] as const;
+
 let context: AudioContext | undefined;
 
+const playThroughSilentMode = () => {
+	const session = (navigator as AudioSessionNavigator).audioSession;
+	if (session?.type === 'auto') session.type = 'playback';
+};
+
 export const getAudioContext = (): AudioContext => {
+	playThroughSilentMode();
 	context ??= new AudioContext();
 	context.resume();
 	return context;
 };
+
+const unlockAudio = () => {
+	if (getAudioContext().state !== 'running') return;
+	GESTURES.forEach((g) => document.removeEventListener(g, unlockAudio, true));
+};
+
+GESTURES.forEach((g) => document.addEventListener(g, unlockAudio, true));
 
 export const contextTimeToPerfMs = (ctx: AudioContext, time: number): number => {
 	const stamp = ctx.getOutputTimestamp?.();
