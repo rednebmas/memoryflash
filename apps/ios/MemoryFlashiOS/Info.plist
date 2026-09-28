@@ -21,6 +21,8 @@
                 </array>
             </dict>
         </dict>
+        <key>NSMicrophoneUsageDescription</key>
+        <string>MemoryFlash listens to your instrument so it can tell when you play the right note.</string>
         <key>NSBluetoothAlwaysUsageDescription</key>
         <string>This app requires access to Bluetooth to connect to MIDI devices.</string>
         <key>CFBundleShortVersionString</key>

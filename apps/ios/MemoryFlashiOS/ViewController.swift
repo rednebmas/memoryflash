@@ -22,6 +22,7 @@ class ViewController: UIViewController, WKScriptMessageHandler {
         super.viewDidLoad()
         
         midiManager = MIDIManager(delegate: self)
+        setupWebView()
     }
     
     override var prefersHomeIndicatorAutoHidden: Bool {
@@ -67,9 +68,12 @@ class ViewController: UIViewController, WKScriptMessageHandler {
 
         let config = WKWebViewConfiguration()
         config.userContentController = contentController
+        config.mediaTypesRequiringUserActionForPlayback = []
+        config.allowsInlineMediaPlayback = true
         
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.backgroundColor = .clear
+        webView.uiDelegate = self
         #if DEBUG
         webView.isInspectable = true
         #endif
@@ -131,6 +135,21 @@ class ViewController: UIViewController, WKScriptMessageHandler {
         }
     }
 
+}
+
+// MARK: WKUIDelegate
+
+extension ViewController: WKUIDelegate {
+    func webView(
+        _ webView: WKWebView,
+        requestMediaCapturePermissionFor origin: WKSecurityOrigin,
+        initiatedByFrame frame: WKFrameInfo,
+        type: WKMediaCaptureType,
+        decisionHandler: @escaping (WKPermissionDecision) -> Void
+    ) {
+        let isOwnSite = origin.host == URL(string: WEB_APP_URL)?.host
+        decisionHandler(isOwnSite && type == .microphone ? .grant : .prompt)
+    }
 }
 
 // MARK: MIDIManagerDelegate
