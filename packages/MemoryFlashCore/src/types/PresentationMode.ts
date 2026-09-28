@@ -13,8 +13,6 @@ export type PresentationModeText = {
 };
 
 export type PresentationMode =
-	| PresentationModeIdCard
-	| PresentationModeStartCard
-	| PresentationModeText;
+	PresentationModeIdCard | PresentationModeStartCard | PresentationModeText;
 
 export type PresentationModeIds = PresentationMode['id'];

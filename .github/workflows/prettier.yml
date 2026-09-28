@@ -9,22 +9,25 @@ jobs:
         runs-on: ubuntu-latest
         permissions:
             contents: write
+        env:
+            BRANCH: ${{ github.head_ref || github.ref_name }}
         steps:
-            - uses: actions/checkout@v3
-              with:
-                  fetch-depth: 0
+            - uses: actions/checkout@v4
             - name: Set up Node.js
-              uses: actions/setup-node@v3
+              uses: actions/setup-node@v4
               with:
                   node-version: 20
             - name: Format
-              run: npx prettier@3 --write .
+              run: npx prettier@$(node -p "require('./package.json').devDependencies.prettier") --write .
+            - name: Check main is formatted
+              if: env.BRANCH == 'main'
+              run: git diff --exit-code --stat
             - name: Commit changes
+              if: env.BRANCH != 'main'
               run: |
                   if [[ -n $(git status --porcelain) ]]; then
                     git config user.name 'github-actions[bot]'
                     git config user.email 'github-actions[bot]@users.noreply.github.com'
                     git commit -am "style: format code"
-                    BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
                     git push origin HEAD:"$BRANCH"
                   fi

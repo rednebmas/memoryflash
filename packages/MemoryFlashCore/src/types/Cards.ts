@@ -82,10 +82,7 @@ export type BasicSheetCard = CardTypeBase<CardTypeEnum.BasicSheet, BasicSheetQue
 // Card
 //
 export type _Card<Id extends string | ObjectId> = (
-	| IntervalCard
-	| ChordSymbolCard
-	| BasicSheetCard
-	| MultiSheetCard
+	IntervalCard | ChordSymbolCard | BasicSheetCard | MultiSheetCard
 ) & {
 	_id: Id;
 	deckId: Id;

@@ -44,8 +44,7 @@ export const DecksScreen = () => {
 	const { isLoading, error } = useNetworkState('getCourse' + parsingCourseId);
 
 	const disabledVisibilityOptions = useMemo(():
-		| Partial<Record<Visibility, string>>
-		| undefined => {
+		Partial<Record<Visibility, string>> | undefined => {
 		if (course?.visibility === 'public') {
 			return {
 				private: 'Decks in a public course must be public',

@@ -35,7 +35,7 @@ const toSpans = (notes: RecordedNote[], { originMs, beatMs, stepsPerBeat }: Quan
 
 const splitAtBars = (start: number, end: number, stepsPerBar: number) => {
 	const pieces: number[] = [];
-	for (let pos = start; pos < end; ) {
+	for (let pos = start; pos < end;) {
 		const barEnd = (Math.floor(pos / stepsPerBar) + 1) * stepsPerBar;
 		pieces.push(Math.min(end, barEnd) - pos);
 		pos = Math.min(end, barEnd);
