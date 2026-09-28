@@ -1,12 +1,9 @@
-type AudioSessionNavigator = Navigator & { audioSession?: { type: string } };
-
 const GESTURES = ['pointerdown', 'keydown', 'touchend'] as const;
 
 let context: AudioContext | undefined;
 
 const playThroughSilentMode = () => {
-	const session = (navigator as AudioSessionNavigator).audioSession;
-	if (session?.type === 'auto') session.type = 'playback';
+	if (navigator.audioSession?.type === 'auto') navigator.audioSession.type = 'playback';
 };
 
 export const getAudioContext = (): AudioContext => {
