@@ -21,6 +21,7 @@
 		"MemoryFlashCore": "*",
 		"autoprefixer": "^10.4.16",
 		"clsx": "^2.1.1",
+		"html-to-image": "^1.11.13",
 		"lodash": "^4.17.21",
 		"pitchy": "^4.1.0",
 		"postcss": "^8.4.31",
@@ -37,7 +38,7 @@
 		"webmidi": "^3.1.8"
 	},
 	"devDependencies": {
-		"@playwright/test": "^1.42.1",
+		"@playwright/test": "^1.63.0",
 		"@types/lodash": "^4.17.0",
 		"@types/react": "^18.2.15",
 		"@types/react-dom": "^18.2.7",

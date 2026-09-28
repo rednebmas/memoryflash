@@ -10,7 +10,10 @@ async function dispatchNotes(page: Page, action: MidiAction, notes: number[]) {
 	await page.evaluate(
 		(payload) => {
 			const dispatch = (window as any).store.dispatch;
-			for (const n of payload.notes) dispatch({ type: payload.action, payload: n });
+			for (const n of payload.notes) {
+				const note = payload.action === 'midi/addNote' ? { number: n, time: 0 } : n;
+				dispatch({ type: payload.action, payload: note });
+			}
 		},
 		{ action, notes },
 	);

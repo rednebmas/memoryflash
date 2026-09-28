@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import React from 'react';
 import { Navbar } from './Navbar';
+import { BugReportButton } from '../bugReport/BugReportButton';
 
 interface LayoutProps {
 	children: React.ReactNode;
@@ -32,6 +33,7 @@ export const Layout: React.FC<LayoutProps> = ({
 			>
 				<div className="space-y-8 flex flex-col flex-1">{children}</div>
 			</div>
+			<BugReportButton />
 		</div>
 	);
 };

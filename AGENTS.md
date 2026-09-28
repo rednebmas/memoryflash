@@ -8,7 +8,7 @@ This project prefers a highly componentized React codebase that avoids duplicate
 - **Code Size**: Keep individual functions under 25 lines. Keep files under 150 lines when possible. If code grows larger, refactor into smaller components to keep it readable, maintainable, and elegant.
 - **Refactoring**: You are empowered to rewrite or refactor existing code to avoid duplication and to simplify the code base. It's prefered to delete lines of code than to add lines of code to solve problems.
 - **Styling**: Use Tailwind CSS utility classes. Share common styling through base components rather than repeating class strings.
-- **Git**: Do not commit .png files
+- **Git**: Do not commit .png files, except Playwright baselines under `apps/react/tests/*-snapshots/`
 - **Formatting**: Code is formatted with Prettier using tabs. Run `npx prettier --write` before committing. Don't add comments to code unless absolutely necessary.
 - **Type Safety**: You are not allowed to use `any` or `unknown`.
 - **Redux**: Compose selectors and helpers rather than copy/pasting logic. UI components should avoid data manipulation—use Redux selectors to transform and format data instead of doing it in components.
@@ -16,14 +16,18 @@ This project prefers a highly componentized React codebase that avoids duplicate
 - **Unit Tests**: Write unit tests for important service functions, especially those involving business logic or data transformations.
 - **Testing**: After changes, run `yarn test:codex` from the repository root to ensure all tests pass. Requires `dangerouslyDisableSandbox` (MongoMemoryServer binds to `0.0.0.0`).
 
-## Screenshot Tests (Remote)
+## Screenshot Tests (Local)
 
-Screenshot tests run via GitHub Actions since they need Playwright with a browser.
+Playwright screenshot tests run locally. Ports are derived from the checkout path (override with `MF_API_PORT`/`MF_WEB_PORT`), so multiple worktrees can run them in parallel.
 
-1. Run `./scripts/test-screenshots-remote.sh` (`dangerouslyDisableSandbox` required) — pushes a temp branch, triggers the `test.yml` workflow
-2. Parse the branch name from stdout (format: `screenshot-test-<timestamp>`)
-3. Poll for the run ID: `gh run list --workflow=test.yml --branch=$BRANCH --limit=1 --json databaseId,status`
-4. Watch it: `gh run watch $RUN_ID`
-5. Clean up: `git push origin --delete $BRANCH`
+- Run all: `yarn test:screenshots` (from the repo root; `dangerouslyDisableSandbox` required)
+- Run one: `yarn workspace MemoryFlashReact test:screenshots tests/<spec>.spec.ts`
+- Update baselines after an intentional visual change: `yarn workspace MemoryFlashReact test:screenshots:update tests/<spec>.spec.ts`, then Read the new PNGs to confirm them
+
+Run the relevant specs after any change under `apps/react/src`.
+
+## Bug Reports (bug-watch)
+
+Users file reports from the floating bug button. `/bug-watch` (`.claude/skills/bug-watch/`) watches prod Mongo and dispatches an agent per admin report that fixes it in its own worktree and ships it via `finish-task.sh`.
 
 Follow these guidelines to keep the codebase clean and maintainable.

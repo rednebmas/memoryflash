@@ -4,6 +4,9 @@ import App from './App.tsx';
 import './index.css';
 import { ToastProvider } from './components/feedback/Toast';
 import './utils/audioContext';
+import { initConsoleErrorCapture } from './utils/consoleErrors';
+
+initConsoleErrorCapture();
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
 	<React.StrictMode>

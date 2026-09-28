@@ -9,6 +9,7 @@ import { cardsRouter } from './cardsRouter';
 import { testRouter } from './testRouter';
 import { feedRouter } from './feedRouter';
 import { communityRouter } from './communityRouter';
+import { bugReportRouter } from './bugReportRouter';
 
 const router = Router();
 
@@ -24,6 +25,7 @@ router.use('/attempts', attemptsRouter);
 router.use('/cards', cardsRouter);
 router.use('/feed', feedRouter);
 router.use('/community', communityRouter);
+router.use('/bug-reports', bugReportRouter);
 
 if (process.env.USE_MEMORY_DB === 'true') {
 	router.use('/test', testRouter);

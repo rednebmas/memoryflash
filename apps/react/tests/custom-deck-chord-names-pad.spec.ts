@@ -107,7 +107,7 @@ test('Answer a Chord Memory card with the chord-name pad, then generate cards wi
 		page.waitForResponse(
 			(r) => r.url().includes(`/decks/${deckId}/cards`) && r.request().method() === 'POST',
 		),
-		clickButton('Create 2 cards'),
+		clickButton('Add 2 cards'),
 	]);
 	expect(createResp.ok()).toBeTruthy();
 

@@ -1,7 +1,8 @@
 import { expect, Page } from '@playwright/test';
+import { API_URL } from './ports';
 
 export async function seedTestData(page: Page) {
-	const res = await page.request.post('http://localhost:3333/test/seed');
+	const res = await page.request.post(`${API_URL}/test/seed`);
 	expect(res.ok()).toBeTruthy();
 	const json: any = await res.json();
 	if (Array.isArray(json?.decks)) {
