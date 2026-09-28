@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Layout, Button } from '../components';
 import { BasicErrorCard } from '../components/feedback/ErrorCard';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
@@ -41,8 +41,10 @@ export const NotationInputScreen = () => {
 	const { isLoading: isUpdating, error: updateError } = useNetworkState('updateCard');
 	const { isLoading: isAdding, error: addError } = useNetworkState('addCardsToDeck');
 	const isAi = settings.cardType === 'Generate with AI';
+	const prefilledId = useRef<string>();
 	useEffect(() => {
-		if (card && card.type === CardTypeEnum.MultiSheet) {
+		if (card && card.type === CardTypeEnum.MultiSheet && prefilledId.current !== card._id) {
+			prefilledId.current = card._id;
 			const text = card.question.presentationModes?.find((p) => p.id === 'Text Prompt');
 			const idx = majorKeys.indexOf(card.question.key);
 			const isChordMemory = card.answer.type === AnswerType.ChordMemory;

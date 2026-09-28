@@ -8,8 +8,8 @@ export const connectDB = async (): Promise<MongoClient> => {
 		let res: typeof mongoose;
 		if (useMemory) {
 			console.log('Starting MongoMemoryServer...');
-			const { MongoMemoryServer } = await import('mongodb-memory-server');
-			const mongod = await MongoMemoryServer.create();
+			const { createMemoryServer } = await import('./memoryServer');
+			const mongod = await createMemoryServer();
 			const uri = mongod.getUri();
 			res = await mongoose.connect(uri);
 			console.log(`MongoMemoryServer connected at ${uri}`);

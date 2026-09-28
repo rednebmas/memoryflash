@@ -9,7 +9,7 @@
 		"lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
 		"preview": "vite preview",
 		"test:screenshots": "BLOCK_REMOTE_FONTS=true playwright test",
-		"test:screenshots:update": "BLOCK_REMOTE_FONTS=true playwright test --update-snapshots",
+		"test:screenshots:update": "BLOCK_REMOTE_FONTS=true playwright test --update-snapshots=changed",
 		"postinstall": "./scripts/install-playwright.sh",
 		"generate-auth-state": "npx tsx scripts/generate-auth-state.ts"
 	},

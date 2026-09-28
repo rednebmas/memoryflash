@@ -93,6 +93,7 @@ test('Create custom deck with Chord Memory card, study it, then edit it', async 
 	// Go back to study screen and verify the updated title is shown
 	await page.goto(`/study/${deckId}`);
 	await page.locator('.card-container').first().waitFor();
+	await expect(page.getByText('Updated Cm7 Practice').first()).toBeVisible();
 	await expect(output).toHaveScreenshot(
 		'custom-deck-chord-memory-updated-question.png',
 		screenshotOpts,
