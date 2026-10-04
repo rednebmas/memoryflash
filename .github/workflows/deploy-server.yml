@@ -45,7 +45,7 @@ jobs:
                   echo '  FRONT_END_URL: https://mflash.riker.tech'  >> app.yaml
                   echo '  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}'  >> app.yaml
                   echo '  OPENAI_MODEL: gpt-5.6-sol'  >> app.yaml
-                  echo '  ADMIN_EMAILS: rednebmas@gmail.com'  >> app.yaml
+                  echo '  ADMIN_EMAILS: rednebmas@gmail.com,sam@riker.tech'  >> app.yaml
                   echo 'automatic_scaling:' >> app.yaml
                   echo '  max_instances: 1' >> app.yaml
                   echo '' >> app.yaml
