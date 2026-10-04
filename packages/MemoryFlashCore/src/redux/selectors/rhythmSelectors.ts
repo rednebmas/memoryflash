@@ -1,5 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
-import { DEFAULT_RHYTHM, StepGrade, TIERS_MS } from '../../lib/rhythm/types';
+import { DEFAULT_RHYTHM, TIERS_MS } from '../../lib/rhythm/types';
+import { metronomeOnlyStatus, stepVerdict, timingSummary } from '../../lib/rhythm/status';
 import { deadlineMs, expectedMs } from '../../lib/rhythm/grade';
 import { hasRhythm, stepBeats } from '../../lib/rhythm/stepBeats';
 import { resolveLadder } from '../../lib/rhythm/tempoLadder';
@@ -117,34 +118,51 @@ export const attemptTimingSelector = createSelector(
 		active ? { bpm, strictness, offsetsMs } : undefined,
 );
 
+const liveStepsSelector = createSelector([currTimingSelector], ({ steps }) =>
+	steps.flatMap((s) => (s ? [s] : [])),
+);
+
 export const rhythmReportSelector = createSelector(
-	[rhythmActiveSelector, currTimingSelector, (s: ReduxState) => s.scheduler.currCard],
-	(active, { steps }, cardId) =>
-		active && cardId ? { cardId, steps: steps.flatMap((s) => (s ? [s] : [])) } : undefined,
+	[rhythmActiveSelector, liveStepsSelector, (s: ReduxState) => s.scheduler.currCard],
+	(active, steps, cardId) => (active && cardId ? { cardId, steps } : undefined),
 );
 
 const tickPosition = (offsetMs: number | null, rangeMs: number) =>
 	offsetMs === null ? 1 : Math.min(1, Math.max(0, 0.5 + offsetMs / (2 * rangeMs)));
 
-const timingSummary = (steps: StepGrade[]) => {
-	const offsets = steps.flatMap((s) => (s.offsetMs === null ? [] : [s.offsetMs]));
-	if (offsets.length === 0) return '';
-	const mean = Math.round(offsets.reduce((a, b) => a + b, 0) / offsets.length);
-	const trend = mean > 10 ? 'dragging' : mean < -10 ? 'rushing' : 'steady';
-	return `avg ${mean > 0 ? '+' : ''}${mean} ms · ${trend}`;
-};
+const displayedStepsSelector = createSelector(
+	[liveStepsSelector, (s: ReduxState) => s.rhythm.lastReport],
+	(live, lastReport) => (live.length > 0 ? live : (lastReport?.steps ?? [])),
+);
 
 export const timingStripSelector = createSelector(
-	[rhythmModeSelector, currTimingSelector, (s: ReduxState) => s.rhythm.lastReport],
-	(mode, live, lastReport) => {
-		const liveSteps = live.steps.flatMap((s) => (s ? [s] : []));
-		const steps = liveSteps.length > 0 ? liveSteps : lastReport?.steps;
-		if (!mode || !steps?.length) return undefined;
-		const rangeMs = TIERS_MS[live.strictness].ok * 1.5;
+	[rhythmModeSelector, rhythmActiveSelector, displayedStepsSelector, deckRhythmSettingsSelector],
+	(mode, active, steps, { strictness }) => {
+		if (!mode || (!active && steps.length === 0)) return undefined;
+		const rangeMs = TIERS_MS[strictness].ok * 1.5;
 		const ticks = steps.map((s) => ({
 			tier: s.tier,
 			position: tickPosition(s.offsetMs, rangeMs),
 		}));
-		return { ticks, summary: timingSummary(steps), rangeMs };
+		return { ticks, summary: timingSummary(steps) };
+	},
+);
+
+export const rhythmStatusSelector = createSelector(
+	[
+		deckRhythmSettingsSelector,
+		rhythmModeSelector,
+		rhythmActiveSelector,
+		deckTempoSelector,
+		(s: ReduxState) => s.rhythm.grid,
+		displayedStepsSelector,
+	],
+	(settings, mode, active, bpm, grid, steps): string | undefined => {
+		if (!mode) return grid ? metronomeOnlyStatus(settings.enabled) : undefined;
+		const prefix = `Rhythm mode · ${bpm} bpm`;
+		if (!grid) return `${prefix} · start the metronome to be graded`;
+		if (!active) return `${prefix} · this card has no rhythm to grade`;
+		const last = steps[steps.length - 1];
+		return `${prefix} · ${last ? stepVerdict(last) : 'your first chord sets beat one'}`;
 	},
 );

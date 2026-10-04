@@ -1,24 +1,12 @@
 import { expect } from 'chai';
-import { makeCard } from '../../lib/schedulers/testHelpers';
 import { ChordMemoryValidatorEngine } from '../../lib/ChordMemoryValidatorEngine';
-import { AnswerType, CardTypeEnum, StaffEnum } from '../../types/Cards';
 import { MidiNote } from '../slices/midiSlice';
 import { rhythmActions } from '../slices/rhythmSlice';
 import { settingsActions } from '../slices/settingsSlice';
 import { AppDispatch } from '../store';
-import { setupRhythmStore } from '../testStore';
+import { C_MAJOR, rhythmCard, setupRhythmStore } from '../testStore';
 import { metronomeBpmSelector, nextDeadlineMsSelector } from '../selectors/rhythmSelectors';
 import { markStepMissed } from './rhythm-actions';
-
-const C_MAJOR = { chordName: 'C', requiredTones: ['C', 'E', 'G'], optionalTones: [] };
-const chordStack = { notes: ['C', 'E', 'G'].map((name) => ({ name, octave: 4 })), duration: 'q' };
-
-const rhythmCard = (id: string) => ({
-	...makeCard(id),
-	type: CardTypeEnum.MultiSheet,
-	question: { key: 'C', voices: [{ staff: StaffEnum.Treble, stack: Array(3).fill(chordStack) }] },
-	answer: { type: AnswerType.ChordMemory, chords: [C_MAJOR, C_MAJOR, C_MAJOR] },
-});
 
 const setup = () => setupRhythmStore([rhythmCard('a'), rhythmCard('b')]);
 

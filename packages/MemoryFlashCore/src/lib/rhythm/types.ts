@@ -40,7 +40,7 @@ export type PitchFrame = { timeMs: number; midi?: number };
 
 export const RHYTHM_BPM_OPTIONS = Array.from({ length: 33 }, (_, i) => 40 + i * 5);
 
-const capitalize = (s: string) => s[0].toUpperCase() + s.slice(1);
+export const capitalize = (s: string) => s[0].toUpperCase() + s.slice(1);
 
 export const STRICTNESS_OPTIONS = RHYTHM_STRICTNESS.map((value) => {
 	return { value, label: `${capitalize(value)} ±${TIERS_MS[value].ok}ms` };

@@ -18,6 +18,19 @@ import { schedulerActions } from './slices/schedulerSlice';
 import { Instrument, settingsActions } from './slices/settingsSlice';
 import { userDeckStatsActions } from './slices/userDeckStatsSlice';
 import { UserDeckStatsType } from '../types/UserDeckStats';
+import { RhythmSettings } from '../lib/rhythm/types';
+import { makeCard } from '../lib/schedulers/testHelpers';
+import { AnswerType, CardTypeEnum, StaffEnum } from '../types/Cards';
+
+export const C_MAJOR = { chordName: 'C', requiredTones: ['C', 'E', 'G'], optionalTones: [] };
+const chordStack = { notes: ['C', 'E', 'G'].map((name) => ({ name, octave: 4 })), duration: 'q' };
+
+export const rhythmCard = (id: string) => ({
+	...makeCard(id),
+	type: CardTypeEnum.MultiSheet,
+	question: { key: 'C', voices: [{ staff: StaffEnum.Treble, stack: Array(3).fill(chordStack) }] },
+	answer: { type: AnswerType.ChordMemory, chords: [C_MAJOR, C_MAJOR, C_MAJOR] },
+});
 
 const reducer = combineReducers({
 	attempts: attemptsReducer,
@@ -45,11 +58,15 @@ export const makeTestStore = () => {
 	return { dispatch, getState, posted };
 };
 
-export const setupRhythmStore = (cards: object[], instrument: Instrument = 'piano') => {
+export const setupRhythmStore = (
+	cards: object[],
+	instrument: Instrument = 'piano',
+	overrides: Partial<RhythmSettings> = {},
+) => {
 	const store = makeTestStore();
 	store.dispatch(auth.setUser({ _id: 'u' } as never));
 	store.dispatch(cardsActions.upsert(cards as never));
-	const rhythm = { enabled: true, bpm: 120, strictness: 'normal' as const };
+	const rhythm = { enabled: true, bpm: 120, strictness: 'normal' as const, ...overrides };
 	const stats = { _id: 's', deckId: 'd1', rhythm } as UserDeckStatsType;
 	store.dispatch(userDeckStatsActions.upsert([stats]));
 	store.dispatch(settingsActions.setChordInputMode('piano'));
