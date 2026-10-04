@@ -13,9 +13,9 @@ import { setPresentationMode } from 'MemoryFlashCore/src/redux/actions/set-prese
 import { generatedCardsActions } from 'MemoryFlashCore/src/redux/slices/generatedCardsSlice';
 import { generatedCardsPayloadSelector } from 'MemoryFlashCore/src/redux/selectors/generatedCardsSelector';
 import { CardTypeEnum } from 'MemoryFlashCore/src/types/Cards';
+import { EditableCard } from 'MemoryFlashCore/src/redux/selectors/editCardSelector';
 import { useDeckIdPath } from './useDeckIdPath';
 import { useNetworkState } from 'MemoryFlashCore/src/redux/selectors/useNetworkState';
-import { useParams } from 'react-router-dom';
 import {
 	NotationSettings,
 	NotationSettingsState,
@@ -27,7 +27,7 @@ import { buildCardsToAdd, textPromptFor } from '../components/notation/buildCard
 import { MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
 
-export const NotationInputScreen = () => {
+export const NotationInputScreen = ({ card }: { card?: EditableCard }) => {
 	const [settings, setSettings] = useState<NotationSettingsState>(defaultSettings);
 	const [resetCount, setResetCount] = useState(0);
 	const [question, setQuestion] = useState<MultiSheetQuestion>({
@@ -38,16 +38,15 @@ export const NotationInputScreen = () => {
 	const dispatch = useAppDispatch();
 	const toast = useToast();
 	const { deckId } = useDeckIdPath();
-	const { cardId } = useParams();
-	const card = useAppSelector((state) => (cardId ? state.cards.entities[cardId] : undefined));
+	const cardId = card?._id;
 	const generated = useAppSelector(generatedCardsPayloadSelector);
-	const initialQuestion = card?.type === CardTypeEnum.MultiSheet ? card.question : undefined;
+	const initialQuestion = card?.question;
 	const { isLoading: isUpdating, error: updateError } = useNetworkState('updateCard');
 	const { isLoading: isAdding, error: addError } = useNetworkState('addCardsToDeck');
 	const isAi = settings.cardType === 'Generate with AI';
 	const prefilledId = useRef<string>();
 	useEffect(() => {
-		if (card && card.type === CardTypeEnum.MultiSheet && prefilledId.current !== card._id) {
+		if (card && prefilledId.current !== card._id) {
 			prefilledId.current = card._id;
 			setSettings((prev) => settingsFromCard(card, prev));
 			setQuestion(card.question);
@@ -151,7 +150,7 @@ export const NotationInputScreen = () => {
 								</Button>
 								<Button
 									onClick={cardId ? handleUpdate : handleAdd}
-									disabled={!cardId && !canAdd}
+									disabled={cardId ? prefilledId.current !== cardId : !canAdd}
 									loading={cardId ? isUpdating : isAdding}
 									className="w-full"
 								>

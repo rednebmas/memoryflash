@@ -6,6 +6,7 @@ import { MidiToRedux } from './components/MidiToRedux';
 import { AuthenticatedRoute } from './components/navigation/Routers';
 import { CoursesScreen } from './screens/CoursesScreen';
 import { NotationInputScreen } from './screens/NotationInputScreen';
+import { EditCardScreen } from './screens/EditCardScreen';
 import { AllDeckCardsScreen } from './screens/AllDeckCardsScreen';
 import { DecksScreen } from './screens/DecksScreen';
 import { DeckPreviewScreen } from './screens/DeckPreviewScreen';
@@ -64,7 +65,7 @@ export default function App() {
 					/>
 					<Route
 						path="/study/:deckId/edit/:cardId"
-						element={<AuthenticatedRoute screen={<NotationInputScreen />} />}
+						element={<AuthenticatedRoute screen={<EditCardScreen />} />}
 					/>
 					<Route
 						path="/course/:courseId"
