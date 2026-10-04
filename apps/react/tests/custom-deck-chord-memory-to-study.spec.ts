@@ -56,6 +56,10 @@ test('Create custom deck with Chord Memory card, study it, then edit it', async 
 	await page.waitForURL(new RegExp(`/study/${deckId}/list`));
 	await expect(page.locator('.card-container')).toHaveCount(1);
 	await page.getByText('C Minor 7 Practice', { exact: true }).waitFor();
+	await page
+		.getByText(/practiced/)
+		.first()
+		.waitFor();
 	await expect(output).toHaveScreenshot(
 		'custom-deck-chord-memory-to-study-list.png',
 		screenshotOpts,

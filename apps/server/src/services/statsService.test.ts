@@ -5,7 +5,8 @@ import Attempt from '../models/Attempt';
 import Course from '../models/Course';
 import { Deck } from '../models/Deck';
 import { UserFeed } from '../models/UserFeed';
-import { processAttempt, setUserDeckStats } from './statsService';
+import { getDeckStats, processAttempt, setUserDeckStats } from './statsService';
+import { User } from 'MemoryFlashCore/src/types/User';
 import { expect } from 'chai';
 import { calculateMedian } from 'MemoryFlashCore/src/lib/median';
 
@@ -196,5 +197,35 @@ describe('processAttempt', () => {
 			bpm: 90,
 			recent: [false],
 		});
+	});
+});
+
+describe('getDeckStats', () => {
+	setupDBConnectionForTesting();
+
+	it('counts attempts and finds the last attempt time per card', async () => {
+		const userId = new mongoose.Types.ObjectId();
+		const deckId = new mongoose.Types.ObjectId();
+		const cardId = new mongoose.Types.ObjectId();
+		const times = ['2026-10-01T10:00:00Z', '2026-10-03T10:00:00Z', '2026-10-02T10:00:00Z'];
+		for (const [i, attemptedAt] of times.entries()) {
+			await Attempt.collection.insertOne({
+				userId,
+				deckId,
+				cardId,
+				batchId: 'b',
+				correct: i === 0,
+				timeTaken: 3,
+				attemptedAt: new Date(attemptedAt),
+			});
+		}
+		const res = await getDeckStats(
+			deckId.toString(),
+			{ _id: userId.toString() } as User,
+			'UTC',
+		);
+		const stats = res.statsByCardId[cardId.toString()];
+		expect(stats.attempts).to.equal(3);
+		expect(stats.lastAttemptedAt).to.equal('2026-10-03T10:00:00.000Z');
 	});
 });

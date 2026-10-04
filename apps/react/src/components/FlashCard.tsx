@@ -1,5 +1,6 @@
 import { CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { CardWithAttempts } from 'MemoryFlashCore/src/redux/selectors/currDeckCardsWithAttempts';
+import { cardPracticeLabelSelector } from 'MemoryFlashCore/src/redux/selectors/cardPracticeSelector';
 import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { CardTypeEnum, IntervalCard } from 'MemoryFlashCore/src/types/Cards';
 import React, { forwardRef } from 'react';
@@ -61,11 +62,20 @@ export const FlashCard = forwardRef<HTMLDivElement, FlashCardProps>(
 				<div className="text-4xl font-medium flex flex-1 justify-center items-center">
 					<QuestionComponent card={card} placement={placement} />
 				</div>
-				{placement !== 'list' && <FlashCardStatus card={card} placement={placement} />}
+				{placement === 'list' ? (
+					<CardPracticeStats card={card} />
+				) : (
+					<FlashCardStatus card={card} placement={placement} />
+				)}
 			</div>
 		);
 	},
 );
+
+const CardPracticeStats: React.FC<{ card: CardWithAttempts }> = ({ card }) => {
+	const label = useAppSelector((state) => cardPracticeLabelSelector(state, card._id));
+	return <span className="caption py-1">{label}</span>;
+};
 
 const FlashCardStatus: React.FC<QuestionRender> = ({ card, placement }) => (
 	<>

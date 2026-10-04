@@ -5,8 +5,9 @@ import { networkCallWithReduxState } from '../util/networkStateHelper';
 export const getStatsDeck =
 	(deckId: string): AppThunk =>
 	async (dispatch, getState, { api }) => {
-		if (getState().network._['getDeck' + deckId + '/stats']?.isLoading) return;
-		await networkCallWithReduxState(dispatch, 'getDeck' + deckId, async () => {
+		const key = 'getDeck' + deckId + '/stats';
+		if (getState().network._[key]?.isLoading) return;
+		await networkCallWithReduxState(dispatch, key, async () => {
 			const res = await api.get('/decks/' + deckId + '/stats');
 			if (res.data.stats) {
 				dispatch(userDeckStatsActions.upsert([res.data.stats]));

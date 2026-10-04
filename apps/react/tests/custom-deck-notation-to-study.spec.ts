@@ -85,6 +85,10 @@ test('Create custom deck, add notation and text cards, then study', async ({
 	await page.waitForURL(new RegExp(`/study/${deckId}/list`));
 	await expect(page.locator('.card-container')).toHaveCount(2);
 	await page.getByText(promptText, { exact: true }).waitFor();
+	await page
+		.getByText(/practiced/)
+		.first()
+		.waitFor();
 	await expect(output).toHaveScreenshot('custom-deck-notation-to-study-list.png', screenshotOpts);
 
 	// Edit text card and ensure it loads with existing data

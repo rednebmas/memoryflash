@@ -21,11 +21,14 @@ export async function getDeckStats(deckId: string, user: User, timezone: string)
 	const statsByCardId: StatsByCardId = {};
 	attempts.forEach((attempt) => {
 		const cardId = attempt.cardId.toString();
+		const iso = attempt.attemptedAt.toISOString();
 		if (!statsByCardId[cardId]) {
-			statsByCardId[cardId] = { attempts: 0, timeStudyingPerDay: {} };
+			statsByCardId[cardId] = { attempts: 0, lastAttemptedAt: iso, timeStudyingPerDay: {} };
 		}
 
 		statsByCardId[cardId]['attempts'] = statsByCardId[cardId]['attempts'] + 1;
+		if (iso > statsByCardId[cardId].lastAttemptedAt)
+			statsByCardId[cardId].lastAttemptedAt = iso;
 
 		const dateString = attempt.attemptedAt.toLocaleDateString('en-US', { timeZone: timezone });
 		const totalTime = statsByCardId[cardId]['timeStudyingPerDay'][dateString] ?? 0;

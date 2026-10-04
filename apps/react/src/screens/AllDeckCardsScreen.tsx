@@ -4,6 +4,7 @@ import { FlashCard, Layout } from '../components';
 import { NetworkStateWrapper } from '../components/feedback/NetworkStateWrapper';
 import { CircleHover } from '../components/ui/CircleHover';
 import { getDeck } from 'MemoryFlashCore/src/redux/actions/get-deck-action';
+import { getStatsDeck } from 'MemoryFlashCore/src/redux/actions/get-deck-stats-action';
 import { currDeckAllWithCorrectAttemptsSortedArray } from 'MemoryFlashCore/src/redux/selectors/currDeckCardsWithAttempts';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { useDeckIdPath } from './useDeckIdPath';
@@ -18,6 +19,7 @@ export const AllDeckCardsScreen: React.FunctionComponent<AllDeckCardsScreenProps
 	useEffect(() => {
 		if (deckId) {
 			dispatch(getDeck(deckId));
+			dispatch(getStatsDeck(deckId));
 		}
 	}, [deckId]);
 
