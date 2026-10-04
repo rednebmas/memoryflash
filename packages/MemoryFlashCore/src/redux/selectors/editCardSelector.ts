@@ -1,5 +1,6 @@
 import { ReduxState } from '../store';
-import { Card, CardTypeEnum } from '../../types/Cards';
+import { CardTypeEnum } from '../../types/Cards';
+import { SheetCard } from '../../lib/transpositionGroups';
 
 export const isDeckOwnerSelector = (state: ReduxState, deckId: string): boolean => {
 	const user = state.auth.user;
@@ -8,7 +9,7 @@ export const isDeckOwnerSelector = (state: ReduxState, deckId: string): boolean 
 	return state.courses.entities[deck.courseId]?.userId === user._id;
 };
 
-export type EditableCard = Extract<Card, { type: CardTypeEnum.MultiSheet }>;
+export type EditableCard = SheetCard;
 export type EditCardStatus = EditableCard | 'loading' | 'missing';
 
 export const editCardSelector = (

@@ -8,7 +8,7 @@ const chord = (names: string[], duration: string, tie?: object) => ({
 	...(tie ? { tie } : {}),
 });
 
-// Copy of the C card in Sam's "So Easy To Fall In Love" deck, and its Bb transposition
+// Copy of the C card in Sam's "So Easy To Fall In Love" deck, and its linked Bb transposition
 const progression = (key: string, [a, b, c, d]: string[][]) => ({
 	key,
 	voices: [
@@ -60,7 +60,7 @@ export const seedSoEasyDeck = async (page: Page, course: string) => {
 	const courseId = await createCourse(page, course);
 	const deckId = await createDeck(page, courseId, 'So Easy');
 	const res = await page.request.post(`${API_URL}/decks/${deckId}/cards`, {
-		data: { questions: [cCard, bbCard] },
+		data: { questions: [cCard, bbCard], groups: ['so-easy', 'so-easy'] },
 	});
 	const { cards } = await res.json();
 	return { deckId, cId: cards[0]._id as string };

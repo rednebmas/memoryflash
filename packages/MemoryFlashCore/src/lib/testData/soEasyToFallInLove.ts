@@ -1,4 +1,6 @@
-import { StaffEnum } from '../../types/Cards';
+import { AnswerType, CardTypeEnum, StaffEnum } from '../../types/Cards';
+import { questionsForAllMajorKeys } from '../multiKeyTransposer';
+import { SheetCard } from '../transpositionGroups';
 import { MultiSheetQuestion, StackedNotes } from '../../types/MultiSheetCard';
 
 export const chord = (
@@ -52,3 +54,19 @@ export const soEasyBb = progression('Bb', [
 export const soEasyNamesC = ['F/G', 'Cmaj7', 'C#dim7', 'F/G', 'G9', 'Cmaj7', 'C#dim7'];
 export const soEasyNamesEb = ['Ab/Bb', 'Ebmaj7', 'Edim7', 'Ab/Bb', 'Bb9', 'Ebmaj7', 'Edim7'];
 export const soEasyNumerals = 'IV/V – Imaj7 – ♯i°7 – IV/V – V9 – Imaj7 – ♯i°7';
+
+// Sam's 12 prod cards are exactly the transposer's output from the C card
+export const soEasyDeck = (transpositionGroup?: string): SheetCard[] =>
+	questionsForAllMajorKeys(soEasyC, 'C3', 'C5')
+		.slice(0, 12)
+		.map((question) => ({
+			_id: question.key,
+			uid: `custom-d1-${question.key}`,
+			deckId: 'd1',
+			type: CardTypeEnum.MultiSheet,
+			question: { ...question, presentationModes: [{ id: 'Sheet Music' }] },
+			answer: { type: AnswerType.ExactMulti },
+			createdAt: new Date(0),
+			updatedAt: new Date(0),
+			...(transpositionGroup ? { transpositionGroup } : {}),
+		}));

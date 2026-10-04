@@ -137,6 +137,7 @@ export async function addCardsToDeck(
 	questions: MultiSheetQuestion[],
 	userId?: string,
 	answer?: Answer | Answer[],
+	groups?: (string | undefined)[],
 ) {
 	const now = Date.now();
 	const answerFor = (i: number): Answer =>
@@ -147,6 +148,7 @@ export async function addCardsToDeck(
 		type: CardTypeEnum.MultiSheet,
 		question: q,
 		answer: answerFor(i),
+		...(groups?.[i] ? { transpositionGroup: groups[i] } : {}),
 		...(userId ? { userId: new Types.ObjectId(userId) } : {}),
 	}));
 	const insertedCards = await Card.insertMany(cards);

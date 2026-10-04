@@ -10,12 +10,14 @@ export const addCardsToDeck =
 		questions: MultiSheetQuestion[],
 		answer?: Answer | Answer[],
 		onSuccess?: (count: number) => void,
+		groups?: (string | undefined)[],
 	): AppThunk =>
 	async (dispatch, _, { api }) => {
 		await networkCallWithReduxState(dispatch, 'addCardsToDeck', async () => {
 			const res = await api.post(`/decks/${deckId}/cards`, {
 				questions,
 				answer,
+				groups,
 			});
 			dispatch(cardsActions.upsert(res.data.cards));
 			onSuccess?.(res.data.cards.length);

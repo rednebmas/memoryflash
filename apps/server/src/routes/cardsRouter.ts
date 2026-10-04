@@ -12,6 +12,7 @@ router.patch('/:id', isAuthenticated, async (req, res, next) => {
 			req.body.question,
 			(req.user as User)._id.toString(),
 			req.body.answer,
+			req.body.transpositionGroup,
 		);
 		return res.json({ card });
 	} catch (error) {

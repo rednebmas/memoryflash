@@ -86,9 +86,10 @@ export function progressionChordNames(q: MultiSheetQuestion): string[] {
 	return names.filter((n, i): n is string => !!n && n !== names[i - 1]);
 }
 
-export function romanNumeralPrompt(q: MultiSheetQuestion): string {
-	const numerals = progressionChordNames(q).map((c) =>
-		prettyChordSymbol(chordNameToRomanNumeral(q.key, c) ?? c),
-	);
-	return `**Key of ${prettyChordSymbol(q.key)}**\n\n${numerals.join(' – ')}`;
-}
+export const romanNumerals = (q: MultiSheetQuestion): string =>
+	progressionChordNames(q)
+		.map((c) => prettyChordSymbol(chordNameToRomanNumeral(q.key, c) ?? c))
+		.join(' – ');
+
+export const romanNumeralPrompt = (q: MultiSheetQuestion): string =>
+	`**Key of ${prettyChordSymbol(q.key)}**\n\n${romanNumerals(q)}`;

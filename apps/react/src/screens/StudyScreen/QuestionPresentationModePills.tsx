@@ -1,7 +1,10 @@
 import React from 'react';
 import { Pill } from '../../components/ui/Pill';
 import { setPresentationMode } from 'MemoryFlashCore/src/redux/actions/set-presentation-mode';
-import { selectActivePresentationMode } from 'MemoryFlashCore/src/redux/selectors/activePresentationModeSelector';
+import {
+	selectActivePresentationMode,
+	selectAvailablePresentationModes,
+} from 'MemoryFlashCore/src/redux/selectors/activePresentationModeSelector';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { Card } from 'MemoryFlashCore/src/types/Cards';
 
@@ -13,13 +16,14 @@ export const QuestionPresentationModePills: React.FunctionComponent<
 	QuestionPresentationModePillsProps
 > = ({ card }) => {
 	const active = useAppSelector(selectActivePresentationMode);
+	const modes = useAppSelector(selectAvailablePresentationModes);
 	const dispatch = useAppDispatch();
 
-	if (!card || !card?.question.presentationModes?.length) return null;
+	if (!card || !modes.length) return null;
 
 	return (
 		<div className="flex justify-center gap-2">
-			{card.question.presentationModes.map(({ id }) => (
+			{modes.map(({ id }) => (
 				<Pill
 					key={id}
 					text={id}

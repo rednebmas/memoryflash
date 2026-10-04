@@ -1,15 +1,11 @@
 import React, { useMemo } from 'react';
-import { useParams } from 'react-router-dom';
-import { chordSlots } from 'MemoryFlashCore/src/lib/chordNames';
-import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
-import { selectTransposedCopyCount } from 'MemoryFlashCore/src/redux/selectors/transposedCopiesSelector';
-import { Checkbox } from '../inputs';
+import { chordSlots, romanNumerals, withChordNames } from 'MemoryFlashCore/src/lib/chordNames';
 import { SettingsSection } from './SettingsSection';
 import { ChordNameField } from './ChordNameField';
 import { useScoreEditor } from './ScoreEditor';
 import { NotationSettingsState } from './defaultSettings';
 
-type ChordNameSettings = Pick<NotationSettingsState, 'chordNames' | 'syncCopies'>;
+type ChordNameSettings = Pick<NotationSettingsState, 'chordNames'>;
 
 interface ChordNamesSettingsProps {
 	settings: ChordNameSettings;
@@ -18,9 +14,11 @@ interface ChordNamesSettingsProps {
 
 export const ChordNamesSettings: React.FC<ChordNamesSettingsProps> = ({ settings, onChange }) => {
 	const { question } = useScoreEditor();
-	const { cardId } = useParams();
 	const slots = useMemo(() => chordSlots(question), [question]);
-	const copies = useAppSelector((state) => selectTransposedCopyCount(state, cardId, question));
+	const numerals = useMemo(
+		() => romanNumerals(withChordNames(question, settings.chordNames)),
+		[question, settings.chordNames],
+	);
 	if (!slots.length) return null;
 	const setName = (i: number, name: string) =>
 		onChange({ chordNames: slots.map((_, j) => (j === i ? name : settings.chordNames[j])) });
@@ -42,18 +40,7 @@ export const ChordNamesSettings: React.FC<ChordNamesSettingsProps> = ({ settings
 						/>
 					))}
 				</div>
-				{copies > 0 && (
-					<label className="flex items-center gap-2 text-sm">
-						<Checkbox
-							checked={settings.syncCopies}
-							onChange={(e) => onChange({ syncCopies: e.target.checked })}
-						/>
-						<span>
-							Also update {copies} transposed {copies === 1 ? 'copy' : 'copies'} in
-							this deck (chord names and display modes)
-						</span>
-					</label>
-				)}
+				<p className="text-sm">Roman numerals: {numerals}</p>
 			</div>
 		</SettingsSection>
 	);

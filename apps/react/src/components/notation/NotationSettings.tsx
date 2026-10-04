@@ -1,4 +1,5 @@
 import React from 'react';
+import { useParams } from 'react-router-dom';
 import { TranspositionSelector } from '../TranspositionSelector';
 import { majorKeys } from 'MemoryFlashCore/src/lib/notes';
 import { NotationSettingsState } from './defaultSettings';
@@ -8,22 +9,17 @@ import { RangeSettings } from './RangeSettings';
 import { CardTypeOptions } from './CardTypeOptions';
 import { ChordNamesSettings } from './ChordNamesSettings';
 
-const transpositionsHint = (selected: boolean, copies: number) => {
-	if (copies) return `${copies} ${copies === 1 ? 'key' : 'keys'} already in this deck`;
-	return selected ? undefined : 'None selected — click to choose keys';
+const transpositionsHint = (selected: boolean[]) => {
+	const count = selected.filter(Boolean).length;
+	return count > 1 ? `${count} keys selected` : 'None selected — click to choose keys';
 };
 
 interface NotationSettingsProps {
 	settings: NotationSettingsState;
 	onChange: (settings: NotationSettingsState) => void;
-	copyKeys: string[];
 }
 
-export const NotationSettings: React.FC<NotationSettingsProps> = ({
-	settings,
-	onChange,
-	copyKeys,
-}) => {
+export const NotationSettings: React.FC<NotationSettingsProps> = ({ settings, onChange }) => {
 	const update = (changes: Partial<NotationSettingsState>) => {
 		let next: NotationSettingsState = { ...settings, ...changes };
 		if (changes.keySig) {
@@ -33,11 +29,7 @@ export const NotationSettings: React.FC<NotationSettingsProps> = ({
 		onChange(next);
 	};
 
-	const currentKeyIdx = majorKeys.indexOf(settings.keySig);
-	const hasTranspositions = settings.selected.some(
-		(selected, i) => selected && i !== currentKeyIdx,
-	);
-
+	const { cardId } = useParams();
 	const isChordMemory = settings.cardType === 'Chord Memory';
 	const isAi = settings.cardType === 'Generate with AI';
 
@@ -55,7 +47,7 @@ export const NotationSettings: React.FC<NotationSettingsProps> = ({
 					title="Transpositions"
 					collapsible={true}
 					collapsedByDefault={true}
-					hintText={transpositionsHint(hasTranspositions, copyKeys.length)}
+					hintText={transpositionsHint(settings.selected)}
 				>
 					<div className="space-y-4">
 						<RangeSettings
@@ -67,8 +59,13 @@ export const NotationSettings: React.FC<NotationSettingsProps> = ({
 							selected={settings.selected}
 							onChange={(selected) => update({ selected })}
 							currentKeySig={settings.keySig}
-							existingKeys={copyKeys}
 						/>
+						{cardId && (
+							<p className="text-sm text-muted">
+								Unticking a key hides its card and keeps its history. Tick it again
+								to bring it back.
+							</p>
+						)}
 					</div>
 				</SettingsSection>
 			)}

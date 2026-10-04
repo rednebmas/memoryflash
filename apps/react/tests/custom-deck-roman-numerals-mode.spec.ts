@@ -24,13 +24,12 @@ test('Sheet music card studied in Roman Numerals mode with corrected chord names
 	await page.getByRole('button', { name: 'Card options' }).first().click();
 	await page.getByRole('menuitem', { name: 'Edit card' }).click();
 	await expect(page).toHaveURL(new RegExp(`/edit/${cId}`));
-	await page.getByLabel('Roman Numerals').check();
-	await page.getByLabel('Sheet Music').uncheck();
 	for (const [i, name] of samsNames.entries()) {
 		await page.getByLabel(`Chord ${i + 1} name`).fill(name);
 	}
-	await expect(page.getByText('Also update 1 transposed copy')).toBeVisible();
-	await expect(page.getByText('IV/V – Imaj7 – ♯i°7 – IV/V – V9 – Imaj7 – ♯i°7')).toBeVisible();
+	await expect(
+		page.getByText('Roman numerals: IV/V – Imaj7 – ♯i°7 – IV/V – V9 – Imaj7 – ♯i°7'),
+	).toBeVisible();
 	await setStaticScroll(page);
 	await expect(page.locator('#root')).toHaveScreenshot(
 		'roman-numerals-editor.png',
@@ -53,6 +52,7 @@ test('Sheet music card studied in Roman Numerals mode with corrected chord names
 	expect(bbNames.join(' ')).toBe('Eb/F Bbmaj7 Bdim7 Eb/F - F9 Bbmaj7 Bdim7');
 
 	await page.goto(`/study/${deckId}`);
+	await page.getByText('Roman Numerals', { exact: true }).click();
 	await expect(page.getByText(/^Key of/).first()).toBeVisible();
 	const isC = await page.evaluate((id) => {
 		const store = (window as any).store;

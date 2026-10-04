@@ -87,6 +87,7 @@ export type _Card<Id extends string | ObjectId> = (
 	_id: Id;
 	deckId: Id;
 	userId?: Id;
+	transpositionGroup?: string;
 	createdAt: Date;
 	updatedAt: Date;
 };

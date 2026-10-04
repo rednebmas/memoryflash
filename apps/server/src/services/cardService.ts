@@ -10,6 +10,7 @@ export async function updateCard(
 	question: MultiSheetQuestion,
 	userId: string,
 	answer?: Answer,
+	transpositionGroup?: string,
 ) {
 	const card = await Card.findById(cardId);
 	if (!card) return null;
@@ -20,6 +21,7 @@ export async function updateCard(
 
 	card.question = question;
 	if (answer) card.answer = answer;
+	if (transpositionGroup) card.transpositionGroup = transpositionGroup;
 	await card.save();
 	return card;
 }

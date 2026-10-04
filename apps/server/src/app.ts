@@ -21,6 +21,7 @@ import {
 import { generatePopCourse } from './services/card-generators/pop/basic-I-V-vi-IV';
 import { generateNoteReadingCourse } from './services/card-generators/sheet-music/note-reading-generator';
 import { generateExtensionsCourse } from './services/card-generators/extensions/extensions-generator';
+import { backfillTranspositionGroups } from './services/transpositionGroupBackfill';
 import { replayAttemptsForUser } from './services/attemptsService';
 import Attempt from './models/Attempt';
 import { singleHandedTritoneSub251 } from './services/card-generators/ii-V-i/ii-bII7-I-progression-generator';
@@ -83,6 +84,7 @@ const initApp = async () => {
 			console.log(`Server is running on http://${APP_DOMAIN}:${PORT}`);
 			await generateNoteReadingCourse();
 			await generateExtensionsCourse();
+			await backfillTranspositionGroups();
 			// await Attempt.updateMany(
 			// 	{ timeTaken: { $gt: 60 } },
 			// 	{ $set: { timeTaken: 60 } },

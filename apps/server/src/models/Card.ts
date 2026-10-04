@@ -31,6 +31,10 @@ const CardSchema = new Schema<CardDoc>(
 			type: Schema.Types.Mixed,
 			required: true,
 		},
+		transpositionGroup: {
+			type: String,
+			required: false,
+		},
 	},
 	{
 		toJSON: {

@@ -74,12 +74,13 @@ router.get('/:id/preview', async (req, res, next) => {
 
 router.post('/:id/cards', isAuthenticated, async (req, res, next) => {
 	try {
-		const { questions, answer } = req.body;
+		const { questions, answer, groups } = req.body;
 		const cards = await addCardsToDeck(
 			req.params.id,
 			questions,
 			(req.user as User)._id.toString(),
 			answer,
+			groups,
 		);
 		return res.json({ cards });
 	} catch (error) {

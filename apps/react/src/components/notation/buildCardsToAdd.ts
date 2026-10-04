@@ -2,12 +2,14 @@ import { MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { Answer, AnswerType, ChordMemoryAnswer } from 'MemoryFlashCore/src/types/Cards';
 import { PresentationModeIds } from 'MemoryFlashCore/src/types/PresentationMode';
 import { NotationSettingsState } from './defaultSettings';
-import { presentationModesFor } from 'MemoryFlashCore/src/lib/presentationMode';
+import { presentationModeFor } from 'MemoryFlashCore/src/lib/presentationMode';
+import { linkAcrossKeys } from 'MemoryFlashCore/src/lib/transpositionGroups';
 import { segmentQuestion } from 'MemoryFlashCore/src/lib/recording/bars';
 
 export interface CardsToAdd {
 	questions: MultiSheetQuestion[];
 	answer?: Answer;
+	groups: (string | undefined)[];
 	presentationMode: PresentationModeIds;
 }
 
@@ -28,26 +30,37 @@ export function textPromptFor(settings: NotationSettingsState): string {
 	return settings.textPrompt;
 }
 
-const presentationModes = (settings: NotationSettingsState) =>
-	presentationModesFor(settings.cardType, textPromptFor(settings), settings.displayModes);
+const presentationMode = (settings: NotationSettingsState) =>
+	presentationModeFor(settings.cardType, textPromptFor(settings));
 
-export const withPresentationModes = (
+export const withPresentationMode = (
 	question: MultiSheetQuestion,
 	settings: NotationSettingsState,
-): MultiSheetQuestion => ({ ...question, presentationModes: presentationModes(settings) });
+): MultiSheetQuestion => ({ ...question, presentationModes: [presentationMode(settings)] });
 
 const segmentAll = (previews: MultiSheetQuestion[], sizes: number[]) =>
-	sizes.length
-		? sizes.flatMap((size) => previews.flatMap((q) => segmentQuestion(q, size)))
-		: previews;
+	linkAcrossKeys(
+		previews.map((q) =>
+			sizes.length ? sizes.flatMap((size) => segmentQuestion(q, size)) : [q],
+		),
+	);
+
+export const answerFor = (settings: NotationSettingsState) =>
+	settings.cardType === 'Chord Memory' ? chordMemoryAnswerFromSettings(settings) : undefined;
 
 export function buildCardsToAdd(
 	settings: NotationSettingsState,
 	allPreviews: MultiSheetQuestion[],
 ): CardsToAdd {
 	const isChordMemory = settings.cardType === 'Chord Memory';
-	const previews = isChordMemory ? allPreviews : segmentAll(allPreviews, settings.segmentBars);
-	const questions = previews.map((q) => withPresentationModes(q, settings));
-	const answer = isChordMemory ? chordMemoryAnswerFromSettings(settings) : undefined;
-	return { questions, answer, presentationMode: presentationModes(settings)[0].id };
+	const { questions, groups } = segmentAll(
+		allPreviews,
+		isChordMemory ? [] : settings.segmentBars,
+	);
+	return {
+		questions: questions.map((q) => withPresentationMode(q, settings)),
+		answer: answerFor(settings),
+		groups,
+		presentationMode: presentationMode(settings).id,
+	};
 }

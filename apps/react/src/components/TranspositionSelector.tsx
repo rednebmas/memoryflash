@@ -6,14 +6,12 @@ interface TranspositionSelectorProps {
 	selected: boolean[];
 	onChange: (next: boolean[]) => void;
 	currentKeySig?: string;
-	existingKeys?: string[];
 }
 
 export const TranspositionSelector: React.FC<TranspositionSelectorProps> = ({
 	selected,
 	onChange,
 	currentKeySig,
-	existingKeys = [],
 }) => {
 	const toggle = (i: number) => {
 		const next = [...selected];
@@ -23,7 +21,7 @@ export const TranspositionSelector: React.FC<TranspositionSelectorProps> = ({
 
 	const selectAll = () => onChange(selected.map(() => true));
 
-	const selectNone = () => onChange(selected.map(() => false));
+	const selectNone = () => onChange(majorKeys.map((k) => k === currentKeySig));
 
 	return (
 		<div className="flex flex-col gap-2 pb-4 items-start">
@@ -37,30 +35,22 @@ export const TranspositionSelector: React.FC<TranspositionSelectorProps> = ({
 			</div>
 			<div className="grid grid-cols-6 gap-2">
 				{majorKeys.map((k, i) => {
-					const exists = existingKeys.includes(k);
-					const locked = k === currentKeySig || exists;
+					const isCurrentKeySig = k === currentKeySig;
 					return (
 						<label
 							key={k}
-							title={exists ? 'Already in this deck' : undefined}
-							className={`flex items-center gap-1 ${locked ? 'opacity-50 pointer-events-none' : ''}`}
+							className={`flex items-center gap-1 ${isCurrentKeySig ? 'opacity-50 pointer-events-none' : ''}`}
 						>
 							<Checkbox
-								checked={selected[i] || exists}
+								checked={selected[i]}
 								onChange={() => toggle(i)}
-								disabled={locked}
+								disabled={isCurrentKeySig}
 							/>
 							<span>{k}</span>
 						</label>
 					);
 				})}
 			</div>
-			{existingKeys.length > 0 && (
-				<p className="text-sm text-muted">
-					Greyed-out ticked keys already have a transposed copy in this deck. Use the card
-					list to delete one.
-				</p>
-			)}
 		</div>
 	);
 };

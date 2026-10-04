@@ -1,6 +1,5 @@
 import { majorKeys } from 'MemoryFlashCore/src/lib/notes';
 import { writtenChordNames } from 'MemoryFlashCore/src/lib/chordNames';
-import { displayModesOf } from 'MemoryFlashCore/src/lib/presentationMode';
 import { AnswerType, ChordMemoryAnswer } from 'MemoryFlashCore/src/types/Cards';
 import { MultiSheetCard } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { CardType } from '../CardTypeDropdown';
@@ -23,17 +22,16 @@ const chordMemoryOf = (answer: ChordMemoryAnswer): ChordMemorySettings => ({
 export function settingsFromCard(
 	card: MultiSheetCard,
 	prev: NotationSettingsState,
+	transpositionKeys: string[],
 ): NotationSettingsState {
 	const { question, answer } = card;
 	const text = question.presentationModes?.find((p) => p.id === 'Text Prompt');
-	const idx = majorKeys.indexOf(question.key);
 	return {
 		...prev,
 		keySig: question.key,
 		beatsPerBar: question.beatsPerBar ?? 4,
-		selected: majorKeys.map((_, i) => i === idx),
+		selected: majorKeys.map((key) => key === question.key || transpositionKeys.includes(key)),
 		cardType: cardTypeOf(card),
-		displayModes: displayModesOf(question.presentationModes),
 		textPrompt: text && 'text' in text ? text.text : '',
 		preview: !!text,
 		chordMemory:
