@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import Dropdown from './Dropdown';
-import { openIOSSettings } from '../utils/iosApp';
+import { openIOSSettings } from 'MemoryFlashCore/src/lib/iosApp';
 import { midiActions } from 'MemoryFlashCore/src/redux/slices/midiSlice';
 
 interface MidiInputsDropdownProps {}
@@ -30,7 +30,6 @@ export const MidiInputsDropdown: React.FunctionComponent<MidiInputsDropdownProps
 			<Dropdown
 				label={selectedInputName || 'No MIDI Input'}
 				onButtonClick={(e) => {
-					// Open settings on iOS app
 					e?.preventDefault();
 					openIOSSettings();
 				}}

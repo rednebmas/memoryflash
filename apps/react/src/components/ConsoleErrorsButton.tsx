@@ -3,13 +3,12 @@ import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { CircleHover } from './ui/CircleHover';
 import { Modal } from './modals/Modal';
 import { useConsoleErrors } from '../utils/useConsoleErrors';
-import { isIOSDebug } from '../utils/iosApp';
 
 export const ConsoleErrorsButton: React.FC = () => {
 	const errors = useConsoleErrors();
 	const [open, setOpen] = React.useState(false);
 
-	if (!isIOSDebug() || errors.length === 0) return null;
+	if (errors.length === 0) return null;
 
 	return (
 		<>

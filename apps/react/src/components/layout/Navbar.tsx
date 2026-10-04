@@ -7,6 +7,7 @@ import { AccountNavButton } from '../navigation/AccountNavButton';
 import { ConsoleErrorsButton } from '../ConsoleErrorsButton';
 import { StreakChip } from '../StreakChip';
 import { RefreshButton } from '../RefreshButton';
+import { isIOSDebug } from 'MemoryFlashCore/src/lib/iosApp';
 
 interface NavbarProps {
 	right?: React.ReactNode;
@@ -35,7 +36,7 @@ export const Navbar: React.FC<NavbarProps> = ({ right, back }) => {
 					</CircleHover>
 					<AccountNavButton />
 					<MidiInputsDropdown />
-					<ConsoleErrorsButton />
+					{isIOSDebug() && <ConsoleErrorsButton />}
 					<RefreshButton />
 				</div>
 			</div>

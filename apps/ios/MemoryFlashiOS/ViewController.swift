@@ -35,6 +35,7 @@ class ViewController: UIViewController, WKScriptMessageHandler {
         let contentController = WKUserContentController()
         contentController.add(self, name: "midiHandler")
         contentController.add(self, name: "consoleHandler")
+        // The web app detects the iOS app by this handler (isIOSApp in MemoryFlashCore/src/lib/iosApp.ts)
         contentController.add(self, name: "openSettings")
 #if DEBUG
         let debugScript = WKUserScript(

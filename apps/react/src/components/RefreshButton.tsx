@@ -1,7 +1,7 @@
 import React from 'react';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import { CircleHover } from './ui/CircleHover';
-import { isIOSApp } from '../utils/iosApp';
+import { isIOSApp } from 'MemoryFlashCore/src/lib/iosApp';
 
 export const RefreshButton: React.FC = () => {
 	if (!isIOSApp()) return null;
