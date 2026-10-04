@@ -19,8 +19,7 @@ export function toAsciiAccidentals(symbol: string): string {
 
 export function prettyChordSymbol(symbol: string): string {
 	return symbol
-		.replace(/^([A-G])b/, '$1♭')
-		.replace(/^b/, '♭')
+		.replace(/(^|\/)([A-G]?)b/g, '$1$2♭')
 		.replace(/b(?=\d)/g, '♭')
 		.replace(/#/g, '♯');
 }
@@ -42,6 +41,14 @@ export function romanNumeralToChordName(key: string, numeral: string): string | 
 }
 
 export function chordNameToRomanNumeral(key: string, chordName: string): string | null {
+	const [name, bass] = chordName.split('/');
+	const numeral = rootRomanNumeral(key, name);
+	if (!numeral || !bass) return numeral;
+	const [bassNumeral] = Progression.toRomanNumerals(parseKey(key).tonic, [bass]);
+	return /^[b#]*[IV]+$/.test(bassNumeral ?? '') ? `${numeral}/${bassNumeral}` : null;
+}
+
+function rootRomanNumeral(key: string, chordName: string): string | null {
 	if (Chord.get(chordName).empty) return null;
 	const [raw] = Progression.toRomanNumerals(parseKey(key).tonic, [chordName]);
 	const match = raw?.match(/^([b#]*)([IV]+)(.*)$/);

@@ -6,7 +6,13 @@ import {
 	withChordNames,
 	writtenChordNames,
 } from './chordNames';
-import { chord, sheetQuestion as question, soEasyC } from './testData/soEasyToFallInLove';
+import {
+	chord,
+	sheetQuestion as question,
+	soEasyC,
+	soEasyNamesC,
+	soEasyNumerals,
+} from './testData/soEasyToFallInLove';
 
 const oneFourFlatSeven = question([
 	chord(['C4', 'E4', 'G4'], 'w'),
@@ -68,6 +74,11 @@ describe('chordSlots', () => {
 		expect(slots[2].notes).to.deep.equal(['E', 'G', 'Bb']);
 	});
 
+	it("misses every one of Sam's rootless chords, so typing is needed", () => {
+		const detected = chordSlots(soEasyC).map((s) => s.detected);
+		expect(detected.filter((d, i) => d === soEasyNamesC[i])).to.deep.equal([]);
+	});
+
 	it('ignores single melody notes', () => {
 		const q = question([chord(['C4'], 'h'), chord(['D4', 'F4'], 'h')]);
 		expect(chordSlots(q).map((s) => s.index)).to.deep.equal([1]);
@@ -98,10 +109,15 @@ describe('romanNumeralPrompt', () => {
 		expect(romanNumeralPrompt(oneFourFlatSeven)).to.equal('**Key of C**\n\nI – IV – ♭VII');
 	});
 
-	it('uses typed names, falling back to detection for the rest', () => {
-		const named = withChordNames(soEasyC, ['Fmaj7', 'Em7', 'C7', 'Fmaj7', 'Fmaj7#11']);
+	it("shows Sam's real names as IV/V – Imaj7 – ♯i°7", () => {
+		const named = withChordNames(soEasyC, soEasyNamesC);
+		expect(romanNumeralPrompt(named)).to.equal(`**Key of C**\n\n${soEasyNumerals}`);
+	});
+
+	it('falls back to detection for chords left blank', () => {
+		const named = withChordNames(soEasyC, ['F/G', 'Cmaj7']);
 		expect(romanNumeralPrompt(named)).to.equal(
-			'**Key of C**\n\nIVmaj7 – iii7 – I7 – IVmaj7 – IVmaj7♯11 – iii – iii°',
+			'**Key of C**\n\nIV/V – Imaj7 – iii° – IV – IVM♭5 – iii – iii°',
 		);
 	});
 

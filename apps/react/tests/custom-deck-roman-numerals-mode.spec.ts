@@ -53,6 +53,9 @@ const bbCard = progression('Bb', [
 	['Eb4', 'G4', 'A4'],
 ]);
 
+// Sam's real chord names for the C card
+const samsNames = ['F/G', 'Cmaj7', 'C#dim7', 'F/G', 'G9', 'Cmaj7', 'C#dim7'];
+
 const studyEvents = [
 	[53, 57, 60],
 	[52, 55, 59],
@@ -89,10 +92,11 @@ test('Sheet music card studied in Roman Numerals mode with corrected chord names
 	await expect(page).toHaveURL(new RegExp(`/edit/${cId}`));
 	await page.locator('button:has-text("Sheet Music")').first().click();
 	await page.getByRole('menuitem', { name: 'Roman Numerals' }).click();
-	await page.getByLabel('Chord 1 name').fill('Fmaj7');
-	await page.getByLabel('Chord 3 name').fill('C7');
+	for (const [i, name] of samsNames.entries()) {
+		await page.getByLabel(`Chord ${i + 1} name`).fill(name);
+	}
 	await expect(page.getByText('Also update 1 transposed copy')).toBeVisible();
-	await expect(page.getByText('IVmaj7 – iii – I7 – IV').first()).toBeVisible();
+	await expect(page.getByText('IV/V – Imaj7 – ♯i°7 – IV/V – V9 – Imaj7 – ♯i°7')).toBeVisible();
 	await setStaticScroll(page);
 	await expect(page.locator('#root')).toHaveScreenshot(
 		'roman-numerals-editor.png',
@@ -111,7 +115,8 @@ test('Sheet music card studied in Roman Numerals mode with corrected chord names
 	await expect(page.getByText('Card updated')).toBeVisible();
 	expect(patches.size).toBe(2);
 	const bbPatch = [...patches.entries()].find(([id]) => id !== cId)![1];
-	expect(bbPatch.question.voices[0].stack[2].chordName).toBe('Bb7');
+	const bbNames = bbPatch.question.voices[0].stack.map((s) => s.chordName ?? '-');
+	expect(bbNames.join(' ')).toBe('Eb/F Bbmaj7 Bdim7 Eb/F - F9 Bbmaj7 Bdim7');
 
 	await page.goto(`/study/${deckId}`);
 	await expect(page.getByText(/^Key of/).first()).toBeVisible();

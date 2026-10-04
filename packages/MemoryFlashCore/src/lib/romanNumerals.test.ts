@@ -54,6 +54,20 @@ describe('romanNumerals', () => {
 		expect(chordNameToRomanNumeral('C', 'Xyz')).to.equal(null);
 	});
 
+	it('shows slash chords as a numeral over the bass degree', () => {
+		expect(chordNameToRomanNumeral('C', 'F/G')).to.equal('IV/V');
+		expect(chordNameToRomanNumeral('Eb', 'Ab/Bb')).to.equal('IV/V');
+		expect(chordNameToRomanNumeral('C', 'C/Bb')).to.equal('I/bVII');
+		expect(prettyChordSymbol('I/bVII')).to.equal('I/♭VII');
+		expect(prettyChordSymbol('Ab/Bb')).to.equal('A♭/B♭');
+		expect(chordNameToRomanNumeral('C', 'F/Xyz')).to.equal(null);
+	});
+
+	it('spells a diminished seventh on a raised root', () => {
+		expect(chordNameToRomanNumeral('C', 'C#dim7')).to.equal('#i°7');
+		expect(chordNameToRomanNumeral('Eb', 'Edim7')).to.equal('#i°7');
+	});
+
 	it('resolves typed symbols for either notation', () => {
 		expect(chordSymbolToChordName('B♭', 'chordNames')).to.equal('Bb');
 		expect(chordSymbolToChordName('H', 'chordNames')).to.equal(null);

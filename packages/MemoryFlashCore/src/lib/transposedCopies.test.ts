@@ -3,7 +3,15 @@ import { AnswerType, Card, CardTypeEnum } from '../types/Cards';
 import { MultiSheetQuestion } from '../types/MultiSheetCard';
 import { withChordNames, writtenChordNames } from './chordNames';
 import { questionsForAllMajorKeys, transposeQuestion } from './multiKeyTransposer';
-import { soEasyBb, soEasyC } from './testData/soEasyToFallInLove';
+import {
+	soEasyBb,
+	soEasyC,
+	soEasyNamesC,
+	soEasyNamesEb,
+	soEasyNumerals,
+} from './testData/soEasyToFallInLove';
+import { romanNumeralPrompt } from './chordNames';
+import { prettyChordSymbol } from './romanNumerals';
 import {
 	syncedCopy,
 	transposedCopies,
@@ -99,6 +107,43 @@ describe('syncedCopy', () => {
 	it('does nothing when the edit changed the notes', () => {
 		const edited = { ...soEasyBb, key: 'C' };
 		expect(syncedCopy(soEasyC, edited, soEasyBb)).to.equal(null);
+	});
+});
+
+describe("Sam's names entered on the C card", () => {
+	const named = withChordNames(soEasyC, soEasyNamesC);
+	const samKeys = ['G', 'D', 'A', 'E', 'B', 'F#', 'C#', 'F', 'Bb', 'Eb', 'Ab'];
+	const copies = questionsForAllMajorKeys(soEasyC, 'C3', 'C5').filter((q) =>
+		samKeys.includes(q.key),
+	);
+
+	it('reach all 11 copies with the same numerals', () => {
+		const synced = copies.map((q) => syncedCopy(soEasyC, named, q)!);
+		expect(synced).to.have.length(11);
+		synced.forEach((q) =>
+			expect(romanNumeralPrompt(q)).to.equal(
+				`**Key of ${prettyChordSymbol(q.key)}**\n\n${soEasyNumerals}`,
+			),
+		);
+	});
+
+	it('match the names Sam gave in Eb', () => {
+		const eb = syncedCopy(
+			soEasyC,
+			named,
+			copies.find((q) => q.key === 'Eb')!,
+		)!;
+		expect(writtenChordNames(eb)).to.deep.equal(soEasyNamesEb);
+		const bb = syncedCopy(soEasyC, named, soEasyBb)!;
+		expect(writtenChordNames(bb)).to.deep.equal([
+			'Eb/F',
+			'Bbmaj7',
+			'Bdim7',
+			'Eb/F',
+			'F9',
+			'Bbmaj7',
+			'Bdim7',
+		]);
 	});
 });
 

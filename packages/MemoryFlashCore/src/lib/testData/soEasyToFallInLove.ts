@@ -47,3 +47,8 @@ export const soEasyBb = progression('Bb', [
 	['D4', 'F4', 'Ab4'],
 	['Eb4', 'G4', 'A4'],
 ]);
+
+// Sam's real chord names; the bass of F/G is not in the right-hand voicing
+export const soEasyNamesC = ['F/G', 'Cmaj7', 'C#dim7', 'F/G', 'G9', 'Cmaj7', 'C#dim7'];
+export const soEasyNamesEb = ['Ab/Bb', 'Ebmaj7', 'Edim7', 'Ab/Bb', 'Bb9', 'Ebmaj7', 'Edim7'];
+export const soEasyNumerals = 'IV/V – Imaj7 – ♯i°7 – IV/V – V9 – Imaj7 – ♯i°7';
