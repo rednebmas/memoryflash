@@ -1,6 +1,6 @@
 #!/bin/bash
 # Usage: start-task.sh <report-id>
-# Sweeps merged task worktrees, creates ../memoryflash-worktrees/<id> on task/<id> from origin/main,
+# Sweeps merged task worktrees (skipping never-committed ones, which are live agents), creates ../memoryflash-worktrees/<id> on task/<id> from origin/main,
 # installs deps, renders the agent prompt, and prints the prompt file path as its last line.
 # BUG_WATCH_BASE overrides the base ref (default origin/main), e.g. to test the harness from a branch.
 set -euo pipefail
@@ -18,6 +18,7 @@ trap 'rmdir "$LOCK" 2>/dev/null || true' EXIT
 for branch in $(git -C "$MAIN" branch --format='%(refname:short)' --merged origin/main 'task/*'); do
 	old="$WT_ROOT/${branch#task/}"
 	[ "$old" = "$WT" ] && continue
+	[ "$(git -C "$MAIN" reflog show --format=%H "$branch" -- 2>/dev/null | wc -l)" -le 1 ] && continue
 	[ -d "$old" ] && git -C "$MAIN" worktree remove --force "$old" && echo "swept $old" >&2
 	git -C "$MAIN" branch -D "$branch" >/dev/null
 done
