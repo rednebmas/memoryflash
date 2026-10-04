@@ -25,11 +25,17 @@ export const updateCard =
 		cardType: CardTypeEnum | string,
 		textPrompt?: string,
 		answer?: Answer,
+		onSuccess?: () => void,
 	): AppThunk =>
 	async (dispatch, _, { api }) => {
-		await networkCallWithReduxState(dispatch, 'updateCard', async () => {
-			const q = prepareQuestion(question, cardType, textPrompt);
-			const res = await api.patch('/cards/' + cardId, { question: q, answer });
-			dispatch(cardsActions.upsert([res.data.card]));
-		});
+		await networkCallWithReduxState(
+			dispatch,
+			'updateCard',
+			async () => {
+				const q = prepareQuestion(question, cardType, textPrompt);
+				const res = await api.patch('/cards/' + cardId, { question: q, answer });
+				dispatch(cardsActions.upsert([res.data.card]));
+			},
+			{ successCb: onSuccess },
+		);
 	};

@@ -5,7 +5,12 @@ import { MultiSheetQuestion } from '../../types/MultiSheetCard';
 import { Answer } from '../../types/Cards';
 
 export const addCardsToDeck =
-	(deckId: string, questions: MultiSheetQuestion[], answer?: Answer | Answer[]): AppThunk =>
+	(
+		deckId: string,
+		questions: MultiSheetQuestion[],
+		answer?: Answer | Answer[],
+		onSuccess?: (count: number) => void,
+	): AppThunk =>
 	async (dispatch, _, { api }) => {
 		await networkCallWithReduxState(dispatch, 'addCardsToDeck', async () => {
 			const res = await api.post(`/decks/${deckId}/cards`, {
@@ -13,5 +18,6 @@ export const addCardsToDeck =
 				answer,
 			});
 			dispatch(cardsActions.upsert(res.data.cards));
+			onSuccess?.(res.data.cards.length);
 		});
 	};

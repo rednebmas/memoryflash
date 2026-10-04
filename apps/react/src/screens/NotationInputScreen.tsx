@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Layout, Button } from '../components';
 import { BasicErrorCard } from '../components/feedback/ErrorCard';
+import { useToast } from '../components/feedback/Toast';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { questionsForAllMajorKeys } from 'MemoryFlashCore/src/lib/multiKeyTransposer';
 import { majorKeys } from 'MemoryFlashCore/src/lib/notes';
@@ -33,6 +34,7 @@ export const NotationInputScreen = () => {
 	});
 	const [complete, setComplete] = useState(false);
 	const dispatch = useAppDispatch();
+	const toast = useToast();
 	const { deckId } = useDeckIdPath();
 	const { cardId } = useParams();
 	const card = useAppSelector((state) => (cardId ? state.cards.entities[cardId] : undefined));
@@ -84,26 +86,39 @@ export const NotationInputScreen = () => {
 		}
 	};
 
+	const toastAdded = (count: number) =>
+		toast(count === 1 ? 'Card added' : `${count} cards added`);
+
 	const handleAdd = () => {
 		if (!deckId) return;
 		if (isAi) {
 			dispatch(setPresentationMode(CardTypeEnum.MultiSheet, 'Text Prompt'));
-			dispatch(addCardsToDeck(deckId, generated.questions, generated.answers)).then(() =>
-				dispatch(generatedCardsActions.clear()),
+			dispatch(
+				addCardsToDeck(deckId, generated.questions, generated.answers, (count) => {
+					toastAdded(count);
+					dispatch(generatedCardsActions.clear());
+				}),
 			);
 			return;
 		}
 		if (!complete) return;
 		const { questions, answer, presentationMode } = buildCardsToAdd(settings, previews);
 		dispatch(setPresentationMode(CardTypeEnum.MultiSheet, presentationMode));
-		dispatch(addCardsToDeck(deckId, questions, answer));
+		dispatch(addCardsToDeck(deckId, questions, answer, toastAdded));
 	};
 
 	const handleUpdate = () => {
 		if (cardId && previews[0]) {
 			const { answer } = buildCardsToAdd(settings, previews);
 			dispatch(
-				updateCard(cardId, previews[0], settings.cardType, textPromptFor(settings), answer),
+				updateCard(
+					cardId,
+					previews[0],
+					settings.cardType,
+					textPromptFor(settings),
+					answer,
+					() => toast('Card updated'),
+				),
 			);
 		}
 	};

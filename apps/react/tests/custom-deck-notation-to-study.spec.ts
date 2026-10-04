@@ -49,6 +49,7 @@ test('Create custom deck, add notation and text cards, then study', async ({
 		clickButton('Add Card'),
 	]);
 	expect(addResp.ok()).toBeTruthy();
+	await expect(page.getByText('Card added')).toBeVisible();
 
 	// Add a text-based flashcard
 	await clickButton('Reset');
@@ -72,6 +73,7 @@ test('Create custom deck, add notation and text cards, then study', async ({
 		clickButton('Add Card'),
 	]);
 	expect(addResp2.ok()).toBeTruthy();
+	await expect(page.getByText('Card added')).toBeHidden({ timeout: 5000 });
 
 	await page.goto(`/study/${deckId}`);
 	const output = page.locator('#root');
