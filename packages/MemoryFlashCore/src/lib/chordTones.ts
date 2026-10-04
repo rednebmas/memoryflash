@@ -1,5 +1,7 @@
 import { Chord, Note } from 'tonal';
-import { ChordMemoryChord } from '../types/Cards';
+import { ChordMemoryChord, StaffEnum } from '../types/Cards';
+import { MultiSheetQuestion } from '../types/MultiSheetCard';
+import { parseKey } from './romanNumerals';
 
 export function getChordTones(chordName: string): string[] {
 	const chord = Chord.get(chordName);
@@ -26,3 +28,9 @@ export function chordNameToChromas(chordName: string): number[] {
 export function invalidChordNames(chords: string[]): string[] {
 	return chords.filter((c) => Chord.get(c).empty);
 }
+
+export const chordMemoryQuestion = (prompt: string, key: string): MultiSheetQuestion => ({
+	key: parseKey(key).tonic,
+	voices: [{ staff: StaffEnum.Treble, stack: [{ notes: [], duration: 'w', rest: true }] }],
+	presentationModes: [{ id: 'Text Prompt', text: prompt }],
+});
