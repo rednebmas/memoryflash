@@ -4,13 +4,13 @@ import { MetronomeSound } from '../../components/MetronomeSound';
 import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import {
 	currBeatsPerBarSelector,
-	metronomeBpmSelector,
+	deckTempoSelector,
 } from 'MemoryFlashCore/src/redux/selectors/rhythmSelectors';
 import { useUpdateEffect } from '../../utils/useUpdateEffect';
 
 export const Metronome: React.FunctionComponent = () => {
 	const [playing, setPlaying] = useState(false);
-	const bpm = useAppSelector(metronomeBpmSelector);
+	const bpm = useAppSelector(deckTempoSelector);
 	const beatsPerBar = useAppSelector(currBeatsPerBarSelector);
 	const onNotes = useAppSelector((state) => state.midi.notes);
 	const toggleKeyOn = onNotes.find((note) => note.number === 25);

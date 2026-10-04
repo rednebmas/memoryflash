@@ -14,10 +14,7 @@ import { StudyInput } from './StudyInput';
 import { ChordMemoryDebugDialog } from '../../components/ChordMemoryDebugDialog';
 import { CardCarousel } from '../../components/CardCarousel';
 import { selectActivePresentationMode } from 'MemoryFlashCore/src/redux/selectors/activePresentationModeSelector';
-import {
-	attemptsStatsSelector,
-	bpmSelector,
-} from 'MemoryFlashCore/src/redux/selectors/attemptsStatsSelector';
+import { attemptsStatsSelector } from 'MemoryFlashCore/src/redux/selectors/attemptsStatsSelector';
 import { sessionCardsSelector } from 'MemoryFlashCore/src/redux/selectors/scheduledCardsSelector';
 import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { useDeckIdPath } from '../useDeckIdPath';
@@ -33,7 +30,6 @@ export const StudyScreen = () => {
 	const [hideFutureCards, setHideFutureCards] = useState(false);
 	const attemptsStats = useAppSelector(attemptsStatsSelector);
 	const { tooLongTime, median } = attemptsStats || { tooLongTime: 0, median: 0 };
-	const { bpm, goalTime } = useAppSelector(bpmSelector);
 	const { deckId, deck } = useDeckIdPath();
 	const activePresentationMode = useAppSelector(selectActivePresentationMode);
 	const { currStartTime } = useAppSelector((state) => state.scheduler);
@@ -102,9 +98,8 @@ export const StudyScreen = () => {
 				<StudyInput />
 				{!IS_TEST_ENV && (
 					<div className="text-center text-xs">
-						tooLongTime: {tooLongTime.toFixed(0)}s, bpm: {bpm}, median:{' '}
-						{median.toFixed(1)}
-						s, goal: {goalTime.toFixed(1)}s, timeSinceStart:{' '}
+						tooLongTime: {tooLongTime.toFixed(0)}s, median: {median.toFixed(1)}s,
+						timeSinceStart:{' '}
 						<Timer
 							className={clsx(
 								'font-serif',

@@ -5,7 +5,7 @@ import { rhythmActions } from '../slices/rhythmSlice';
 import { settingsActions } from '../slices/settingsSlice';
 import { AppDispatch } from '../store';
 import { C_MAJOR, rhythmCard, setupRhythmStore } from '../testStore';
-import { metronomeBpmSelector, nextDeadlineMsSelector } from '../selectors/rhythmSelectors';
+import { deckTempoSelector, nextDeadlineMsSelector } from '../selectors/rhythmSelectors';
 import { markStepMissed } from './rhythm-actions';
 
 const setup = () => setupRhythmStore([rhythmCard('a'), rhythmCard('b')]);
@@ -152,7 +152,7 @@ describe('rhythm grading', () => {
 			);
 			await Promise.resolve();
 		}
-		expect(metronomeBpmSelector(store.getState())).to.equal(125);
+		expect(deckTempoSelector(store.getState())).to.equal(125);
 		const engine = new ChordMemoryValidatorEngine([C_MAJOR, C_MAJOR, C_MAJOR]);
 		[0, 500, 1000].forEach((beat) =>
 			playChord(store, engine, [99000 + beat, 99000 + beat, 99000 + beat]),

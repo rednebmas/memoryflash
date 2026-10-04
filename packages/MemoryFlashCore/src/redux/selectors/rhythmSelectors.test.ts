@@ -3,7 +3,7 @@ import { rhythmActions } from '../slices/rhythmSlice';
 import { settingsActions } from '../slices/settingsSlice';
 import { userDeckStatsActions } from '../slices/userDeckStatsSlice';
 import { rhythmCard, setupRhythmStore } from '../testStore';
-import { rhythmStatusSelector, timingStripSelector } from './rhythmSelectors';
+import { deckTempoSelector, rhythmStatusSelector, timingStripSelector } from './rhythmSelectors';
 
 const setup = () => setupRhythmStore([rhythmCard('a')]);
 type Store = ReturnType<typeof setup>;
@@ -37,8 +37,14 @@ describe('rhythmStatusSelector', () => {
 		const store = setup();
 		store.dispatch(settingsActions.setChordInputMode('names'));
 		expect(rhythmStatusSelector(store.getState())).to.equal(
-			'Metronome only · timing is graded with piano or sax input',
+			'Metronome only · 120 bpm · timing is graded with piano or sax input',
 		);
+	});
+
+	it('plays the deck tempo for chord-name input', () => {
+		const store = setup();
+		store.dispatch(settingsActions.setChordInputMode('names'));
+		expect(deckTempoSelector(store.getState())).to.equal(120);
 	});
 
 	it('explains the first chord sets beat one before anything is graded', () => {

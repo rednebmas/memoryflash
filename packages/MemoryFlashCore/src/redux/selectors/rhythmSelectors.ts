@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { DEFAULT_RHYTHM, TIERS_MS } from '../../lib/rhythm/types';
-import { METRONOME_ONLY_STATUS, stepVerdict, timingSummary } from '../../lib/rhythm/status';
+import { stepVerdict, timingSummary } from '../../lib/rhythm/status';
 import { deadlineMs, expectedMs } from '../../lib/rhythm/grade';
 import { hasRhythm, stepBeats } from '../../lib/rhythm/stepBeats';
 import { resolveLadder } from '../../lib/rhythm/tempoLadder';
@@ -8,7 +8,6 @@ import { beatsPerBarOf, DEFAULT_BEATS_PER_BAR } from '../../lib/measure';
 import { CardTypeEnum } from '../../types/Cards';
 import { ReduxState } from '../store';
 import { currDeckStatsSelector } from './activeSchedulerSelector';
-import { bpmSelector } from './attemptsStatsSelector';
 import { chordInputModeSelector } from './chordInputModeSelector';
 import { instrumentSelector } from './instrumentSelector';
 import { sessionCardsSelector } from './scheduledCardsSelector';
@@ -61,11 +60,6 @@ export const currBeatsPerBarSelector = createSelector(
 			? beatsPerBarOf(card.question)
 			: DEFAULT_BEATS_PER_BAR;
 	},
-);
-
-export const metronomeBpmSelector = createSelector(
-	[rhythmModeSelector, deckTempoSelector, bpmSelector],
-	(mode, tempo, adaptive) => (mode ? tempo : adaptive.bpm),
 );
 
 export const currRhythmCardSelector = createSelector(
@@ -157,7 +151,7 @@ export const rhythmStatusSelector = createSelector(
 	],
 	(mode, active, bpm, grid, steps): string | undefined => {
 		if (!grid) return undefined;
-		if (!mode) return METRONOME_ONLY_STATUS;
+		if (!mode) return `Metronome only · ${bpm} bpm · timing is graded with piano or sax input`;
 		const prefix = `Rhythm mode · ${bpm} bpm`;
 		if (!active) return `${prefix} · this card has no rhythm to grade`;
 		const last = steps[steps.length - 1];

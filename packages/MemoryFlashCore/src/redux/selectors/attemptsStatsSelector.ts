@@ -1,10 +1,8 @@
 import { createSelector } from '@reduxjs/toolkit';
-import { clamp } from '../../lib/clamp';
 import { calculateMedian } from '../../lib/median';
 import { UserDeckStatsType } from '../../types/UserDeckStats';
 import {
 	currDeckAllWithAttemptsSelector,
-	currDeckWithAttemptsSelector,
 	currDeckWithCorrectAttemptsSelector,
 } from './currDeckCardsWithAttempts';
 import { userDeckStatsByDeckIdSelector } from './userDeckStatsByDeckIdSelector';
@@ -125,61 +123,6 @@ export const attemptsStatsSelector = createSelector(
 			totalTimeSpent,
 			timeSpentPerDay,
 			medianPerDay,
-		};
-	},
-);
-
-export const bpmSelector = createSelector(
-	[attemptsStatsSelector, currDeckWithAttemptsSelector],
-	(stats, currentDeck) => {
-		if (!stats || !stats.median) return { bpm: 40, goalTime: 0 };
-
-		console.log('[bpm] median: ', stats.median);
-
-		let originalBpm = 60 / stats.median;
-		console.log('[bpm] originalBpm: ', originalBpm);
-
-		let bpm = originalBpm || 40;
-		let octaveMultiplier = 0;
-		while (bpm < 40) {
-			bpm *= 4;
-			octaveMultiplier++;
-		}
-
-		console.log('[bpm] bpm:', bpm, ', octaveMultiplier: ', octaveMultiplier);
-
-		console.log('[bpm] stats.numCardsWithCorrectAnswer:', stats.numCardsWithCorrectAnswer);
-
-		let correct = 0;
-		let incorrect = 0;
-		let sixHoursAgo = new Date(Date.now() - 6 * 60 * 60 * 1000);
-		Object.values(currentDeck)
-			.map((card) => card.attempts)
-			.flat()
-			.forEach((attempt) => {
-				let attemptedDate = new Date(attempt.attemptedAt);
-
-				if (attempt.correct && attemptedDate > sixHoursAgo) {
-					correct++;
-				} else if (attempt.correct === false) {
-					incorrect++;
-				}
-			});
-
-		console.log('[bpm] correct bonus:', correct, '- incorrect penalty:', incorrect);
-
-		let adjustment = clamp(-incorrect * 1.5 + correct, -10, 10);
-		console.log('[bpm] adjustment:', adjustment);
-
-		bpm += adjustment;
-
-		bpm = clamp(bpm, 39, 161);
-
-		console.log('[bpm] final bpm:', bpm);
-
-		return {
-			bpm: Math.round(bpm),
-			goalTime: (60 / bpm) * Math.pow(4, octaveMultiplier),
 		};
 	},
 );
