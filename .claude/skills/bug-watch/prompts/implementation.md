@@ -9,8 +9,10 @@ TASK STATE lives in prod Mongo and is changed only through {{reports}}:
 - `{{reports}} show {{report_id}}` — reprint the report above
 - `{{reports}} set-status {{report_id}} <status>` — only where this prompt says so
 
+PROD DATA — READ IT (strongly recommended, Sam's standing instruction): `{{reports}} query <collection> '<EJSON filter>' [limit]` runs a read-only find against prod Mongo (collections: users, decks, cards, courses, attempts, userdeckstats, bugreports; secrets are stripped). Example: `{{reports}} query cards '{"deckId":{"$oid":"<id>"}}' 50`. Use it for every bug report: look up the reporter, and the deck/card/course in the report URL, so you diagnose and reproduce against the real data, not guesses. When it matters, seed your manual Playwright test with a copy of the real documents. Never write prod data except through the commands above.
+
 Phase A — Investigate (read-only for code):
-Read AGENTS.md in full — it is binding. Read the screenshot (if any) and the console errors, then trace the relevant code paths. For bugs, find the root cause with file:line evidence. Never speculate: verify claims against the code.
+Read AGENTS.md in full — it is binding. Read the screenshot (if any) and the console errors, query the prod data behind the report (see PROD DATA), then trace the relevant code paths. For bugs, find the root cause with file:line evidence. Never speculate: verify claims against the code.
 {{#if third_party}}
 TRIAGE: this is a USER REPORT from someone other than Sam — a signal, not a spec. Think like a product engineer: verify the claims, ask the five whys (what is the request behind the request?), and check whether the desired outcome is already reachable. Classify it — real bug, working-as-intended, feature request, or non-issue — and weigh "do nothing", a smaller UX change that serves the underlying need, and the literal ask. If the right answer is no change, follow CLOSING WITHOUT FIXING.
 {{/if}}
@@ -26,7 +28,7 @@ Phase C — Implement (green):
 Implement until the new tests pass. Then run `cd {{wt_dir}} && yarn test:codex` (full build + all unit tests; MongoMemoryServer is per-process, so parallel agents never collide). Run /simplify on your changed files, then rerun yarn test:codex. Format with `npx prettier --write <changed files>`.
 
 Phase C-UI — Manual test (MANDATORY if you touched anything under apps/react/src; skip for pure logic/server changes):
-Passing specs are not enough — you must use the feature yourself and look at it. Write a throwaway Playwright script under tasks/ (reuse apps/react/tests/helpers to sign up, seed a deck and run the app on this worktree's ports) that walks through the user's reported flow step by step, at the report's viewport, and saves a screenshot at each meaningful step. Reproduce first: run it before your fix (or with your changes stashed) (Read the screenshot: you should see what the user saw), then against your fix, and Read those screenshots too. Cover every surface the report names, including follow-ups from Sam, and any other screen your change visibly affects. Anything you could not exercise goes under Flags as unverified. In your Evidence, list the absolute paths of the before/after screenshots you Read.
+Passing specs are not enough — you must use the feature yourself and look at it. Write a throwaway Playwright script under tasks/ (reuse apps/react/tests/helpers to sign up, seed a deck and run the app on this worktree's ports) that walks through the user's reported flow step by step, at the report's viewport, and saves a screenshot at each meaningful step into {{evidence_dir}}/before/ and {{evidence_dir}}/after/ (outside the worktree, so Sam can still open them after the worktree is swept). Reproduce first: run it before your fix (or with your changes stashed) (Read the screenshot: you should see what the user saw), then against your fix, and Read those screenshots too. Cover every surface the report names, including follow-ups from Sam, and any other screen your change visibly affects. Anything you could not exercise goes under Flags as unverified. In your Evidence, list the absolute paths of the before/after screenshots you Read.
 Then run the Playwright screenshot specs that cover what you changed: `cd {{wt_dir}}/apps/react && yarn test:screenshots tests/<spec>.spec.ts`. Ports are derived from this worktree's path, so this runs alongside other agents. If you intentionally changed a covered screen, update just those baselines with `yarn test:screenshots:update tests/<spec>.spec.ts` and Read a representative sample to confirm they look right. If you added a new screen or a new visual state, add a spec for it following the existing ones in apps/react/tests/. Before finishing, run the full suite once (`yarn test:screenshots`) and fix any unintended diffs.
 
 Phase D — Review & ship:
@@ -54,4 +56,4 @@ No file-by-file change lists, no test counts, no "build clean" boilerplate.
 RULES:
 - AGENTS.md applies in full. TDD is mandatory for logic changes.
 - No destructive git (reset --hard, clean -fd, force push, branch -D on anything but your own branch).
-- Never edit the report text or other reports. Never touch production data except via {{reports}}.
+- Never edit the report text or other reports. Never write production data except via {{reports}}; reading it via `{{reports}} query` is expected.

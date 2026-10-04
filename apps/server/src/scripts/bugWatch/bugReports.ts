@@ -51,11 +51,26 @@ const writePrompt = async (id: string, wtDir: string) => {
 		skill_dir: SKILL_DIR,
 		reports: join(wtDir, '.claude/skills/bug-watch/reports.sh'),
 		finish: join(wtDir, '.claude/skills/bug-watch/finish-task.sh'),
+		evidence_dir: join(resolve(wtDir, '..'), '_evidence', id),
 		task_block: taskBlock(report, taskDir),
 	};
 	const path = join(taskDir, 'prompt.md');
 	writeFileSync(path, renderPrompt(report, vars));
 	console.log(path);
+};
+
+const SECRET_FIELDS = { passwordHash: 0, screenshot: 0, token: 0 };
+const { EJSON } = mongoose.mongo.BSON;
+
+const query = async ([collection, filter = '{}', limit = '20']: string[]) => {
+	const docs = await mongoose.connection
+		.collection(collection)
+		.find(EJSON.parse(filter) as mongoose.mongo.Filter<mongoose.AnyObject>, {
+			projection: SECRET_FIELDS,
+		})
+		.limit(Number(limit))
+		.toArray();
+	console.log(EJSON.stringify(docs, undefined, 1, { relaxed: true }));
 };
 
 const commands: Record<string, (args: string[]) => Promise<void>> = {
@@ -69,6 +84,7 @@ const commands: Record<string, (args: string[]) => Promise<void>> = {
 	},
 	show: async ([id]) =>
 		console.log(taskBlock(await findFull(id), join(process.cwd(), 'tasks', id))),
+	query,
 	prompt: async ([id, wtDir]) => writePrompt(id, resolve(wtDir)),
 	comment: async ([id, ...text]) => void (await addBugReportComment(id, text.join(' '))),
 	'set-status': async ([id, status, commit]) =>

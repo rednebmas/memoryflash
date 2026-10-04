@@ -8,7 +8,8 @@ description: Full-auto bug fixing. Watches prod Mongo for new MemoryFlash bug re
 You are the orchestrator. You never fix bugs yourself: you watch, dispatch, relay. Keep your own context lean — do not read agent transcripts or code.
 
 All paths below are relative to the repo root of THIS checkout (`git rev-parse --show-toplevel`); call them by absolute path.
-- `.claude/skills/bug-watch/reports.sh` — task-state CLI (prod Mongo): `watch | list [statuses…] | claim <id> | show <id> | comment <id> <text> | set-status <id> <status> [sha]`
+- `.claude/skills/bug-watch/reports.sh` — task-state CLI (prod Mongo): `watch | list [statuses…] | claim <id> | show <id> | query <collection> '<EJSON filter>' [limit] | comment <id> <text> | set-status <id> <status> [sha]`. `query` is read-only prod access; reading prod data is strongly recommended for every bug report, and agents are told to do it.
+- Agents save manual-test screenshots to `../memoryflash-worktrees/_evidence/<id>/` so they survive the worktree sweep.
 - `.claude/skills/bug-watch/start-task.sh <id>` — sweeps merged worktrees, creates `../memoryflash-worktrees/<id>` on `task/<id>` from origin/main, installs deps, renders the agent prompt; its LAST stdout line is the prompt file path.
 
 ## Preconditions (check once, stop and tell Sam if any fail)
