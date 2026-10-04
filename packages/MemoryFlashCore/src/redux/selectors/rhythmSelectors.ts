@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { DEFAULT_RHYTHM, TIERS_MS } from '../../lib/rhythm/types';
-import { metronomeOnlyStatus, stepVerdict, timingSummary } from '../../lib/rhythm/status';
+import { METRONOME_ONLY_STATUS, stepVerdict, timingSummary } from '../../lib/rhythm/status';
 import { deadlineMs, expectedMs } from '../../lib/rhythm/grade';
 import { hasRhythm, stepBeats } from '../../lib/rhythm/stepBeats';
 import { resolveLadder } from '../../lib/rhythm/tempoLadder';
@@ -43,10 +43,9 @@ export const currStepBeatsSelector = createSelector([sessionCardsSelector], ({ c
 );
 
 export const rhythmModeSelector = createSelector(
-	[deckRhythmSettingsSelector, instrumentSelector, chordInputModeSelector],
-	(settings, instrument, inputMode) =>
-		settings.enabled &&
-		(instrument === 'sax' || (instrument === 'piano' && inputMode === 'piano')),
+	[instrumentSelector, chordInputModeSelector],
+	(instrument, inputMode) =>
+		instrument === 'sax' || (instrument === 'piano' && inputMode === 'piano'),
 );
 
 export const rhythmActiveSelector = createSelector(
@@ -150,17 +149,16 @@ export const timingStripSelector = createSelector(
 
 export const rhythmStatusSelector = createSelector(
 	[
-		deckRhythmSettingsSelector,
 		rhythmModeSelector,
 		rhythmActiveSelector,
 		deckTempoSelector,
 		(s: ReduxState) => s.rhythm.grid,
 		displayedStepsSelector,
 	],
-	(settings, mode, active, bpm, grid, steps): string | undefined => {
-		if (!mode) return grid ? metronomeOnlyStatus(settings.enabled) : undefined;
+	(mode, active, bpm, grid, steps): string | undefined => {
+		if (!grid) return undefined;
+		if (!mode) return METRONOME_ONLY_STATUS;
 		const prefix = `Rhythm mode · ${bpm} bpm`;
-		if (!grid) return `${prefix} · start the metronome to be graded`;
 		if (!active) return `${prefix} · this card has no rhythm to grade`;
 		const last = steps[steps.length - 1];
 		return `${prefix} · ${last ? stepVerdict(last) : 'your first chord sets beat one'}`;

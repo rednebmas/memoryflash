@@ -105,6 +105,20 @@ describe('rhythm grading', () => {
 		expect(lastAttempt(store).timing).to.equal(undefined);
 	});
 
+	it('grades the rest of a card when the metronome starts mid-card', async () => {
+		const store = setup();
+		store.dispatch(rhythmActions.setGrid(undefined));
+		const engine = new ChordMemoryValidatorEngine([C_MAJOR, C_MAJOR, C_MAJOR]);
+		playChord(store, engine, [700, 700, 700]);
+		store.dispatch(rhythmActions.setGrid({ originMs: 0, beatMs: 500 }));
+		playChord(store, engine, [1510, 1510, 1510]);
+		expect(nextDeadlineMsSelector(store.getState())).to.equal(2000 + 120);
+		playChord(store, engine, [2000, 2000, 2000]);
+		await Promise.resolve();
+		expect(lastAttempt(store).correct).to.equal(true);
+		expect(lastAttempt(store).timing?.offsetsMs).to.deep.equal([null, 10, 0]);
+	});
+
 	it('shifts onsets by the calibrated latency', async () => {
 		const store = setup();
 		store.dispatch(settingsActions.setRhythmLatencyMs(40));

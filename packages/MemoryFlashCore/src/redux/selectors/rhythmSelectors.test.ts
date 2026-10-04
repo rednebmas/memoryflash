@@ -1,9 +1,11 @@
 import { expect } from 'chai';
 import { rhythmActions } from '../slices/rhythmSlice';
+import { settingsActions } from '../slices/settingsSlice';
+import { userDeckStatsActions } from '../slices/userDeckStatsSlice';
 import { rhythmCard, setupRhythmStore } from '../testStore';
 import { rhythmStatusSelector, timingStripSelector } from './rhythmSelectors';
 
-const setup = (enabled = true) => setupRhythmStore([rhythmCard('a')], 'piano', { enabled });
+const setup = () => setupRhythmStore([rhythmCard('a')]);
 type Store = ReturnType<typeof setup>;
 
 const grade = (store: Store, index: number, offsetMs: number | null) => {
@@ -15,24 +17,27 @@ const grade = (store: Store, index: number, offsetMs: number | null) => {
 };
 
 describe('rhythmStatusSelector', () => {
-	it('says timing is not graded when the metronome plays with rhythm mode off', () => {
-		const store = setup(false);
-		expect(rhythmStatusSelector(store.getState())).to.equal(
-			"Metronome only · timing isn't graded. Turn on Rhythm in Deck settings",
-		);
-	});
-
-	it('shows nothing with rhythm mode and the metronome both off', () => {
-		const store = setup(false);
+	it('shows nothing while the metronome is off', () => {
+		const store = setup();
 		store.dispatch(rhythmActions.setGrid(undefined));
 		expect(rhythmStatusSelector(store.getState())).to.equal(undefined);
 	});
 
-	it('asks to start the metronome when rhythm mode is on', () => {
+	it('grades timing at the default tempo for a deck with no rhythm settings', () => {
 		const store = setup();
-		store.dispatch(rhythmActions.setGrid(undefined));
+		store.dispatch(
+			userDeckStatsActions.upsert([{ _id: 's', deckId: 'd1', rhythm: undefined } as never]),
+		);
 		expect(rhythmStatusSelector(store.getState())).to.equal(
-			'Rhythm mode · 120 bpm · start the metronome to be graded',
+			'Rhythm mode · 80 bpm · your first chord sets beat one',
+		);
+	});
+
+	it('says timing is not graded when the input cannot be timed', () => {
+		const store = setup();
+		store.dispatch(settingsActions.setChordInputMode('names'));
+		expect(rhythmStatusSelector(store.getState())).to.equal(
+			'Metronome only · timing is graded with piano or sax input',
 		);
 	});
 

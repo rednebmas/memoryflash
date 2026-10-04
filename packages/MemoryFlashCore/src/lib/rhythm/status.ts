@@ -7,10 +7,7 @@ export const stepVerdict = (step: StepGrade) => {
 	return `${tier} · ${Math.abs(step.offsetMs)} ms ${step.offsetMs < 0 ? 'early' : 'late'}`;
 };
 
-export const metronomeOnlyStatus = (enabled: boolean) =>
-	`Metronome only · timing isn't graded. ${
-		enabled ? 'Rhythm grading needs piano or sax input' : 'Turn on Rhythm in Deck settings'
-	}`;
+export const METRONOME_ONLY_STATUS = 'Metronome only · timing is graded with piano or sax input';
 
 export const timingSummary = (steps: StepGrade[]) => {
 	const offsets = steps.flatMap((s) => (s.offsetMs === null ? [] : [s.offsetMs]));

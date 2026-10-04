@@ -157,7 +157,7 @@ describe('processAttempt', () => {
 
 	it('should store rhythm settings per user and deck', async () => {
 		const { userId, deckId } = newIds();
-		const rhythm = { enabled: true, bpm: 90, strictness: 'tight' as const };
+		const rhythm = { bpm: 90, strictness: 'tight' as const };
 		const stats = await setUserDeckStats(deckId.toString(), userId.toString(), { rhythm });
 		expect(stats!.toJSON().rhythm).to.deep.equal(rhythm);
 	});
@@ -178,7 +178,7 @@ describe('processAttempt', () => {
 
 	it('should step the tempo ladder when a timed attempt is saved', async () => {
 		const ids = newIds();
-		const rhythm = { enabled: true, bpm: 90, strictness: 'normal' as const };
+		const rhythm = { bpm: 90, strictness: 'normal' as const };
 		await setUserDeckStats(ids.deckId.toString(), ids.userId.toString(), { rhythm });
 		const timing = { bpm: 90, strictness: 'normal', offsetsMs: [0] };
 		await new Attempt({ ...ids, batchId: 'b', correct: false, timeTaken: 3, timing }).save();

@@ -17,13 +17,12 @@ export const MIN_RHYTHM_BPM = 30;
 export const MAX_RHYTHM_BPM = 240;
 
 export const zRhythmSettings = z.object({
-	enabled: z.boolean(),
 	bpm: z.number().min(MIN_RHYTHM_BPM).max(MAX_RHYTHM_BPM),
 	strictness: z.enum(RHYTHM_STRICTNESS),
 });
 export type RhythmSettings = z.infer<typeof zRhythmSettings>;
 
-export const DEFAULT_RHYTHM: RhythmSettings = { enabled: false, bpm: 80, strictness: 'normal' };
+export const DEFAULT_RHYTHM: RhythmSettings = { bpm: 80, strictness: 'normal' };
 
 /** originMs is always a downbeat; barMs is set by the metronome clock. */
 export type Grid = { originMs: number; beatMs: number; barMs?: number };

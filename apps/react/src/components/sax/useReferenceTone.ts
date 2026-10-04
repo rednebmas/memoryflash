@@ -8,7 +8,7 @@ import {
 } from 'MemoryFlashCore/src/redux/selectors/instrumentSelector';
 import { writtenMidiToFrequency } from 'MemoryFlashCore/src/lib/saxPitch';
 import { playTone } from './playTone';
-import { rhythmModeSelector } from 'MemoryFlashCore/src/redux/selectors/rhythmSelectors';
+import { rhythmActiveSelector } from 'MemoryFlashCore/src/redux/selectors/rhythmSelectors';
 
 const ECHO_MS = 300;
 
@@ -18,7 +18,7 @@ export const useReferenceTone = (muteFor: (ms: number) => void) => {
 	const midi = useAppSelector(currentNoteMidiSelector);
 	const saxType = useAppSelector(saxTypeSelector);
 	const currCard = useAppSelector((state) => state.scheduler.currCard);
-	const rhythmMode = useAppSelector(rhythmModeSelector);
+	const rhythmActive = useAppSelector(rhythmActiveSelector);
 
 	const play = () => {
 		if (midi === undefined) return;
@@ -27,7 +27,7 @@ export const useReferenceTone = (muteFor: (ms: number) => void) => {
 	};
 
 	useEffect(() => {
-		if (mode !== 'off' && !rhythmMode) play();
+		if (mode !== 'off' && !rhythmActive) play();
 	}, [currCard, mode]);
 
 	return midi === undefined ? undefined : play;

@@ -11,7 +11,6 @@ import {
 	RhythmSettings as RhythmSettingsType,
 	STRICTNESS_OPTIONS,
 } from 'MemoryFlashCore/src/lib/rhythm/types';
-import { SettingCheckbox } from '../inputs/SettingCheckbox';
 import { InlineSelect } from '../inputs/InlineSelect';
 import { CalibrateLatency } from './CalibrateLatency';
 
@@ -29,31 +28,24 @@ export const RhythmSettings: React.FC = () => {
 	return (
 		<div className="space-y-2">
 			<p className="text-sm font-medium">Rhythm</p>
-			<SettingCheckbox
-				label="Play in time with the metronome"
-				checked={settings.enabled}
-				onChange={(enabled) => update({ enabled })}
-			/>
-			{settings.enabled && (
-				<div className="flex flex-wrap items-center gap-3">
-					<InlineSelect
-						label="Start tempo"
-						value={settings.bpm}
-						options={BPM_OPTIONS}
-						onChange={(bpm) => update({ bpm })}
-					/>
-					<InlineSelect
-						label="Timing"
-						value={settings.strictness}
-						options={STRICTNESS_OPTIONS}
-						onChange={(strictness) => update({ strictness })}
-					/>
-					<CalibrateLatency />
-					<p className="caption w-full">
-						Now at {tempo} bpm. {LADDER_DESCRIPTION}
-					</p>
-				</div>
-			)}
+			<div className="flex flex-wrap items-center gap-3">
+				<InlineSelect
+					label="Start tempo"
+					value={settings.bpm}
+					options={BPM_OPTIONS}
+					onChange={(bpm) => update({ bpm })}
+				/>
+				<InlineSelect
+					label="Timing"
+					value={settings.strictness}
+					options={STRICTNESS_OPTIONS}
+					onChange={(strictness) => update({ strictness })}
+				/>
+				<CalibrateLatency />
+				<p className="caption w-full">
+					Now at {tempo} bpm. {LADDER_DESCRIPTION}
+				</p>
+			</div>
 			<p className="caption">
 				Start the metronome and play each chord on the beat. Your first chord sets beat one.
 			</p>

@@ -19,7 +19,6 @@ import { schedulerActions } from './slices/schedulerSlice';
 import { Instrument, settingsActions } from './slices/settingsSlice';
 import { userDeckStatsActions } from './slices/userDeckStatsSlice';
 import { UserDeckStatsType } from '../types/UserDeckStats';
-import { RhythmSettings } from '../lib/rhythm/types';
 import { makeCard } from '../lib/schedulers/testHelpers';
 import { AnswerType, CardTypeEnum, StaffEnum } from '../types/Cards';
 
@@ -62,15 +61,11 @@ export const makeTestStore = (post?: Post) => {
 	return { dispatch, getState, posted };
 };
 
-export const setupRhythmStore = (
-	cards: object[],
-	instrument: Instrument = 'piano',
-	overrides: Partial<RhythmSettings> = {},
-) => {
+export const setupRhythmStore = (cards: object[], instrument: Instrument = 'piano') => {
 	const store = makeTestStore();
 	store.dispatch(auth.setUser({ _id: 'u' } as never));
 	store.dispatch(cardsActions.upsert(cards as never));
-	const rhythm = { enabled: true, bpm: 120, strictness: 'normal' as const, ...overrides };
+	const rhythm = { bpm: 120, strictness: 'normal' as const };
 	const stats = { _id: 's', deckId: 'd1', rhythm } as UserDeckStatsType;
 	store.dispatch(userDeckStatsActions.upsert([stats]));
 	store.dispatch(settingsActions.setChordInputMode('piano'));
