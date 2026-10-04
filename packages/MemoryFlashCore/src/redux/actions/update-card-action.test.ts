@@ -28,4 +28,9 @@ describe('updateCard', () => {
 		const sent = await sentQuestion('Text Prompt', 'Play it');
 		expect(sent?.presentationModes).to.deep.equal([{ id: 'Text Prompt', text: 'Play it' }]);
 	});
+
+	it('sets the Roman Numerals presentation mode on roman numeral cards', async () => {
+		const sent = await sentQuestion('Roman Numerals');
+		expect(sent?.presentationModes).to.deep.equal([{ id: 'Roman Numerals' }]);
+	});
 });

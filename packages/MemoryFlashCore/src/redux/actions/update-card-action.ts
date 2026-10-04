@@ -5,17 +5,14 @@ import { MultiSheetQuestion } from '../../types/MultiSheetCard';
 import { Answer, CardTypeEnum } from '../../types/Cards';
 import { presentationModeFor } from '../../lib/presentationMode';
 
-function prepareQuestion(
+export const prepareQuestion = (
 	question: MultiSheetQuestion,
 	cardType: string,
 	textPrompt?: string,
-): MultiSheetQuestion {
-	const isTextPrompt = cardType === 'Text Prompt' || cardType === 'Chord Memory';
-	return {
-		...question,
-		presentationModes: [presentationModeFor(isTextPrompt, textPrompt ?? '')],
-	};
-}
+): MultiSheetQuestion => ({
+	...question,
+	presentationModes: [presentationModeFor(cardType, textPrompt ?? '')],
+});
 
 export const updateCard =
 	(

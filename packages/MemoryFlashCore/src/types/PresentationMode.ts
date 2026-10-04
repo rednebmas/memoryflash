@@ -4,7 +4,7 @@ export type PresentationModeStartCard = {
 };
 
 export type PresentationModeIdCard = {
-	id: 'Sheet Music' | 'Sheet Music w/ Chords' | 'Chords';
+	id: 'Sheet Music' | 'Sheet Music w/ Chords' | 'Chords' | 'Roman Numerals';
 };
 
 export type PresentationModeText = {

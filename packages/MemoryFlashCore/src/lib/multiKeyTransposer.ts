@@ -1,10 +1,15 @@
-import { Note, Interval } from 'tonal';
+import { Chord, Note, Interval } from 'tonal';
 import { MultiSheetQuestion, StackedNotes } from '../types/MultiSheetCard';
 import { majorKeys } from './notes';
+
+export function transposeChordName(name: string, interval: string): string {
+	return Chord.get(name).empty ? name : Chord.transpose(name, interval);
+}
 
 function transposeStack(stack: StackedNotes[], interval: string): StackedNotes[] {
 	return stack.map((sn) => ({
 		...sn,
+		...(sn.chordName ? { chordName: transposeChordName(sn.chordName, interval) } : {}),
 		notes: sn.notes.map((n) => {
 			const transposed = Note.transpose(`${n.name}${n.octave}`, interval);
 			const t = Note.get(transposed);

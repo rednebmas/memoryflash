@@ -4,13 +4,15 @@ import { BasicErrorCard } from '../components/feedback/ErrorCard';
 import { useToast } from '../components/feedback/Toast';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { questionsForAllMajorKeys, splitByKey } from 'MemoryFlashCore/src/lib/multiKeyTransposer';
-import { majorKeys } from 'MemoryFlashCore/src/lib/notes';
 import { addCardsToDeck } from 'MemoryFlashCore/src/redux/actions/add-cards-to-deck';
-import { updateCard } from 'MemoryFlashCore/src/redux/actions/update-card-action';
+import { prepareQuestion, updateCard } from 'MemoryFlashCore/src/redux/actions/update-card-action';
+import { syncTransposedCopies } from 'MemoryFlashCore/src/redux/actions/sync-transposed-copies-action';
+import { withChordNames } from 'MemoryFlashCore/src/lib/chordNames';
+import { settingsFromCard } from '../components/notation/settingsFromCard';
 import { setPresentationMode } from 'MemoryFlashCore/src/redux/actions/set-presentation-mode';
 import { generatedCardsActions } from 'MemoryFlashCore/src/redux/slices/generatedCardsSlice';
 import { generatedCardsPayloadSelector } from 'MemoryFlashCore/src/redux/selectors/generatedCardsSelector';
-import { AnswerType, CardTypeEnum, ChordMemoryAnswer } from 'MemoryFlashCore/src/types/Cards';
+import { CardTypeEnum } from 'MemoryFlashCore/src/types/Cards';
 import { useDeckIdPath } from './useDeckIdPath';
 import { useNetworkState } from 'MemoryFlashCore/src/redux/selectors/useNetworkState';
 import { useParams } from 'react-router-dom';
@@ -47,32 +49,13 @@ export const NotationInputScreen = () => {
 	useEffect(() => {
 		if (card && card.type === CardTypeEnum.MultiSheet && prefilledId.current !== card._id) {
 			prefilledId.current = card._id;
-			const text = card.question.presentationModes?.find((p) => p.id === 'Text Prompt');
-			const idx = majorKeys.indexOf(card.question.key);
-			const isChordMemory = card.answer.type === AnswerType.ChordMemory;
-			const chordMemoryAnswer = isChordMemory ? (card.answer as ChordMemoryAnswer) : null;
-			setSettings((prev) => ({
-				...prev,
-				keySig: card.question.key,
-				beatsPerBar: card.question.beatsPerBar ?? 4,
-				selected: majorKeys.map((_, i) => i === idx),
-				cardType: isChordMemory ? 'Chord Memory' : text ? 'Text Prompt' : 'Sheet Music',
-				textPrompt: text?.text || '',
-				preview: !!text,
-				chordMemory: chordMemoryAnswer
-					? {
-							progression: chordMemoryAnswer.chords.map((c) => c.chordName).join(' '),
-							chordTones: chordMemoryAnswer.chords,
-							key: chordMemoryAnswer.key ?? '',
-							notation: chordMemoryAnswer.notation ?? 'chordNames',
-						}
-					: prev.chordMemory,
-			}));
+			setSettings((prev) => settingsFromCard(card, prev));
 			setQuestion(card.question);
 			setComplete(true);
 		}
 	}, [card]);
-	const previewsAll = questionsForAllMajorKeys(question, settings.lowest, settings.highest);
+	const named = withChordNames(question, settings.chordNames);
+	const previewsAll = questionsForAllMajorKeys(named, settings.lowest, settings.highest);
 	const previews = previewsAll.filter((_, i) => settings.selected[i]);
 	const handleScoreChange = useCallback((q: MultiSheetQuestion, full: boolean) => {
 		setQuestion(q);
@@ -112,11 +95,13 @@ export const NotationInputScreen = () => {
 
 	const handleUpdate = () => {
 		if (!cardId || !deckId) return;
-		const { answer } = buildCardsToAdd(settings, [question]);
+		const { answer } = buildCardsToAdd(settings, [named]);
+		const text = textPromptFor(settings);
+		if (settings.syncCopies) {
+			dispatch(syncTransposedCopies(cardId, prepareQuestion(named, settings.cardType, text)));
+		}
 		dispatch(
-			updateCard(cardId, question, settings.cardType, textPromptFor(settings), answer, () =>
-				toast('Card updated'),
-			),
+			updateCard(cardId, named, settings.cardType, text, answer, () => toast('Card updated')),
 		);
 		const { others } = splitByKey(previews, question.key);
 		if (others.length) addPreviews(deckId, others);
@@ -124,6 +109,7 @@ export const NotationInputScreen = () => {
 
 	const handleReset = () => {
 		setResetCount((c) => c + 1);
+		setSettings((prev) => ({ ...prev, chordNames: [] }));
 		if (isAi) dispatch(generatedCardsActions.clear());
 	};
 

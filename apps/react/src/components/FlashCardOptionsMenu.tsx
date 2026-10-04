@@ -15,7 +15,6 @@ import {
 	selectHiddenCardIds,
 } from 'MemoryFlashCore/src/redux/selectors/currDeckCardsWithAttempts';
 import { RevealAnswerModal, canRevealAnswer } from './FlashCards/RevealAnswerModal';
-import { useRomanNumeralDeckItem } from './useRomanNumeralDeckItem';
 
 interface FlashCardOptionsMenuProps {
 	card: CardWithAttempts;
@@ -37,7 +36,6 @@ export const FlashCardOptionsMenu: React.FC<FlashCardOptionsMenuProps> = ({
 	const hiddenIds = useAppSelector((state) => selectHiddenCardIds(state, card.deckId));
 	const hidden = card.hidden ?? hiddenIds.includes(card._id);
 	const canReveal = canRevealAnswer(card);
-	const romanNumeralItem = useRomanNumeralDeckItem(card);
 	const toggleHidden = () => {
 		const updated = hidden
 			? hiddenIds.filter((id) => id !== card._id)
@@ -68,8 +66,6 @@ export const FlashCardOptionsMenu: React.FC<FlashCardOptionsMenuProps> = ({
 			onClick: () => navigate(`/study/${card.deckId}/edit/${card._id}`),
 		});
 	}
-
-	if (isOwner && romanNumeralItem) items.push(romanNumeralItem);
 
 	if (isOwner && showDelete) {
 		items.push({

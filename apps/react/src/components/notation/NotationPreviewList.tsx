@@ -6,6 +6,7 @@ import { MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { splitByKey } from 'MemoryFlashCore/src/lib/multiKeyTransposer';
 import { CardType } from '../CardTypeDropdown';
 import { GeneratedCardsReview } from './GeneratedCardsReview';
+import { romanNumeralPrompt } from 'MemoryFlashCore/src/lib/chordNames';
 
 interface PreviewCardProps {
 	notation: React.ReactNode;
@@ -40,8 +41,10 @@ export const NotationPreviewList: React.FC<NotationPreviewListProps> = ({
 }) => {
 	const { base, others } = splitByKey(previews, keySig);
 	const baseStackLength = base?.voices?.[0]?.stack?.length ?? 0;
-	const showText = !!previewTextCard && cardType === 'Text Prompt';
+	const isRoman = cardType === 'Roman Numerals';
+	const showText = isRoman || (!!previewTextCard && cardType === 'Text Prompt');
 	const prompt = textPrompt ?? '';
+	const textFor = (q?: MultiSheetQuestion) => (isRoman && q ? romanNumeralPrompt(q) : prompt);
 
 	if (cardType === 'Generate with AI') return <GeneratedCardsReview />;
 
@@ -65,7 +68,7 @@ export const NotationPreviewList: React.FC<NotationPreviewListProps> = ({
 				notation={<ScoreEditor />}
 				total={baseStackLength}
 				showText={showText}
-				text={prompt}
+				text={textFor(base)}
 			/>
 			{others.map((p, i) => (
 				<PreviewCard
@@ -73,7 +76,7 @@ export const NotationPreviewList: React.FC<NotationPreviewListProps> = ({
 					notation={<MusicNotation data={p} />}
 					total={p.voices?.[0]?.stack?.length ?? 0}
 					showText={showText}
-					text={prompt}
+					text={textFor(p)}
 				/>
 			))}
 		</div>

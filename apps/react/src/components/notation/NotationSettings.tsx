@@ -6,6 +6,7 @@ import { SheetMusicSettings } from './SheetMusicSettings';
 import { SettingsSection } from './SettingsSection';
 import { RangeSettings } from './RangeSettings';
 import { CardTypeOptions } from './CardTypeOptions';
+import { ChordNamesSettings } from './ChordNamesSettings';
 
 interface NotationSettingsProps {
 	settings: NotationSettingsState;
@@ -34,7 +35,10 @@ export const NotationSettings: React.FC<NotationSettingsProps> = ({ settings, on
 		<div className="space-y-4">
 			<CardTypeOptions settings={settings} onChange={update} />
 			{!isChordMemory && !isAi && (
-				<SheetMusicSettings settings={settings} onChange={update} />
+				<>
+					<SheetMusicSettings settings={settings} onChange={update} />
+					<ChordNamesSettings settings={settings} onChange={update} />
+				</>
 			)}
 			{!isAi && (
 				<SettingsSection

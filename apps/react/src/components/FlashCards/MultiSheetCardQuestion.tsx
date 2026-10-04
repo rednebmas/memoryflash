@@ -11,6 +11,7 @@ import {
 	PresentationModeIds,
 } from 'MemoryFlashCore/src/types/PresentationMode';
 import { presentationModeFor } from 'MemoryFlashCore/src/lib/presentationMode';
+import { romanNumeralPrompt } from 'MemoryFlashCore/src/lib/chordNames';
 import { AnswerType, ChordMemoryAnswer } from 'MemoryFlashCore/src/types/Cards';
 
 const getTotal = (c: MultiSheetCard): number => {
@@ -35,7 +36,7 @@ export const MultiSheetCardQuestion: React.FC<QuestionRender> = ({ card, placeme
 
 	if (!activePresentationMode) {
 		activePresentationMode =
-			c.question.presentationModes?.[0] ?? presentationModeFor(false, '');
+			c.question.presentationModes?.[0] ?? presentationModeFor('Sheet Music', '');
 		activePresentationModeId = activePresentationMode.id;
 	}
 
@@ -80,6 +81,9 @@ export const MultiSheetCardQuestion: React.FC<QuestionRender> = ({ card, placeme
 	} else if (activePresentationModeId === 'Text Prompt') {
 		const pm = activePresentationMode as PresentationModeText;
 		return <TextCardPrompt text={pm.text} total={total} correctCount={correctCount} />;
+	} else if (activePresentationModeId === 'Roman Numerals') {
+		const text = romanNumeralPrompt(c.question);
+		return <TextCardPrompt text={text} total={total} correctCount={correctCount} />;
 	} else if (activePresentationModeId === 'Chords') {
 		const chords = c.question.voices[0].stack.map((s) => s.chordName);
 		return (

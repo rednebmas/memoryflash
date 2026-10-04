@@ -2,7 +2,6 @@ import { Action, combineReducers } from '@reduxjs/toolkit';
 import { attemptsReducer } from './slices/attemptsSlice';
 import { authReducer } from './slices/authSlice';
 import { cardsReducer } from './slices/cardsSlice';
-import { decksReducer } from './slices/decksSlice';
 import { midiReducer } from './slices/midiSlice';
 import { networkReducer } from './slices/networkSlice';
 import { rhythmReducer } from './slices/rhythmSlice';
@@ -36,7 +35,6 @@ const reducer = combineReducers({
 	attempts: attemptsReducer,
 	auth: authReducer,
 	cards: cardsReducer,
-	decks: decksReducer,
 	midi: midiReducer,
 	network: networkReducer,
 	rhythm: rhythmReducer,
@@ -46,11 +44,9 @@ const reducer = combineReducers({
 	userStats: userStatsReducer,
 });
 
-type Post = (url: string, body: object) => Promise<object | number>;
-
-export const makeTestStore = (post?: Post) => {
+export const makeTestStore = () => {
 	const posted: object[] = [];
-	const extra = { api: { post: post ?? (async (_: string, body: object) => posted.push(body)) } };
+	const extra = { api: { post: async (_: string, body: object) => posted.push(body) } };
 	let state = reducer(undefined, { type: 'init' });
 	const getState = (): ReduxState => state as never;
 	const dispatch = (action: Action | AppThunk | SyncAppThunk): void | Promise<void> => {

@@ -28,12 +28,6 @@ export function textPromptFor(settings: NotationSettingsState): string {
 	return settings.textPrompt;
 }
 
-const withMode = (previews: MultiSheetQuestion[], mode: PresentationModeIds, text: string) =>
-	previews.map((q) => ({
-		...q,
-		presentationModes: [presentationModeFor(mode === 'Text Prompt', text)],
-	}));
-
 const segmentAll = (previews: MultiSheetQuestion[], sizes: number[]) =>
 	sizes.length
 		? sizes.flatMap((size) => previews.flatMap((q) => segmentQuestion(q, size)))
@@ -45,13 +39,8 @@ export function buildCardsToAdd(
 ): CardsToAdd {
 	const isChordMemory = settings.cardType === 'Chord Memory';
 	const previews = isChordMemory ? allPreviews : segmentAll(allPreviews, settings.segmentBars);
-	if (settings.cardType === 'Sheet Music') {
-		return {
-			questions: withMode(previews, 'Sheet Music', ''),
-			presentationMode: 'Sheet Music',
-		};
-	}
-	const questions = withMode(previews, 'Text Prompt', textPromptFor(settings));
+	const mode = presentationModeFor(settings.cardType, textPromptFor(settings));
+	const questions = previews.map((q) => ({ ...q, presentationModes: [mode] }));
 	const answer = isChordMemory ? chordMemoryAnswerFromSettings(settings) : undefined;
-	return { questions, answer, presentationMode: 'Text Prompt' };
+	return { questions, answer, presentationMode: mode.id };
 }

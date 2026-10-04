@@ -1,19 +1,24 @@
 import React from 'react';
 import Dropdown from './Dropdown';
 
-export type CardType = 'Sheet Music' | 'Text Prompt' | 'Chord Memory' | 'Generate with AI';
+const CARD_TYPES = [
+	'Sheet Music',
+	'Roman Numerals',
+	'Text Prompt',
+	'Chord Memory',
+	'Generate with AI',
+] as const;
+
+export type CardType = (typeof CARD_TYPES)[number];
 
 export interface CardTypeDropdownProps {
 	value: CardType;
 	onChange: (val: CardType) => void;
 }
 
-export const CardTypeDropdown: React.FC<CardTypeDropdownProps> = ({ value, onChange }) => {
-	const items: { label: CardType; onClick: () => void }[] = [
-		{ label: 'Sheet Music', onClick: () => onChange('Sheet Music') },
-		{ label: 'Text Prompt', onClick: () => onChange('Text Prompt') },
-		{ label: 'Chord Memory', onClick: () => onChange('Chord Memory') },
-		{ label: 'Generate with AI', onClick: () => onChange('Generate with AI') },
-	];
-	return <Dropdown label={value} items={items} />;
-};
+export const CardTypeDropdown: React.FC<CardTypeDropdownProps> = ({ value, onChange }) => (
+	<Dropdown
+		label={value}
+		items={CARD_TYPES.map((label) => ({ label, onClick: () => onChange(label) }))}
+	/>
+);
