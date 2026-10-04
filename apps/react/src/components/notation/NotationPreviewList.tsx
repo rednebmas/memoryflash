@@ -3,6 +3,7 @@ import { MusicNotation } from '../MusicNotation';
 import { TextCardPrompt } from '../FlashCards/TextCardPrompt';
 import { ScoreEditor } from './ScoreEditor';
 import { MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
+import { splitByKey } from 'MemoryFlashCore/src/lib/multiKeyTransposer';
 import { CardType } from '../CardTypeDropdown';
 import { GeneratedCardsReview } from './GeneratedCardsReview';
 
@@ -37,9 +38,8 @@ export const NotationPreviewList: React.FC<NotationPreviewListProps> = ({
 	previewTextCard,
 	keySig,
 }) => {
-	const base = previews.find((p) => p.key === keySig);
+	const { base, others } = splitByKey(previews, keySig);
 	const baseStackLength = base?.voices?.[0]?.stack?.length ?? 0;
-	const others = previews.filter((p) => p.key !== keySig);
 	const showText = !!previewTextCard && cardType === 'Text Prompt';
 	const prompt = textPrompt ?? '';
 

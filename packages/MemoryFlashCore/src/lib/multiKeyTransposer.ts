@@ -106,3 +106,10 @@ export function questionsForAllMajorKeys(
 			: chooseBestOctave(transposeQuestion(base, key), lowest, highest),
 	);
 }
+
+export function splitByKey(questions: MultiSheetQuestion[], key: string) {
+	return {
+		base: questions.find((q) => q.key === key),
+		others: questions.filter((q) => q.key !== key),
+	};
+}

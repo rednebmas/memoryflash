@@ -3,7 +3,7 @@ import { Layout, Button } from '../components';
 import { BasicErrorCard } from '../components/feedback/ErrorCard';
 import { useToast } from '../components/feedback/Toast';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
-import { questionsForAllMajorKeys } from 'MemoryFlashCore/src/lib/multiKeyTransposer';
+import { questionsForAllMajorKeys, splitByKey } from 'MemoryFlashCore/src/lib/multiKeyTransposer';
 import { majorKeys } from 'MemoryFlashCore/src/lib/notes';
 import { addCardsToDeck } from 'MemoryFlashCore/src/redux/actions/add-cards-to-deck';
 import { updateCard } from 'MemoryFlashCore/src/redux/actions/update-card-action';
@@ -89,6 +89,12 @@ export const NotationInputScreen = () => {
 	const toastAdded = (count: number) =>
 		toast(count === 1 ? 'Card added' : `${count} cards added`);
 
+	const addPreviews = (id: string, qs: MultiSheetQuestion[]) => {
+		const { questions, answer, presentationMode } = buildCardsToAdd(settings, qs);
+		dispatch(setPresentationMode(CardTypeEnum.MultiSheet, presentationMode));
+		dispatch(addCardsToDeck(id, questions, answer, toastAdded));
+	};
+
 	const handleAdd = () => {
 		if (!deckId) return;
 		if (isAi) {
@@ -101,26 +107,19 @@ export const NotationInputScreen = () => {
 			);
 			return;
 		}
-		if (!complete) return;
-		const { questions, answer, presentationMode } = buildCardsToAdd(settings, previews);
-		dispatch(setPresentationMode(CardTypeEnum.MultiSheet, presentationMode));
-		dispatch(addCardsToDeck(deckId, questions, answer, toastAdded));
+		if (complete) addPreviews(deckId, previews);
 	};
 
 	const handleUpdate = () => {
-		if (cardId && previews[0]) {
-			const { answer } = buildCardsToAdd(settings, previews);
-			dispatch(
-				updateCard(
-					cardId,
-					previews[0],
-					settings.cardType,
-					textPromptFor(settings),
-					answer,
-					() => toast('Card updated'),
-				),
-			);
-		}
+		if (!cardId || !deckId) return;
+		const { answer } = buildCardsToAdd(settings, [question]);
+		dispatch(
+			updateCard(cardId, question, settings.cardType, textPromptFor(settings), answer, () =>
+				toast('Card updated'),
+			),
+		);
+		const { others } = splitByKey(previews, question.key);
+		if (others.length) addPreviews(deckId, others);
 	};
 
 	const handleReset = () => {
