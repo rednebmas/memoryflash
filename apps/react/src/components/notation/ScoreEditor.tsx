@@ -259,7 +259,7 @@ export const ScoreEditorProvider: React.FC<ProviderProps> = ({
 export const ScoreEditor: React.FC = () => {
 	const { question } = useScoreEditor();
 	return (
-		<div className="flex flex-col items-center gap-4">
+		<div className="flex w-full flex-col items-center gap-4">
 			<MusicNotation data={question} />
 		</div>
 	);

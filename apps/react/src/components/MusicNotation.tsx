@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import React, { useEffect, useMemo, useRef } from 'react';
 import {
 	Stave,
@@ -20,8 +21,8 @@ import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { Chord } from 'tonal';
 import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
 import { buildScoreTimeline } from 'MemoryFlashCore/src/lib/scoreTimeline';
-import { barSlot, barsPerLine } from 'MemoryFlashCore/src/lib/notationLayout';
-import useWindowResize from '../screens/StudyScreen/useWindowResize';
+import { barSlot, lineLayout } from 'MemoryFlashCore/src/lib/notationLayout';
+import { useNotationWidth } from './useNotationWidth';
 
 const VF = {
 	Stave,
@@ -37,7 +38,6 @@ const VF = {
 	StaveTie,
 };
 
-const BAR_WIDTH = 300;
 const RENDER_PADDING = 2;
 const STAFF_TOP_OFFSET = 20;
 const STAFF_GAP = 100;
@@ -45,10 +45,9 @@ const NOTE_AREA_LEFT_PADDING = 26;
 const FIRST_MEASURE_MIN_LEFT_PADDING = 70;
 const NOTE_AREA_RIGHT_PADDING = 26;
 const SINGLE_STAFF_HEIGHT = 160;
+const LINE_HEIGHT = 140;
 const DOUBLE_STAFF_MIN_HEIGHT = 220;
 const STAFF_BOTTOM_PADDING = 20;
-const LINE_GAP = 30;
-const PAGE_GUTTER = 32;
 const NOTE_SHADOW_BLUR = 2;
 const NOTE_STYLE_MAP: Record<string, { light: string; dark: string }> = {
 	highlight: { light: '#22c55e', dark: '#7e22ce' },
@@ -82,6 +81,7 @@ interface MusicNotationProps {
 	highlightClassName?: string;
 	allNotesClassName?: string;
 	hideChords?: boolean;
+	fitWindow?: boolean;
 }
 
 type IndexedSn = { sn: Voice['stack'][0]; idx: number };
@@ -124,15 +124,20 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 	allNotesClassName,
 	highlightClassName,
 	hideChords,
+	fitWindow = false,
 }) => {
 	const divRef = useRef<HTMLDivElement>(null);
 	const multiPartCardIndex = useAppSelector((s) => s.scheduler.multiPartCardIndex);
 	const timeline = useMemo(() => buildScoreTimeline(data), [data]);
-	const { width: windowWidth } = useWindowResize();
+	const availableWidth = useNotationWidth(divRef, fitWindow);
+	const measured = availableWidth > 0;
+	const bars = calcBars(data);
+	const { perLine, lines, barWidth } = lineLayout(bars, availableWidth);
+	const width = barWidth * perLine + RENDER_PADDING;
 
 	useEffect(() => {
 		const div = divRef.current;
-		if (!div) return;
+		if (!div || !measured) return;
 		div.innerHTML = '';
 
 		const prefersDark =
@@ -142,18 +147,14 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 		const highlightColor = resolveNoteColor(highlightClassName, isDark);
 		const baseNoteColor = resolveNoteColor(allNotesClassName, isDark);
 
-		const bars = calcBars(data);
 		const beatsPerBar = beatsPerBarOf(data);
-		const perLine = barsPerLine(bars, windowWidth - PAGE_GUTTER, BAR_WIDTH);
-		const lines = Math.ceil(bars / perLine);
-		const width = BAR_WIDTH * perLine;
 		const trebleOn = data.voices.some((v) => v.staff === StaffEnum.Treble);
 		const bassOn = data.voices.some((v) => v.staff === StaffEnum.Bass);
-		const lineHeight = (trebleOn && bassOn ? STAFF_GAP : 0) + SINGLE_STAFF_HEIGHT + LINE_GAP;
+		const lineHeight = (trebleOn && bassOn ? STAFF_GAP : 0) + LINE_HEIGHT;
 		const initialHeight = lineHeight * lines;
 
 		const renderer = new VF.Renderer(div, VF.Renderer.Backends.SVG);
-		renderer.resize(width + RENDER_PADDING, initialHeight);
+		renderer.resize(width, initialHeight);
 		const ctx = renderer.getContext();
 
 		// Prepare per-voice, per-measure stacks
@@ -169,12 +170,12 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 
 		for (let bar = 0; bar < bars; bar++) {
 			const slot = barSlot(bar, perLine);
-			const x = slot.column * BAR_WIDTH;
+			const x = slot.column * barWidth;
 			const lineY = slot.line * lineHeight;
 			const isFirstBar = slot.isLineStart;
 
 			const buildStaff = (staffType: StaffEnum, y: number): StaffRenderData => {
-				const stave = new VF.Stave(x, y, BAR_WIDTH);
+				const stave = new VF.Stave(x, y, barWidth);
 				if (isFirstBar) {
 					stave.addClef(staffType === StaffEnum.Treble ? 'treble' : 'bass');
 					if (bar === 0) stave.addTimeSignature(`${beatsPerBar}/4`);
@@ -348,12 +349,12 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 					)
 					.map((entry) => {
 						const leftOffset = entry.stave.getNoteStartX() - x;
-						return BAR_WIDTH - leftOffset - NOTE_AREA_RIGHT_PADDING;
+						return barWidth - leftOffset - NOTE_AREA_RIGHT_PADDING;
 					});
-				const availableWidth = availableWidths.length
+				const noteAreaWidth = availableWidths.length
 					? Math.max(Math.min(...availableWidths), 0)
-					: BAR_WIDTH - NOTE_AREA_LEFT_PADDING - NOTE_AREA_RIGHT_PADDING;
-				formatter.format(voices, availableWidth);
+					: barWidth - NOTE_AREA_LEFT_PADDING - NOTE_AREA_RIGHT_PADDING;
+				formatter.format(voices, noteAreaWidth);
 
 				staffEntries.forEach((entry) => {
 					entry.voice?.draw(ctx, entry.stave);
@@ -375,7 +376,7 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 			staffEntries.forEach((entry) => {
 				new VF.Barline(VF.Barline.type.SINGLE)
 					.setContext(ctx)
-					.setX(x + BAR_WIDTH)
+					.setX(x + barWidth)
 					.draw(entry.stave);
 			});
 		}
@@ -389,11 +390,32 @@ export const MusicNotation: React.FC<MusicNotationProps> = ({
 				minHeight,
 			);
 			svg.setAttribute('height', `${desiredHeight}`);
-			svg.setAttribute('viewBox', `0 0 ${width + RENDER_PADDING} ${desiredHeight}`);
-			svg.style.height = `${desiredHeight}px`;
-			div.style.height = `${desiredHeight}px`;
+			svg.setAttribute('viewBox', `0 0 ${width} ${desiredHeight}`);
+			svg.style.display = 'block';
+			svg.style.height = 'auto';
 		}
-	}, [data, multiPartCardIndex, allNotesClassName, highlightClassName, hideChords, windowWidth]);
+	}, [
+		data,
+		multiPartCardIndex,
+		allNotesClassName,
+		highlightClassName,
+		hideChords,
+		measured,
+		bars,
+		perLine,
+		lines,
+		barWidth,
+	]);
 
-	return <div className="svg-dark-mode" ref={divRef} />;
+	useEffect(() => {
+		const svg = divRef.current?.querySelector('svg');
+		if (svg) svg.style.width = `${Math.min(width, availableWidth)}px`;
+	});
+
+	return (
+		<div
+			className={clsx('svg-dark-mode', !fitWindow && 'flex w-full justify-center')}
+			ref={divRef}
+		/>
+	);
 };

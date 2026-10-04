@@ -49,6 +49,7 @@ export const MultiSheetCardQuestion: React.FC<QuestionRender> = ({ card, placeme
 		return (
 			<span>
 				<MusicNotation
+					fitWindow
 					data={c.question}
 					highlightClassName={clsx(placement === 'cur' && 'highlight')}
 					allNotesClassName={clsx(placement === 'answered' && 'answered')}

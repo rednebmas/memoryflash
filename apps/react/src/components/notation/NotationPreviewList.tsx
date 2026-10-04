@@ -14,8 +14,8 @@ interface PreviewCardProps {
 }
 
 const PreviewCard: React.FC<PreviewCardProps> = ({ notation, total, showText, text }) => (
-	<div className="flex flex-col items-center gap-2">
-		<div className="card-container flex flex-col items-center gap-2 w-[26rem]">
+	<div className="flex w-full flex-col items-center gap-2">
+		<div className="card-container flex w-full flex-col items-center gap-2">
 			{notation}
 			{showText && <TextCardPrompt text={text} total={total} />}
 		</div>
@@ -57,7 +57,7 @@ export const NotationPreviewList: React.FC<NotationPreviewListProps> = ({
 
 	return (
 		<div
-			className="flex flex-col items-center gap-5"
+			className="flex w-full flex-col items-center gap-5"
 			data-base-key={base?.key ?? ''}
 			data-base-stack-length={baseStackLength}
 		>
