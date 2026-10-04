@@ -33,9 +33,10 @@ Then run the Playwright screenshot specs that cover what you changed: `cd {{wt_d
 
 Phase D — Review & ship:
 Critically review your full diff (`git diff origin/main...HEAD` plus uncommitted work) — hunt for bugs, scope creep, duplicated logic, `any`/`unknown`, functions over 25 lines, and other AGENTS.md violations. Fix what you find. Commit with a clear message (subject: what changed for the user; body ends with `Fixes bug report {{report_id}}`). Do NOT commit files under tasks/.
-Then run `cd {{wt_dir}} && {{finish}}` once. It takes a merge lock, rebases onto origin/main, checks Prettier, reruns yarn test:codex, pushes HEAD:main (this deploys server + web via GitHub Actions), marks the report fixed, waits for the deploy, marks it shipped, and prints one RESULT line.
+Then run `cd {{wt_dir}} && {{finish}}` once. It takes a merge lock, rebases onto origin/main, checks Prettier, reruns yarn test:codex (and the full screenshot suite when apps/react/ or packages/ changed), pushes HEAD:main (this deploys server + web via GitHub Actions), marks the report fixed, waits for the deploy, marks it shipped, and prints one RESULT line.
 - Exit 2 (rebase conflict): resolve the conflicts, `git add`, `git rebase --continue`, rerun the script.
 - Exit 3/4 (tests or Prettier failed after rebase): fix, commit, rerun.
+- Exit 5 (screenshot specs failed after rebase — usually another agent's UI change landed first): Read the expected/actual/diff PNGs, fix unintended diffs, update baselines only for intentional changes and Read them before committing, rerun.
 - NEVER push to main any other way, never force-push, never skip hooks. Do not remove the worktree — it is swept automatically.
 If you cannot land the change after genuine effort, run `{{reports}} set-status {{report_id}} failed`, comment why, and stop.
 
