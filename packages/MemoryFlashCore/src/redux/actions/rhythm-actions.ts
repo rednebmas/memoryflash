@@ -35,7 +35,7 @@ export const reportRhythmMiss = (): SyncAppThunk => (dispatch, getState) => {
 	const card = currRhythmCardSelector(getState());
 	if (card?.missReported) return;
 	dispatch(rhythmActions.markMissReported(getState().scheduler.batchId));
-	dispatch(recordAttempt(false));
+	dispatch(schedulerActions.markCurrIncorrect());
 };
 
 export const reportStepOnset =

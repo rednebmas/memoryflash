@@ -80,6 +80,39 @@ describe('rhythm grading', () => {
 		expect(lastAttempt(store).timing?.offsetsMs).to.deep.equal([0, 150, 0]);
 	});
 
+	it('retries a card that failed on timing, then moves on once it is played in time', async () => {
+		const store = setupRhythmStore(['a', 'b', 'c', 'd', 'e', 'f'].map(rhythmCard));
+		const card = store.getState().scheduler.currCard;
+		const engine = new ChordMemoryValidatorEngine([C_MAJOR, C_MAJOR, C_MAJOR]);
+		[1000, 1650, 2000].forEach((t) => playChord(store, engine, [t, t, t]));
+		await Promise.resolve();
+		expect(store.getState().scheduler.currCard).to.equal(card);
+		expect(store.getState().scheduler.multiPartCardIndex).to.equal(0);
+		expect(store.getState().scheduler.incorrect).to.not.equal(true);
+		[3000, 3500, 4000].forEach((t) => playChord(store, engine, [t, t, t]));
+		await Promise.resolve();
+		expect(store.posted.map((a) => (a as { correct: boolean }).correct)).to.deep.equal([
+			false,
+			true,
+		]);
+		expect(store.getState().scheduler.currCard).to.not.equal(card);
+		expect(store.getState().scheduler.nextCards).to.not.include(card);
+	});
+
+	it('restarts a card from its first chord after a wrong note with the metronome running', () => {
+		const store = setup();
+		const card = store.getState().scheduler.currCard;
+		const engine = new ChordMemoryValidatorEngine([C_MAJOR, C_MAJOR, C_MAJOR]);
+		playChord(store, engine, [1000, 1000, 1000]);
+		const index = store.getState().scheduler.multiPartCardIndex;
+		const dispatch = store.dispatch as AppDispatch;
+		const wrong = [61].map((number) => ({ number, time: 1500 }));
+		engine.handle({ notes: wrong, waitingNotes: [], waiting: false, index, dispatch });
+		expect(store.getState().scheduler.currCard).to.equal(card);
+		expect(store.getState().scheduler.multiPartCardIndex).to.equal(0);
+		expect(store.getState().scheduler.incorrect).to.equal(true);
+	});
+
 	it('marks a skipped chord missed only once', () => {
 		const store = setup();
 		const engine = new ChordMemoryValidatorEngine([C_MAJOR, C_MAJOR, C_MAJOR]);

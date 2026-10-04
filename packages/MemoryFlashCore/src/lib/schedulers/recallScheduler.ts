@@ -25,7 +25,6 @@ export const recallScheduler: Scheduler = {
 	label: 'Recall',
 	description: 'Cards you know come back after more and more other cards. A miss drops a rung.',
 	discardSlowAttempts: false,
-	requeueOnMiss: false,
 	requeueGap,
 	pickNext,
 };

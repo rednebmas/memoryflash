@@ -162,14 +162,6 @@ describe('processAttempt', () => {
 		expect(stats!.toJSON().rhythm).to.deep.equal(rhythm);
 	});
 
-	it('should store how often a missed card repeats per user and deck', async () => {
-		const { userId, deckId } = newIds();
-		const stats = await setUserDeckStats(deckId.toString(), userId.toString(), {
-			missRepeats: 2,
-		});
-		expect(stats!.toJSON().missRepeats).to.equal(2);
-	});
-
 	it('should keep timing offsets on an attempt', async () => {
 		const ids = newIds();
 		const timing = { bpm: 90, strictness: 'normal', offsetsMs: [5, null, -12] };

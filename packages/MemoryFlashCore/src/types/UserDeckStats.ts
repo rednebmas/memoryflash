@@ -18,7 +18,6 @@ export type UserDeckStatsType = {
 	reviews?: CardReviews;
 	recallClock?: number;
 	scheduler?: SchedulerChoice;
-	missRepeats?: number;
 	rhythm?: RhythmSettings;
 	rhythmLadder?: TempoLadder;
 	createdAt: Date;

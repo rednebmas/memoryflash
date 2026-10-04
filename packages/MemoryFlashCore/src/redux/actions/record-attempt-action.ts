@@ -6,13 +6,13 @@ import {
 	activeSchedulerSelector,
 	currDeckClockSelector,
 	currDeckReviewsSelector,
-	missRepeatsSelector,
 } from '../selectors/activeSchedulerSelector';
 import { selectActivePresentationMode } from '../selectors/activePresentationModeSelector';
 import { attemptsStatsSelector } from '../selectors/attemptsStatsSelector';
 import { currDeckAllWithAttemptsSelector } from '../selectors/currDeckCardsWithAttempts';
 import {
 	attemptTimingSelector,
+	currRhythmCardSelector,
 	deckLadderSelector,
 	deckRhythmSettingsSelector,
 	rhythmReportSelector,
@@ -55,6 +55,15 @@ const requeueAtGap =
 		dispatch(schedulerActions.insertCard({ cardId: attempt.cardId, gap }));
 	};
 
+const moveOn =
+	(attempt: Attempt, retry: boolean): SyncAppThunk =>
+	(dispatch, getState) => {
+		if (retry) return dispatch(schedulerActions.retryCurrCard());
+		dispatch(schedulerActions.dequeueNextCard());
+		dispatch(requeueAtGap(attempt));
+		if (getState().scheduler.nextCards.length < 3) dispatch(schedule(attempt.deckId));
+	};
+
 export const recordAttempt =
 	(correct: boolean): AppThunk =>
 	async (dispatch, getState, { api }) => {
@@ -64,14 +73,15 @@ export const recordAttempt =
 		if (!userId || !currCardId) return;
 		const scheduler = schedulers[activeSchedulerSelector(getState())];
 		if (!correct) {
-			const repeats = missRepeatsSelector(getState());
-			dispatch(schedulerActions.markCurrIncorrect({ cardId: currCardId, repeats }));
+			dispatch(schedulerActions.markCurrIncorrect());
+			dispatch(schedulerActions.startFromBeginningOfCurrentCard());
 			return;
 		}
 
 		const card = currDeckAllWithAttemptsSelector(getState())[currCardId];
 		const timeTaken = (Date.now() - currStartTime) / 1000;
 		const timing = attemptTimingSelector(getState());
+		const timingFailed = !!currRhythmCardSelector(getState())?.missReported;
 		dispatch(rhythmActions.setLastReport(rhythmReportSelector(getState())));
 
 		// if the user takes too long to answer, we don't want to record the attempt
@@ -94,7 +104,7 @@ export const recordAttempt =
 			cardId: card._id,
 			deckId: card.deckId,
 			batchId,
-			correct: correct && !getState().scheduler.incorrect,
+			correct: !getState().scheduler.incorrect,
 			timeTaken: Math.min(60, (Date.now() - currStartTime) / 1000),
 			attemptedAt: new Date().toISOString(),
 			presentationMode: selectActivePresentationMode(getState()),
@@ -109,12 +119,7 @@ export const recordAttempt =
 
 		console.log(`[scheduling] Recording attempt: ${correct}`);
 
-		dispatch(schedulerActions.dequeueNextCard());
-		dispatch(requeueAtGap(attempt));
-		if (getState().scheduler.nextCards.length < 3) {
-			dispatch(schedule(card.deckId));
-		}
-
+		dispatch(moveOn(attempt, timingFailed));
 		dispatch(updateLocalStreak(attempt.attemptedAt));
 
 		await api.post('/attempts', attempt);

@@ -42,10 +42,6 @@ const UserDeckStatsSchema = new Schema<UserDeckStatsDoc>(
 			type: String,
 			required: false,
 		},
-		missRepeats: {
-			type: Number,
-			required: false,
-		},
 		rhythm: {
 			type: Schema.Types.Mixed,
 			required: false,

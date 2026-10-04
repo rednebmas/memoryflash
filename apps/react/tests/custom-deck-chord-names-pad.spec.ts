@@ -82,6 +82,9 @@ test('Answer a Chord Memory card with the chord-name pad, then generate cards wi
 	await clickButton('✓');
 	await expect(page.locator('svg.stroke-red-500')).toBeVisible();
 
+	await clickButton('B');
+	await clickButton('m');
+	await clickButton('✓');
 	await clickButton('F');
 	await clickButton('♯');
 	const [attemptResp] = await Promise.all([

@@ -1,11 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { schedulers } from '../../lib/schedulers';
-import {
-	DEFAULT_MISS_REPEATS,
-	SCHEDULER_IDS,
-	SchedulerChoice,
-	SchedulerId,
-} from '../../lib/schedulers/types';
+import { SCHEDULER_IDS, SchedulerChoice, SchedulerId } from '../../lib/schedulers/types';
 import { AnswerType } from '../../types/Cards';
 import { ReduxState } from '../store';
 import { chordInputModeSelector } from './chordInputModeSelector';
@@ -52,13 +47,3 @@ export const schedulerOptionsSelector = createSelector([autoSchedulerSelector], 
 	{ value: 'auto' as SchedulerChoice, text: `Auto · ${schedulers[auto].label}` },
 	...SCHEDULER_IDS.map((id) => ({ value: id as SchedulerChoice, text: schedulers[id].label })),
 ]);
-
-export const requeuesOnMissSelector = createSelector(
-	[activeSchedulerSelector],
-	(active) => schedulers[active].requeueOnMiss,
-);
-
-export const missRepeatsSelector = createSelector(
-	[currDeckStatsSelector, requeuesOnMissSelector],
-	(stats, requeues) => (requeues ? (stats?.missRepeats ?? DEFAULT_MISS_REPEATS) : 0),
-);

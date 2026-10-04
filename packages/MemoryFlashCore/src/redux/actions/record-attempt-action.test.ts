@@ -8,8 +8,6 @@ import { authActions } from '../slices/authSlice';
 import { recordAttempt } from './record-attempt-action';
 import { schedule } from './schedule-cards-action';
 import { makeTestStore } from '../testStore';
-import { userDeckStatsActions } from '../slices/userDeckStatsSlice';
-import { UserDeckStatsType } from '../../types/UserDeckStats';
 
 describe('recordAttempt with the recall scheduler', () => {
 	it('re-asks a known card after 2, then 5+, then as many other cards as an 8 card deck allows', async () => {
@@ -38,28 +36,36 @@ describe('recordAttempt with the recall scheduler', () => {
 });
 
 describe('recordAttempt with the speed scheduler', () => {
-	const missThenAnswer = async (missRepeats?: number) => {
+	const setup = () => {
 		const store = makeTestStore();
 		store.dispatch(authActions.setUser({ _id: 'u' } as never));
 		store.dispatch(
 			cardsActions.upsert(['a', 'b', 'c', 'd', 'e', 'f'].map((id) => makeCard(id)) as never),
 		);
-		const stats = { _id: 's', deckId: 'd1', missRepeats } as UserDeckStatsType;
-		store.dispatch(userDeckStatsActions.upsert([stats]));
 		store.dispatch(schedulerActions.setParsingDeck('d1'));
 		store.dispatch(schedule('d1'));
-		const missed = store.getState().scheduler.currCard!;
-		await store.dispatch(recordAttempt(false));
-		await store.dispatch(recordAttempt(true));
-		return store.getState().scheduler.nextCards.filter((id) => id === missed).length;
+		return store;
 	};
 
-	it('brings a missed card back once by default', async () => {
-		expect(await missThenAnswer()).to.equal(1);
+	it('stays on a missed card until it is answered, then moves on without bringing it back', async () => {
+		const store = setup();
+		const missed = store.getState().scheduler.currCard!;
+		await store.dispatch(recordAttempt(false));
+		expect(store.getState().scheduler.currCard).to.equal(missed);
+		await store.dispatch(recordAttempt(true));
+		expect(store.getState().scheduler.currCard).to.not.equal(missed);
+		expect(store.getState().scheduler.nextCards).to.not.include(missed);
+		expect(store.posted).to.have.length(1);
+		expect((store.posted[0] as { correct: boolean }).correct).to.equal(false);
 	});
 
-	it('brings a missed card back as often as the deck setting asks', async () => {
-		expect(await missThenAnswer(0)).to.equal(0);
-		expect(await missThenAnswer(2)).to.equal(2);
+	it('restarts a multi-chord card from its first chord after a wrong note', async () => {
+		const store = setup();
+		const { currCard, batchId } = store.getState().scheduler;
+		store.dispatch(schedulerActions.incrementMultiPartCardIndex());
+		await store.dispatch(recordAttempt(false));
+		expect(store.getState().scheduler.currCard).to.equal(currCard);
+		expect(store.getState().scheduler.multiPartCardIndex).to.equal(0);
+		expect(store.getState().scheduler.batchId).to.not.equal(batchId);
 	});
 });

@@ -70,7 +70,6 @@ export const speedScheduler: Scheduler = {
 	label: 'Speed',
 	description: 'Drills new and slow cards until your fingers know them.',
 	discardSlowAttempts: true,
-	requeueOnMiss: true,
 	requeueGap: () => undefined,
 	pickNext,
 };

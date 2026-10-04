@@ -44,8 +44,6 @@ const pickupNextCard = (state: SchedulerState) => {
 	state.incorrect = undefined;
 };
 
-const MISS_REQUEUE_SPACING = 2;
-
 const insertApart = (queue: string[], cardId: string, gap: number) => {
 	const index = Math.min(gap, queue.length);
 	if (queue[index - 1] === cardId || queue[index] === cardId) return;
@@ -81,16 +79,14 @@ const schedulerSlice = createSlice({
 		},
 		startFromBeginningOfCurrentCard: (state) => {
 			state.multiPartCardIndex = 0;
+			state.batchId = new ObjectId().toHexString();
 		},
+		retryCurrCard: pickupNextCard,
 		incrementMultiPartCardIndex(state) {
 			state.multiPartCardIndex += 1;
 		},
-		markCurrIncorrect(state, action: PayloadAction<{ cardId: string; repeats: number }>) {
+		markCurrIncorrect(state) {
 			state.incorrect = true;
-			const { cardId, repeats } = action.payload;
-			for (let i = 1; i <= repeats; i++) {
-				insertApart(state.nextCards, cardId, i * MISS_REQUEUE_SPACING);
-			}
 		},
 		insertCard(state, action: PayloadAction<{ cardId: string; gap: number }>) {
 			insertApart(state.nextCards, action.payload.cardId, action.payload.gap);
