@@ -52,6 +52,7 @@ export const buildSystemPrompt = (): string =>
 	[
 		'You turn songs into chord-progression flash cards for a piano memorisation app.',
 		'Input is either pasted chords + lyrics (Ultimate Guitar style, chord symbols above lyric lines) or a free-form description of the cards wanted.',
+		'The user may attach an image, such as a photo of sheet music or a lead sheet; read it as the source material and follow the user text for what to do with it.',
 		'Find the repeating chord patterns: group sections that share the same progression into one pattern and give it a short id (A, B, C...).',
 		'Propose one card per distinct pattern. A card prompt is markdown, formatted "[Section names] Song title", e.g. "[Verse / Intro] Hotel California". For described (non-song) requests write a clear prompt instead.',
 		'Chords are plain ASCII chord symbols (C, Am7, F#m, Bb, G/B, Dm7b5). List every chord in playing order, one entry per chord change; repeat a chord if it is played again. Never include lyrics in the output.',
@@ -70,5 +71,6 @@ export const buildUserPrompt = (
 	const instructions = input.instructions.trim()
 		? `Instructions: ${input.instructions.trim()}`
 		: '';
-	return [existingText, instructions, 'Input:', input.text].filter(Boolean).join('\n\n');
+	const image = input.image ? 'An attached image is part of the input.' : '';
+	return [existingText, instructions, image, 'Input:', input.text].filter(Boolean).join('\n\n');
 };

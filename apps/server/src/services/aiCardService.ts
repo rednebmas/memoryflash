@@ -7,12 +7,14 @@ import {
 	GeneratedSong,
 } from 'MemoryFlashCore/src/types/GeneratedCards';
 import { invalidChordNames } from 'MemoryFlashCore/src/lib/chordTones';
+import { Err } from '../middleware/errorHandler';
 import { JsonCompletion, openAiJsonCompletion } from './openaiClient';
 import { SONG_CARDS_SCHEMA, buildSystemPrompt, buildUserPrompt, zAiSong } from './aiCardPrompt';
 
 export type ExistingChordCard = { prompt: string; chords: string[]; key?: string };
 
 const MAX_CHORDS_PER_CARD = 8;
+const IMAGE_DATA_URL = /^data:image\/(png|jpeg|webp|gif);base64,/;
 
 export async function getExistingChordCards(deckId: string): Promise<ExistingChordCard[]> {
 	const cards = await Card.find({ deckId, 'answer.type': AnswerType.ChordMemory });
@@ -32,10 +34,12 @@ export async function generateSongCards(
 	existing: ExistingChordCard[],
 	complete: JsonCompletion = openAiJsonCompletion,
 ): Promise<GeneratedSong> {
+	if (input.image && !IMAGE_DATA_URL.test(input.image)) throw new Err('Invalid image', 400);
 	const raw = await complete(
 		buildSystemPrompt(),
 		buildUserPrompt(input, existing),
 		SONG_CARDS_SCHEMA,
+		input.image,
 	);
 	const ai = zAiSong.parse(JSON.parse(raw));
 	return finalizeSong(ai, input);

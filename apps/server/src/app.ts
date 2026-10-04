@@ -32,7 +32,7 @@ const setupMiddlewaresAndRoutes = (server: Express, dbClient: MongoClient) => {
 	server.set('trust proxy', true);
 
 	const corsOrigins: (string | RegExp)[] = [];
-	server.use(express.json({ limit: '2mb' }));
+	server.use(express.json({ limit: '8mb' }));
 	if (!IS_PROD) {
 		corsOrigins.push(/.*/);
 	}

@@ -8,6 +8,7 @@ import { useNetworkState } from 'MemoryFlashCore/src/redux/selectors/useNetworkS
 import { generateCards } from 'MemoryFlashCore/src/redux/actions/generate-cards-action';
 import { GenerateCardsInput } from 'MemoryFlashCore/src/types/GeneratedCards';
 import { useDeckIdPath } from '../../screens/useDeckIdPath';
+import { AiImageAttachment } from './AiImageAttachment';
 
 interface AiGenerateInputProps {
 	ai: GenerateCardsInput;
@@ -36,6 +37,7 @@ export const AiGenerateInput: React.FC<AiGenerateInputProps> = ({ ai, onChange }
 				value={ai.text}
 				onChange={(e) => onChange({ ...ai, text: e.target.value })}
 			/>
+			<AiImageAttachment image={ai.image} onChange={(image) => onChange({ ...ai, image })} />
 			<InputField
 				id="ai-instructions"
 				label="Instructions (optional)"
@@ -54,14 +56,14 @@ export const AiGenerateInput: React.FC<AiGenerateInputProps> = ({ ai, onChange }
 			))}
 			<Button
 				onClick={() => deckId && dispatch(generateCards(deckId, ai))}
-				disabled={!ai.text.trim()}
+				disabled={!ai.text.trim() && !ai.image}
 				loading={isLoading}
 				className="self-start"
 			>
 				<SparklesIcon className="w-4 h-4 mr-1.5" /> Generate preview
 			</Button>
 			<span className="caption">
-				Lyrics are only used to find sections and are not stored.
+				Lyrics and photos are only used to generate cards and are not stored.
 			</span>
 			<BasicErrorCard error={error} />
 		</div>

@@ -28,4 +28,5 @@ export type GenerateCardsInput = {
 	instructions: string;
 	splitLongSections: boolean;
 	romanVariants: boolean;
+	image?: string;
 };

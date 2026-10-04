@@ -7,16 +7,25 @@ export type JsonCompletion = (
 	system: string,
 	user: string,
 	schema: Record<string, unknown>,
+	image?: string,
 ) => Promise<string>;
 
-export const openAiJsonCompletion: JsonCompletion = async (system, user, schema) => {
+export const buildUserContent = (text: string, image?: string) =>
+	image
+		? [
+				{ type: 'input_text' as const, text },
+				{ type: 'input_image' as const, image_url: image, detail: 'high' as const },
+			]
+		: text;
+
+export const openAiJsonCompletion: JsonCompletion = async (system, user, schema, image) => {
 	if (!process.env.OPENAI_API_KEY) throw new Err('OPENAI_API_KEY is not configured', 500);
 	const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 	const response = await client.responses.create({
 		model: OPENAI_MODEL,
 		input: [
 			{ role: 'system', content: system },
-			{ role: 'user', content: user },
+			{ role: 'user', content: buildUserContent(user, image) },
 		],
 		text: { format: { type: 'json_schema', name: 'song_cards', schema, strict: true } },
 	});

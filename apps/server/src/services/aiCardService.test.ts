@@ -94,5 +94,29 @@ describe('aiCardService', () => {
 		);
 		expect(prompt).to.contain('[Chorus] Vienna: C G');
 		expect(song.title).to.equal('Hotel California');
+		expect(prompt).not.to.contain('attached image');
+	});
+
+	it('sends an attached photo to the model with the user text', async () => {
+		let sent: { user: string; image?: string } = { user: '' };
+		const complete = async (_s: string, user: string, _schema: object, image?: string) => {
+			sent = { user, image };
+			return JSON.stringify(aiSong);
+		};
+		const image = 'data:image/jpeg;base64,abc';
+		await generateSongCards({ ...input, text: 'transcribe the chords', image }, [], complete);
+		expect(sent.image).to.equal(image);
+		expect(sent.user).to.contain('attached image');
+		expect(sent.user).to.contain('transcribe the chords');
+	});
+
+	it('rejects attachments that are not image data URLs', async () => {
+		const complete = async () => JSON.stringify(aiSong);
+		const err = await generateSongCards(
+			{ ...input, image: 'https://example.com/x.png' },
+			[],
+			complete,
+		).catch((e) => e);
+		expect(err).to.have.property('httpStatus', 400);
 	});
 });
