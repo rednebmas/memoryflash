@@ -20,7 +20,7 @@ export const InlineSelect = <T extends string | number>({
 	<label className="flex items-center gap-2 text-sm text-muted whitespace-nowrap">
 		{label}
 		<Select
-			className="w-32 !py-1"
+			className="!py-1"
 			value={value}
 			onChange={(e) => onChange(options[e.target.selectedIndex].value)}
 		>
