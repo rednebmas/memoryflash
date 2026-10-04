@@ -8,7 +8,7 @@ This project prefers a highly componentized React codebase that avoids duplicate
 - **Code Size**: Keep individual functions under 25 lines. Keep files under 150 lines when possible. If code grows larger, refactor into smaller components to keep it readable, maintainable, and elegant.
 - **Refactoring**: You are empowered to rewrite or refactor existing code to avoid duplication and to simplify the code base. It's prefered to delete lines of code than to add lines of code to solve problems.
 - **Styling**: Use Tailwind CSS utility classes. Share common styling through base components rather than repeating class strings.
-- **Git**: Do not commit .png files, except Playwright baselines under `apps/react/tests/*-snapshots/`
+- **Git**: Do not commit .png files, except Playwright baselines under `apps/react/tests/*-snapshots/` and iOS app icons (sources in `apps/ios/AppIcon/`)
 - **Formatting**: Code is formatted with Prettier using tabs. Run `npx prettier --write` before committing. Don't add comments to code unless absolutely necessary.
 - **Type Safety**: You are not allowed to use `any` or `unknown`.
 - **Redux**: Compose selectors and helpers rather than copy/pasting logic. UI components should avoid data manipulation—use Redux selectors to transform and format data instead of doing it in components.

@@ -292,6 +292,8 @@
 				DEVELOPMENT_TEAM = 2VJY2AJVXJ;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MemoryFlashiOS/Info.plist;
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "This app requires access to Bluetooth to connect to MIDI devices.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "MemoryFlash listens to your instrument so it can tell when you play the right note.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -321,6 +323,8 @@
 				DEVELOPMENT_TEAM = 2VJY2AJVXJ;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MemoryFlashiOS/Info.plist;
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "This app requires access to Bluetooth to connect to MIDI devices.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "MemoryFlash listens to your instrument so it can tell when you play the right note.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
