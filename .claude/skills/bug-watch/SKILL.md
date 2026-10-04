@@ -30,10 +30,11 @@ All paths below are relative to the repo root of THIS checkout (`git rev-parse -
 ## Dispatch (per report id)
 1. `reports.sh claim <id>` — if it fails, the report was already claimed; skip it.
 2. `start-task.sh <id>` (use `dangerouslyDisableSandbox`, timeout 600000) → take the last line as `PROMPT_PATH`. If it fails, `reports.sh set-status <id> failed`, `reports.sh comment <id> "<error>"`, tell Sam, move on.
-3. `Agent` with `subagent_type: "general-purpose"`, `model: "opus"`, `name: "bug-<first 6 chars of id>"`, `description: "Fix bug <first 6 chars>"`, and prompt exactly:
+3. **Align with Sam first.** Sam wants to be asked before agents guess at product intent. Unless the report is an unambiguous defect with one obvious fix (a crash, a broken layout), use `AskUserQuestion` for 1–3 short questions about how it *should* behave. Put the recommended option first. Then record his answers with `reports.sh comment <id> "Sam's intent: …"` and re-run `start-task.sh <id>` so the prompt includes them. Check the report against the product model in the user's memory (`memoryflash-product-model`). Ask again before relaying any agent judgment call that changes product behavior: removing a setting, deleting data, new flows.
+4. `Agent` with `subagent_type: "general-purpose"`, `model: "opus"`, `name: "bug-<first 6 chars of id>"`, `description: "Fix bug <first 6 chars>"`, and prompt exactly:
    `Read <PROMPT_PATH> in full with the Read tool and follow it exactly — it is your complete task. Work only inside the worktree it names.`
    It runs in the background; you are notified when it finishes.
-4. Tell Sam one line: `🛠 dispatched <id6>: <text>`.
+5. Tell Sam one line: `🛠 dispatched <id6>: <text>`.
 
 ## When an agent finishes
 1. Relay its final message to Sam verbatim (it is written for him).
