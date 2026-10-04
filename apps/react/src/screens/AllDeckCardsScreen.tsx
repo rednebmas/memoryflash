@@ -39,7 +39,7 @@ export const AllDeckCardsScreen: React.FunctionComponent<AllDeckCardsScreenProps
 					{deck.map((card, i) => (
 						<FlashCard
 							key={card._id + i}
-							placement="cur"
+							placement="list"
 							card={card}
 							className="card-shadow-2"
 							opacity={card.hidden ? 0.5 : 1}

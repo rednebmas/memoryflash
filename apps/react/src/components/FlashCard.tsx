@@ -8,7 +8,7 @@ import { FlashCardOptionsMenu } from './FlashCardOptionsMenu';
 import { MultiSheetCardQuestion } from './FlashCards/MultiSheetCardQuestion';
 import { Pill } from './ui/Pill';
 
-type Placement = 'cur' | 'scheduled' | 'answered';
+type Placement = 'cur' | 'scheduled' | 'answered' | 'list';
 
 interface FlashCardProps {
 	card: CardWithAttempts;
@@ -61,13 +61,19 @@ export const FlashCard = forwardRef<HTMLDivElement, FlashCardProps>(
 				<div className="text-4xl font-medium flex flex-1 justify-center items-center">
 					<QuestionComponent card={card} placement={placement} />
 				</div>
-				{!IS_TEST_ENV && card?.attempts?.length > 0 && (
-					<span className="caption">{card.attempts[0].timeTaken.toFixed(1)}s</span>
-				)}
-				<FlashCardIcons card={card} placement={placement} />
+				{placement !== 'list' && <FlashCardStatus card={card} placement={placement} />}
 			</div>
 		);
 	},
+);
+
+const FlashCardStatus: React.FC<QuestionRender> = ({ card, placement }) => (
+	<>
+		{!IS_TEST_ENV && card?.attempts?.length > 0 && (
+			<span className="caption">{card.attempts[0].timeTaken.toFixed(1)}s</span>
+		)}
+		<FlashCardIcons card={card} placement={placement} />
+	</>
 );
 
 export const FlashCardIcons: React.FC<{ card: CardWithAttempts; placement: Placement }> = ({
