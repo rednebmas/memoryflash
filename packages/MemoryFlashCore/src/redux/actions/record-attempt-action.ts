@@ -6,6 +6,7 @@ import {
 	activeSchedulerSelector,
 	currDeckClockSelector,
 	currDeckReviewsSelector,
+	missRepeatsSelector,
 } from '../selectors/activeSchedulerSelector';
 import { selectActivePresentationMode } from '../selectors/activePresentationModeSelector';
 import { attemptsStatsSelector } from '../selectors/attemptsStatsSelector';
@@ -63,8 +64,8 @@ export const recordAttempt =
 		if (!userId || !currCardId) return;
 		const scheduler = schedulers[activeSchedulerSelector(getState())];
 		if (!correct) {
-			const requeue = scheduler.requeueOnMiss;
-			dispatch(schedulerActions.markCurrIncorrect({ cardId: currCardId, requeue }));
+			const repeats = missRepeatsSelector(getState());
+			dispatch(schedulerActions.markCurrIncorrect({ cardId: currCardId, repeats }));
 			return;
 		}
 

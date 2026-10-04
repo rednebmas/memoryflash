@@ -14,10 +14,9 @@ import {
 import { generateSongCards, getExistingChordCards } from '../services/aiCardService';
 import { User } from 'MemoryFlashCore/src/types/User';
 import { getDeckStats, setUserDeckStats } from '../services/statsService';
-import { SCHEDULER_CHOICES } from 'MemoryFlashCore/src/lib/schedulers/types';
+import { zSchedulerSettings } from 'MemoryFlashCore/src/lib/schedulers/types';
 import { zRhythmSettings } from 'MemoryFlashCore/src/lib/rhythm/types';
 import { Err } from '../middleware/errorHandler';
-import { z } from 'zod';
 
 const router = Router();
 
@@ -126,10 +125,13 @@ router.patch('/:id/hidden-cards', isAuthenticated, async (req, res, next) => {
 
 router.patch('/:id/scheduler', isAuthenticated, async (req, res, next) => {
 	try {
-		const scheduler = z.enum(SCHEDULER_CHOICES).parse(req.body.scheduler);
-		const stats = await setUserDeckStats(req.params.id, (req.user as User)._id.toString(), {
-			scheduler,
-		});
+		const settings = zSchedulerSettings.safeParse(req.body);
+		if (!settings.success) throw new Err('Invalid scheduler settings', 400);
+		const stats = await setUserDeckStats(
+			req.params.id,
+			(req.user as User)._id.toString(),
+			settings.data,
+		);
 		return res.json({ stats });
 	} catch (error) {
 		next(error);

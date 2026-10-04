@@ -36,26 +36,26 @@ describe('schedulerSlice', () => {
 		expect(far.nextCards).to.deep.equal(['a', 'b', 'c', 'x']);
 	});
 
-	it('only requeues a missed card when the scheduler asks for it', () => {
+	it('requeues a missed card as many times as asked', () => {
 		const state: SchedulerState = { ...baseState, currCard: 'a', nextCards: ['a', 'b'] };
-		const miss = (requeue: boolean) =>
-			schedulerReducer(state, schedulerActions.markCurrIncorrect({ cardId: 'a', requeue }));
-		expect(miss(true).nextCards).to.deep.equal(['a', 'b', 'a']);
-		expect(miss(false).nextCards).to.deep.equal(['a', 'b']);
-		expect(miss(false).incorrect).to.equal(true);
+		const miss = (repeats: number) =>
+			schedulerReducer(state, schedulerActions.markCurrIncorrect({ cardId: 'a', repeats }));
+		expect(miss(1).nextCards).to.deep.equal(['a', 'b', 'a']);
+		expect(miss(0).nextCards).to.deep.equal(['a', 'b']);
+		expect(miss(0).incorrect).to.equal(true);
 	});
 
-	it('spaces out a missed card so it never plays twice in a row', () => {
+	it('spaces out repeats of a missed card so it never plays twice in a row', () => {
 		const state: SchedulerState = {
 			...baseState,
 			currCard: 'a',
 			nextCards: ['a', 'b', 'c', 'd'],
 		};
-		const next = schedulerReducer(
-			state,
-			schedulerActions.markCurrIncorrect({ cardId: 'a', requeue: true }),
-		);
-		expect(next.nextCards).to.deep.equal(['a', 'b', 'a', 'c', 'a', 'd']);
+		const miss = (repeats: number) =>
+			schedulerReducer(state, schedulerActions.markCurrIncorrect({ cardId: 'a', repeats }))
+				.nextCards;
+		expect(miss(1)).to.deep.equal(['a', 'b', 'a', 'c', 'd']);
+		expect(miss(2)).to.deep.equal(['a', 'b', 'a', 'c', 'a', 'd']);
 	});
 
 	it('does not insert a card next to itself', () => {

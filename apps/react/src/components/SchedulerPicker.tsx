@@ -17,7 +17,7 @@ export const SchedulerPicker: React.FC = () => {
 		<SegmentedPicker
 			options={options}
 			value={choice}
-			onChange={(value) => dispatch(updateDeckScheduler(deckId, value))}
+			onChange={(value) => dispatch(updateDeckScheduler(deckId, { scheduler: value }))}
 		/>
 	);
 };

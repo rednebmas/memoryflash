@@ -1,13 +1,13 @@
 import Attempt, { AttemptDoc } from '../models/Attempt';
 import { Card } from '../models/Card';
-import { DEFAULT_RHYTHM, RhythmSettings } from 'MemoryFlashCore/src/lib/rhythm/types';
+import { DEFAULT_RHYTHM } from 'MemoryFlashCore/src/lib/rhythm/types';
 import { stepLadder } from 'MemoryFlashCore/src/lib/rhythm/tempoLadder';
 import { UserDeckStats } from '../models/UserDeckStats';
 import { calculateMedian } from 'MemoryFlashCore/src/lib/median';
 import { roundToTenth } from 'MemoryFlashCore/src/lib/rounding';
 import { StatsByCardId } from 'MemoryFlashCore/src/types/StatsByCardType';
 import { User } from 'MemoryFlashCore/src/types/User';
-import { MedianHistoryValue } from 'MemoryFlashCore/src/types/UserDeckStats';
+import { MedianHistoryValue, UserDeckStatsMongo } from 'MemoryFlashCore/src/types/UserDeckStats';
 import { nextReview } from 'MemoryFlashCore/src/lib/schedulers/nextReview';
 import { updateFeedWithAttempt } from './feedService';
 
@@ -66,7 +66,9 @@ export async function processAttempt(doc: AttemptDoc) {
 
 const UPSERT = { new: true, upsert: true, setDefaultsOnInsert: true };
 
-type StatsFields = { [path: string]: string | string[] | RhythmSettings };
+type StatsFields = Partial<
+	Pick<UserDeckStatsMongo, 'hiddenCardIds' | 'scheduler' | 'missRepeats' | 'rhythm'>
+>;
 
 export const setUserDeckStats = (deckId: string, userId: string, fields: StatsFields) =>
 	UserDeckStats.findOneAndUpdate({ userId, deckId }, { $set: fields }, UPSERT);
