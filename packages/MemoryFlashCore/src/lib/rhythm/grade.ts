@@ -3,6 +3,11 @@ import { Grid, RhythmStrictness, ROLL_WINDOW_MS, TIERS_MS, TimedNote, TimingTier
 export const snapAnchor = (onsetMs: number, { originMs, beatMs }: Grid): number =>
 	originMs + Math.round((onsetMs - originMs) / beatMs) * beatMs;
 
+export const anchorFor = (onsetMs: number, grid: Grid, strictness: RhythmStrictness) => {
+	const snapped = snapAnchor(onsetMs, grid);
+	return tierFor(onsetMs - snapped, strictness) === 'miss' ? onsetMs : snapped;
+};
+
 export const expectedMs = (anchorMs: number, beat0: number, beat: number, beatMs: number) =>
 	anchorMs + (beat - beat0) * beatMs;
 

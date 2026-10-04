@@ -43,6 +43,18 @@ describe('rhythm grading', () => {
 		]);
 	});
 
+	it('lets a first chord far from any click set beat one instead of failing it', async () => {
+		const store = setup();
+		const engine = new ChordMemoryValidatorEngine([C_MAJOR, C_MAJOR, C_MAJOR]);
+		playChord(store, engine, [1200, 1200, 1200]);
+		expect(store.getState().scheduler.incorrect).to.not.equal(true);
+		playChord(store, engine, [1700, 1700, 1700]);
+		playChord(store, engine, [2220, 2220, 2220]);
+		await Promise.resolve();
+		expect(lastAttempt(store).correct).to.equal(true);
+		expect(lastAttempt(store).timing?.offsetsMs).to.deep.equal([0, 0, 20]);
+	});
+
 	it('grades a rolled chord by its first note', async () => {
 		const store = setup();
 		const engine = new ChordMemoryValidatorEngine([C_MAJOR, C_MAJOR, C_MAJOR]);

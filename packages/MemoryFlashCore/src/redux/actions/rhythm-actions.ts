@@ -1,4 +1,11 @@
-import { chordOnset, expectedMs, isRollTooSlow, snapAnchor, tierFor } from '../../lib/rhythm/grade';
+import {
+	anchorFor,
+	chordOnset,
+	expectedMs,
+	isRollTooSlow,
+	snapAnchor,
+	tierFor,
+} from '../../lib/rhythm/grade';
 import { StepGrade } from '../../lib/rhythm/types';
 import { MidiNote } from '../slices/midiSlice';
 import { schedulerActions } from '../slices/schedulerSlice';
@@ -38,10 +45,10 @@ export const reportStepOnset =
 		const onset = ctx && chordOnset(notes, ctx.card?.lastEndMs ?? -Infinity);
 		if (!ctx || !onset) return;
 		const onsetMs = onset.onsetMs - rhythmLatencyMsSelector(getState());
-		const anchorMs = ctx.card?.anchorMs ?? snapAnchor(onsetMs, ctx.grid);
+		const { strictness } = deckRhythmSettingsSelector(getState());
+		const anchorMs = ctx.card?.anchorMs ?? anchorFor(onsetMs, ctx.grid, strictness);
 		const anchorBeat = ctx.card?.anchorBeat ?? ctx.beat;
 		const offsetMs = onsetMs - expectedMs(anchorMs, anchorBeat, ctx.beat, ctx.grid.beatMs);
-		const { strictness } = deckRhythmSettingsSelector(getState());
 		const tier = isRollTooSlow(onset.spreadMs) ? 'miss' : tierFor(offsetMs, strictness);
 		const anchor =
 			ctx.card?.anchorMs === undefined ? { ms: anchorMs, beat: anchorBeat } : undefined;
