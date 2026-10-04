@@ -7,6 +7,7 @@ import { CircleHover } from './ui/CircleHover';
 import { Modal } from './modals/Modal';
 import { Button } from './ui/Button';
 import { SchedulerPicker } from './SchedulerPicker';
+import { MissRepeatsSelect } from './MissRepeatsSelect';
 import { RhythmSettings } from './rhythm/RhythmSettings';
 
 export const DeckSettingsButton: React.FC = () => {
@@ -25,6 +26,7 @@ export const DeckSettingsButton: React.FC = () => {
 						<p className="text-sm font-medium">Card order</p>
 						<SchedulerPicker />
 						<p className="caption">{schedulers[active].description}</p>
+						<MissRepeatsSelect />
 					</div>
 					<RhythmSettings />
 					<Button onClick={close}>Close</Button>

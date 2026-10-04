@@ -6,13 +6,13 @@ import {
 	activeSchedulerSelector,
 	currDeckClockSelector,
 	currDeckReviewsSelector,
+	missRepeatsSelector,
 } from '../selectors/activeSchedulerSelector';
 import { selectActivePresentationMode } from '../selectors/activePresentationModeSelector';
 import { attemptsStatsSelector } from '../selectors/attemptsStatsSelector';
 import { currDeckAllWithAttemptsSelector } from '../selectors/currDeckCardsWithAttempts';
 import {
 	attemptTimingSelector,
-	currRhythmCardSelector,
 	deckLadderSelector,
 	deckRhythmSettingsSelector,
 	rhythmReportSelector,
@@ -22,7 +22,7 @@ import { attemptsActions } from '../slices/attemptsSlice';
 import { midiActions } from '../slices/midiSlice';
 import { rhythmActions } from '../slices/rhythmSlice';
 import { schedulerActions } from '../slices/schedulerSlice';
-import { AppThunk, SyncAppThunk } from '../store';
+import { AppThunk, ReduxState, SyncAppThunk } from '../store';
 import { schedule } from './schedule-cards-action';
 import { updateLocalStreak } from './update-local-streak-action';
 
@@ -55,12 +55,18 @@ const requeueAtGap =
 		dispatch(schedulerActions.insertCard({ cardId: attempt.cardId, gap }));
 	};
 
+const retryStreakAfterPlay = ({ scheduler }: ReduxState) => {
+	if (scheduler.incorrect) return 0;
+	return scheduler.retryStreak === undefined ? undefined : scheduler.retryStreak + 1;
+};
+
 const moveOn =
-	(attempt: Attempt, retry: boolean): SyncAppThunk =>
+	(attempt: Attempt, streak: number | undefined): SyncAppThunk =>
 	(dispatch, getState) => {
-		if (retry) return dispatch(schedulerActions.retryCurrCard());
+		if (streak !== undefined && streak < missRepeatsSelector(getState()))
+			return dispatch(schedulerActions.retryCurrCard(streak));
 		dispatch(schedulerActions.dequeueNextCard());
-		dispatch(requeueAtGap(attempt));
+		if (streak === undefined) dispatch(requeueAtGap(attempt));
 		if (getState().scheduler.nextCards.length < 3) dispatch(schedule(attempt.deckId));
 	};
 
@@ -74,21 +80,20 @@ export const recordAttempt =
 		const scheduler = schedulers[activeSchedulerSelector(getState())];
 		if (!correct) {
 			dispatch(schedulerActions.markCurrIncorrect());
-			dispatch(schedulerActions.startFromBeginningOfCurrentCard());
 			return;
 		}
 
 		const card = currDeckAllWithAttemptsSelector(getState())[currCardId];
 		const timeTaken = (Date.now() - currStartTime) / 1000;
 		const timing = attemptTimingSelector(getState());
-		const timingFailed = !!currRhythmCardSelector(getState())?.missReported;
 		dispatch(rhythmActions.setLastReport(rhythmReportSelector(getState())));
 
 		// if the user takes too long to answer, we don't want to record the attempt
 		const attemptsStats = attemptsStatsSelector(getState());
 		if (!attemptsStats) return;
 		const { length, tooLongTime } = attemptsStats;
-		const discardSlow = scheduler.discardSlowAttempts && !timing;
+		const streak = retryStreakAfterPlay(getState());
+		const discardSlow = scheduler.discardSlowAttempts && !timing && streak === undefined;
 		if (discardSlow && timeTaken > tooLongTime && length > 10) {
 			console.log(`[scheduling] Not recording attempt, user took too long!`);
 			dispatch(midiActions.waitUntilEmpty());
@@ -119,7 +124,7 @@ export const recordAttempt =
 
 		console.log(`[scheduling] Recording attempt: ${correct}`);
 
-		dispatch(moveOn(attempt, timingFailed));
+		dispatch(moveOn(attempt, streak));
 		dispatch(updateLocalStreak(attempt.attemptedAt));
 
 		await api.post('/attempts', attempt);

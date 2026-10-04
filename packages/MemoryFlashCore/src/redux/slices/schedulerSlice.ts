@@ -10,6 +10,7 @@ export interface SchedulerState {
 	answeredCards: string[];
 	currStartTime: number;
 	incorrect?: boolean;
+	retryStreak?: number;
 	multiPartCardIndex: number;
 	sessionReviews: CardReviews;
 	sessionTicks: number;
@@ -36,12 +37,17 @@ const dequeueNextCard = (state: SchedulerState) => {
 	pickupNextCard(state);
 };
 
-const pickupNextCard = (state: SchedulerState) => {
-	state.currCard = state.nextCards[0];
+const restartCard = (state: SchedulerState) => {
 	state.currStartTime = Date.now();
 	state.batchId = new ObjectId().toHexString();
 	state.multiPartCardIndex = 0;
 	state.incorrect = undefined;
+};
+
+const pickupNextCard = (state: SchedulerState) => {
+	state.currCard = state.nextCards[0];
+	state.retryStreak = undefined;
+	restartCard(state);
 };
 
 const insertApart = (queue: string[], cardId: string, gap: number) => {
@@ -77,11 +83,10 @@ const schedulerSlice = createSlice({
 			state.sessionReviews[action.payload.cardId] = action.payload.review;
 			state.sessionTicks += 1;
 		},
-		startFromBeginningOfCurrentCard: (state) => {
-			state.multiPartCardIndex = 0;
-			state.batchId = new ObjectId().toHexString();
+		retryCurrCard(state, action: PayloadAction<number>) {
+			restartCard(state);
+			state.retryStreak = action.payload;
 		},
-		retryCurrCard: pickupNextCard,
 		incrementMultiPartCardIndex(state) {
 			state.multiPartCardIndex += 1;
 		},

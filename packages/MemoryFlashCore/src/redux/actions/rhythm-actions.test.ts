@@ -7,10 +7,13 @@ import { AppDispatch } from '../store';
 import { C_MAJOR, rhythmCard, setupRhythmStore } from '../testStore';
 import { deckTempoSelector, nextDeadlineMsSelector } from '../selectors/rhythmSelectors';
 import { markStepMissed } from './rhythm-actions';
+import { userDeckStatsActions } from '../slices/userDeckStatsSlice';
 
 const setup = () => setupRhythmStore([rhythmCard('a'), rhythmCard('b')]);
 
 type Store = ReturnType<typeof setup>;
+
+const stats = (store: Store) => store.getState().userDeckStats.entities['s'];
 
 const playChord = (store: Store, engine: ChordMemoryValidatorEngine, times: number[]) => {
 	const notes: MidiNote[] = [60, 64, 67].map((number, i) => ({ number, time: times[i] }));
@@ -99,18 +102,49 @@ describe('rhythm grading', () => {
 		expect(store.getState().scheduler.nextCards).to.not.include(card);
 	});
 
-	it('restarts a card from its first chord after a wrong note with the metronome running', () => {
+	it('retries a wrong chord in place with the metronome running, then retries the whole card', async () => {
 		const store = setup();
 		const card = store.getState().scheduler.currCard;
 		const engine = new ChordMemoryValidatorEngine([C_MAJOR, C_MAJOR, C_MAJOR]);
 		playChord(store, engine, [1000, 1000, 1000]);
-		const index = store.getState().scheduler.multiPartCardIndex;
 		const dispatch = store.dispatch as AppDispatch;
 		const wrong = [61].map((number) => ({ number, time: 1500 }));
-		engine.handle({ notes: wrong, waitingNotes: [], waiting: false, index, dispatch });
+		engine.handle({ notes: wrong, waitingNotes: [], waiting: false, index: 1, dispatch });
+		expect(store.getState().scheduler.currCard).to.equal(card);
+		expect(store.getState().scheduler.multiPartCardIndex).to.equal(1);
+		expect(store.getState().scheduler.incorrect).to.equal(true);
+		[1500, 2000].forEach((t) => playChord(store, engine, [t, t, t]));
+		await Promise.resolve();
+		expect(lastAttempt(store).correct).to.equal(false);
 		expect(store.getState().scheduler.currCard).to.equal(card);
 		expect(store.getState().scheduler.multiPartCardIndex).to.equal(0);
-		expect(store.getState().scheduler.incorrect).to.equal(true);
+	});
+
+	it('needs the deck setting count of in-time plays in a row after a timing miss', async () => {
+		const store = setupRhythmStore(['a', 'b', 'c', 'd', 'e', 'f'].map(rhythmCard));
+		store.dispatch(userDeckStatsActions.upsert([{ ...stats(store)!, missRepeats: 2 }]));
+		const card = store.getState().scheduler.currCard;
+		const engine = new ChordMemoryValidatorEngine([C_MAJOR, C_MAJOR, C_MAJOR]);
+		const play = async (start: number, late = 0) => {
+			[0, 500 + late, 1000].forEach((t) =>
+				playChord(store, engine, Array(3).fill(start + t)),
+			);
+			await Promise.resolve();
+			return store.getState().scheduler.currCard;
+		};
+		expect(await play(1000, 150)).to.equal(card);
+		expect(await play(3000)).to.equal(card);
+		expect(await play(5000, 150)).to.equal(card);
+		expect(await play(7000)).to.equal(card);
+		expect(await play(9000)).to.not.equal(card);
+		expect(store.posted.map((a) => (a as { correct: boolean }).correct)).to.deep.equal([
+			false,
+			true,
+			false,
+			true,
+			true,
+		]);
+		expect(store.getState().scheduler.nextCards).to.not.include(card);
 	});
 
 	it('marks a skipped chord missed only once', () => {

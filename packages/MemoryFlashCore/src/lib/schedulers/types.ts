@@ -30,7 +30,14 @@ export type Scheduler = {
 
 export const CARDS_PER_BATCH = 4;
 
+export const MISS_REPEAT_OPTIONS = [1, 2, 3, 4, 5].map((value) => ({
+	value,
+	label: value === 1 ? 'once' : `${value} times in a row`,
+}));
+export const DEFAULT_MISS_REPEATS = 1;
+
 export const zSchedulerSettings = z.object({
 	scheduler: z.enum(SCHEDULER_CHOICES).optional(),
+	missRepeats: z.number().int().min(1).max(MISS_REPEAT_OPTIONS.length).optional(),
 });
 export type SchedulerSettings = z.infer<typeof zSchedulerSettings>;
