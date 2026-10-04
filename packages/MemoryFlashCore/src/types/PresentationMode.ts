@@ -16,3 +16,7 @@ export type PresentationMode =
 	PresentationModeIdCard | PresentationModeStartCard | PresentationModeText;
 
 export type PresentationModeIds = PresentationMode['id'];
+
+export const SHEET_DISPLAY_MODES = ['Sheet Music', 'Roman Numerals'] as const;
+
+export type SheetDisplayMode = (typeof SHEET_DISPLAY_MODES)[number];

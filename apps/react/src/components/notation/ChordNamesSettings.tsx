@@ -50,7 +50,7 @@ export const ChordNamesSettings: React.FC<ChordNamesSettingsProps> = ({ settings
 						/>
 						<span>
 							Also update {copies} transposed {copies === 1 ? 'copy' : 'copies'} in
-							this deck (chord names and display mode)
+							this deck (chord names and display modes)
 						</span>
 					</label>
 				)}

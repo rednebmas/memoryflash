@@ -1,13 +1,11 @@
 import { Interval, Note } from 'tonal';
 import { AnswerType, Card, CardTypeEnum } from '../types/Cards';
 import { MultiSheetQuestion, SheetNote, StackedNotes } from '../types/MultiSheetCard';
-import { PresentationModeIds } from '../types/PresentationMode';
+import { SHEET_DISPLAY_MODES } from '../types/PresentationMode';
 import { withChordNames, writtenChordNames } from './chordNames';
 import { transposeChordName } from './multiKeyTransposer';
 
 export type CardUpdate = { id: string; question: MultiSheetQuestion };
-
-const SYNCED_MODES: PresentationModeIds[] = ['Sheet Music', 'Roman Numerals'];
 
 const tieKey = (s: StackedNotes) => `${s.tie?.toNext ?? []}|${s.tie?.fromPrevious ?? []}`;
 
@@ -67,9 +65,16 @@ export const transposedCopies = (
 			)
 		: [];
 
+export const transposedCopyKeys = (cards: Card[], source: Card): string[] =>
+	isSheetCard(source)
+		? transposedCopies(cards, source, source.question)
+				.map((c) => c.question.key)
+				.filter((key, i, keys) => key !== source.question.key && keys.indexOf(key) === i)
+		: [];
+
 const syncedModes = (after: MultiSheetQuestion, copy: MultiSheetQuestion) => {
 	const synced = (q: MultiSheetQuestion) =>
-		(q.presentationModes ?? []).every((m) => SYNCED_MODES.includes(m.id));
+		(q.presentationModes ?? []).every((m) => SHEET_DISPLAY_MODES.some((id) => id === m.id));
 	return synced(after) && synced(copy) ? after.presentationModes : copy.presentationModes;
 };
 

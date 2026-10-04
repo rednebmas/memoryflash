@@ -4,6 +4,7 @@ import { TextAreaField, Checkbox } from '../inputs';
 import { SettingsSection } from './SettingsSection';
 import { ChordProgressionInput } from './ChordProgressionInput';
 import { AiGenerateInput } from './AiGenerateInput';
+import { DisplayModeOptions } from './DisplayModeOptions';
 import { NotationSettingsState } from './defaultSettings';
 
 interface CardTypeOptionsProps {
@@ -20,6 +21,12 @@ export const CardTypeOptions: React.FC<CardTypeOptionsProps> = ({ settings, onCh
 					onChange={(cardType) => onChange({ cardType })}
 				/>
 			</div>
+			{settings.cardType === 'Sheet Music' && (
+				<DisplayModeOptions
+					value={settings.displayModes}
+					onChange={(displayModes) => onChange({ displayModes })}
+				/>
+			)}
 			{settings.cardType === 'Text Prompt' && (
 				<>
 					<TextAreaField

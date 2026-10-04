@@ -8,12 +8,22 @@ import { RangeSettings } from './RangeSettings';
 import { CardTypeOptions } from './CardTypeOptions';
 import { ChordNamesSettings } from './ChordNamesSettings';
 
+const transpositionsHint = (selected: boolean, copies: number) => {
+	if (copies) return `${copies} ${copies === 1 ? 'key' : 'keys'} already in this deck`;
+	return selected ? undefined : 'None selected — click to choose keys';
+};
+
 interface NotationSettingsProps {
 	settings: NotationSettingsState;
 	onChange: (settings: NotationSettingsState) => void;
+	copyKeys: string[];
 }
 
-export const NotationSettings: React.FC<NotationSettingsProps> = ({ settings, onChange }) => {
+export const NotationSettings: React.FC<NotationSettingsProps> = ({
+	settings,
+	onChange,
+	copyKeys,
+}) => {
 	const update = (changes: Partial<NotationSettingsState>) => {
 		let next: NotationSettingsState = { ...settings, ...changes };
 		if (changes.keySig) {
@@ -45,9 +55,7 @@ export const NotationSettings: React.FC<NotationSettingsProps> = ({ settings, on
 					title="Transpositions"
 					collapsible={true}
 					collapsedByDefault={true}
-					hintText={
-						!hasTranspositions ? 'None selected — click to choose keys' : undefined
-					}
+					hintText={transpositionsHint(hasTranspositions, copyKeys.length)}
 				>
 					<div className="space-y-4">
 						<RangeSettings
@@ -59,6 +67,7 @@ export const NotationSettings: React.FC<NotationSettingsProps> = ({ settings, on
 							selected={settings.selected}
 							onChange={(selected) => update({ selected })}
 							currentKeySig={settings.keySig}
+							existingKeys={copyKeys}
 						/>
 					</div>
 				</SettingsSection>

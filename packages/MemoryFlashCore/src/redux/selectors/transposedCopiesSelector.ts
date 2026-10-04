@@ -1,7 +1,11 @@
 import { ReduxState } from '../store';
 import { Card } from '../../types/Cards';
 import { MultiSheetQuestion } from '../../types/MultiSheetCard';
-import { transposedCopies, transposedCopyUpdates } from '../../lib/transposedCopies';
+import {
+	transposedCopies,
+	transposedCopyKeys,
+	transposedCopyUpdates,
+} from '../../lib/transposedCopies';
 
 const allCards = (state: ReduxState): Card[] => Object.values(state.cards.entities);
 
@@ -21,4 +25,9 @@ export const selectTransposedCopyUpdates = (
 ) => {
 	const source = state.cards.entities[cardId];
 	return source ? transposedCopyUpdates(allCards(state), source, question) : [];
+};
+
+export const selectTransposedCopyKeys = (state: ReduxState, cardId: string | undefined) => {
+	const source = cardId ? state.cards.entities[cardId] : undefined;
+	return source ? transposedCopyKeys(allCards(state), source) : [];
 };

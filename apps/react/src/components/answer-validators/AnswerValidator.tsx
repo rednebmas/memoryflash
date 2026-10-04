@@ -1,6 +1,6 @@
 import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { AnswerType, Card } from 'MemoryFlashCore/src/types/Cards';
-import { PresentationModeIds } from 'MemoryFlashCore/src/types/PresentationMode';
+import { activePresentationMode } from 'MemoryFlashCore/src/lib/presentationMode';
 import { AnyOctaveAnswerValidator } from './AnyOctaveAnswerValidator';
 import { ChordMemoryAnswerValidator } from './ChordMemoryAnswerValidator';
 import { ExactMultiAnswerValidator } from './ExactMultiAnswerValidator';
@@ -15,12 +15,6 @@ export const AnswerValidator: React.FC<{ card: Card | undefined }> = ({ card }) 
 	const saxRhythm = useAppSelector(saxRhythmActiveSelector);
 	if (!card || saxRhythm) return null;
 
-	let activePresentationMode: PresentationModeIds | undefined =
-		presentationModesByQuestionType[card.type];
-	if (!card.question.presentationModes?.some((m) => m.id === activePresentationMode)) {
-		activePresentationMode = card.question.presentationModes?.[0]?.id;
-	}
-
 	switch (card.answer.type) {
 		case AnswerType.AnyOctave:
 			return <AnyOctaveAnswerValidator card={card} />;
@@ -29,7 +23,7 @@ export const AnswerValidator: React.FC<{ card: Card | undefined }> = ({ card }) 
 		//   case AnswerType.Exact:
 		//     return <ExactAnswerValidator card={card} />;
 		case AnswerType.ExactMulti:
-			switch (activePresentationMode) {
+			switch (activePresentationMode(card, presentationModesByQuestionType)?.id) {
 				case 'Chords':
 				case 'Key Signature Only':
 				case 'First Chord Only':

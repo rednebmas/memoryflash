@@ -8,9 +8,8 @@ import { TextCardPrompt } from './TextCardPrompt';
 import {
 	PresentationModeStartCard,
 	PresentationModeText,
-	PresentationModeIds,
 } from 'MemoryFlashCore/src/types/PresentationMode';
-import { presentationModeFor } from 'MemoryFlashCore/src/lib/presentationMode';
+import { activePresentationMode as activeModeOf } from 'MemoryFlashCore/src/lib/presentationMode';
 import { romanNumeralPrompt } from 'MemoryFlashCore/src/lib/chordNames';
 import { AnswerType, ChordMemoryAnswer } from 'MemoryFlashCore/src/types/Cards';
 
@@ -28,17 +27,10 @@ export const MultiSheetCardQuestion: React.FC<QuestionRender> = ({ card, placeme
 	const presentationModesByQuestionType = useAppSelector(
 		(state) => state.settings.presentationModes,
 	);
-	let activePresentationModeId: PresentationModeIds | undefined =
-		presentationModesByQuestionType[card.type];
-	let activePresentationMode = c.question.presentationModes?.find(
-		(m) => m.id === activePresentationModeId,
-	);
-
-	if (!activePresentationMode) {
-		activePresentationMode =
-			c.question.presentationModes?.[0] ?? presentationModeFor('Sheet Music', '');
-		activePresentationModeId = activePresentationMode.id;
-	}
+	const activePresentationMode = activeModeOf(card, presentationModesByQuestionType) ?? {
+		id: 'Sheet Music',
+	};
+	const activePresentationModeId = activePresentationMode.id;
 
 	const total = getTotal(c);
 	const correctCount =

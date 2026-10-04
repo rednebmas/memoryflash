@@ -15,6 +15,7 @@ import { prettyChordSymbol } from './romanNumerals';
 import {
 	syncedCopy,
 	transposedCopies,
+	transposedCopyKeys,
 	transposedCopyUpdates,
 	transpositionInterval,
 } from './transposedCopies';
@@ -70,6 +71,21 @@ describe('transposedCopies', () => {
 	});
 });
 
+describe('transposedCopyKeys', () => {
+	const keys = questionsForAllMajorKeys(soEasyC, 'C3', 'C5').slice(0, 12);
+	const deck = keys.map((q) => card(q.key, q));
+
+	it("lists the other 11 keys of Sam's 12-card deck from any of its cards", () => {
+		expect(transposedCopyKeys(deck, deck[0])).to.deep.equal(keys.slice(1).map((q) => q.key));
+		expect(transposedCopyKeys(deck, deck[9])).to.have.length(11);
+	});
+
+	it('lists a key once and never the card’s own key, even with duplicates', () => {
+		const dupes = [...deck.slice(0, 3), card('c2', soEasyC), card('g2', keys[1])];
+		expect(transposedCopyKeys(dupes, dupes[0])).to.deep.equal(['G', 'D']);
+	});
+});
+
 describe('syncedCopy', () => {
 	it('transposes new names onto an unnamed copy', () => {
 		const synced = syncedCopy(soEasyC, named, soEasyBb);
@@ -102,6 +118,18 @@ describe('syncedCopy', () => {
 		expect(syncedCopy(soEasyC, roman, textCopy)?.presentationModes?.[0].id).to.equal(
 			'Text Prompt',
 		);
+	});
+
+	it('copies both display modes together', () => {
+		const both = {
+			...named,
+			presentationModes: [...sheetMusic, { id: 'Roman Numerals' as const }],
+		};
+		const sheetCopy = { ...soEasyBb, presentationModes: sheetMusic };
+		expect(syncedCopy(soEasyC, both, sheetCopy)?.presentationModes).to.deep.equal([
+			{ id: 'Sheet Music' },
+			{ id: 'Roman Numerals' },
+		]);
 	});
 
 	it('does nothing when the edit changed the notes', () => {

@@ -3,12 +3,14 @@ import { Layout, Button } from '../components';
 import { BasicErrorCard } from '../components/feedback/ErrorCard';
 import { useToast } from '../components/feedback/Toast';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
+import { shallowEqual } from 'react-redux';
 import { questionsForAllMajorKeys, splitByKey } from 'MemoryFlashCore/src/lib/multiKeyTransposer';
 import { addCardsToDeck } from 'MemoryFlashCore/src/redux/actions/add-cards-to-deck';
-import { prepareQuestion, updateCard } from 'MemoryFlashCore/src/redux/actions/update-card-action';
+import { updateCard } from 'MemoryFlashCore/src/redux/actions/update-card-action';
 import { syncTransposedCopies } from 'MemoryFlashCore/src/redux/actions/sync-transposed-copies-action';
 import { withChordNames } from 'MemoryFlashCore/src/lib/chordNames';
 import { settingsFromCard } from '../components/notation/settingsFromCard';
+import { selectTransposedCopyKeys } from 'MemoryFlashCore/src/redux/selectors/transposedCopiesSelector';
 import { setPresentationMode } from 'MemoryFlashCore/src/redux/actions/set-presentation-mode';
 import { generatedCardsActions } from 'MemoryFlashCore/src/redux/slices/generatedCardsSlice';
 import { generatedCardsPayloadSelector } from 'MemoryFlashCore/src/redux/selectors/generatedCardsSelector';
@@ -23,7 +25,7 @@ import {
 	NotationPreviewList,
 } from '../components/notation';
 import { ScoreEditorProvider } from '../components/notation/ScoreEditor';
-import { buildCardsToAdd, textPromptFor } from '../components/notation/buildCardsToAdd';
+import { buildCardsToAdd, withPresentationModes } from '../components/notation/buildCardsToAdd';
 import { MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { StaffEnum } from 'MemoryFlashCore/src/types/Cards';
 
@@ -40,6 +42,7 @@ export const NotationInputScreen = ({ card }: { card?: EditableCard }) => {
 	const { deckId } = useDeckIdPath();
 	const cardId = card?._id;
 	const generated = useAppSelector(generatedCardsPayloadSelector);
+	const copyKeys = useAppSelector((s) => selectTransposedCopyKeys(s, cardId), shallowEqual);
 	const initialQuestion = card?.question;
 	const { isLoading: isUpdating, error: updateError } = useNetworkState('updateCard');
 	const { isLoading: isAdding, error: addError } = useNetworkState('addCardsToDeck');
@@ -55,7 +58,9 @@ export const NotationInputScreen = ({ card }: { card?: EditableCard }) => {
 	}, [card]);
 	const named = withChordNames(question, settings.chordNames);
 	const previewsAll = questionsForAllMajorKeys(named, settings.lowest, settings.highest);
-	const previews = previewsAll.filter((_, i) => settings.selected[i]);
+	const previews = previewsAll.filter(
+		(q, i) => settings.selected[i] && !copyKeys.includes(q.key),
+	);
 	const handleScoreChange = useCallback((q: MultiSheetQuestion, full: boolean) => {
 		setQuestion(q);
 		setComplete(full);
@@ -95,13 +100,9 @@ export const NotationInputScreen = ({ card }: { card?: EditableCard }) => {
 	const handleUpdate = () => {
 		if (!cardId || !deckId) return;
 		const { answer } = buildCardsToAdd(settings, [named]);
-		const text = textPromptFor(settings);
-		if (settings.syncCopies) {
-			dispatch(syncTransposedCopies(cardId, prepareQuestion(named, settings.cardType, text)));
-		}
-		dispatch(
-			updateCard(cardId, named, settings.cardType, text, answer, () => toast('Card updated')),
-		);
+		const updated = withPresentationModes(named, settings);
+		if (settings.syncCopies) dispatch(syncTransposedCopies(cardId, updated));
+		dispatch(updateCard(cardId, updated, answer, () => toast('Card updated')));
 		const { others } = splitByKey(previews, question.key);
 		if (others.length) addPreviews(deckId, others);
 	};
@@ -133,13 +134,18 @@ export const NotationInputScreen = ({ card }: { card?: EditableCard }) => {
 			>
 				<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 					<div>
-						<NotationSettings settings={settings} onChange={handleSettingsChange} />
+						<NotationSettings
+							settings={settings}
+							onChange={handleSettingsChange}
+							copyKeys={copyKeys}
+						/>
 					</div>
 					<div className="flex flex-col justify-center items-center min-h-[400px] space-y-6">
 						<NotationPreviewList
 							keySig={settings.keySig}
 							previews={previews}
 							cardType={settings.cardType}
+							displayModes={settings.displayModes}
 							textPrompt={settings.textPrompt}
 							previewTextCard={settings.preview}
 						/>

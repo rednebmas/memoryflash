@@ -3,6 +3,7 @@ import { CardType } from '../CardTypeDropdown';
 import { ChordMemoryChord, ChordNotation } from 'MemoryFlashCore/src/types/Cards';
 import { GenerateCardsInput } from 'MemoryFlashCore/src/types/GeneratedCards';
 import { ChordNames } from 'MemoryFlashCore/src/lib/chordNames';
+import { SheetDisplayMode } from 'MemoryFlashCore/src/types/PresentationMode';
 
 export interface ChordMemorySettings {
 	progression: string;
@@ -21,6 +22,7 @@ export interface NotationSettingsState {
 	segmentBars: number[];
 	selected: boolean[];
 	cardType: CardType;
+	displayModes: SheetDisplayMode[];
 	textPrompt: string;
 	preview: boolean;
 	chordMemory: ChordMemorySettings;
@@ -39,6 +41,7 @@ export const defaultSettings: NotationSettingsState = {
 	segmentBars: [],
 	selected: [true, ...new Array(majorKeys.length - 1).fill(false)],
 	cardType: 'Sheet Music',
+	displayModes: ['Sheet Music'],
 	textPrompt: '# Markdown\nIs supported!',
 	preview: false,
 	chordMemory: {

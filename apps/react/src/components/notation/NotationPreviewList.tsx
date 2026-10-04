@@ -5,6 +5,7 @@ import { ScoreEditor } from './ScoreEditor';
 import { MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { splitByKey } from 'MemoryFlashCore/src/lib/multiKeyTransposer';
 import { CardType } from '../CardTypeDropdown';
+import { SheetDisplayMode } from 'MemoryFlashCore/src/types/PresentationMode';
 import { GeneratedCardsReview } from './GeneratedCardsReview';
 import { romanNumeralPrompt } from 'MemoryFlashCore/src/lib/chordNames';
 
@@ -27,6 +28,7 @@ const PreviewCard: React.FC<PreviewCardProps> = ({ notation, total, showText, te
 interface NotationPreviewListProps {
 	previews: MultiSheetQuestion[];
 	cardType?: CardType;
+	displayModes?: SheetDisplayMode[];
 	textPrompt?: string;
 	previewTextCard?: boolean;
 	keySig: string;
@@ -35,13 +37,14 @@ interface NotationPreviewListProps {
 export const NotationPreviewList: React.FC<NotationPreviewListProps> = ({
 	previews,
 	cardType,
+	displayModes,
 	textPrompt,
 	previewTextCard,
 	keySig,
 }) => {
 	const { base, others } = splitByKey(previews, keySig);
 	const baseStackLength = base?.voices?.[0]?.stack?.length ?? 0;
-	const isRoman = cardType === 'Roman Numerals';
+	const isRoman = cardType === 'Sheet Music' && !!displayModes?.includes('Roman Numerals');
 	const showText = isRoman || (!!previewTextCard && cardType === 'Text Prompt');
 	const prompt = textPrompt ?? '';
 	const textFor = (q?: MultiSheetQuestion) => (isRoman && q ? romanNumeralPrompt(q) : prompt);

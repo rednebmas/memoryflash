@@ -1,5 +1,6 @@
 import { majorKeys } from 'MemoryFlashCore/src/lib/notes';
 import { writtenChordNames } from 'MemoryFlashCore/src/lib/chordNames';
+import { displayModesOf } from 'MemoryFlashCore/src/lib/presentationMode';
 import { AnswerType, ChordMemoryAnswer } from 'MemoryFlashCore/src/types/Cards';
 import { MultiSheetCard } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { CardType } from '../CardTypeDropdown';
@@ -9,7 +10,6 @@ const cardTypeOf = (card: MultiSheetCard): CardType => {
 	if (card.answer.type === AnswerType.ChordMemory) return 'Chord Memory';
 	const modes = card.question.presentationModes ?? [];
 	if (modes.some((m) => m.id === 'Text Prompt')) return 'Text Prompt';
-	if (modes.some((m) => m.id === 'Roman Numerals')) return 'Roman Numerals';
 	return 'Sheet Music';
 };
 
@@ -33,6 +33,7 @@ export function settingsFromCard(
 		beatsPerBar: question.beatsPerBar ?? 4,
 		selected: majorKeys.map((_, i) => i === idx),
 		cardType: cardTypeOf(card),
+		displayModes: displayModesOf(question.presentationModes),
 		textPrompt: text && 'text' in text ? text.text : '',
 		preview: !!text,
 		chordMemory:

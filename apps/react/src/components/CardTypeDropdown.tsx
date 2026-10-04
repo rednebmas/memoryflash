@@ -1,13 +1,7 @@
 import React from 'react';
 import Dropdown from './Dropdown';
 
-const CARD_TYPES = [
-	'Sheet Music',
-	'Roman Numerals',
-	'Text Prompt',
-	'Chord Memory',
-	'Generate with AI',
-] as const;
+const CARD_TYPES = ['Sheet Music', 'Text Prompt', 'Chord Memory', 'Generate with AI'] as const;
 
 export type CardType = (typeof CARD_TYPES)[number];
 

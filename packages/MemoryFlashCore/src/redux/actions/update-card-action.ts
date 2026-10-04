@@ -2,24 +2,12 @@ import { cardsActions } from '../slices/cardsSlice';
 import { AppThunk } from '../store';
 import { networkCallWithReduxState } from '../util/networkStateHelper';
 import { MultiSheetQuestion } from '../../types/MultiSheetCard';
-import { Answer, CardTypeEnum } from '../../types/Cards';
-import { presentationModeFor } from '../../lib/presentationMode';
-
-export const prepareQuestion = (
-	question: MultiSheetQuestion,
-	cardType: string,
-	textPrompt?: string,
-): MultiSheetQuestion => ({
-	...question,
-	presentationModes: [presentationModeFor(cardType, textPrompt ?? '')],
-});
+import { Answer } from '../../types/Cards';
 
 export const updateCard =
 	(
 		cardId: string,
 		question: MultiSheetQuestion,
-		cardType: CardTypeEnum | string,
-		textPrompt?: string,
 		answer?: Answer,
 		onSuccess?: () => void,
 	): AppThunk =>
@@ -28,8 +16,7 @@ export const updateCard =
 			dispatch,
 			'updateCard',
 			async () => {
-				const q = prepareQuestion(question, cardType, textPrompt);
-				const res = await api.patch('/cards/' + cardId, { question: q, answer });
+				const res = await api.patch('/cards/' + cardId, { question, answer });
 				dispatch(cardsActions.upsert([res.data.card]));
 			},
 			{ successCb: onSuccess },
