@@ -19,12 +19,6 @@ export const SettingsSection: React.FC<SettingsSectionProps> = ({
 }) => {
 	const [isCollapsed, setIsCollapsed] = useState(collapsedByDefault);
 
-	const toggleCollapsed = () => {
-		if (collapsible) {
-			setIsCollapsed(!isCollapsed);
-		}
-	};
-
 	return (
 		<Card className="w-full" contentContainerClassName="space-y-2">
 			<SectionHeader
@@ -32,7 +26,7 @@ export const SettingsSection: React.FC<SettingsSectionProps> = ({
 				text={isCollapsed && hintText ? hintText : undefined}
 				collapsible={collapsible}
 				isCollapsed={isCollapsed}
-				onToggle={toggleCollapsed}
+				onToggle={() => setIsCollapsed((c) => !c)}
 			/>
 			{!isCollapsed && <div>{children}</div>}
 		</Card>

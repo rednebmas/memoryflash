@@ -41,7 +41,9 @@ export const NotationSettings: React.FC<NotationSettingsProps> = ({ settings, on
 					title="Transpositions"
 					collapsible={true}
 					collapsedByDefault={true}
-					hintText={!hasTranspositions ? 'No transpositions' : undefined}
+					hintText={
+						!hasTranspositions ? 'None selected — click to choose keys' : undefined
+					}
 				>
 					<div className="space-y-4">
 						<RangeSettings

@@ -6,9 +6,11 @@ interface CircleHoverProps {
 	onClick?: () => void;
 }
 
+export const circleClassName =
+	'w-9 h-9 flex items-center justify-center rounded-full transition-all duration-150 text-fg';
+
 export const CircleHover: React.FC<CircleHoverProps> = ({ children, link, onClick }) => {
-	const className =
-		'w-9 h-9 flex items-center justify-center rounded-full cursor-pointer transition-all duration-150 hover:bg-gray-200 dark:hover:bg-white/15 text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2';
+	const className = `${circleClassName} cursor-pointer hover:bg-gray-200 dark:hover:bg-white/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2`;
 
 	if (link) {
 		return (
