@@ -2,8 +2,7 @@ import { Note } from 'tonal';
 import { AnswerType, CardTypeEnum, StaffEnum } from 'MemoryFlashCore/src/types/Cards';
 import { DeckWithoutGeneratedFields as IDeck } from 'MemoryFlashCore/src/types/Deck';
 import { MultiSheetCard } from 'MemoryFlashCore/src/types/MultiSheetCard';
-import Course from '../../../models/Course';
-import { upsertCourse } from '../upsert-course';
+import { findOrCreateSystemCourse, upsertCourse } from '../upsert-course';
 
 type Staff = StaffEnum.Treble | StaffEnum.Bass;
 type StaffNote = { staff: Staff; note: string };
@@ -79,8 +78,6 @@ export const generateNoteReadingDecks = (courseId: string) =>
 	noteReadingLevels.map((level) => toDeck(courseId, level));
 
 export async function generateNoteReadingCourse() {
-	const course =
-		(await Course.findOne({ name: COURSE_NAME, userId: { $exists: false } })) ??
-		new Course({ name: COURSE_NAME, decks: [] });
+	const course = await findOrCreateSystemCourse(COURSE_NAME);
 	return upsertCourse(course, generateNoteReadingDecks(course.id));
 }

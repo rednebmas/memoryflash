@@ -1,9 +1,12 @@
 import { CardTypeBase, CardTypeEnum } from 'MemoryFlashCore/src/types/Cards';
 import { DeckWithoutGeneratedFields as IDeck } from 'MemoryFlashCore/src/types/Deck';
 import { upsertDeckWithCards } from './upsert-deck-with-cards';
-import { CourseDoc } from '../../models/Course';
+import Course, { CourseDoc } from '../../models/Course';
 import { Deck } from '../../models/Deck';
 import { purgeDeck } from '../deckService';
+
+export const findOrCreateSystemCourse = async (name: string) =>
+	(await Course.findOne({ name, userId: { $exists: false } })) ?? new Course({ name, decks: [] });
 
 export async function upsertCourse<T extends CardTypeEnum, Q extends {}>(
 	course: CourseDoc,

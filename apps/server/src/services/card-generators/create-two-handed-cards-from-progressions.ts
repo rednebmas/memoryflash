@@ -1,5 +1,5 @@
 import { AnswerType, CardTypeEnum, StaffEnum } from 'MemoryFlashCore/src/types/Cards';
-import { MultiSheetCard, StackedNotes } from 'MemoryFlashCore/src/types/MultiSheetCard';
+import { MultiSheetCard, StackedNotes, Voice } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { Midi } from 'tonal';
 import { PresentationMode } from 'MemoryFlashCore/src/types/PresentationMode';
 import { generateProgressionsFromRomanNumerals } from './ii-V-i/ii-V-I-progression-generators';
@@ -10,6 +10,17 @@ const presentationModes: PresentationMode[] = [
 	{ id: 'Chords' },
 ];
 
+const sortNotes = (notes: StackedNotes['notes']) =>
+	[...notes].sort((a, b) => Midi.toMidi(a.name + a.octave)! - Midi.toMidi(b.name + b.octave)!);
+
+const sliceStack = (stack: StackedNotes[], start: number, end?: number) =>
+	stack.map((s) => ({ ...s, notes: sortNotes(s.notes.slice(start, end)) }));
+
+export const splitHands = (stack: StackedNotes[], numBassNotes: number): Voice[] => [
+	{ stack: sliceStack(stack, numBassNotes), staff: StaffEnum.Treble },
+	{ stack: sliceStack(stack, 0, numBassNotes), staff: StaffEnum.Bass },
+];
+
 export function createTwoHandedCardsFromProgressions(
 	uid: string,
 	textAboveKeySig: string,
@@ -17,35 +28,13 @@ export function createTwoHandedCardsFromProgressions(
 	numBassNotes: number,
 	progressions: ReturnType<typeof generateProgressionsFromRomanNumerals>,
 ) {
-	return progressions.map((progression, i): MultiSheetCard => {
-		const bassStack: StackedNotes[] = [];
-		const trebleStack: StackedNotes[] = [];
-
-		const sortNotes = (notes: StackedNotes['notes']) =>
-			[...notes].sort(
-				(a, b) => Midi.toMidi(a.name + a.octave)! - Midi.toMidi(b.name + b.octave)!,
-			);
-
-		progression.voice.forEach((voice) => {
-			bassStack.push({
-				...voice,
-				notes: sortNotes(voice.notes.slice(0, numBassNotes)),
-			});
-			trebleStack.push({
-				...voice,
-				notes: sortNotes(voice.notes.slice(numBassNotes)),
-			});
-		});
-
+	return progressions.map((progression): MultiSheetCard => {
 		return {
 			uid: `${progression.chords.join(' ')} ${uid}`,
 			type: CardTypeEnum.MultiSheet,
 			question: {
 				key: progression.key,
-				voices: [
-					{ stack: trebleStack, staff: StaffEnum.Treble },
-					{ stack: bassStack, staff: StaffEnum.Bass },
-				],
+				voices: splitHands(progression.voice, numBassNotes),
 				presentationModes: [
 					...presentationModes,
 					{
