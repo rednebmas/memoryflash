@@ -10,6 +10,7 @@ import {
 	PresentationModeText,
 	PresentationModeIds,
 } from 'MemoryFlashCore/src/types/PresentationMode';
+import { presentationModeFor } from 'MemoryFlashCore/src/lib/presentationMode';
 import { AnswerType, ChordMemoryAnswer } from 'MemoryFlashCore/src/types/Cards';
 
 const getTotal = (c: MultiSheetCard): number => {
@@ -33,12 +34,9 @@ export const MultiSheetCardQuestion: React.FC<QuestionRender> = ({ card, placeme
 	);
 
 	if (!activePresentationMode) {
-		activePresentationMode = c.question.presentationModes?.[0];
-		activePresentationModeId = activePresentationMode?.id;
-	}
-
-	if (!activePresentationMode || !activePresentationModeId) {
-		return null;
+		activePresentationMode =
+			c.question.presentationModes?.[0] ?? presentationModeFor(false, '');
+		activePresentationModeId = activePresentationMode.id;
 	}
 
 	const total = getTotal(c);

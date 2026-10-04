@@ -3,19 +3,18 @@ import { AppThunk } from '../store';
 import { networkCallWithReduxState } from '../util/networkStateHelper';
 import { MultiSheetQuestion } from '../../types/MultiSheetCard';
 import { Answer, CardTypeEnum } from '../../types/Cards';
+import { presentationModeFor } from '../../lib/presentationMode';
 
 function prepareQuestion(
 	question: MultiSheetQuestion,
 	cardType: string,
 	textPrompt?: string,
 ): MultiSheetQuestion {
-	if (cardType === 'Text Prompt' || cardType === 'Chord Memory') {
-		return {
-			...question,
-			presentationModes: [{ id: 'Text Prompt', text: textPrompt ?? '' }],
-		};
-	}
-	return question;
+	const isTextPrompt = cardType === 'Text Prompt' || cardType === 'Chord Memory';
+	return {
+		...question,
+		presentationModes: [presentationModeFor(isTextPrompt, textPrompt ?? '')],
+	};
 }
 
 export const updateCard =

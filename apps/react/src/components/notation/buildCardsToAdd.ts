@@ -2,6 +2,7 @@ import { MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { Answer, AnswerType, ChordMemoryAnswer } from 'MemoryFlashCore/src/types/Cards';
 import { PresentationModeIds } from 'MemoryFlashCore/src/types/PresentationMode';
 import { NotationSettingsState } from './defaultSettings';
+import { presentationModeFor } from 'MemoryFlashCore/src/lib/presentationMode';
 import { segmentQuestion } from 'MemoryFlashCore/src/lib/recording/bars';
 
 export interface CardsToAdd {
@@ -30,9 +31,7 @@ export function textPromptFor(settings: NotationSettingsState): string {
 const withMode = (previews: MultiSheetQuestion[], mode: PresentationModeIds, text: string) =>
 	previews.map((q) => ({
 		...q,
-		presentationModes: [
-			mode === 'Text Prompt' ? { id: mode, text } : { id: 'Sheet Music' as const },
-		],
+		presentationModes: [presentationModeFor(mode === 'Text Prompt', text)],
 	}));
 
 const segmentAll = (previews: MultiSheetQuestion[], sizes: number[]) =>
