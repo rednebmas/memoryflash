@@ -1,5 +1,5 @@
 #!/bin/bash
-# Bug-report task state CLI (prod Mongo). Usage: reports.sh <watch|list|claim|show|query|prompt|comment|set-status> ...
+# Bug-report task state CLI (prod Mongo). Usage: reports.sh <watch|list|claim|show|create|query|prompt|comment|set-status> ...
 # Runs this checkout's code against the MONGO_URI in the primary checkout's gitignored apps/server/.env.autofix.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"

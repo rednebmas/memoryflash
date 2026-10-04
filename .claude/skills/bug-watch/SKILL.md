@@ -8,7 +8,7 @@ description: Full-auto bug fixing. Watches prod Mongo for new MemoryFlash bug re
 You are the orchestrator. You never fix bugs yourself: you watch, dispatch, relay. Keep your own context lean — do not read agent transcripts or code.
 
 All paths below are relative to the repo root of THIS checkout (`git rev-parse --show-toplevel`); call them by absolute path.
-- `.claude/skills/bug-watch/reports.sh` — task-state CLI (prod Mongo): `watch | list [statuses…] | claim <id> | show <id> | query <collection> '<EJSON filter>' [limit] | comment <id> <text> | set-status <id> <status> [sha]`. `query` is read-only prod access; reading prod data is strongly recommended for every bug report, and agents are told to do it.
+- `.claude/skills/bug-watch/reports.sh` — task-state CLI (prod Mongo): `watch | list [statuses…] | claim <id> | show <id> | create <email> <task text…> | query <collection> '<EJSON filter>' [limit] | comment <id> <text> | set-status <id> <status> [sha]`. `query` is read-only prod access; reading prod data is strongly recommended for every bug report, and agents are told to do it.
 - Agents save manual-test screenshots to `../memoryflash-worktrees/_evidence/<id>/` so they survive the worktree sweep.
 - `.claude/skills/bug-watch/start-task.sh <id>` — sweeps merged worktrees, creates `../memoryflash-worktrees/<id>` on `task/<id>` from origin/main, installs deps, renders the agent prompt; its LAST stdout line is the prompt file path.
 
@@ -26,6 +26,9 @@ All paths below are relative to the repo root of THIS checkout (`git rev-parse -
 1. **Startup check:** `reports.sh list building` — any report already `building` has no live agent (a previous orchestrator died). Tell Sam which, and re-dispatch each with the Dispatch steps but skip `claim` (it's already claimed; start-task.sh reuses an existing worktree).
 2. **Arm the watcher:** Monitor commands run sandboxed and cannot reach prod Mongo (they fail silently), so split it in two. First, Bash with `run_in_background: true` and `dangerouslyDisableSandbox: true`: `<abs>/.claude/skills/bug-watch/reports.sh watch > <scratchpad>/watch.log 2>&1`. Then `Monitor` with `command: "tail -n +1 -F <scratchpad>/watch.log"`, `description: "new MemoryFlash bug reports"`, `timeout_ms: 1800000`. Only reports with `admin: true` (reporter email in prod `ADMIN_EMAILS`, set in `.github/workflows/deploy-server.yml`) appear. On startup it prints every admin report still `new` (backlog), then one JSON line per newly filed admin report: `{"id","email","status","text"}`. A line starting `watch error` or a non-zero exit means the change stream dropped. **Whenever the monitor expires, re-arm the `tail` Monitor; if the background watcher exits, restart it too (truncating the log)** — the backlog sweep on each start guarantees nothing is missed. Dedupe by id against reports you have already dispatched or queued.
 3. **Concurrency:** at most 3 agents running. Extra reports wait in your queue (FIFO); dispatch the next one whenever an agent finishes.
+
+## Direct tasks (Sam asks you for work in chat)
+Every implementation agent gets the same prompt (`prompts/implementation.md`), whether the work came from the bug button or from Sam in chat. **Never hand-write an implementation prompt.** For a chat request, run `reports.sh create sam@riker.tech "<the task in Sam's words, plus his answers to your alignment questions>"`. It prints the new id; then follow Dispatch below with that id. The watcher will also emit the new id, so dedupe it. Use a short, descriptive agent name instead of `bug-<id6>` if that's clearer.
 
 ## Dispatch (per report id)
 1. `reports.sh claim <id>` — if it fails, the report was already claimed; skip it.

@@ -2,9 +2,11 @@ import mongoose from 'mongoose';
 import { writeFileSync } from 'fs';
 import { join, resolve } from 'path';
 import { BugReport, BugReportDoc, BugReportStatus } from '../../models/BugReport';
+import { User } from '../../models/User';
 import {
 	addBugReportComment,
 	claimBugReport,
+	fileDirectTask,
 	setBugReportStatus,
 } from '../../services/bugReportService';
 import { renderPrompt, taskBlock } from './taskPrompt';
@@ -85,6 +87,11 @@ const commands: Record<string, (args: string[]) => Promise<void>> = {
 	show: async ([id]) =>
 		console.log(taskBlock(await findFull(id), join(process.cwd(), 'tasks', id))),
 	query,
+	create: async ([email, ...text]) => {
+		const user = await User.findOne({ email }).orFail();
+		const task = await fileDirectTask({ _id: String(user._id), email }, text.join(' '));
+		console.log(String(task._id));
+	},
 	prompt: async ([id, wtDir]) => writePrompt(id, resolve(wtDir)),
 	comment: async ([id, ...text]) => void (await addBugReportComment(id, text.join(' '))),
 	'set-status': async ([id, status, commit]) =>

@@ -25,12 +25,16 @@ export const isAdminEmail = (email: string) =>
 
 const clip = (value: string | undefined, max = MAX_TEXT) => (value ?? '').slice(0, max);
 
-export const fileBugReport = async (user: Reporter, input: BugReportInput) => {
+export const fileBugReport = async (
+	user: Reporter,
+	input: BugReportInput,
+	admin = isAdminEmail(user.email),
+) => {
 	const screenshot = input.screenshot?.slice(0, MAX_SCREENSHOT);
 	return BugReport.create({
 		userId: user._id,
 		email: user.email,
-		admin: isAdminEmail(user.email),
+		admin,
 		description: clip(input.description),
 		url: clip(input.url, 2000),
 		userAgent: clip(input.userAgent, 1000),
@@ -40,6 +44,9 @@ export const fileBugReport = async (user: Reporter, input: BugReportInput) => {
 		screenshot,
 	});
 };
+
+export const fileDirectTask = (user: Reporter, description: string) =>
+	fileBugReport(user, { description, url: '(direct task)' }, true);
 
 export const claimBugReport = (id: string, branch: string) =>
 	BugReport.findOneAndUpdate(

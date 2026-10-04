@@ -6,6 +6,7 @@ import {
 	addBugReportComment,
 	claimBugReport,
 	fileBugReport,
+	fileDirectTask,
 	isAdminEmail,
 	setBugReportStatus,
 } from './bugReportService';
@@ -53,6 +54,14 @@ describe('bugReportService', () => {
 		});
 		expect(report.description.length).to.equal(10000);
 		expect(report.consoleErrors).to.have.length(30);
+	});
+
+	it('files a direct task as an admin report even for emails outside ADMIN_EMAILS', async () => {
+		const task = await fileDirectTask(user('someone@example.com'), 'Make the metronome louder');
+		expect(task.admin).to.equal(true);
+		expect(task.status).to.equal('new');
+		expect(task.description).to.equal('Make the metronome louder');
+		expect(task.url).to.equal('(direct task)');
 	});
 
 	it('claims a new report exactly once', async () => {
