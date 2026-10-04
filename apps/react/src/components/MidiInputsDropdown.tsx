@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import Dropdown from './Dropdown';
+import { openIOSSettings } from '../utils/iosApp';
 import { midiActions } from 'MemoryFlashCore/src/redux/slices/midiSlice';
 
 interface MidiInputsDropdownProps {}
@@ -31,7 +32,7 @@ export const MidiInputsDropdown: React.FunctionComponent<MidiInputsDropdownProps
 				onButtonClick={(e) => {
 					// Open settings on iOS app
 					e?.preventDefault();
-					(window as any).webkit?.messageHandlers?.openSettings?.postMessage('');
+					openIOSSettings();
 				}}
 				items={inputs.map((device) => ({
 					label: device.name,

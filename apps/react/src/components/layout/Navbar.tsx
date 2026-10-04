@@ -1,12 +1,12 @@
-import { ChevronLeftIcon, ArrowPathIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
+import { ChevronLeftIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { CircleHover } from '../ui/CircleHover';
 import { MidiInputsDropdown } from '../MidiInputsDropdown';
 import { AccountNavButton } from '../navigation/AccountNavButton';
-import { isIOSDebug } from '../../utils/isIOSDebug';
 import { ConsoleErrorsButton } from '../ConsoleErrorsButton';
 import { StreakChip } from '../StreakChip';
+import { RefreshButton } from '../RefreshButton';
 
 interface NavbarProps {
 	right?: React.ReactNode;
@@ -16,7 +16,6 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({ right, back }) => {
 	const navigate = useNavigate();
 	const location = useLocation();
-	const iosDebug = isIOSDebug();
 	const showBackButton = location.pathname !== '/';
 
 	return (
@@ -36,7 +35,8 @@ export const Navbar: React.FC<NavbarProps> = ({ right, back }) => {
 					</CircleHover>
 					<AccountNavButton />
 					<MidiInputsDropdown />
-					{iosDebug && <IOSDebugButtons />}
+					<ConsoleErrorsButton />
+					<RefreshButton />
 				</div>
 			</div>
 		</nav>
@@ -59,12 +59,3 @@ const BackButton: React.FC<{ back?: string; onBack: () => void }> = ({ back, onB
 		</CircleHover>
 	);
 };
-
-const IOSDebugButtons: React.FC = () => (
-	<>
-		<ConsoleErrorsButton />
-		<CircleHover onClick={() => window.location.reload()}>
-			<ArrowPathIcon className="w-5 h-5 stroke-2" />
-		</CircleHover>
-	</>
-);

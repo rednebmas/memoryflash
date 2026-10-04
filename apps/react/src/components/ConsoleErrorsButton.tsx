@@ -3,7 +3,7 @@ import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { CircleHover } from './ui/CircleHover';
 import { Modal } from './modals/Modal';
 import { useConsoleErrors } from '../utils/useConsoleErrors';
-import { isIOSDebug } from '../utils/isIOSDebug';
+import { isIOSDebug } from '../utils/iosApp';
 
 export const ConsoleErrorsButton: React.FC = () => {
 	const errors = useConsoleErrors();

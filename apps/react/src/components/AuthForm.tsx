@@ -1,5 +1,6 @@
 import React from 'react';
 import { OpenSettingsButton } from './OpenSettingsButton';
+import { RefreshButton } from './RefreshButton';
 
 interface AuthFormProps {
 	title: string;
@@ -10,7 +11,8 @@ interface AuthFormProps {
 export const AuthForm: React.FC<AuthFormProps> = ({ title, onSubmit, children }) => {
 	return (
 		<div className="relative flex min-h-full flex-1 flex-col justify-center py-12 sm:px-6 lg:px-8">
-			<div className="absolute right-6 top-6">
+			<div className="absolute right-6 top-6 flex items-center gap-2">
+				<RefreshButton />
 				<OpenSettingsButton />
 			</div>
 			<div className="sm:mx-auto sm:w-full sm:max-w-md">
