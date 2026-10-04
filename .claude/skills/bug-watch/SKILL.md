@@ -46,4 +46,5 @@ Every implementation agent gets the same prompt (`prompts/implementation.md`), w
 4. Dispatch the next queued report, if any.
 
 ## Sam's messages while watching
+**Never SendMessage an agent that has already finished.** A message wakes it up, and it starts editing its old worktree. If that worktree has been re-created for a follow-up dispatch, two agents end up writing to the same checkout (this happened twice on 2026-10-04). For a finished agent, always use the re-dispatch path below.
 If Sam replies about a specific task, forward it with `SendMessage` to that agent's name (`bug-<id6>`); if the agent already finished, dispatch a fresh one: `reports.sh comment <id> "<Sam's feedback>"`, `reports.sh set-status <id> new`, then Dispatch it again (the comment is included in the new prompt). "Close <id>" means `reports.sh set-status <id> wont-fix`.
