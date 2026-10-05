@@ -115,8 +115,15 @@ test('Create custom deck, add notation and text cards, then study', async ({
 	await runRecorderEvents(
 		page,
 		undefined,
-		studyEvents,
+		studyEvents.slice(0, 3),
 		'custom-deck-notation-to-study-midi-step',
+	);
+	await runRecorderEvents(page, undefined, studyEvents.slice(3));
+	// Future cards hide after 2x the median answer time, which is milliseconds in tests
+	await expect(page.locator('.card-container').nth(2)).toHaveCSS('opacity', '0');
+	await expect(output).toHaveScreenshot(
+		'custom-deck-notation-to-study-midi-step-4.png',
+		screenshotOpts,
 	);
 
 	// Navigate to the list and delete the first (notation) card
