@@ -18,3 +18,6 @@ export const playCurrentCard = async (page: Page) =>
 	runRecorderEvents(page, undefined, await remainingBeats(page));
 
 export const playWrongNote = (page: Page) => runRecorderEvents(page, undefined, [[30]]);
+
+export const playNextBeat = async (page: Page) =>
+	runRecorderEvents(page, undefined, (await remainingBeats(page)).slice(0, 1));

@@ -9,6 +9,7 @@ import { DeckSettingsButton } from '../../components/DeckSettingsButton';
 import { AnswerValidator } from '../../components/answer-validators/AnswerValidator';
 import { ChordInputModeToggle } from '../../components/chord-pad/ChordInputModeToggle';
 import { InstrumentToggle } from '../../components/sax/InstrumentToggle';
+import { RestartCardPill } from '../../components/RestartCardPill';
 import { SaxFingeringHint } from '../../components/sax/SaxFingeringHint';
 import { StudyInput } from './StudyInput';
 import { ChordMemoryDebugDialog } from '../../components/ChordMemoryDebugDialog';
@@ -93,6 +94,7 @@ export const StudyScreen = () => {
 					<QuestionPresentationModePills card={cards[index]} />
 					<ChordInputModeToggle />
 					<InstrumentToggle />
+					<RestartCardPill />
 				</div>
 				{cards[index] && <ChordMemoryDebugDialog card={cards[index]} />}
 				<StudyInput />

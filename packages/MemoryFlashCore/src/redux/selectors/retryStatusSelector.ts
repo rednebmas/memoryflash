@@ -14,3 +14,5 @@ export const retryStatusSelector = createSelector(
 		return `Missed · play it right ${left} more ${left === 1 ? 'time' : 'times'}`;
 	},
 );
+
+export const canRestartCardSelector = (s: ReduxState) => Boolean(s.scheduler.incorrect);

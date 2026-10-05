@@ -87,6 +87,10 @@ const schedulerSlice = createSlice({
 			restartCard(state);
 			state.retryStreak = action.payload;
 		},
+		restartCurrCard(state) {
+			restartCard(state);
+			state.incorrect = true;
+		},
 		incrementMultiPartCardIndex(state) {
 			state.multiPartCardIndex += 1;
 		},
