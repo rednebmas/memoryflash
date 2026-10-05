@@ -40,7 +40,6 @@ export type GeneratedSong = {
 
 export type GenerateCardsInput = {
 	text: string;
-	instructions: string;
 	cardTypes: GeneratedCardType[];
 	splitLongSections: boolean;
 	romanVariants: boolean;

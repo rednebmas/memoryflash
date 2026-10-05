@@ -5,7 +5,6 @@ import { getGenerationJob, startGenerationJob } from './aiGenerationJobs';
 
 const input: GenerateCardsInput = {
 	text: 'x',
-	instructions: '',
 	cardTypes: ['Chord Memory'],
 	splitLongSections: false,
 	romanVariants: false,

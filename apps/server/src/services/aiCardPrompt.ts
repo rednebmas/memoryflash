@@ -50,7 +50,7 @@ export const buildSongSchema = (types: GeneratedCardType[]) =>
 
 const COMMON_PROMPT = [
 	'You turn songs and music into flash cards for a piano memorisation app.',
-	'Input is pasted chords + lyrics (Ultimate Guitar style), a free-form description of the cards wanted, or both.',
+	'The request is one free-form text: pasted chords + lyrics (Ultimate Guitar style), a description of the cards wanted, instructions such as "transcribe the melody" or "skip the bridge", or any mix of these.',
 	'The user may attach an image, such as a photo of sheet music or a lead sheet; read it as the source material and follow the user text for what to do with it.',
 	'Find the song sections and the repeating chord patterns: group sections that share the same progression into one pattern with a short id (A, B, C...). Fill title, artist, key and patterns even when no chord cards are requested.',
 	'key is the song key as tonic plus mode, e.g. "B minor" or "G major".',
@@ -99,9 +99,6 @@ export const buildUserPrompt = (
 	const existingText = existing.length
 		? `Existing cards in this deck:\n${existing.map((c) => `- ${c.prompt.replace(/\n/g, ' ')}: ${c.chords.join(' ')}${c.key ? ` (key ${c.key})` : ''}`).join('\n')}`
 		: 'The deck has no chord cards yet.';
-	const instructions = input.instructions.trim()
-		? `Instructions: ${input.instructions.trim()}`
-		: '';
-	const image = input.image ? 'An attached image is part of the input.' : '';
-	return [existingText, instructions, image, 'Input:', input.text].filter(Boolean).join('\n\n');
+	const image = input.image ? 'An attached image is part of the request.' : '';
+	return [existingText, image, 'Request:', input.text].filter(Boolean).join('\n\n');
 };

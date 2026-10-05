@@ -48,7 +48,6 @@ export const defaultSettings: NotationSettingsState = {
 	},
 	ai: {
 		text: '',
-		instructions: '',
 		cardTypes: ['Sheet Music'],
 		splitLongSections: true,
 		romanVariants: false,

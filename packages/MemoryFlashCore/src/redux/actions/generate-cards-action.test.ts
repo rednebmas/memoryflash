@@ -5,7 +5,6 @@ import { GenerateCardsInput, GeneratedSong } from '../../types/GeneratedCards';
 
 const input: GenerateCardsInput = {
 	text: 'x',
-	instructions: '',
 	cardTypes: ['Chord Memory'],
 	splitLongSections: false,
 	romanVariants: false,

@@ -1,7 +1,7 @@
 import React from 'react';
 import { SparklesIcon } from '@heroicons/react/24/outline';
 import { Button } from '../ui/Button';
-import { InputField, TextAreaField } from '../inputs';
+import { TextAreaField } from '../inputs';
 import { SettingCheckbox } from '../inputs/SettingCheckbox';
 import { CheckboxGroup } from '../inputs/CheckboxGroup';
 import { BasicErrorCard } from '../feedback/ErrorCard';
@@ -39,22 +39,15 @@ export const AiGenerateInput: React.FC<AiGenerateInputProps> = ({ ai, onChange }
 		<div className="flex flex-col gap-4 w-full">
 			<TextAreaField
 				id="ai-text"
-				label="Describe the cards you want, or paste chords + lyrics"
+				label="Describe the cards you want, paste chords + lyrics, or both"
 				placeholder={
-					'"transcribe the melody" with a photo, "ii–V–I in all 12 keys with 7ths", or\n[Verse]\nBm        F#\nlyrics...'
+					'"transcribe the melody" with a photo, "ii–V–I in all 12 keys with 7ths", or paste a chart:\n[Verse]\nBm        F#\nlyrics...\n\nAdd notes anywhere, e.g. "skip the bridge"'
 				}
 				className="min-h-[220px] font-mono text-xs"
 				value={ai.text}
 				onChange={(e) => onChange({ ...ai, text: e.target.value })}
 			/>
 			<AiImageAttachment image={ai.image} onChange={(image) => onChange({ ...ai, image })} />
-			<InputField
-				id="ai-instructions"
-				label="Instructions (optional)"
-				placeholder="e.g. skip the bridge, treat Verse 1 and 2 as one card"
-				value={ai.instructions}
-				onChange={(e) => onChange({ ...ai, instructions: e.target.value })}
-			/>
 			<CheckboxGroup
 				title="Card types to generate"
 				options={GENERATED_CARD_TYPES}

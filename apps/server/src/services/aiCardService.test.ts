@@ -15,7 +15,6 @@ import { aiPassage, twoBars } from './aiSheetCards.test';
 
 const input: GenerateCardsInput = {
 	text: 'x',
-	instructions: '',
 	cardTypes: ['Chord Memory'],
 	splitLongSections: true,
 	romanVariants: true,
@@ -103,6 +102,18 @@ describe('aiCardService', () => {
 		expect(prompt).to.contain('[Chorus] Vienna: C G');
 		expect(song.title).to.equal('Hotel California');
 		expect(prompt).not.to.contain('attached image');
+	});
+
+	it('sends the single prompt box to the model as the request', async () => {
+		let prompt = '';
+		const complete = async (_system: string, user: string) => {
+			prompt = user;
+			return JSON.stringify(aiSong);
+		};
+		const text = 'skip the bridge\n[Verse]\nBm F#';
+		await generateSongCards({ ...input, text }, [], complete);
+		expect(prompt.endsWith(`Request:\n\n${text}`)).to.equal(true);
+		expect(prompt).not.to.contain('Instructions');
 	});
 
 	it('sends an attached photo to the model with the user text', async () => {
