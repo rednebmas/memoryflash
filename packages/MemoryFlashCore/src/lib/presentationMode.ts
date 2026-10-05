@@ -33,3 +33,11 @@ export const activePresentationMode = (
 	const modes = availablePresentationModes(card);
 	return modes.find((m) => m.id === preferred[card.type]) ?? modes[0];
 };
+
+export const rendersAsText = (
+	card: Card,
+	preferred: { [cardType: string]: PresentationModeIds },
+): boolean => {
+	const id = activePresentationMode(card, preferred)?.id;
+	return id === 'Text Prompt' || id === 'Roman Numerals';
+};

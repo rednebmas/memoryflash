@@ -4,11 +4,12 @@ import { cardPracticeLabelSelector } from 'MemoryFlashCore/src/redux/selectors/c
 import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { CardTypeEnum, IntervalCard } from 'MemoryFlashCore/src/types/Cards';
 import React, { forwardRef } from 'react';
-import { IS_TEST_ENV } from '../utils/constants';
 import { FlashCardOptionsMenu } from './FlashCardOptionsMenu';
 import { MultiSheetCardQuestion } from './FlashCards/MultiSheetCardQuestion';
 import { Pill } from './ui/Pill';
 import { RetryStatus } from './RetryStatus';
+import { AttemptTime } from './FlashCards/AttemptTime';
+import { rendersAsText } from 'MemoryFlashCore/src/lib/presentationMode';
 
 type Placement = 'cur' | 'scheduled' | 'answered' | 'list';
 
@@ -78,15 +79,16 @@ const CardPracticeStats: React.FC<{ card: CardWithAttempts }> = ({ card }) => {
 	return <span className="caption py-1">{label}</span>;
 };
 
-const FlashCardStatus: React.FC<QuestionRender> = ({ card, placement }) => (
-	<>
-		{!IS_TEST_ENV && card?.attempts?.length > 0 && (
-			<span className="caption">{card.attempts[0].timeTaken.toFixed(1)}s</span>
-		)}
-		<FlashCardIcons card={card} placement={placement} />
-		{placement === 'cur' && <RetryStatus />}
-	</>
-);
+const FlashCardStatus: React.FC<QuestionRender> = ({ card, placement }) => {
+	const modes = useAppSelector((state) => state.settings.presentationModes);
+	return (
+		<>
+			{!rendersAsText(card, modes) && <AttemptTime time={card.attempts?.[0]?.timeTaken} />}
+			<FlashCardIcons card={card} placement={placement} />
+			{placement === 'cur' && <RetryStatus />}
+		</>
+	);
+};
 
 export const FlashCardIcons: React.FC<{ card: CardWithAttempts; placement: Placement }> = ({
 	card,

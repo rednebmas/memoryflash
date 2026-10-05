@@ -35,6 +35,7 @@ export const MultiSheetCardQuestion: React.FC<QuestionRender> = ({ card, placeme
 	const total = getTotal(c);
 	const correctCount =
 		placement === 'answered' ? total : placement === 'cur' ? multiPartCardIndex : 0;
+	const time = placement === 'list' ? undefined : card.attempts[0]?.timeTaken;
 
 	if (activePresentationModeId.startsWith('Sheet Music')) {
 		return (
@@ -72,10 +73,12 @@ export const MultiSheetCardQuestion: React.FC<QuestionRender> = ({ card, placeme
 		);
 	} else if (activePresentationModeId === 'Text Prompt') {
 		const pm = activePresentationMode as PresentationModeText;
-		return <TextCardPrompt text={pm.text} total={total} correctCount={correctCount} />;
+		return (
+			<TextCardPrompt text={pm.text} total={total} correctCount={correctCount} time={time} />
+		);
 	} else if (activePresentationModeId === 'Roman Numerals') {
 		const text = romanNumeralPrompt(c.question);
-		return <TextCardPrompt text={text} total={total} correctCount={correctCount} />;
+		return <TextCardPrompt text={text} total={total} correctCount={correctCount} time={time} />;
 	} else if (activePresentationModeId === 'Chords') {
 		const chords = c.question.voices[0].stack.map((s) => s.chordName);
 		return (

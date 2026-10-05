@@ -3,7 +3,11 @@ import { AnswerType, Card, CardTypeEnum } from '../types/Cards';
 import { MultiSheetQuestion } from '../types/MultiSheetCard';
 import { PresentationMode } from '../types/PresentationMode';
 import { chord, sheetQuestion, soEasyC } from './testData/soEasyToFallInLove';
-import { activePresentationMode, availablePresentationModes } from './presentationMode';
+import {
+	activePresentationMode,
+	availablePresentationModes,
+	rendersAsText,
+} from './presentationMode';
 
 const card = (presentationModes: PresentationMode[], question: MultiSheetQuestion = soEasyC) =>
 	({
@@ -47,5 +51,17 @@ describe('activePresentationMode', () => {
 		expect(activePresentationMode(card([{ id: 'Sheet Music' }]), {})?.id).to.equal(
 			'Sheet Music',
 		);
+	});
+});
+
+describe('rendersAsText', () => {
+	it('is true for text prompt and roman numeral cards', () => {
+		const text = card([{ id: 'Text Prompt', text: 'Torn Chorus' }]);
+		expect(rendersAsText(text, {})).to.equal(true);
+		expect(rendersAsText(card([{ id: 'Sheet Music' }]), roman)).to.equal(true);
+	});
+
+	it('is false for sheet music', () => {
+		expect(rendersAsText(card([{ id: 'Sheet Music' }]), {})).to.equal(false);
 	});
 });
