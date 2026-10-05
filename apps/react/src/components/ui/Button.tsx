@@ -32,11 +32,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 				disabled={isDisabled}
 				{...props}
 			>
-				{loading ? (
-					<Spinner svgClassName="w-5 h-5 text-transparent fill-current" />
-				) : (
-					children
-				)}
+				{loading ? <Spinner svgClassName="w-5 h-5" /> : children}
 			</button>
 		);
 	},

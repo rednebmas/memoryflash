@@ -14,3 +14,18 @@ export const clickAndAwaitNetworkCall = async (
 	}, name);
 	expect(await settled.jsonValue()).toEqual({ error: null });
 };
+
+// Fakes the generate-cards job: POST starts it, polls report 'generating' until finished is set
+export const mockGenerateCards = async (page: Page, song: object) => {
+	const job = { body: {} as Record<string, unknown>, finished: true };
+	await page.route('**/generate-cards', async (route) => {
+		job.body = route.request().postDataJSON();
+		await route.fulfill({ json: { jobId: 'job1' } });
+	});
+	await page.route('**/generate-cards/job1', (route) =>
+		route.fulfill({
+			json: job.finished ? { stage: 'building', song } : { stage: 'generating' },
+		}),
+	);
+	return job;
+};

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { generatedCardsPayloadSelector } from './generatedCardsSelector';
+import { generatedCardsPayloadSelector, generationStatusSelector } from './generatedCardsSelector';
 import { ReduxState } from '../store';
 import { AnswerType, StaffEnum } from '../../types/Cards';
 import { GeneratedCard } from '../../types/GeneratedCards';
@@ -46,5 +46,24 @@ describe('generatedCardsPayloadSelector', () => {
 			AnswerType.ExactMulti,
 			AnswerType.ChordMemory,
 		]);
+	});
+});
+
+describe('generationStatusSelector', () => {
+	const status = (generation: object | null) =>
+		generationStatusSelector({ generatedCards: { generation } } as never as ReduxState);
+
+	it('names each stage of a generation', () => {
+		expect(status(null)).to.equal(null);
+		expect(status({ stage: 'uploading', uploadPercent: 42, hasImage: true })).to.equal(
+			'Uploading photo… 42%',
+		);
+		expect(status({ stage: 'uploading', uploadPercent: 100, hasImage: false })).to.equal(
+			'Sending… 100%',
+		);
+		expect(status({ stage: 'generating' })).to.equal(
+			'Generating… this usually takes about a minute',
+		);
+		expect(status({ stage: 'building' })).to.equal('Building previews…');
 	});
 });

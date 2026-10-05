@@ -11,7 +11,8 @@ import {
 	importDeck,
 	getOwnedDeck,
 } from '../services/deckService';
-import { generateSongCards, getExistingChordCards } from '../services/aiCardService';
+import { getExistingChordCards } from '../services/aiCardService';
+import { getGenerationJob, startGenerationJob } from '../services/aiGenerationJobs';
 import { User } from 'MemoryFlashCore/src/types/User';
 import { getDeckStats, setUserDeckStats } from '../services/statsService';
 import { zSchedulerSettings } from 'MemoryFlashCore/src/lib/schedulers/types';
@@ -93,8 +94,16 @@ router.post('/:id/generate-cards', isAuthenticated, async (req, res, next) => {
 		const deck = await getOwnedDeck(req.params.id, (req.user as User)._id.toString());
 		if (!deck) return res.status(404).json({ error: 'Not found or not authorized' });
 		const existing = await getExistingChordCards(req.params.id);
-		const song = await generateSongCards(req.body, existing);
-		return res.json({ song });
+		const userId = (req.user as User)._id.toString();
+		return res.json({ jobId: startGenerationJob(userId, req.body, existing) });
+	} catch (error) {
+		next(error);
+	}
+});
+
+router.get('/:id/generate-cards/:jobId', isAuthenticated, (req, res, next) => {
+	try {
+		return res.json(getGenerationJob(req.params.jobId, (req.user as User)._id.toString()));
 	} catch (error) {
 		next(error);
 	}

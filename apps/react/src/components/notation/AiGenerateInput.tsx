@@ -15,6 +15,7 @@ import {
 } from 'MemoryFlashCore/src/types/GeneratedCards';
 import { useDeckIdPath } from '../../screens/useDeckIdPath';
 import { AiImageAttachment } from './AiImageAttachment';
+import { GenerationStatus } from './GenerationStatus';
 
 interface AiGenerateInputProps {
 	ai: GenerateCardsInput;
@@ -76,6 +77,7 @@ export const AiGenerateInput: React.FC<AiGenerateInputProps> = ({ ai, onChange }
 			>
 				<SparklesIcon className="w-4 h-4 mr-1.5" /> Generate preview
 			</Button>
+			<GenerationStatus />
 			<span className="caption">
 				Lyrics and photos are only used to generate cards and are not stored.
 			</span>

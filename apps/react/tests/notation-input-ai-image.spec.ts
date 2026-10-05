@@ -7,6 +7,7 @@ import {
 	initDeterministicEnv,
 	createCourse,
 	createDeck,
+	mockGenerateCards,
 } from './helpers';
 
 const photo = new URL('./music-notation.spec.ts-snapshots/music-notation.png', import.meta.url)
@@ -64,19 +65,24 @@ test('Attach a sheet music photo to Generate with AI', async ({ page, clickButto
 	const output = page.locator('#root');
 	await expect(output).toHaveScreenshot('notation-input-ai-image-attached.png', screenshotOpts);
 
-	let body: { text?: string; image?: string; cardTypes?: string[] } = {};
-	await page.route(`**/decks/${deckId}/generate-cards`, async (route) => {
-		body = route.request().postDataJSON();
-		await route.fulfill({ json: { song } });
-	});
+	const job = await mockGenerateCards(page, song);
+	job.finished = false;
 	await page.fill('#ai-text', 'transcribe the melody and the chords');
 	await page.getByLabel('Chord Memory').check();
 	await clickButton('Generate preview');
+	const status = page.getByTestId('generation-status');
+	await expect(status).toContainText('Generating… this usually takes about a minute');
+	await expect(output).toHaveScreenshot('notation-input-ai-generating.png', {
+		...screenshotOpts,
+		mask: [status.locator('span')],
+	});
+	job.finished = true;
 	await page.getByText('[Verse] Photo Song').first().waitFor();
+	await expect(status).toHaveCount(0);
 	await expect(output).toHaveScreenshot('notation-input-ai-sheet-review.png', screenshotOpts);
-	expect(body.cardTypes).toEqual(['Sheet Music', 'Chord Memory']);
-	expect(body.text).toBe('transcribe the melody and the chords');
-	expect(body.image).toMatch(/^data:image\/jpeg;base64,/);
+	expect(job.body.cardTypes).toEqual(['Sheet Music', 'Chord Memory']);
+	expect(job.body.text).toBe('transcribe the melody and the chords');
+	expect(job.body.image).toMatch(/^data:image\/jpeg;base64,/);
 
 	await page.getByLabel('Remove image').click();
 	await expect(page.getByAltText('Attached')).toHaveCount(0);

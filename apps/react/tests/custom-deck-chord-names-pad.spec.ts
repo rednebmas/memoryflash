@@ -7,6 +7,7 @@ import {
 	initDeterministicEnv,
 	createCourse,
 	createDeck,
+	mockGenerateCards,
 } from './helpers';
 
 const generatedSong = {
@@ -97,9 +98,7 @@ test('Answer a Chord Memory card with the chord-name pad, then generate cards wi
 	await page.goto(`/study/${deckId}/notation`);
 	await page.locator('button:has-text("Sheet Music")').click();
 	await page.getByRole('menuitem', { name: 'Generate with AI' }).click();
-	await page.route('**/generate-cards', (route) =>
-		route.fulfill({ json: { song: generatedSong } }),
-	);
+	await mockGenerateCards(page, generatedSong);
 	await page.fill('#ai-text', '[Verse]\nBm F# A E G D Em F#');
 	await clickButton('Generate preview');
 	await page.getByText('Pattern B').first().waitFor();

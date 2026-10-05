@@ -44,13 +44,18 @@ export async function getExistingChordCards(deckId: string): Promise<ExistingCho
 	});
 }
 
+export function validateGenerateInput(input: GenerateCardsInput) {
+	if (!input.text?.trim()) throw new Err('Describe the cards you want', 400);
+	if (input.image && !IMAGE_DATA_URL.test(input.image)) throw new Err('Invalid image', 400);
+}
+
 export async function generateSongCards(
 	input: GenerateCardsInput,
 	existing: ExistingChordCard[],
 	complete: JsonCompletion = openAiJsonCompletion,
+	onBuilding: () => void = () => {},
 ): Promise<GeneratedSong> {
-	if (!input.text?.trim()) throw new Err('Describe the cards you want', 400);
-	if (input.image && !IMAGE_DATA_URL.test(input.image)) throw new Err('Invalid image', 400);
+	validateGenerateInput(input);
 	const types = cardTypesOf(input);
 	const raw = await complete(
 		buildSystemPrompt(types),
@@ -58,6 +63,7 @@ export async function generateSongCards(
 		buildSongSchema(types),
 		input.image,
 	);
+	onBuilding();
 	return finalizeSong(JSON.parse(raw), { ...input, cardTypes: types });
 }
 

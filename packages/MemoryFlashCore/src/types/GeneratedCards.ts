@@ -54,3 +54,7 @@ export const wantsChords = (types: GeneratedCardType[]) => types.includes('Chord
 
 export const sheetTypes = (types: GeneratedCardType[]) =>
 	types.filter((t): t is GeneratedSheetType => t !== 'Chord Memory');
+
+export type GenerationStage = 'uploading' | 'generating' | 'building';
+
+export type GenerationJobStatus = { stage: GenerationStage; song?: GeneratedSong };

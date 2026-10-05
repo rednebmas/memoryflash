@@ -2,6 +2,7 @@ import { Action, combineReducers } from '@reduxjs/toolkit';
 import { attemptsReducer } from './slices/attemptsSlice';
 import { authReducer } from './slices/authSlice';
 import { cardsReducer } from './slices/cardsSlice';
+import { generatedCardsReducer } from './slices/generatedCardsSlice';
 import { midiReducer } from './slices/midiSlice';
 import { networkReducer } from './slices/networkSlice';
 import { rhythmReducer } from './slices/rhythmSlice';
@@ -36,6 +37,7 @@ const reducer = combineReducers({
 	attempts: attemptsReducer,
 	auth: authReducer,
 	cards: cardsReducer,
+	generatedCards: generatedCardsReducer,
 	midi: midiReducer,
 	network: networkReducer,
 	rhythm: rhythmReducer,
