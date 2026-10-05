@@ -10,6 +10,7 @@ import { settingsReducer } from './slices/settingsSlice';
 import { userDeckStatsReducer } from './slices/userDeckStatsSlice';
 import { userStatsReducer } from './slices/userStatsSlice';
 import { AppThunk, ReduxState, SyncAppThunk } from './store';
+import { recordAttempt } from './actions/record-attempt-action';
 import { schedule } from './actions/schedule-cards-action';
 import { authActions as auth } from './slices/authSlice';
 import { cardsActions } from './slices/cardsSlice';
@@ -70,4 +71,24 @@ export const setupRhythmStore = (cards: object[], instrument: Instrument = 'pian
 	store.dispatch(schedule('d1'));
 	store.dispatch(rhythmActions.setGrid({ originMs: 0, beatMs: 500 }));
 	return store;
+};
+
+export const setupDeckStore = (stats: Partial<UserDeckStatsType> = {}) => {
+	const store = makeTestStore();
+	store.dispatch(auth.setUser({ _id: 'u' } as never));
+	store.dispatch(
+		cardsActions.upsert(['a', 'b', 'c', 'd', 'e', 'f'].map((id) => makeCard(id)) as never),
+	);
+	store.dispatch(userDeckStatsActions.upsert([{ _id: 's', deckId: 'd1', ...stats } as never]));
+	store.dispatch(schedulerActions.setParsingDeck('d1'));
+	store.dispatch(schedule('d1'));
+	return store;
+};
+
+export type TestStore = ReturnType<typeof makeTestStore>;
+
+export const playCard = async (store: TestStore, misses = 0) => {
+	for (let i = 0; i < misses; i++) await store.dispatch(recordAttempt(false));
+	await store.dispatch(recordAttempt(true));
+	return store.getState().scheduler.currCard;
 };

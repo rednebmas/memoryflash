@@ -7,9 +7,7 @@ import { settingsActions } from '../slices/settingsSlice';
 import { authActions } from '../slices/authSlice';
 import { recordAttempt } from './record-attempt-action';
 import { schedule } from './schedule-cards-action';
-import { makeTestStore } from '../testStore';
-import { userDeckStatsActions } from '../slices/userDeckStatsSlice';
-import { UserDeckStatsType } from '../../types/UserDeckStats';
+import { makeTestStore, playCard, setupDeckStore, TestStore } from '../testStore';
 
 describe('recordAttempt with the recall scheduler', () => {
 	it('re-asks a known card after 2, then 5+, then as many other cards as an 8 card deck allows', async () => {
@@ -37,39 +35,19 @@ describe('recordAttempt with the recall scheduler', () => {
 	});
 });
 
-const setup = (stats: Partial<UserDeckStatsType> = {}) => {
-	const store = makeTestStore();
-	store.dispatch(authActions.setUser({ _id: 'u' } as never));
-	store.dispatch(
-		cardsActions.upsert(['a', 'b', 'c', 'd', 'e', 'f'].map((id) => makeCard(id)) as never),
-	);
-	store.dispatch(userDeckStatsActions.upsert([{ _id: 's', deckId: 'd1', ...stats } as never]));
-	store.dispatch(schedulerActions.setParsingDeck('d1'));
-	store.dispatch(schedule('d1'));
-	return store;
-};
-
-type Store = ReturnType<typeof setup>;
-
-const playCard = async (store: Store, misses = 0) => {
-	for (let i = 0; i < misses; i++) await store.dispatch(recordAttempt(false));
-	await store.dispatch(recordAttempt(true));
-	return store.getState().scheduler.currCard;
-};
-
-const postedCorrect = (store: Store) =>
+const postedCorrect = (store: TestStore) =>
 	store.posted.map((attempt) => (attempt as { correct: boolean }).correct);
 
 describe('recordAttempt after a miss', () => {
 	it('moves on right away from a card played right the first time', async () => {
-		const store = setup();
+		const store = setupDeckStore();
 		const card = store.getState().scheduler.currCard;
 		expect(await playCard(store)).to.not.equal(card);
 		expect(postedCorrect(store)).to.deep.equal([true]);
 	});
 
 	it('retries a wrong chord in place instead of restarting the card', async () => {
-		const store = setup();
+		const store = setupDeckStore();
 		const { currCard, batchId } = store.getState().scheduler;
 		store.dispatch(schedulerActions.incrementMultiPartCardIndex());
 		await store.dispatch(recordAttempt(false));
@@ -80,7 +58,7 @@ describe('recordAttempt after a miss', () => {
 	});
 
 	it('keeps a missed card up until it is played right once, then never brings it back', async () => {
-		const store = setup();
+		const store = setupDeckStore();
 		const missed = store.getState().scheduler.currCard;
 		expect(await playCard(store, 1)).to.equal(missed);
 		expect(store.getState().scheduler.multiPartCardIndex).to.equal(0);
@@ -91,7 +69,7 @@ describe('recordAttempt after a miss', () => {
 	});
 
 	it('needs the deck setting count of right plays in a row, and a miss resets the streak', async () => {
-		const store = setup({ missRepeats: 2 });
+		const store = setupDeckStore({ missRepeats: 2 });
 		const missed = store.getState().scheduler.currCard;
 		expect(await playCard(store, 1)).to.equal(missed);
 		expect(await playCard(store)).to.equal(missed);
@@ -103,7 +81,7 @@ describe('recordAttempt after a miss', () => {
 	});
 
 	it('does not re-queue a missed card with the recall scheduler', async () => {
-		const store = setup({ scheduler: 'recall' });
+		const store = setupDeckStore({ scheduler: 'recall' });
 		const missed = store.getState().scheduler.currCard;
 		await playCard(store, 1);
 		expect(await playCard(store)).to.not.equal(missed);

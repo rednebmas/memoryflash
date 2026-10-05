@@ -8,6 +8,7 @@ import { IS_TEST_ENV } from '../utils/constants';
 import { FlashCardOptionsMenu } from './FlashCardOptionsMenu';
 import { MultiSheetCardQuestion } from './FlashCards/MultiSheetCardQuestion';
 import { Pill } from './ui/Pill';
+import { RetryStatus } from './RetryStatus';
 
 type Placement = 'cur' | 'scheduled' | 'answered' | 'list';
 
@@ -83,6 +84,7 @@ const FlashCardStatus: React.FC<QuestionRender> = ({ card, placement }) => (
 			<span className="caption">{card.attempts[0].timeTaken.toFixed(1)}s</span>
 		)}
 		<FlashCardIcons card={card} placement={placement} />
+		{placement === 'cur' && <RetryStatus />}
 	</>
 );
 
