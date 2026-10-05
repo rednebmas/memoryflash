@@ -1,5 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { GeneratedCard, GeneratedSong } from '../../types/GeneratedCards';
+import {
+	GeneratedChordCard,
+	GeneratedSong,
+	isGeneratedCardValid,
+} from '../../types/GeneratedCards';
+import { invalidChordNames } from '../../lib/chordTones';
 
 export interface GeneratedCardsState {
 	song: GeneratedSong | null;
@@ -14,17 +19,19 @@ const generatedCardsSlice = createSlice({
 	reducers: {
 		setSong(state, action: PayloadAction<GeneratedSong>) {
 			state.song = action.payload;
-			state.selected = action.payload.cards.map((c) => c.invalidChords.length === 0);
+			state.selected = action.payload.cards.map(isGeneratedCardValid);
 		},
 		toggleCard(state, action: PayloadAction<number>) {
 			state.selected[action.payload] = !state.selected[action.payload];
 		},
 		updateCard(
 			state,
-			action: PayloadAction<{ index: number; changes: Partial<GeneratedCard> }>,
+			action: PayloadAction<{ index: number; changes: Partial<GeneratedChordCard> }>,
 		) {
 			const card = state.song?.cards[action.payload.index];
-			if (card) Object.assign(card, action.payload.changes);
+			if (card?.type !== 'Chord Memory') return;
+			Object.assign(card, action.payload.changes);
+			card.invalidChords = invalidChordNames(card.chords);
 		},
 		removeCard(state, action: PayloadAction<number>) {
 			state.song?.cards.splice(action.payload, 1);

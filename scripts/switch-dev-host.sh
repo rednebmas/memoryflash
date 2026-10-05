@@ -34,7 +34,7 @@ PORT=3000
 MONGO_URI=mongodb://localhost:27017/memoryflash
 SESSION_SECRET_KEY=${HOST}_secret
 OPENAI_API_KEY=$OPENAI_API_KEY
-OPENAI_MODEL=gpt-5.6-sol
+OPENAI_MODEL=gpt-6.1-sol
 EOF2
 
 echo "APP_URL set to http://$HOST:5173 in apps/server/.env"

@@ -1,4 +1,9 @@
 import { ChordNotation } from './Cards';
+import { MultiSheetQuestion } from './MultiSheetCard';
+
+export const GENERATED_CARD_TYPES = ['Sheet Music', 'Text Prompt', 'Chord Memory'] as const;
+export type GeneratedCardType = (typeof GENERATED_CARD_TYPES)[number];
+export type GeneratedSheetType = Exclude<GeneratedCardType, 'Chord Memory'>;
 
 export type GeneratedPattern = {
 	id: string;
@@ -6,7 +11,8 @@ export type GeneratedPattern = {
 	sections: string[];
 };
 
-export type GeneratedCard = {
+export type GeneratedChordCard = {
+	type: 'Chord Memory';
 	prompt: string;
 	chords: string[];
 	key: string;
@@ -14,6 +20,15 @@ export type GeneratedCard = {
 	patternId: string;
 	invalidChords: string[];
 };
+
+export type GeneratedSheetCard = {
+	type: GeneratedSheetType;
+	prompt: string;
+	question: MultiSheetQuestion;
+	problems: string[];
+};
+
+export type GeneratedCard = GeneratedChordCard | GeneratedSheetCard;
 
 export type GeneratedSong = {
 	title: string;
@@ -26,7 +41,16 @@ export type GeneratedSong = {
 export type GenerateCardsInput = {
 	text: string;
 	instructions: string;
+	cardTypes: GeneratedCardType[];
 	splitLongSections: boolean;
 	romanVariants: boolean;
 	image?: string;
 };
+
+export const isGeneratedCardValid = (card: GeneratedCard) =>
+	(card.type === 'Chord Memory' ? card.invalidChords : card.problems).length === 0;
+
+export const wantsChords = (types: GeneratedCardType[]) => types.includes('Chord Memory');
+
+export const sheetTypes = (types: GeneratedCardType[]) =>
+	types.filter((t): t is GeneratedSheetType => t !== 'Chord Memory');

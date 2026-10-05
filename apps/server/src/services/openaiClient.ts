@@ -1,12 +1,13 @@
 import OpenAI from 'openai';
 import { Err } from '../middleware/errorHandler';
+import { JsonSchema } from './jsonSchema';
 
-export const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-5.6-sol';
+export const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-6.1-sol';
 
 export type JsonCompletion = (
 	system: string,
 	user: string,
-	schema: Record<string, unknown>,
+	schema: JsonSchema,
 	image?: string,
 ) => Promise<string>;
 
@@ -23,6 +24,7 @@ export const openAiJsonCompletion: JsonCompletion = async (system, user, schema,
 	const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 	const response = await client.responses.create({
 		model: OPENAI_MODEL,
+		reasoning: { effort: 'low' },
 		input: [
 			{ role: 'system', content: system },
 			{ role: 'user', content: buildUserContent(user, image) },

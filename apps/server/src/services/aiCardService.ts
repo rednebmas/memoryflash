@@ -1,19 +1,34 @@
-import { z } from 'zod';
 import { Card } from '../models/Card';
 import { AnswerType, ChordMemoryAnswer } from 'MemoryFlashCore/src/types/Cards';
 import {
+	GENERATED_CARD_TYPES,
 	GenerateCardsInput,
-	GeneratedCard,
+	GeneratedCardType,
+	GeneratedChordCard,
+	GeneratedSheetCard,
 	GeneratedSong,
+	sheetTypes,
+	wantsChords,
 } from 'MemoryFlashCore/src/types/GeneratedCards';
+import { presentationModeFor } from 'MemoryFlashCore/src/lib/presentationMode';
+import { segmentQuestion } from 'MemoryFlashCore/src/lib/recording/bars';
 import { invalidChordNames } from 'MemoryFlashCore/src/lib/chordTones';
 import { Err } from '../middleware/errorHandler';
 import { JsonCompletion, openAiJsonCompletion } from './openaiClient';
-import { SONG_CARDS_SCHEMA, buildSystemPrompt, buildUserPrompt, zAiSong } from './aiCardPrompt';
+import {
+	AiSong,
+	buildSongSchema,
+	buildSystemPrompt,
+	buildUserPrompt,
+	partPrompt,
+	zAiSong,
+} from './aiCardPrompt';
+import { AiPassage, barProblems, passageToQuestion } from './aiSheetCards';
 
 export type ExistingChordCard = { prompt: string; chords: string[]; key?: string };
 
 const MAX_CHORDS_PER_CARD = 8;
+const MAX_BARS_PER_CARD = 4;
 const IMAGE_DATA_URL = /^data:image\/(png|jpeg|webp|gif);base64,/;
 
 export async function getExistingChordCards(deckId: string): Promise<ExistingChordCard[]> {
@@ -34,15 +49,21 @@ export async function generateSongCards(
 	existing: ExistingChordCard[],
 	complete: JsonCompletion = openAiJsonCompletion,
 ): Promise<GeneratedSong> {
+	if (!input.text?.trim()) throw new Err('Describe the cards you want', 400);
 	if (input.image && !IMAGE_DATA_URL.test(input.image)) throw new Err('Invalid image', 400);
+	const types = cardTypesOf(input);
 	const raw = await complete(
-		buildSystemPrompt(),
+		buildSystemPrompt(types),
 		buildUserPrompt(input, existing),
-		SONG_CARDS_SCHEMA,
+		buildSongSchema(types),
 		input.image,
 	);
-	const ai = zAiSong.parse(JSON.parse(raw));
-	return finalizeSong(ai, input);
+	return finalizeSong(JSON.parse(raw), { ...input, cardTypes: types });
+}
+
+function cardTypesOf(input: GenerateCardsInput): GeneratedCardType[] {
+	const types = GENERATED_CARD_TYPES.filter((t) => input.cardTypes?.includes(t));
+	return types.length ? types : ['Chord Memory'];
 }
 
 export function normalizeKey(key: string): string {
@@ -65,17 +86,11 @@ export function romanVariantPrompt(prompt: string): string {
 		: `${prompt} · roman numerals`;
 }
 
-const partPrompt = (prompt: string, i: number, total: number): string =>
-	total === 1 ? prompt : prompt.replace(/^\[(.+?)\]/, `[$1 · Part ${i + 1}]`);
-
-export function finalizeSong(
-	ai: z.infer<typeof zAiSong>,
-	input: GenerateCardsInput,
-): GeneratedSong {
-	const key = normalizeKey(ai.key);
-	const cards: GeneratedCard[] = ai.cards.flatMap((card) => {
+function chordCards(ai: AiSong, input: GenerateCardsInput, key: string): GeneratedChordCard[] {
+	const cards = (ai.cards ?? []).flatMap((card) => {
 		const parts = input.splitLongSections ? splitChords(card.chords) : [card.chords];
 		return parts.map((chords, i) => ({
+			type: 'Chord Memory' as const,
 			prompt: partPrompt(card.prompt, i, parts.length),
 			chords,
 			key: card.key ? normalizeKey(card.key) : key,
@@ -93,11 +108,40 @@ export function finalizeSong(
 					prompt: romanVariantPrompt(c.prompt),
 				}))
 		: [];
+	return [...cards, ...variants];
+}
+
+function passageParts(passage: AiPassage, split: boolean) {
+	const question = passageToQuestion(passage);
+	const parts = split ? segmentQuestion(question, MAX_BARS_PER_CARD) : [question];
+	return parts.map((q, i) => ({
+		question: q,
+		prompt: partPrompt(passage.prompt, i, parts.length),
+		problems: barProblems(q),
+	}));
+}
+
+function sheetCards(ai: AiSong, input: GenerateCardsInput): GeneratedSheetCard[] {
+	const parts = (ai.passages ?? []).flatMap((p) => passageParts(p, input.splitLongSections));
+	return sheetTypes(input.cardTypes).flatMap((type) =>
+		parts.map(({ question, prompt, problems }) => ({
+			type,
+			prompt,
+			question: { ...question, presentationModes: [presentationModeFor(type, prompt)] },
+			problems,
+		})),
+	);
+}
+
+export function finalizeSong(raw: AiSong, input: GenerateCardsInput): GeneratedSong {
+	const ai = zAiSong.parse(raw);
+	const key = normalizeKey(ai.key);
+	const chords = wantsChords(input.cardTypes) ? chordCards(ai, input, key) : [];
 	return {
 		title: ai.title,
 		artist: ai.artist,
 		key,
 		patterns: ai.patterns,
-		cards: [...cards, ...variants],
+		cards: [...sheetCards(ai, input), ...chords],
 	};
 }

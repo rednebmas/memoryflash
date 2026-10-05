@@ -52,10 +52,15 @@ export const insertBar = (bars: Bar[], index: number, beatsPerBar: number) => [
 	...bars.slice(index),
 ];
 
+export const withBeatsPerBar = (
+	question: MultiSheetQuestion,
+	beatsPerBar: number,
+): MultiSheetQuestion =>
+	beatsPerBar === DEFAULT_BEATS_PER_BAR ? question : { ...question, beatsPerBar };
+
 export function barsToQuestion(bars: Bar[], key: string, beatsPerBar: number): MultiSheetQuestion {
 	const stack = normalizeTies(bars.flatMap((bar) => (bar.length ? bar : restBar(beatsPerBar))));
-	const question: MultiSheetQuestion = { key, voices: [{ staff: StaffEnum.Treble, stack }] };
-	return beatsPerBar === DEFAULT_BEATS_PER_BAR ? question : { ...question, beatsPerBar };
+	return withBeatsPerBar({ key, voices: [{ staff: StaffEnum.Treble, stack }] }, beatsPerBar);
 }
 
 const hasNotes = (question: MultiSheetQuestion) =>

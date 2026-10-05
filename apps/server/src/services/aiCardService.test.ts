@@ -6,11 +6,17 @@ import {
 	romanVariantPrompt,
 	splitChords,
 } from './aiCardService';
-import { GenerateCardsInput } from 'MemoryFlashCore/src/types/GeneratedCards';
+import {
+	GenerateCardsInput,
+	GeneratedChordCard,
+	GeneratedSheetCard,
+} from 'MemoryFlashCore/src/types/GeneratedCards';
+import { aiPassage, twoBars } from './aiSheetCards.test';
 
 const input: GenerateCardsInput = {
 	text: 'x',
 	instructions: '',
+	cardTypes: ['Chord Memory'],
 	splitLongSections: true,
 	romanVariants: true,
 };
@@ -65,10 +71,12 @@ describe('aiCardService', () => {
 			'[Verse · Part 2 · roman numerals] Hotel California',
 			'[Bridge · roman numerals] Hotel California',
 		]);
-		expect(song.cards[0].chords).to.deep.equal(['Bm', 'F#', 'A', 'E', 'G']);
-		expect(song.cards[2].key).to.equal('Bm');
-		expect(song.cards[2].invalidChords).to.deep.equal(['Xyz']);
-		expect(song.cards[3].notation).to.equal('romanNumerals');
+		const cards = song.cards as GeneratedChordCard[];
+		expect(cards[0].type).to.equal('Chord Memory');
+		expect(cards[0].chords).to.deep.equal(['Bm', 'F#', 'A', 'E', 'G']);
+		expect(cards[2].key).to.equal('Bm');
+		expect(cards[2].invalidChords).to.deep.equal(['Xyz']);
+		expect(cards[3].notation).to.equal('romanNumerals');
 	});
 
 	it('keeps whole sections when splitting is off', () => {
@@ -78,7 +86,7 @@ describe('aiCardService', () => {
 			romanVariants: false,
 		});
 		expect(song.cards).to.have.length(2);
-		expect(song.cards[0].chords).to.have.length(10);
+		expect((song.cards[0] as GeneratedChordCard).chords).to.have.length(10);
 	});
 
 	it('parses the completion and passes existing cards as context', async () => {
@@ -118,5 +126,77 @@ describe('aiCardService', () => {
 			complete,
 		).catch((e) => e);
 		expect(err).to.have.property('httpStatus', 400);
+	});
+
+	it('creates sheet music and chord cards from one submission', () => {
+		const song = finalizeSong(
+			{ ...aiSong, passages: [aiPassage(twoBars)] },
+			{ ...input, cardTypes: ['Sheet Music', 'Chord Memory'], romanVariants: false },
+		);
+		expect(song.cards.map((c) => c.type)).to.deep.equal([
+			'Sheet Music',
+			'Chord Memory',
+			'Chord Memory',
+			'Chord Memory',
+		]);
+		const sheet = song.cards[0] as GeneratedSheetCard;
+		expect(sheet.prompt).to.equal('[Melody] Twinkle');
+		expect(sheet.question.presentationModes).to.deep.equal([{ id: 'Sheet Music' }]);
+	});
+
+	it('splits long passages into four-bar parts for each selected notation type', () => {
+		const sixBars = Array(6).fill(twoBars.slice(0, 2)).flat();
+		const song = finalizeSong(
+			{ ...aiSong, cards: [], passages: [aiPassage(sixBars)] },
+			{ ...input, cardTypes: ['Sheet Music', 'Text Prompt'] },
+		);
+		const cards = song.cards as GeneratedSheetCard[];
+		expect(cards.map((c) => `${c.type}: ${c.prompt}`)).to.deep.equal([
+			'Sheet Music: [Melody · Part 1] Twinkle',
+			'Sheet Music: [Melody · Part 2] Twinkle',
+			'Text Prompt: [Melody · Part 1] Twinkle',
+			'Text Prompt: [Melody · Part 2] Twinkle',
+		]);
+		expect(cards[2].question.presentationModes).to.deep.equal([
+			{ id: 'Text Prompt', text: '[Melody · Part 1] Twinkle' },
+		]);
+		expect(cards[0].question.voices[0].stack).to.have.length(8);
+	});
+
+	it('asks for notation only when a notation card type is selected', async () => {
+		let sent: { system: string; schema: { properties?: object } } = { system: '', schema: {} };
+		const complete = async (system: string, _u: string, schema: object) => {
+			sent = { system, schema };
+			return JSON.stringify({ ...aiSong, passages: [aiPassage(twoBars)] });
+		};
+		const song = await generateSongCards(
+			{ ...input, cardTypes: ['Sheet Music'] },
+			[],
+			complete,
+		);
+		expect(Object.keys(sent.schema.properties ?? {})).to.include('passages');
+		expect(Object.keys(sent.schema.properties ?? {})).not.to.include('cards');
+		expect(sent.system).to.contain('notation');
+		expect(song.cards.every((c) => c.type === 'Sheet Music')).to.equal(true);
+
+		await generateSongCards(input, [], complete);
+		expect(Object.keys(sent.schema.properties ?? {})).to.include('cards');
+		expect(Object.keys(sent.schema.properties ?? {})).not.to.include('passages');
+	});
+
+	it('never generates from a photo without text', async () => {
+		const complete = async () => JSON.stringify(aiSong);
+		const image = 'data:image/jpeg;base64,abc';
+		const err = await generateSongCards({ ...input, text: ' ', image }, [], complete).catch(
+			(e) => e,
+		);
+		expect(err).to.have.property('httpStatus', 400);
+	});
+
+	it('falls back to chord cards when no card type is sent', async () => {
+		const complete = async () => JSON.stringify(aiSong);
+		const legacy = { ...input, cardTypes: undefined } as never as GenerateCardsInput;
+		const song = await generateSongCards(legacy, [], complete);
+		expect(song.cards[0].type).to.equal('Chord Memory');
 	});
 });

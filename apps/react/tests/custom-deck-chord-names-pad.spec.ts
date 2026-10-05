@@ -23,6 +23,7 @@ const generatedSong = {
 	],
 	cards: [
 		{
+			type: 'Chord Memory',
 			prompt: '[Verse] Hotel California',
 			chords: ['Bm', 'F#', 'A', 'E', 'G', 'D', 'Em', 'F#'],
 			key: 'Bm',
@@ -31,6 +32,7 @@ const generatedSong = {
 			invalidChords: [],
 		},
 		{
+			type: 'Chord Memory',
 			prompt: '[Chorus · roman numerals] Hotel California',
 			chords: ['G', 'D', 'F#', 'Bm', 'G', 'D', 'Em', 'F#'],
 			key: 'Bm',

@@ -19,6 +19,26 @@ const song = {
 	patterns: [],
 	cards: [
 		{
+			type: 'Sheet Music',
+			prompt: '[Verse · Melody] Photo Song',
+			question: {
+				key: 'F',
+				beatsPerBar: 2,
+				voices: [
+					{
+						staff: 'Treble',
+						stack: ['C', 'D', 'C', 'D'].map((name) => ({
+							notes: [{ name, octave: 5 }],
+							duration: '8',
+						})),
+					},
+				],
+				presentationModes: [{ id: 'Sheet Music' }],
+			},
+			problems: [],
+		},
+		{
+			type: 'Chord Memory',
 			prompt: '[Verse] Photo Song',
 			chords: ['C', 'Am', 'F', 'G'],
 			key: 'C',
@@ -44,15 +64,18 @@ test('Attach a sheet music photo to Generate with AI', async ({ page, clickButto
 	const output = page.locator('#root');
 	await expect(output).toHaveScreenshot('notation-input-ai-image-attached.png', screenshotOpts);
 
-	let body: { text?: string; image?: string } = {};
+	let body: { text?: string; image?: string; cardTypes?: string[] } = {};
 	await page.route(`**/decks/${deckId}/generate-cards`, async (route) => {
 		body = route.request().postDataJSON();
 		await route.fulfill({ json: { song } });
 	});
-	await page.fill('#ai-text', 'transcribe the chords');
+	await page.fill('#ai-text', 'transcribe the melody and the chords');
+	await page.getByLabel('Chord Memory').check();
 	await clickButton('Generate preview');
 	await page.getByText('[Verse] Photo Song').first().waitFor();
-	expect(body.text).toBe('transcribe the chords');
+	await expect(output).toHaveScreenshot('notation-input-ai-sheet-review.png', screenshotOpts);
+	expect(body.cardTypes).toEqual(['Sheet Music', 'Chord Memory']);
+	expect(body.text).toBe('transcribe the melody and the chords');
 	expect(body.image).toMatch(/^data:image\/jpeg;base64,/);
 
 	await page.getByLabel('Remove image').click();

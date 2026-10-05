@@ -4,7 +4,7 @@ import { TextAreaField, Checkbox } from '../inputs';
 import { SettingsSection } from './SettingsSection';
 import { ChordProgressionInput } from './ChordProgressionInput';
 import { AiGenerateInput } from './AiGenerateInput';
-import { NotationSettingsState } from './defaultSettings';
+import { NotationSettingsState, selectCardType } from './defaultSettings';
 
 interface CardTypeOptionsProps {
 	settings: NotationSettingsState;
@@ -17,7 +17,7 @@ export const CardTypeOptions: React.FC<CardTypeOptionsProps> = ({ settings, onCh
 			<div className="flex items-center gap-2">
 				<CardTypeDropdown
 					value={settings.cardType}
-					onChange={(cardType) => onChange({ cardType })}
+					onChange={(cardType) => onChange(selectCardType(settings, cardType))}
 				/>
 			</div>
 			{settings.cardType === 'Text Prompt' && (

@@ -46,6 +46,20 @@ export const defaultSettings: NotationSettingsState = {
 		key: '',
 		notation: 'chordNames',
 	},
-	ai: { text: '', instructions: '', splitLongSections: true, romanVariants: false },
+	ai: {
+		text: '',
+		instructions: '',
+		cardTypes: ['Sheet Music'],
+		splitLongSections: true,
+		romanVariants: false,
+	},
 	chordNames: [],
 };
+
+export const selectCardType = (
+	settings: NotationSettingsState,
+	cardType: CardType,
+): Partial<NotationSettingsState> =>
+	cardType === 'Generate with AI' && settings.cardType !== 'Generate with AI'
+		? { cardType, ai: { ...settings.ai, cardTypes: [settings.cardType] } }
+		: { cardType };
