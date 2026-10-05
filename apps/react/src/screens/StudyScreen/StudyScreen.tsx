@@ -14,7 +14,10 @@ import { SaxFingeringHint } from '../../components/sax/SaxFingeringHint';
 import { StudyInput } from './StudyInput';
 import { ChordMemoryDebugDialog } from '../../components/ChordMemoryDebugDialog';
 import { CardCarousel } from '../../components/CardCarousel';
-import { selectActivePresentationMode } from 'MemoryFlashCore/src/redux/selectors/activePresentationModeSelector';
+import {
+	selectActivePresentationMode,
+	selectStudyPresentationModePills,
+} from 'MemoryFlashCore/src/redux/selectors/activePresentationModeSelector';
 import { attemptsStatsSelector } from 'MemoryFlashCore/src/redux/selectors/attemptsStatsSelector';
 import { sessionCardsSelector } from 'MemoryFlashCore/src/redux/selectors/scheduledCardsSelector';
 import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
@@ -22,7 +25,7 @@ import { useDeckIdPath } from '../useDeckIdPath';
 import { Metronome } from './Metronome';
 import { RhythmDeadline } from '../../components/rhythm/RhythmDeadline';
 import { TimingStrip } from '../../components/rhythm/TimingStrip';
-import { QuestionPresentationModePills } from './QuestionPresentationModePills';
+import { PresentationModePills } from '../../components/PresentationModePills';
 import Timer from './Timer';
 import { IS_TEST_ENV } from '../../utils/constants';
 
@@ -91,7 +94,7 @@ export const StudyScreen = () => {
 			<TimingStrip />
 			<div>
 				<div className="flex justify-center items-center gap-3 flex-wrap">
-					<QuestionPresentationModePills card={cards[index]} />
+					<PresentationModePills selector={selectStudyPresentationModePills} />
 					<ChordInputModeToggle />
 					<InstrumentToggle />
 					<RestartCardPill />

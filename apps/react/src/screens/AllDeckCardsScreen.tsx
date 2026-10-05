@@ -3,8 +3,10 @@ import React, { useEffect } from 'react';
 import { FlashCard, Layout } from '../components';
 import { NetworkStateWrapper } from '../components/feedback/NetworkStateWrapper';
 import { CircleHover } from '../components/ui/CircleHover';
+import { PresentationModePills } from '../components/PresentationModePills';
 import { getDeck } from 'MemoryFlashCore/src/redux/actions/get-deck-action';
 import { getStatsDeck } from 'MemoryFlashCore/src/redux/actions/get-deck-stats-action';
+import { selectDeckPresentationModePills } from 'MemoryFlashCore/src/redux/selectors/activePresentationModeSelector';
 import { currDeckAllWithCorrectAttemptsSortedArray } from 'MemoryFlashCore/src/redux/selectors/currDeckCardsWithAttempts';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { useDeckIdPath } from './useDeckIdPath';
@@ -37,7 +39,10 @@ export const AllDeckCardsScreen: React.FunctionComponent<AllDeckCardsScreenProps
 		>
 			<NetworkStateWrapper networkKey={`getDeck${deckId}`} hasData={deck.length > 0}>
 				<div className="flex flex-col items-center">
-					<div className="mb-4">{deck.length} cards</div>
+					<div className="mb-4 flex flex-col items-center gap-3">
+						<div>{deck.length} cards</div>
+						<PresentationModePills selector={selectDeckPresentationModePills} />
+					</div>
 					{deck.map((card, i) => (
 						<FlashCard
 							key={card._id + i}

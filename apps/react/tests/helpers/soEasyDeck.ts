@@ -56,11 +56,24 @@ export const soEasyEvents = [
 	[52, 55, 58],
 ];
 
-export const seedSoEasyDeck = async (page: Page, course: string) => {
+const bbNames = ['Eb/F', 'Bbmaj7', 'Bdim7', 'Eb/F', 'F9', 'Bbmaj7', 'Bdim7'];
+
+const withNames = (card: typeof cCard, names: string[]) => {
+	const remaining = [...names];
+	const stack = card.voices[0].stack.map((s) =>
+		'fromPrevious' in (s.tie ?? {}) ? s : { ...s, chordName: remaining.shift() },
+	);
+	return { ...card, voices: [{ ...card.voices[0], stack }] };
+};
+
+export const seedSoEasyDeck = async (page: Page, course: string, named = false) => {
 	const courseId = await createCourse(page, course);
 	const deckId = await createDeck(page, courseId, 'So Easy');
+	const questions = named
+		? [withNames(cCard, samsNames), withNames(bbCard, bbNames)]
+		: [cCard, bbCard];
 	const res = await page.request.post(`${API_URL}/decks/${deckId}/cards`, {
-		data: { questions: [cCard, bbCard], groups: ['so-easy', 'so-easy'] },
+		data: { questions, groups: ['so-easy', 'so-easy'] },
 	});
 	const { cards } = await res.json();
 	return { deckId, cId: cards[0]._id as string };
