@@ -1,4 +1,5 @@
 import { majorKeys } from 'MemoryFlashCore/src/lib/notes';
+import { sameKey } from 'MemoryFlashCore/src/lib/transpositionGroups';
 import { writtenChordNames } from 'MemoryFlashCore/src/lib/chordNames';
 import { AnswerType, ChordMemoryAnswer } from 'MemoryFlashCore/src/types/Cards';
 import { MultiSheetCard } from 'MemoryFlashCore/src/types/MultiSheetCard';
@@ -30,7 +31,9 @@ export function settingsFromCard(
 		...prev,
 		keySig: question.key,
 		beatsPerBar: question.beatsPerBar ?? 4,
-		selected: majorKeys.map((key) => key === question.key || transpositionKeys.includes(key)),
+		selected: majorKeys.map((key) =>
+			[question.key, ...transpositionKeys].some((k) => sameKey(k, key)),
+		),
 		cardType: cardTypeOf(card),
 		textPrompt: text && 'text' in text ? text.text : '',
 		preview: !!text,

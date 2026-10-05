@@ -2,6 +2,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import { TranspositionSelector } from '../TranspositionSelector';
 import { majorKeys } from 'MemoryFlashCore/src/lib/notes';
+import { onePerPitch, sameKey } from 'MemoryFlashCore/src/lib/transpositionGroups';
 import { NotationSettingsState } from './defaultSettings';
 import { SheetMusicSettings } from './SheetMusicSettings';
 import { SettingsSection } from './SettingsSection';
@@ -10,7 +11,8 @@ import { CardTypeOptions } from './CardTypeOptions';
 import { ChordNamesSettings } from './ChordNamesSettings';
 
 const transpositionsHint = (selected: boolean[]) => {
-	const count = selected.filter(Boolean).length;
+	const keys = majorKeys.filter((_, i) => selected[i]);
+	const count = onePerPitch(keys, (k) => k).length;
 	return count > 1 ? `${count} keys selected` : 'None selected — click to choose keys';
 };
 
@@ -23,8 +25,7 @@ export const NotationSettings: React.FC<NotationSettingsProps> = ({ settings, on
 	const update = (changes: Partial<NotationSettingsState>) => {
 		let next: NotationSettingsState = { ...settings, ...changes };
 		if (changes.keySig) {
-			const idx = majorKeys.indexOf(changes.keySig);
-			next.selected = next.selected.map((_, i) => i === idx);
+			next.selected = majorKeys.map((k) => sameKey(k, changes.keySig));
 		}
 		onChange(next);
 	};

@@ -12,6 +12,7 @@ import {
 	groupKeys,
 	groupMembers,
 	linkAcrossKeys,
+	onePerPitch,
 	planGroupSave,
 	transpositionClusters,
 	transpositionInterval,
@@ -74,9 +75,10 @@ describe('planGroupSave', () => {
 	});
 
 	it('adds a ticked new key once and hides an unticked one', () => {
-		const keys = [...keysOf(deck).filter((k) => k !== 'G'), 'Db'];
-		const plan = planGroupSave(deck, [], eb, previewsFrom(named('Eb'), keys));
-		expect(keysOf(plan.add.map((question) => ({ question })))).to.deep.equal(['Db']);
+		const withoutD = deck.filter((c) => c._id !== 'D');
+		const keys = [...keysOf(withoutD).filter((k) => k !== 'G'), 'D'];
+		const plan = planGroupSave(withoutD, [], eb, previewsFrom(named('Eb'), keys));
+		expect(keysOf(plan.add.map((question) => ({ question })))).to.deep.equal(['D']);
 		expect(plan.hide).to.deep.equal(['G']);
 		expect(plan.updates.map((u) => u.id)).not.to.include('G');
 	});
@@ -100,6 +102,25 @@ describe('planGroupSave', () => {
 		const edited = { ...named('Eb'), key: 'Eb' };
 		const plan = planGroupSave([eb], [], eb, [edited]);
 		expect(plan.updates).to.deep.equal([{ id: 'Eb', question: edited }]);
+	});
+});
+
+describe('enharmonic keys', () => {
+	const deck = soEasyDeck('g1');
+	const cSharp = deck.find((c) => c._id === 'C#')!;
+
+	it('keeps one key per pitch, preferring the given spellings', () => {
+		const keys = ['C', 'F#', 'C#', 'Db', 'Gb'];
+		expect(onePerPitch(keys, (k) => k)).to.deep.equal(['C', 'F#', 'C#']);
+		expect(onePerPitch(keys, (k) => k, ['Db'])).to.deep.equal(['C', 'F#', 'Db']);
+	});
+
+	it('treats a Db preview as the group’s C# card instead of adding a card', () => {
+		const keys = [...keysOf(deck).filter((k) => k !== 'C#'), 'Db'];
+		const plan = planGroupSave(deck, [], deck[10], previewsFrom(named('Eb'), keys));
+		expect(plan.add).to.deep.equal([]);
+		expect(plan.hide).to.deep.equal([]);
+		expect(plan.updates.find((u) => u.id === cSharp._id)?.question.key).to.equal('Db');
 	});
 });
 

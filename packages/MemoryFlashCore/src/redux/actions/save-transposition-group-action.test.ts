@@ -41,16 +41,17 @@ const run = async (cards: SheetCard[], cardId: string, keys: string[]) => {
 describe('saveTranspositionGroup', () => {
 	const allKeys = soEasyDeck().map((c) => c.question.key);
 
-	it('editing the Eb copy updates the group, adds Db once and hides G', async () => {
-		const keys = [...allKeys.filter((k) => k !== 'G'), 'Db'];
-		const calls = await run(soEasyDeck('g1'), 'Eb', keys);
+	it('editing the Eb copy updates the group, adds D once and hides G', async () => {
+		const keys = allKeys.filter((k) => k !== 'G');
+		const withoutD = soEasyDeck('g1').filter((c) => c._id !== 'D');
+		const calls = await run(withoutD, 'Eb', keys);
 		const patched = calls.filter((c) => c.url.startsWith('/cards/'));
 		expect(patched.map((c) => c.url.split('/')[2]).sort()).to.deep.equal(
-			allKeys.filter((k) => k !== 'G').sort(),
+			allKeys.filter((k) => k !== 'G' && k !== 'D').sort(),
 		);
 		expect(patched.every((c) => c.body.transpositionGroup === 'g1')).to.equal(true);
 		const added = calls.find((c) => c.method === 'POST')!.body;
-		expect(added.questions!.map((q) => q.key)).to.deep.equal(['Db']);
+		expect(added.questions!.map((q) => q.key)).to.deep.equal(['D']);
 		expect(added.groups).to.deep.equal(['g1']);
 		const hidden = calls.find((c) => c.url.endsWith('/hidden-cards'))!.body;
 		expect(hidden.hiddenCardIds).to.deep.equal(['G']);

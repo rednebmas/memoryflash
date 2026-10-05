@@ -47,6 +47,21 @@ type Clusterable = { deckId: string; question: MultiSheetQuestion };
 
 export const newGroupId = () => ObjectId().toHexString();
 
+const pitch = (key: string) => Note.chroma(key) ?? NaN;
+
+export const sameKey = (a: string, b?: string) => !!b && pitch(a) === pitch(b);
+
+export function onePerPitch<T>(items: T[], keyOf: (t: T) => string, prefer: string[] = []): T[] {
+	const rank = (t: T) => (prefer.includes(keyOf(t)) ? 0 : 1);
+	const chosen = new Map<number, T>();
+	[...items]
+		.sort((a, b) => rank(a) - rank(b))
+		.forEach((t) => {
+			if (!chosen.has(pitch(keyOf(t)))) chosen.set(pitch(keyOf(t)), t);
+		});
+	return items.filter((t) => chosen.get(pitch(keyOf(t))) === t);
+}
+
 export function transpositionClusters<C extends Clusterable>(cards: C[]): C[][] {
 	const byDeck = new Map<string, C[][]>();
 	cards.forEach((card) => {
@@ -97,11 +112,11 @@ const cardPerKey = (
 ) => {
 	const hidden = (c: SheetCard) => Number(hiddenIds.has(c._id));
 	const others = members.filter((c) => c._id !== source._id);
-	const byKey = new Map<string, SheetCard>([[sourceKey, source]]);
+	const byKey = new Map<number, SheetCard>([[pitch(sourceKey), source]]);
 	others
 		.sort((a, b) => hidden(a) - hidden(b))
 		.forEach((c) => {
-			if (!byKey.has(c.question.key)) byKey.set(c.question.key, c);
+			if (!byKey.has(pitch(c.question.key))) byKey.set(pitch(c.question.key), c);
 		});
 	return byKey;
 };
@@ -117,14 +132,15 @@ export function planGroupSave(
 	const byKey = cardPerKey(members, hidden, source, sourceKey);
 	const kept = (c: SheetCard) =>
 		c._id === source._id ||
-		(byKey.get(c.question.key) === c && previews.some((q) => q.key === c.question.key));
+		(byKey.get(pitch(c.question.key)) === c &&
+			previews.some((q) => sameKey(q.key, c.question.key)));
 	const ids = (cards: SheetCard[]) => cards.map((c) => c._id);
 	return {
 		updates: previews.flatMap((q) => {
-			const card = byKey.get(q.key);
+			const card = byKey.get(pitch(q.key));
 			return card ? [{ id: card._id, question: q }] : [];
 		}),
-		add: previews.filter((q) => !byKey.has(q.key)),
+		add: previews.filter((q) => !byKey.has(pitch(q.key))),
 		hide: ids(members.filter((c) => !kept(c) && !hidden.has(c._id))),
 		unhide: ids(members.filter((c) => kept(c) && hidden.has(c._id))),
 	};

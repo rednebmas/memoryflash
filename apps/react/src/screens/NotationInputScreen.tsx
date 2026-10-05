@@ -9,6 +9,7 @@ import { addCardsToDeck } from 'MemoryFlashCore/src/redux/actions/add-cards-to-d
 import { saveTranspositionGroup } from 'MemoryFlashCore/src/redux/actions/save-transposition-group-action';
 import { withChordNames } from 'MemoryFlashCore/src/lib/chordNames';
 import { settingsFromCard } from '../components/notation/settingsFromCard';
+import { onePerPitch } from 'MemoryFlashCore/src/lib/transpositionGroups';
 import { selectTranspositionGroupKeys } from 'MemoryFlashCore/src/redux/selectors/transpositionGroupSelector';
 import { setPresentationMode } from 'MemoryFlashCore/src/redux/actions/set-presentation-mode';
 import { generatedCardsActions } from 'MemoryFlashCore/src/redux/slices/generatedCardsSlice';
@@ -64,7 +65,11 @@ export const NotationInputScreen = ({ card }: { card?: EditableCard }) => {
 	}, [card]);
 	const named = withChordNames(question, settings.chordNames);
 	const previewsAll = questionsForAllMajorKeys(named, settings.lowest, settings.highest);
-	const previews = previewsAll.filter((_, i) => settings.selected[i]);
+	const previews = onePerPitch(
+		previewsAll.filter((_, i) => settings.selected[i]),
+		(q) => q.key,
+		[question.key, ...groupKeys],
+	);
 	const handleScoreChange = useCallback((q: MultiSheetQuestion, full: boolean) => {
 		setQuestion(q);
 		setComplete(full);

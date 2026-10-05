@@ -1,5 +1,6 @@
 import React from 'react';
 import { majorKeys } from 'MemoryFlashCore/src/lib/notes';
+import { sameKey } from 'MemoryFlashCore/src/lib/transpositionGroups';
 import { Checkbox } from './inputs';
 
 interface TranspositionSelectorProps {
@@ -13,15 +14,14 @@ export const TranspositionSelector: React.FC<TranspositionSelectorProps> = ({
 	onChange,
 	currentKeySig,
 }) => {
-	const toggle = (i: number) => {
-		const next = [...selected];
-		next[i] = !next[i];
-		onChange(next);
-	};
+	const toggle = (i: number) =>
+		onChange(
+			selected.map((on, j) => (sameKey(majorKeys[j], majorKeys[i]) ? !selected[i] : on)),
+		);
 
 	const selectAll = () => onChange(selected.map(() => true));
 
-	const selectNone = () => onChange(majorKeys.map((k) => k === currentKeySig));
+	const selectNone = () => onChange(majorKeys.map((k) => sameKey(k, currentKeySig)));
 
 	return (
 		<div className="flex flex-col gap-2 pb-4 items-start">
@@ -35,7 +35,7 @@ export const TranspositionSelector: React.FC<TranspositionSelectorProps> = ({
 			</div>
 			<div className="grid grid-cols-6 gap-2">
 				{majorKeys.map((k, i) => {
-					const isCurrentKeySig = k === currentKeySig;
+					const isCurrentKeySig = sameKey(k, currentKeySig);
 					return (
 						<label
 							key={k}
