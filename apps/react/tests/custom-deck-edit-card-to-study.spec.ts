@@ -7,6 +7,7 @@ import {
 	runRecorderEvents,
 	createCourse,
 	createDeck,
+	clickAndAwaitNetworkCall,
 } from './helpers';
 
 const events = [[72], [71], [67], [64]];
@@ -19,8 +20,7 @@ test('Edited sheet music card still renders in list and study', async ({ page, c
 	const courseId = await createCourse(page, 'Edit Course');
 	const deckId = await createDeck(page, courseId, 'Edit Deck');
 	await runRecorderEvents(page, `/study/${deckId}/notation`, events, undefined);
-	await clickButton('Add Card');
-	await expect(page.getByText('Card added')).toBeVisible();
+	await clickAndAwaitNetworkCall(page, 'addCardsToDeck', () => clickButton('Add Card'));
 
 	await page.goto(`/study/${deckId}/list`);
 	await page.getByRole('button', { name: 'Card options' }).click();

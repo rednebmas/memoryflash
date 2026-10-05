@@ -8,6 +8,7 @@ import {
 	runRecorderEvents,
 	createCourse,
 	createDeck,
+	clickAndAwaitNetworkCall,
 } from './helpers';
 
 const ebEvents = [[63], [67], [70], [75]];
@@ -34,8 +35,7 @@ test('Editing a card with transpositions keeps the card in its own key', async (
 	const keySelect = page.locator('label', { hasText: 'Key' }).locator('select');
 	await keySelect.selectOption('Eb');
 	await runRecorderEvents(page, undefined, ebEvents);
-	await clickButton('Add Card');
-	await expect(page.getByText('Card added')).toBeVisible();
+	await clickAndAwaitNetworkCall(page, 'addCardsToDeck', () => clickButton('Add Card'));
 
 	await openEditor(page, deckId);
 	await expect(keySelect).toHaveValue('Eb');

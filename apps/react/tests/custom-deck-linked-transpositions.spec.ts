@@ -7,6 +7,7 @@ import {
 	seedTestData,
 	initDeterministicEnv,
 	runRecorderEvents,
+	clickAndAwaitNetworkCall,
 } from './helpers';
 import { screenshotOpts } from './helpers/screenshotOptions';
 import { seedSoEasyDeck } from './helpers/soEasyDeck';
@@ -50,9 +51,7 @@ const save = async (page: Page, clickButton: (name: string) => Promise<void>) =>
 			calls.push({ method: r.method(), url: r.url(), body: r.postDataJSON() });
 	};
 	page.on('request', record);
-	await clickButton('Update Card');
-	await expect(page.getByText('Card updated')).toBeVisible();
-	await page.waitForLoadState('networkidle');
+	await clickAndAwaitNetworkCall(page, 'updateCard', () => clickButton('Update Card'));
 	page.off('request', record);
 	return calls;
 };

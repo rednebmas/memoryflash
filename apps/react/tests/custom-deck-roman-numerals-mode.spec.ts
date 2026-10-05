@@ -6,6 +6,7 @@ import {
 	initDeterministicEnv,
 	runRecorderEvents,
 	setStaticScroll,
+	clickAndAwaitNetworkCall,
 } from './helpers';
 import { screenshotOpts } from './helpers/screenshotOptions';
 import { samsNames, seedSoEasyDeck, soEasyEvents } from './helpers/soEasyDeck';
@@ -44,8 +45,7 @@ test('Sheet music card studied in Roman Numerals mode with corrected chord names
 		if (r.method() === 'PATCH' && r.url().includes('/cards/'))
 			patches.set(r.url().split('/').pop()!, r.postDataJSON());
 	});
-	await clickButton('Update Card');
-	await expect(page.getByText('Card updated')).toBeVisible();
+	await clickAndAwaitNetworkCall(page, 'updateCard', () => clickButton('Update Card'));
 	expect(patches.size).toBe(2);
 	const bbPatch = [...patches.entries()].find(([id]) => id !== cId)![1];
 	const bbNames = bbPatch.question.voices[0].stack.map((s) => s.chordName ?? '-');

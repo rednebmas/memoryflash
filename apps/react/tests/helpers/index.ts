@@ -5,3 +5,4 @@ export { stubMathRandom, initDeterministicEnv } from './determinism';
 export { seedTestData, createCourse, createDeck } from './data';
 export { uiLogin } from './auth';
 export { runRecorderEvents } from './runRecorderEvents';
+export { clickAndAwaitNetworkCall } from './network';
