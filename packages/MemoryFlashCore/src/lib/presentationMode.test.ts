@@ -3,6 +3,7 @@ import { AnswerType, Card, CardTypeEnum } from '../types/Cards';
 import { MultiSheetQuestion } from '../types/MultiSheetCard';
 import { PresentationMode } from '../types/PresentationMode';
 import { chord, sheetQuestion, soEasyC } from './testData/soEasyToFallInLove';
+import { withChordNames } from './chordNames';
 import {
 	activePresentationMode,
 	availablePresentationModes,
@@ -20,6 +21,7 @@ const card = (presentationModes: PresentationMode[], question: MultiSheetQuestio
 
 const ids = (c: Card) => availablePresentationModes(c).map((m) => m.id);
 const melody = sheetQuestion([chord(['C4'], 'w')]);
+const named = withChordNames(soEasyC, ['F/G', 'Cmaj7', 'C#dim7', 'F/G', 'G9']);
 const roman = { [CardTypeEnum.MultiSheet]: 'Roman Numerals' as const };
 
 describe('availablePresentationModes', () => {
@@ -28,6 +30,21 @@ describe('availablePresentationModes', () => {
 		expect(
 			ids(card([{ id: 'Sheet Music' }, { id: 'Sheet Music w/ Chords' }, { id: 'Chords' }])),
 		).to.deep.equal(['Sheet Music', 'Sheet Music w/ Chords', 'Chords', 'Roman Numerals']);
+	});
+
+	it('offers the chord name modes when the card has chord names', () => {
+		expect(ids(card([{ id: 'Sheet Music' }], named))).to.deep.equal([
+			'Sheet Music',
+			'Sheet Music w/ Chords',
+			'Chords',
+			'Roman Numerals',
+		]);
+	});
+
+	it('does not repeat chord name modes the card already stores', () => {
+		expect(
+			ids(card([{ id: 'Sheet Music w/ Chords' }, { id: 'Sheet Music' }], named)),
+		).to.deep.equal(['Sheet Music w/ Chords', 'Sheet Music', 'Chords', 'Roman Numerals']);
 	});
 
 	it('does not offer it without chords, on text prompts, or twice', () => {
