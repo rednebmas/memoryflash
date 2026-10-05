@@ -59,3 +59,10 @@ jobs:
                   # Deploy within the apps/server directory
                   gcloud app deploy --project "memory-flash-436000" app.yaml
                   curl https://mflash-api.riker.tech
+
+                  # Keep the newest 20 non-serving versions (App Engine caps at 210)
+                  gcloud app versions list --project "memory-flash-436000" --service default \
+                    --filter='traffic_split=0' --sort-by='~last_deployed_time' --format='value(id)' \
+                    | tail -n +21 \
+                    | xargs -r gcloud app versions delete --project "memory-flash-436000" --service default --quiet \
+                    || echo "::warning::Pruning old App Engine versions failed"
