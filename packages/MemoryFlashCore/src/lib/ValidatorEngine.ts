@@ -1,4 +1,5 @@
-import { activeNotesAt, arraysEqual, ScoreTimeline } from './scoreTimeline';
+import { activeNotesAt, arraysEqual, buildScoreTimeline, ScoreTimeline } from './scoreTimeline';
+import { MultiSheetQuestion } from '../types/MultiSheetCard';
 import { midiActions } from '../redux/slices/midiSlice';
 import { schedulerActions } from '../redux/slices/schedulerSlice';
 import { recordAttempt } from '../redux/actions/record-attempt-action';
@@ -115,3 +116,8 @@ export class ValidatorEngine {
 		}
 	}
 }
+
+const pitchClass: ProjectFn = (midi) => midi % 12;
+
+export const multiSheetEngine = (question: MultiSheetQuestion, anyOctave: boolean) =>
+	new ValidatorEngine(buildScoreTimeline(question), anyOctave ? pitchClass : undefined);

@@ -1,6 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { chromaMatch, noteWindows } from '../../lib/rhythm/coverage';
 import { ReduxState } from '../store';
+import { selectGradesAnyOctave } from './activePresentationModeSelector';
 import {
 	currentSheetCardSelector,
 	instrumentSelector,
@@ -17,8 +18,9 @@ export const saxRhythmActiveSelector = createSelector(
 	(active, instrument) => active && instrument === 'sax',
 );
 
-export const saxPitchMatchSelector = createSelector([saxAnyOctaveSelector], (anyOctave) =>
-	anyOctave ? chromaMatch : undefined,
+export const saxPitchMatchSelector = createSelector(
+	[saxAnyOctaveSelector, selectGradesAnyOctave],
+	(saxAnyOctave, modeAnyOctave) => (saxAnyOctave || modeAnyOctave ? chromaMatch : undefined),
 );
 
 export const saxNoteWindowsSelector = createSelector(

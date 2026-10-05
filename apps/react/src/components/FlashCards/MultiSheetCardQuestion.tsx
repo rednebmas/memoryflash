@@ -9,7 +9,10 @@ import {
 	PresentationModeStartCard,
 	PresentationModeText,
 } from 'MemoryFlashCore/src/types/PresentationMode';
-import { activePresentationMode as activeModeOf } from 'MemoryFlashCore/src/lib/presentationMode';
+import {
+	activePresentationMode as activeModeOf,
+	showsStaff,
+} from 'MemoryFlashCore/src/lib/presentationMode';
 import { romanNumeralPrompt } from 'MemoryFlashCore/src/lib/chordNames';
 import { AnswerType, ChordMemoryAnswer } from 'MemoryFlashCore/src/types/Cards';
 
@@ -37,7 +40,7 @@ export const MultiSheetCardQuestion: React.FC<QuestionRender> = ({ card, placeme
 		placement === 'answered' ? total : placement === 'cur' ? multiPartCardIndex : 0;
 	const time = placement === 'list' ? undefined : card.attempts[0]?.timeTaken;
 
-	if (activePresentationModeId.startsWith('Sheet Music')) {
+	if (showsStaff(activePresentationModeId)) {
 		return (
 			<span>
 				<MusicNotation

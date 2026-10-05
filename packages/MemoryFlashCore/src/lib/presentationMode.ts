@@ -17,9 +17,10 @@ const chordModeIds = (q: MultiSheetQuestion): PresentationModeIdCard['id'][] => 
 	...(progressionChordNames(q).length ? (['Roman Numerals'] as const) : []),
 ];
 
+export const showsStaff = (id: PresentationModeIds) => id.startsWith('Sheet Music');
+
 const derivedModes = (card: Card, modes: PresentationMode[]): PresentationMode[] => {
-	if (!('voices' in card.question) || !modes.some((m) => m.id.startsWith('Sheet Music')))
-		return [];
+	if (!('voices' in card.question) || !modes.some((m) => showsStaff(m.id))) return [];
 	return chordModeIds(card.question)
 		.filter((id) => !modes.some((m) => m.id === id))
 		.map((id) => ({ id }));
@@ -51,3 +52,6 @@ export const rendersAsText = (
 	const id = activePresentationMode(card, preferred)?.id;
 	return id === 'Text Prompt' || id === 'Roman Numerals';
 };
+
+export const gradesAnyOctave = (id: PresentationModeIds | null): boolean =>
+	id !== null && !showsStaff(id);

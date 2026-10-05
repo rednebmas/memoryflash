@@ -2,7 +2,11 @@ import { createSelector } from '@reduxjs/toolkit';
 import { ReduxState } from '../store';
 import { sessionCardsSelector } from './scheduledCardsSelector';
 import { currDeckAllWithAttemptsSelector } from './currDeckCardsWithAttempts';
-import { activePresentationMode, availablePresentationModes } from '../../lib/presentationMode';
+import {
+	activePresentationMode,
+	availablePresentationModes,
+	gradesAnyOctave,
+} from '../../lib/presentationMode';
 import { Card } from '../../types/Cards';
 import { PresentationModeIds } from '../../types/PresentationMode';
 
@@ -57,3 +61,6 @@ export const selectActivePresentationMode = createSelector(
 	[getPresentationModesByQuestionType, selectCurrentCard],
 	(preferred, card) => (card && activePresentationMode(card, preferred)?.id) ?? null,
 );
+
+export const selectGradesAnyOctave = (state: ReduxState) =>
+	gradesAnyOctave(selectActivePresentationMode(state));

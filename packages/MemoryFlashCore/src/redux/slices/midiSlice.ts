@@ -46,7 +46,7 @@ const midiSlice = createSlice({
 				const note = action.payload;
 				const existingNote = state.notes.find((n) => n.number === note.number);
 				if (!existingNote) {
-					// UnExactMultiAnswerValidator depends on this sorting
+					// ValidatorEngine depends on this sorting
 					state.notes = [...state.notes, note].sort((a, b) => a.number - b.number);
 				}
 
