@@ -147,6 +147,7 @@ export const NotationInputScreen = ({ card }: { card?: EditableCard }) => {
 					<div className="flex flex-col justify-center items-center min-h-[400px] space-y-6">
 						<NotationPreviewList
 							keySig={settings.keySig}
+							chordNames={settings.chordNames}
 							previews={previews}
 							cardType={settings.cardType}
 							textPrompt={settings.textPrompt}

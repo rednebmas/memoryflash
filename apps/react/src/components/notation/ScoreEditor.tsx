@@ -17,6 +17,7 @@ import { MultiSheetQuestion } from 'MemoryFlashCore/src/types/MultiSheetCard';
 import { Staff, Score } from 'MemoryFlashCore/src/lib/score';
 import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { midiToSheetNote } from 'MemoryFlashCore/src/lib/noteNames';
+import { ChordNames, withChordNames } from 'MemoryFlashCore/src/lib/chordNames';
 
 type ScoreChangeHandler = (q: MultiSheetQuestion, full: boolean) => void;
 
@@ -256,11 +257,11 @@ export const ScoreEditorProvider: React.FC<ProviderProps> = ({
 	return <ScoreEditorContext.Provider value={value}>{children}</ScoreEditorContext.Provider>;
 };
 
-export const ScoreEditor: React.FC = () => {
+export const ScoreEditor: React.FC<{ chordNames?: ChordNames }> = ({ chordNames = [] }) => {
 	const { question } = useScoreEditor();
 	return (
 		<div className="flex w-full flex-col items-center gap-4">
-			<MusicNotation data={question} />
+			<MusicNotation data={withChordNames(question, chordNames)} />
 		</div>
 	);
 };

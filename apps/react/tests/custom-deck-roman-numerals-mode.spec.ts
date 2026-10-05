@@ -31,6 +31,7 @@ test('Sheet music card studied in Roman Numerals mode with corrected chord names
 	await expect(
 		page.getByText('Roman numerals: IV/V – Imaj7 – ♯i°7 – IV/V – V9 – Imaj7 – ♯i°7'),
 	).toBeVisible();
+	await expect(page.locator('.card-container').first().getByText('G9')).toBeVisible();
 	await setStaticScroll(page);
 	await expect(page.locator('#root')).toHaveScreenshot(
 		'roman-numerals-editor.png',
