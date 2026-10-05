@@ -13,7 +13,7 @@ const restartPill = (page: Page) => page.getByText('Restart card', { exact: true
 const partIndex = (page: Page) =>
 	page.evaluate(() => (window as any).store.getState().scheduler.multiPartCardIndex);
 
-test('a missed card can be restarted from its first chord', async ({ page }) => {
+test('a restarted card drops the X but keeps its Missed marker', async ({ page }) => {
 	await initDeterministicEnv(page);
 	const seed = await seedTestData(page);
 	await uiLogin(page, 't@example.com', 'Testing123!');
@@ -29,6 +29,9 @@ test('a missed card can be restarted from its first chord', async ({ page }) => 
 
 	await restartPill(page).click();
 	expect(await partIndex(page)).toBe(0);
+	await expect(page.getByText('Missed', { exact: true })).toBeVisible();
+	await expect(restartPill(page)).toHaveCount(0);
+	await expect(page.locator('#root')).toHaveScreenshot('restart-card-missed.png', screenshotOpts);
 	await playCurrentCard(page);
 	await expect(page.getByText('Missed · play it right 1 more time')).toBeVisible();
 	await expect(restartPill(page)).toHaveCount(0);

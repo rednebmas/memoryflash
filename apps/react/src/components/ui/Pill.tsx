@@ -3,7 +3,7 @@ import React from 'react';
 
 interface PillProps {
 	text: string;
-	theme: 'gray' | 'green';
+	theme: 'gray' | 'green' | 'amber';
 	onClick?: () => void;
 	ring?: boolean;
 }
@@ -12,6 +12,7 @@ export const Pill: React.FunctionComponent<PillProps> = ({ text, theme, onClick,
 	const colorClasses = {
 		gray: 'bg-gray-50 text-gray-600 ring-gray-500/10 dark:bg-dm-surface dark:text-dm-fg dark:ring-dm-border',
 		green: 'bg-green-50 text-green-700 ring-green-600/20 dark:bg-green-800/30 dark:text-green-400 dark:ring-green-500/30',
+		amber: 'bg-amber-50 text-amber-700 ring-amber-600/20 dark:bg-amber-800/30 dark:text-amber-400 dark:ring-amber-500/30',
 	};
 
 	return (

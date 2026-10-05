@@ -26,7 +26,7 @@ describe('restartCard', () => {
 		expect(scheduler.currCard).to.equal(card);
 		expect(scheduler.multiPartCardIndex).to.equal(0);
 		expect(scheduler.batchId).to.not.equal(batchId);
-		expect(canRestartCardSelector(store.getState())).to.equal(true);
+		expect(canRestartCardSelector(store.getState())).to.equal(false);
 		expect(await playCard(store)).to.equal(card);
 		expect(store.posted).to.have.length(1);
 		expect(store.posted[0]).to.include({ correct: false });

@@ -10,6 +10,7 @@ export interface SchedulerState {
 	answeredCards: string[];
 	currStartTime: number;
 	incorrect?: boolean;
+	wrongNote?: boolean;
 	retryStreak?: number;
 	multiPartCardIndex: number;
 	sessionReviews: CardReviews;
@@ -42,6 +43,7 @@ const restartCard = (state: SchedulerState) => {
 	state.batchId = new ObjectId().toHexString();
 	state.multiPartCardIndex = 0;
 	state.incorrect = undefined;
+	state.wrongNote = undefined;
 };
 
 const pickupNextCard = (state: SchedulerState) => {
@@ -96,6 +98,7 @@ const schedulerSlice = createSlice({
 		},
 		markCurrIncorrect(state) {
 			state.incorrect = true;
+			state.wrongNote = true;
 		},
 		insertCard(state, action: PayloadAction<{ cardId: string; gap: number }>) {
 			insertApart(state.nextCards, action.payload.cardId, action.payload.gap);

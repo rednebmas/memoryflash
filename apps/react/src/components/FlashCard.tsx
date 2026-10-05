@@ -10,6 +10,10 @@ import { Pill } from './ui/Pill';
 import { RetryStatus } from './RetryStatus';
 import { AttemptTime } from './FlashCards/AttemptTime';
 import { rendersAsText } from 'MemoryFlashCore/src/lib/presentationMode';
+import {
+	missedSelector,
+	wrongNoteSelector,
+} from 'MemoryFlashCore/src/redux/selectors/retryStatusSelector';
 
 type Placement = 'cur' | 'scheduled' | 'answered' | 'list';
 
@@ -94,7 +98,8 @@ export const FlashCardIcons: React.FC<{ card: CardWithAttempts; placement: Place
 	card,
 	placement,
 }) => {
-	let incorrect = useAppSelector((state) => state.scheduler.incorrect);
+	const wrongNote = useAppSelector(wrongNoteSelector);
+	const missed = useAppSelector(missedSelector) && placement === 'cur';
 	let correct: boolean | undefined = undefined;
 	let showNew = false;
 	if (placement === 'cur' || placement === 'scheduled') {
@@ -103,16 +108,17 @@ export const FlashCardIcons: React.FC<{ card: CardWithAttempts; placement: Place
 		}
 	}
 
-	if (incorrect && placement === 'cur') {
+	if (wrongNote && placement === 'cur') {
 		correct = false;
 	} else if (placement === 'answered') {
 		correct = card.attempts[0]?.correct;
 	}
 
 	return (
-		<div className="w-full grid grid-cols-3 grid-rows-1 gap-0">
+		<div className="w-full grid grid-cols-[1fr_auto_1fr] grid-rows-1 gap-0">
 			<div className="col-start-2 flex justify-center items-center gap-2">
 				{showNew && <Pill text="New" theme="green" ring={false} />}
+				{missed && <Pill text="Missed" theme="amber" ring={false} />}
 				{correct && <CheckIcon className="w-5 h-5 stroke-green-500 stroke-2" />}
 				{correct == false && <XMarkIcon className="w-5 h-5 stroke-red-500 stroke-2" />}
 			</div>

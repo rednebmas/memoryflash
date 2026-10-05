@@ -5,6 +5,7 @@ import { User } from 'MemoryFlashCore/src/types/User';
 import { isCardOwner } from '../utils/useIsCardOwner';
 import useWindowResize from '../screens/StudyScreen/useWindowResize';
 import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
+import { wrongNoteSelector } from 'MemoryFlashCore/src/redux/selectors/retryStatusSelector';
 import { Confetti } from './feedback/Confetti';
 import { FadingCard } from './FadingCard';
 import { usePrefersReducedMotion } from '../utils/useMediaQuery';
@@ -33,7 +34,7 @@ export const CardCarousel: React.FC<CardCarouselProps> = ({
 	const cardRefs = useRef<HTMLDivElement[]>([]);
 	const cardContainerRef = useRef<HTMLDivElement | null>(null);
 	const [cardsTranslation, setCardsTranslation] = useState('');
-	const incorrect = useAppSelector((state) => state.scheduler.incorrect);
+	const incorrect = useAppSelector(wrongNoteSelector);
 	const [animationState, setAnimationState] = useState<'idle' | 'correct' | 'incorrect'>('idle');
 	const [showConfetti, setShowConfetti] = useState(false);
 	const prevIncorrectRef = useRef(incorrect);
