@@ -9,6 +9,9 @@ import { AddedNotesTracker, HandleArgs } from './addedNotes';
 
 export type ProjectFn = (midi: number) => number;
 
+const uniqueSorted = (notes: number[]) => Array.from(new Set(notes)).sort((a, b) => a - b);
+const sameNotes = (a: number[], b: number[]) => arraysEqual(uniqueSorted(a), uniqueSorted(b));
+
 /**
  * Once you've pressed all the notes at the current index, that note is good, you never need
  * to press it again.
@@ -84,7 +87,7 @@ export class ValidatorEngine {
 		expectedAdded,
 		added,
 	}: ReturnType<ValidatorEngine['projectBeat']>): boolean {
-		return arraysEqual(expectedOnBeat, onNotes) || arraysEqual(expectedAdded, added);
+		return sameNotes(expectedOnBeat, onNotes) || sameNotes(expectedAdded, added);
 	}
 
 	private hasWrongNotes(added: number[], expectedOnBeat: number[]): boolean {

@@ -3,7 +3,6 @@ import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store'
 import { Instrument, settingsActions } from 'MemoryFlashCore/src/redux/slices/settingsSlice';
 import { saveSetting } from 'MemoryFlashCore/src/redux/actions/save-setting-action';
 import {
-	currentNoteNameSelector,
 	currentSheetCardSelector,
 	instrumentSelector,
 } from 'MemoryFlashCore/src/redux/selectors/instrumentSelector';
@@ -19,11 +18,10 @@ export const InstrumentToggle: React.FC = () => {
 	const dispatch = useAppDispatch();
 	const instrument = useAppSelector(instrumentSelector);
 	const card = useAppSelector(currentSheetCardSelector);
-	const noteName = useAppSelector(currentNoteNameSelector);
 	if (!card) return null;
 	return (
 		<SegmentedPicker
-			options={noteName ? INSTRUMENTS : INSTRUMENTS.filter((i) => i.value !== 'names')}
+			options={INSTRUMENTS}
 			value={instrument}
 			onChange={(value) => dispatch(saveSetting(settingsActions.setInstrument(value)))}
 		/>

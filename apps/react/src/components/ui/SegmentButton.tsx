@@ -22,7 +22,7 @@ export const SegmentButton: React.FC<SegmentedButtonProps> = ({
 			className={clsx(
 				'cursor-pointer flex flex-1 justify-center items-center rounded-md font-medium',
 				variant === 'default' && 'p-2 text-base space-x-0.5',
-				variant === 'compact' && 'px-3 py-1 text-xs',
+				variant === 'compact' && 'px-3 py-1 text-xs whitespace-nowrap',
 				variant === 'default' && active && 'text-white bg-blue-600',
 				variant === 'default' && !active && 'text-black dark:text-white bg-transparent',
 				variant === 'compact' &&

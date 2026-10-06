@@ -2,6 +2,7 @@ import { createSelector } from '@reduxjs/toolkit';
 import { ReduxState } from '../store';
 import { sessionCardsSelector } from './scheduledCardsSelector';
 import { currDeckAllWithAttemptsSelector } from './currDeckCardsWithAttempts';
+import { instrumentSelector } from './instrumentSelector';
 import {
 	activePresentationMode,
 	availablePresentationModes,
@@ -63,4 +64,4 @@ export const selectActivePresentationMode = createSelector(
 );
 
 export const selectGradesAnyOctave = (state: ReduxState) =>
-	gradesAnyOctave(selectActivePresentationMode(state));
+	instrumentSelector(state) === 'names' || gradesAnyOctave(selectActivePresentationMode(state));

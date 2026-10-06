@@ -5,6 +5,21 @@ import { MultiSheetQuestion, SheetNote } from '../types/MultiSheetCard';
 export const NOTE_LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
 export const ACCIDENTALS = ['b', '#'] as const;
 export type Accidental = (typeof ACCIDENTALS)[number];
+export const PITCH_CLASS_NAMES = [
+	['C'],
+	['C♯', 'D♭'],
+	['D'],
+	['D♯', 'E♭'],
+	['E'],
+	['F'],
+	['F♯', 'G♭'],
+	['G'],
+	['G♯', 'A♭'],
+	['A'],
+	['A♯', 'B♭'],
+	['B'],
+];
+export const NOTE_NAME_PAD_ROOT = 60;
 
 export function singleNote(question: MultiSheetQuestion): SheetNote | undefined {
 	const notes = question.voices.flatMap((v) => v.stack.flatMap((s) => s.notes));

@@ -5,6 +5,7 @@ import { sessionCardsSelector } from './scheduledCardsSelector';
 import { DEFAULT_HOLD_MS } from '../../lib/saxPitch';
 import { DEFAULT_TONE_MS } from '../../lib/saxTone';
 import { singleNoteMidi, singleNoteName } from '../../lib/noteNames';
+import { showChordPadSelector } from './chordInputModeSelector';
 
 export const instrumentSelector = (state: ReduxState) => state.settings.instrument ?? 'piano';
 export const showSaxFingeringsSelector = (state: ReduxState) => !!state.settings.showSaxFingerings;
@@ -32,9 +33,16 @@ export const currentNoteNameSelector = createSelector([currentSheetCardSelector]
 	card ? singleNoteName(card.question) : undefined,
 );
 
-export const noteNamesModeSelector = createSelector(
-	[instrumentSelector, currentNoteNameSelector],
-	(instrument, name) => instrument === 'names' && !!name,
+export type StudyInput = 'chordPad' | 'sax' | 'noteName' | 'spelling' | 'keyboard';
+
+export const studyInputSelector = createSelector(
+	[showChordPadSelector, instrumentSelector, currentSheetCardSelector, currentNoteNameSelector],
+	(chordPad, instrument, card, noteName): StudyInput => {
+		if (chordPad) return 'chordPad';
+		if (!card || instrument === 'piano') return 'keyboard';
+		if (instrument === 'sax') return 'sax';
+		return noteName ? 'noteName' : 'spelling';
+	},
 );
 
 export const currentCardIsNaturalSelector = createSelector([currentSheetCardSelector], (card) =>
