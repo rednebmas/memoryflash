@@ -14,14 +14,7 @@ import {
 	showsStaff,
 } from 'MemoryFlashCore/src/lib/presentationMode';
 import { romanNumeralPrompt } from 'MemoryFlashCore/src/lib/chordNames';
-import { AnswerType, ChordMemoryAnswer } from 'MemoryFlashCore/src/types/Cards';
-
-const getTotal = (c: MultiSheetCard): number => {
-	if (c.answer.type === AnswerType.ChordMemory) {
-		return (c.answer as ChordMemoryAnswer).chords.length;
-	}
-	return c.question.voices[0].stack.length;
-};
+import { stepCount } from 'MemoryFlashCore/src/lib/rhythm/stepBeats';
 
 export const MultiSheetCardQuestion: React.FC<QuestionRender> = ({ card, placement }) => {
 	const c = card as MultiSheetCard;
@@ -35,7 +28,7 @@ export const MultiSheetCardQuestion: React.FC<QuestionRender> = ({ card, placeme
 	};
 	const activePresentationModeId = activePresentationMode.id;
 
-	const total = getTotal(c);
+	const total = stepCount(card);
 	const correctCount =
 		placement === 'answered' ? total : placement === 'cur' ? multiPartCardIndex : 0;
 	const time = placement === 'list' ? undefined : card.attempts[0]?.timeTaken;

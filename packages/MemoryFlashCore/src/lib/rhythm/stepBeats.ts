@@ -23,3 +23,8 @@ export function stepBeats(card: Card): (number | null)[] {
 }
 
 export const hasRhythm = (beats: (number | null)[]) => beats.some((b) => b !== null);
+
+export const stepCount = (card: Card) => stepBeats(card).length;
+
+export const sheetStepCount = (question?: MultiSheetQuestion) =>
+	question ? exactStepBeats(question).length : 0;

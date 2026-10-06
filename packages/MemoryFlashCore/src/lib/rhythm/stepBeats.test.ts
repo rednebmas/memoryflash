@@ -1,5 +1,6 @@
 import { expect } from 'chai';
-import { stepBeats } from './stepBeats';
+import { sheetStepCount, stepBeats, stepCount } from './stepBeats';
+import { soEasyC } from '../testData/soEasyToFallInLove';
 import { AnswerType, Card, CardTypeEnum, StaffEnum } from '../../types/Cards';
 import { StackedNotes } from '../../types/MultiSheetCard';
 
@@ -69,5 +70,16 @@ describe('stepBeats', () => {
 	it('disables rhythm when chord count does not match the sheet', () => {
 		const card = makeCard([[{ notes: [note('C')], duration: 'w' }]], chordMemory(2));
 		expect(stepBeats(card)).to.deep.equal([null, null]);
+	});
+
+	it('counts one progress step per played chord, not per tied stack entry', () => {
+		const card = makeCard([soEasyC.voices[0].stack], exact);
+		expect(stepCount(card)).to.equal(7);
+		expect(sheetStepCount(soEasyC)).to.equal(7);
+	});
+
+	it('counts chord memory steps by chord', () => {
+		const card = makeCard([[{ notes: [note('C')], duration: 'w' }]], chordMemory(2));
+		expect(stepCount(card)).to.equal(2);
 	});
 });

@@ -7,6 +7,7 @@ import { ChordNames } from 'MemoryFlashCore/src/lib/chordNames';
 import { splitByKey } from 'MemoryFlashCore/src/lib/multiKeyTransposer';
 import { CardType } from '../CardTypeDropdown';
 import { GeneratedCardsReview } from './GeneratedCardsReview';
+import { sheetStepCount } from 'MemoryFlashCore/src/lib/rhythm/stepBeats';
 
 interface PreviewCardProps {
 	notation: React.ReactNode;
@@ -66,7 +67,7 @@ export const NotationPreviewList: React.FC<NotationPreviewListProps> = ({
 		>
 			<PreviewCard
 				notation={<ScoreEditor chordNames={chordNames} />}
-				total={baseStackLength}
+				total={sheetStepCount(base)}
 				showText={showText}
 				text={prompt}
 			/>
@@ -74,7 +75,7 @@ export const NotationPreviewList: React.FC<NotationPreviewListProps> = ({
 				<PreviewCard
 					key={i}
 					notation={<MusicNotation data={p} />}
-					total={p.voices?.[0]?.stack?.length ?? 0}
+					total={sheetStepCount(p)}
 					showText={showText}
 					text={prompt}
 				/>
