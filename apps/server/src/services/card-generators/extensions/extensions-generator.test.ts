@@ -9,8 +9,10 @@ import {
 } from './extensions-generator';
 import { voiceAllRoots } from './extension-voicings';
 
-const voicings = (name: string) => {
-	const deck = extensionDecks.find((d) => d.name === name)!;
+const voicings = (name: string, degrees?: string) => {
+	const deck = extensionDecks.find(
+		(d) => d.name === name && (!degrees || d.degrees.join('-') === degrees),
+	)!;
 	return Object.fromEntries(
 		voiceAllRoots(deck).map(({ symbol, lh, rh }) => [symbol, `${lh} | ${rh.join(' ')}`]),
 	);
@@ -24,6 +26,26 @@ describe('extensions generator', () => {
 		expect(ninths['F#9']).to.equal('F#3 | E4 G#4 A#4');
 		expect(voicings('Minor 9th')['Cm9']).to.equal('C3 | Bb3 D4 Eb4');
 		expect(voicings('Major 9th')['Ebmaj9']).to.equal('Eb3 | D4 F4 G4');
+	});
+
+	it('voices Type A rootless as LH root, RH 3-5-7-9', () => {
+		expect(voicings('Dominant 9th', '3-5-7-9')['C9']).to.equal('C3 | E4 G4 Bb4 D5');
+		expect(voicings('Minor 9th', '3-5-7-9')['Dm9']).to.equal('D2 | F3 A3 C4 E4');
+		expect(voicings('Major 9th', '3-5-7-9')['Gmaj9']).to.equal('G2 | B3 D4 F#4 A4');
+	});
+
+	it('voices Type B rootless as LH root, RH 7-9-3-5', () => {
+		expect(voicings('Dominant 9th', '7-9-3-5')['G9']).to.equal('G2 | F3 A3 B3 D4');
+		expect(voicings('Minor 9th', '7-9-3-5')['Cm9']).to.equal('C3 | Bb3 D4 Eb4 G4');
+		expect(voicings('Major 9th', '7-9-3-5')['Fmaj9']).to.equal('F3 | E4 G4 A4 C5');
+	});
+
+	it('explains each rootless type in its section subtitle', () => {
+		const subtitles = generateExtensionDecks('course')
+			.map(([d]) => d.section + ': ' + d.sectionSubtitle)
+			.join('\n');
+		expect(subtitles).to.match(/Type A Rootless.*: .*3rd/);
+		expect(subtitles).to.match(/Type B Rootless.*: .*7th/);
 	});
 
 	it('voices sevenths as LH root, RH 3-5-7', () => {
@@ -70,8 +92,8 @@ describe('extensions generator', () => {
 			const courses = await Course.find({ name: 'Extensions' });
 			expect(courses).to.have.length(1);
 			expect(courses[0].userId).to.equal(undefined);
-			expect(courses[0].decks).to.have.length(7);
-			expect(await Card.countDocuments()).to.equal(84);
+			expect(courses[0].decks).to.have.length(13);
+			expect(await Card.countDocuments()).to.equal(156);
 		});
 	});
 });

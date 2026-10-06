@@ -6,22 +6,60 @@ import { splitHands } from '../create-two-handed-cards-from-progressions';
 import { findOrCreateSystemCourse, upsertCourse } from '../upsert-course';
 import { ExtensionVoicing, VoicedChord, voiceAllRoots } from './extension-voicings';
 
-type ExtensionDeck = ExtensionVoicing & { name: string; section: string; prompt: string };
+type ExtensionDeck = ExtensionVoicing & {
+	name: string;
+	section: string;
+	sectionSubtitle: string;
+	prompt: string;
+};
+type Voicing = Omit<ExtensionDeck, 'name' | 'suffix'>;
 
 const COURSE_NAME = 'Extensions';
-const SEVENTHS = 'Sevenths: LH Root, RH 3-5-7';
-const NINTHS = 'Ninths: LH Root, RH 7-9-3 (Type B Rootless)';
-const upper357 = { degrees: [3, 5, 7], rhFloor: 'G3', section: SEVENTHS, prompt: 'Root + 3-5-7' };
-const typeB793 = { degrees: [7, 9, 3], rhFloor: 'F3', section: NINTHS, prompt: 'Root + 7-9-3' };
+const voicing = (
+	degrees: number[],
+	rhFloor: string,
+	section: string,
+	sectionSubtitle = '',
+): Voicing => ({
+	degrees,
+	rhFloor,
+	section,
+	sectionSubtitle,
+	prompt: `Root + ${degrees.join('-')}`,
+});
+const upper357 = voicing([3, 5, 7], 'G3', 'Sevenths: LH Root, RH 3-5-7');
+const shell793 = voicing(
+	[7, 9, 3],
+	'F3',
+	'Ninths: LH Root, RH 7-9-3',
+	'A three-note Type B rootless voicing, without the 5th.',
+);
+const typeA = voicing(
+	[3, 5, 7, 9],
+	'F3',
+	'Ninths: LH Root, RH 3-5-7-9 (Type A Rootless)',
+	'Type A: the right hand stacks up from the 3rd and leaves the root to the left hand.',
+);
+const typeB = voicing(
+	[7, 9, 3, 5],
+	'F3',
+	'Ninths: LH Root, RH 7-9-3-5 (Type B Rootless)',
+	'Type B: the same four notes as Type A, stacked up from the 7th instead.',
+);
+const ninths = (v: Voicing): ExtensionDeck[] => [
+	{ name: 'Dominant 9th', suffix: '9', ...v },
+	{ name: 'Major 9th', suffix: 'maj9', ...v },
+	{ name: 'Minor 9th', suffix: 'm9', ...v },
+];
 
 export const extensionDecks: ExtensionDeck[] = [
 	{ name: 'Major 7th', suffix: 'maj7', ...upper357 },
 	{ name: 'Minor 7th', suffix: 'm7', ...upper357 },
 	{ name: 'Dominant 7th', suffix: '7', ...upper357 },
 	{ name: 'Diminished 7th', suffix: 'dim7', ...upper357 },
-	{ name: 'Dominant 9th', suffix: '9', ...typeB793 },
-	{ name: 'Major 9th', suffix: 'maj9', ...typeB793 },
-	{ name: 'Minor 9th', suffix: 'm9', ...typeB793 },
+	...ninths(shell793),
+	...ninths(typeA),
+	...ninths(typeB),
 ];
 
 const toSheetNote = (note: string): SheetNote => {
@@ -58,7 +96,7 @@ const toDeck = (courseId: string, d: ExtensionDeck): [IDeck, MultiSheetCard[]] =
 		courseId,
 		name: d.name,
 		section: d.section,
-		sectionSubtitle: '',
+		sectionSubtitle: d.sectionSubtitle,
 		tags: ['both hands'],
 	};
 	return [deck, voiceAllRoots(d).map((chord) => createExtensionCard(uid, d.prompt, chord))];
