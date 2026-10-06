@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { stepLadder, TempoLadder } from './tempoLadder';
+import { ladderProgress, stepLadder, TempoLadder } from './tempoLadder';
 
 const play = (results: boolean[], start = 80, ladder?: TempoLadder) =>
 	results.reduce<TempoLadder | undefined>(
@@ -37,5 +37,26 @@ describe('stepLadder', () => {
 		const risen = play(Array(8).fill(true));
 		const ladder = stepLadder(risen, 60, { bpm: 60, correct: true });
 		expect(ladder).to.deep.equal({ startBpm: 60, bpm: 60, recent: [true] });
+	});
+});
+
+describe('ladderProgress', () => {
+	const ladder = (bpm: number, recent: boolean[]): TempoLadder => ({ startBpm: 80, bpm, recent });
+
+	it('counts clean cards in the window toward the next tempo', () => {
+		expect(ladderProgress(ladder(80, [true, false, true, true]))).to.deep.equal({
+			nextBpm: 85,
+			clean: 3,
+			misses: 1,
+			canDrop: false,
+		});
+	});
+
+	it('warns about slowing down only above the start tempo', () => {
+		expect(ladderProgress(ladder(90, [false]))?.canDrop).to.equal(true);
+	});
+
+	it('has nothing to show at the maximum tempo', () => {
+		expect(ladderProgress(ladder(240, []))).to.equal(undefined);
 	});
 });

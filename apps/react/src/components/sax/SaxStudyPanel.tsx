@@ -1,5 +1,4 @@
 import React from 'react';
-import clsx from 'clsx';
 import { Midi } from 'tonal';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import { settingsActions } from 'MemoryFlashCore/src/redux/slices/settingsSlice';
@@ -10,6 +9,7 @@ import { Select } from '../inputs/Select';
 import { SaxOptions } from './SaxOptions';
 import { useReferenceTone } from './useReferenceTone';
 import { CircleHover } from '../ui/CircleHover';
+import { ProgressBar } from '../ui/ProgressBar';
 import { SpeakerWaveIcon } from '@heroicons/react/24/outline';
 import { useSaxMicInput } from './useSaxMicInput';
 import { useSaxRhythm } from './useSaxRhythm';
@@ -28,15 +28,6 @@ const ListeningStatus: React.FC<ListeningStatusProps> = (props) => {
 	if (props.error) return <p className="text-sm text-red-500">{props.error}</p>;
 	return <p className="text-sm text-muted whitespace-nowrap">🎷 {statusText(props)}</p>;
 };
-
-const HoldProgressBar: React.FC<{ progress: number }> = ({ progress }) => (
-	<div className="w-64 h-2 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
-		<div
-			className={clsx('h-full', progress >= 1 ? 'bg-green-500' : 'bg-blue-500')}
-			style={{ width: `${progress * 100}%` }}
-		/>
-	</div>
-);
 
 export const SaxStudyPanel: React.FC = () => {
 	const dispatch = useAppDispatch();
@@ -76,7 +67,7 @@ export const SaxStudyPanel: React.FC = () => {
 				) : (
 					<SaxHoldSetting />
 				)}
-				<HoldProgressBar progress={rhythmActive ? rhythm.coverage : progress} />
+				<ProgressBar progress={rhythmActive ? rhythm.coverage : progress} />
 			</div>
 			<SaxOptions />
 		</div>

@@ -3,7 +3,12 @@ import { rhythmActions } from '../slices/rhythmSlice';
 import { settingsActions } from '../slices/settingsSlice';
 import { userDeckStatsActions } from '../slices/userDeckStatsSlice';
 import { rhythmCard, setupRhythmStore } from '../testStore';
-import { deckTempoSelector, rhythmStatusSelector, timingStripSelector } from './rhythmSelectors';
+import {
+	deckTempoSelector,
+	rhythmStatusSelector,
+	tempoProgressSelector,
+	timingStripSelector,
+} from './rhythmSelectors';
 
 const setup = () => setupRhythmStore([rhythmCard('a')]);
 type Store = ReturnType<typeof setup>;
@@ -81,5 +86,48 @@ describe('timingStripSelector', () => {
 		const store = setup();
 		store.dispatch(rhythmActions.setGrid(undefined));
 		expect(timingStripSelector(store.getState())).to.equal(undefined);
+	});
+});
+
+describe('tempoProgressSelector', () => {
+	const setLadder = (store: Store, bpm: number, recent: boolean[]) =>
+		store.dispatch(
+			rhythmActions.setSessionLadder({
+				deckId: 'd1',
+				ladder: { startBpm: 120, bpm, recent },
+			}),
+		);
+
+	it('shows progress toward the next tempo in rhythm mode', () => {
+		const store = setup();
+		setLadder(store, 120, [true, true, false, true]);
+		expect(tempoProgressSelector(store.getState())).to.deep.equal({
+			label: '120 → 125 bpm · 3 of 7 cards in time (last 8)',
+			fraction: 3 / 7,
+		});
+	});
+
+	it('starts empty before any card is played', () => {
+		expect(tempoProgressSelector(setup().getState())).to.deep.equal({
+			label: '120 → 125 bpm · 0 of 7 cards in time (last 8)',
+			fraction: 0,
+		});
+	});
+
+	it('mentions misses that will slow the tempo back down', () => {
+		const store = setup();
+		setLadder(store, 130, [true, false, false]);
+		expect(tempoProgressSelector(store.getState())?.label).to.equal(
+			'130 → 135 bpm · 1 of 7 cards in time (last 8) · 2 of 4 misses before slowing down',
+		);
+	});
+
+	it('hides when timing is not graded or the metronome is off', () => {
+		const store = setup();
+		store.dispatch(settingsActions.setChordInputMode('names'));
+		expect(tempoProgressSelector(store.getState())).to.equal(undefined);
+		const off = setup();
+		off.dispatch(rhythmActions.setGrid(undefined));
+		expect(tempoProgressSelector(off.getState())).to.equal(undefined);
 	});
 });

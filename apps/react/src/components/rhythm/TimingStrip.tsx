@@ -5,6 +5,7 @@ import {
 	timingStripSelector,
 } from 'MemoryFlashCore/src/redux/selectors/rhythmSelectors';
 import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
+import { TempoProgress } from './TempoProgress';
 
 const TIER_COLORS: Record<TimingTier, string> = {
 	perfect: 'bg-green-500',
@@ -43,6 +44,7 @@ export const TimingStrip: React.FC = () => {
 					</div>
 				</>
 			)}
+			<TempoProgress />
 		</div>
 	);
 };

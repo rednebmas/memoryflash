@@ -3,7 +3,13 @@ import { DEFAULT_RHYTHM, TIERS_MS } from '../../lib/rhythm/types';
 import { stepVerdict, timingSummary } from '../../lib/rhythm/status';
 import { deadlineMs, expectedMs } from '../../lib/rhythm/grade';
 import { hasRhythm, stepBeats } from '../../lib/rhythm/stepBeats';
-import { resolveLadder } from '../../lib/rhythm/tempoLadder';
+import {
+	LADDER_CLEAN_TO_RISE,
+	LADDER_MISSES_TO_DROP,
+	LADDER_WINDOW,
+	ladderProgress,
+	resolveLadder,
+} from '../../lib/rhythm/tempoLadder';
 import { beatsPerBarOf, DEFAULT_BEATS_PER_BAR } from '../../lib/measure';
 import { CardTypeEnum } from '../../types/Cards';
 import { ReduxState } from '../store';
@@ -156,5 +162,22 @@ export const rhythmStatusSelector = createSelector(
 		if (!active) return `${prefix} · this card has no rhythm to grade`;
 		const last = steps[steps.length - 1];
 		return `${prefix} · ${last ? stepVerdict(last) : 'your first chord sets beat one'}`;
+	},
+);
+
+export const tempoProgressSelector = createSelector(
+	[rhythmModeSelector, (s: ReduxState) => s.rhythm.grid, deckLadderSelector],
+	(mode, grid, ladder) => {
+		const progress = mode && grid ? ladderProgress(ladder) : undefined;
+		if (!progress) return undefined;
+		const { nextBpm, clean, misses, canDrop } = progress;
+		const drop =
+			canDrop && misses > 0
+				? ` · ${misses} of ${LADDER_MISSES_TO_DROP} misses before slowing down`
+				: '';
+		return {
+			label: `${ladder.bpm} → ${nextBpm} bpm · ${clean} of ${LADDER_CLEAN_TO_RISE} cards in time (last ${LADDER_WINDOW})${drop}`,
+			fraction: clean / LADDER_CLEAN_TO_RISE,
+		};
 	},
 );

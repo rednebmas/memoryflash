@@ -16,6 +16,8 @@ const moveTo = (ladder: TempoLadder, bpm: number): TempoLadder => ({
 	recent: [],
 });
 
+const missCount = (recent: boolean[]) => recent.filter((clean) => !clean).length;
+
 export function stepLadder(
 	stored: TempoLadder | undefined,
 	startBpm: number,
@@ -24,12 +26,20 @@ export function stepLadder(
 	const ladder = resolveLadder(stored, startBpm);
 	if (attempt.bpm !== ladder.bpm) return ladder;
 	const recent = [...ladder.recent, attempt.correct].slice(-LADDER_WINDOW);
-	const misses = recent.filter((clean) => !clean).length;
+	const misses = missCount(recent);
 	if (misses >= LADDER_MISSES_TO_DROP) return moveTo(ladder, ladder.bpm - LADDER_STEP_BPM);
 	if (recent.length === LADDER_WINDOW && recent.length - misses >= LADDER_CLEAN_TO_RISE) {
 		return moveTo(ladder, ladder.bpm + LADDER_STEP_BPM);
 	}
 	return { ...ladder, recent };
+}
+
+export function ladderProgress(ladder: TempoLadder) {
+	const nextBpm = ladder.bpm + LADDER_STEP_BPM;
+	if (nextBpm > MAX_RHYTHM_BPM) return undefined;
+	const misses = missCount(ladder.recent);
+	const clean = ladder.recent.length - misses;
+	return { nextBpm, clean, misses, canDrop: ladder.bpm > ladder.startBpm };
 }
 
 export const LADDER_DESCRIPTION =
