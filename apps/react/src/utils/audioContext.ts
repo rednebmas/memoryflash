@@ -1,3 +1,5 @@
+import { diagnostics, errorMessage } from './diagnostics';
+
 const GESTURES = ['pointerdown', 'keydown', 'touchend'] as const;
 
 let context: AudioContext | undefined;
@@ -6,10 +8,26 @@ const playThroughSilentMode = () => {
 	if (navigator.audioSession?.type === 'auto') navigator.audioSession.type = 'playback';
 };
 
+const describe = (ctx: AudioContext) =>
+	`state=${ctx.state} currentTime=${ctx.currentTime.toFixed(2)} session=${navigator.audioSession?.type ?? 'n/a'}`;
+
+const createContext = () => {
+	const ctx = new AudioContext();
+	diagnostics.log(
+		'audio',
+		`created sampleRate=${ctx.sampleRate} channels=${ctx.destination.maxChannelCount} ${describe(ctx)}`,
+	);
+	ctx.addEventListener('statechange', () =>
+		diagnostics.log('audio', `statechange ${describe(ctx)}`),
+	);
+	diagnostics.snapshot('audio', () => describe(ctx));
+	return ctx;
+};
+
 export const getAudioContext = (): AudioContext => {
 	playThroughSilentMode();
-	context ??= new AudioContext();
-	context.resume();
+	context ??= createContext();
+	context.resume().catch((e) => diagnostics.log('audio', `resume failed ${errorMessage(e)}`));
 	return context;
 };
 

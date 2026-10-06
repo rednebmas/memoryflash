@@ -3,6 +3,7 @@ import { submitBugReport } from 'MemoryFlashCore/src/redux/actions/submit-bug-re
 import { useNetworkState } from 'MemoryFlashCore/src/redux/selectors/useNetworkState';
 import { useAppDispatch } from 'MemoryFlashCore/src/redux/store';
 import { getConsoleErrors } from '../../utils/consoleErrors';
+import { diagnostics } from '../../utils/diagnostics';
 import { useToast } from '../feedback/Toast';
 import { BaseTextArea } from '../inputs/BaseTextArea';
 import { Modal } from '../modals/Modal';
@@ -18,7 +19,7 @@ const reportContext = () => ({
 	userAgent: navigator.userAgent,
 	viewport: `${window.innerWidth}x${window.innerHeight}`,
 	appVersion: __APP_VERSION__,
-	consoleErrors: getConsoleErrors(),
+	consoleErrors: [...getConsoleErrors(), ...diagnostics.entries()],
 });
 
 export const BugReportModal: React.FC<BugReportModalProps> = ({ screenshot, onClose }) => {
