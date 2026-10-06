@@ -13,6 +13,7 @@ import {
 } from 'MemoryFlashCore/src/lib/rhythm/types';
 import { InlineSelect } from '../inputs/InlineSelect';
 import { CalibrateLatency } from './CalibrateLatency';
+import { MetronomeClicks } from './MetronomeClicks';
 
 const BPM_OPTIONS = RHYTHM_BPM_OPTIONS.map((bpm) => ({ value: bpm, label: `${bpm} bpm` }));
 
@@ -46,6 +47,7 @@ export const RhythmSettings: React.FC = () => {
 					Now at {tempo} bpm. {LADDER_DESCRIPTION}
 				</p>
 			</div>
+			<MetronomeClicks onChange={(clicks) => update({ clicks })} />
 			<p className="caption">
 				Start the metronome and play each chord on the beat. Your first chord sets beat one.
 			</p>

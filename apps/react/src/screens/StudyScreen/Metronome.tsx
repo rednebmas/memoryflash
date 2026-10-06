@@ -6,6 +6,7 @@ import { rhythmActions } from 'MemoryFlashCore/src/redux/slices/rhythmSlice';
 import {
 	currBeatsPerBarSelector,
 	deckTempoSelector,
+	metronomeClicksSelector,
 } from 'MemoryFlashCore/src/redux/selectors/rhythmSelectors';
 
 export const Metronome: React.FunctionComponent = () => {
@@ -13,6 +14,7 @@ export const Metronome: React.FunctionComponent = () => {
 	const playing = useAppSelector((state) => state.rhythm.metronomePlaying);
 	const bpm = useAppSelector(deckTempoSelector);
 	const beatsPerBar = useAppSelector(currBeatsPerBarSelector);
+	const clicks = useAppSelector(metronomeClicksSelector);
 	useEffect(() => () => void dispatch(rhythmActions.stopMetronome()), []);
 
 	return (
@@ -20,7 +22,7 @@ export const Metronome: React.FunctionComponent = () => {
 			onClick={() => dispatch(rhythmActions.toggleMetronome())}
 			title={playing ? undefined : 'Start the metronome to grade your timing'}
 		>
-			{playing && <MetronomeSound bpm={bpm} beatsPerBar={beatsPerBar} />}
+			{playing && <MetronomeSound bpm={bpm} beatsPerBar={beatsPerBar} clicks={clicks} />}
 			<div
 				className="h-7 w-7 rounded-full flex items-center justify-center bg-blue-500  hover:ring ring-blue-400 ring-2 transition"
 				role="button"

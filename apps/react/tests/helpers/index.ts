@@ -6,3 +6,4 @@ export { seedTestData, createCourse, createDeck } from './data';
 export { uiLogin } from './auth';
 export { runRecorderEvents } from './runRecorderEvents';
 export { clickAndAwaitNetworkCall, mockGenerateCards } from './network';
+export { openDeckSettings } from './deckSettings';

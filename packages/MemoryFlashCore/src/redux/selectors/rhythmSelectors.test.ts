@@ -5,6 +5,8 @@ import { userDeckStatsActions } from '../slices/userDeckStatsSlice';
 import { rhythmCard, setupRhythmStore } from '../testStore';
 import {
 	deckTempoSelector,
+	metronomeClickRowsSelector,
+	metronomeClicksSelector,
 	rhythmStatusSelector,
 	tempoProgressSelector,
 	timingStripSelector,
@@ -129,5 +131,44 @@ describe('tempoProgressSelector', () => {
 		const off = setup();
 		off.dispatch(rhythmActions.setGrid(undefined));
 		expect(tempoProgressSelector(off.getState())).to.equal(undefined);
+	});
+});
+
+describe('metronomeClickRowsSelector', () => {
+	const setClicks = (store: Store, clicks: number[]) =>
+		store.dispatch(
+			userDeckStatsActions.upsert([
+				{
+					_id: 's',
+					deckId: 'd1',
+					rhythm: { bpm: 120, strictness: 'normal', clicks },
+				} as never,
+			]),
+		);
+
+	it('offers a toggle per beat and offbeat with downbeats on by default', () => {
+		const store = setup();
+		expect(metronomeClickRowsSelector(store.getState()).map((r) => r.on)).to.deep.equal([
+			true,
+			false,
+			true,
+			false,
+			true,
+			false,
+			true,
+			false,
+		]);
+		expect(metronomeClicksSelector(store.getState())).to.deep.equal([0, 2, 4, 6]);
+	});
+
+	it('clicks only on the deck’s chosen slots', () => {
+		const store = setup();
+		setClicks(store, [0, 4, 5]);
+		expect(metronomeClicksSelector(store.getState())).to.deep.equal([0, 4, 5]);
+		expect(metronomeClickRowsSelector(store.getState())[5]).to.deep.equal({
+			slot: 5,
+			label: '&',
+			on: true,
+		});
 	});
 });

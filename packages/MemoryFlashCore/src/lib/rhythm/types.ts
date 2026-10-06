@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { MAX_CLICK_SLOT } from './metronomeClicks';
 
 export const RHYTHM_STRICTNESS = ['tight', 'normal', 'loose'] as const;
 export type RhythmStrictness = (typeof RHYTHM_STRICTNESS)[number];
@@ -19,6 +20,7 @@ export const MAX_RHYTHM_BPM = 240;
 export const zRhythmSettings = z.object({
 	bpm: z.number().min(MIN_RHYTHM_BPM).max(MAX_RHYTHM_BPM),
 	strictness: z.enum(RHYTHM_STRICTNESS),
+	clicks: z.array(z.number().int().min(0).max(MAX_CLICK_SLOT)).optional(),
 });
 export type RhythmSettings = z.infer<typeof zRhythmSettings>;
 

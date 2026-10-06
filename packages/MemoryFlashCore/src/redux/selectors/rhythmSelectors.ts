@@ -10,6 +10,7 @@ import {
 	ladderProgress,
 	resolveLadder,
 } from '../../lib/rhythm/tempoLadder';
+import { clickSlots, enabledClicks } from '../../lib/rhythm/metronomeClicks';
 import { beatsPerBarOf, DEFAULT_BEATS_PER_BAR } from '../../lib/measure';
 import { CardTypeEnum } from '../../types/Cards';
 import { ReduxState } from '../store';
@@ -66,6 +67,17 @@ export const currBeatsPerBarSelector = createSelector(
 			? beatsPerBarOf(card.question)
 			: DEFAULT_BEATS_PER_BAR;
 	},
+);
+
+export const metronomeClicksSelector = createSelector(
+	[deckRhythmSettingsSelector, currBeatsPerBarSelector],
+	({ clicks }, beatsPerBar) => enabledClicks(clicks, beatsPerBar),
+);
+
+export const metronomeClickRowsSelector = createSelector(
+	[metronomeClicksSelector, currBeatsPerBarSelector],
+	(clicks, beatsPerBar) =>
+		clickSlots(beatsPerBar).map((s) => ({ ...s, on: clicks.includes(s.slot) })),
 );
 
 export const currRhythmCardSelector = createSelector(

@@ -1,4 +1,5 @@
 import { Grid } from 'MemoryFlashCore/src/lib/rhythm/types';
+import { clickSound, enabledClicks } from 'MemoryFlashCore/src/lib/rhythm/metronomeClicks';
 import { contextTimeToPerfMs, getAudioContext } from '../../utils/audioContext';
 import { diagnostics, errorMessage } from '../../utils/diagnostics';
 
@@ -27,6 +28,7 @@ class MetronomeClock {
 	private count = 0;
 	private bpm = 60;
 	private beatsPerBar = 4;
+	private clicks?: number[];
 	private grid?: Grid;
 	private onGrid?: GridListener;
 	private clickListeners = new Set<ClickListener>();
@@ -36,10 +38,11 @@ class MetronomeClock {
 		diagnostics.snapshot('metronome', () => this.describe());
 	}
 
-	async start(bpm: number, onGrid: GridListener) {
+	async start(bpm: number, onGrid: GridListener, clicks?: number[]) {
 		this.stop();
 		const ctx = getAudioContext();
 		this.bpm = bpm;
+		this.clicks = clicks;
 		this.onGrid = onGrid;
 		this.buffers ??= Promise.all([
 			loadBuffer(ctx, SOUNDS.accent),
@@ -58,7 +61,7 @@ class MetronomeClock {
 
 	stop() {
 		if (this.timer) {
-			diagnostics.log('metronome', `stopped after ${this.count} clicks`);
+			diagnostics.log('metronome', `stopped after ${this.count} eighths`);
 			window.clearInterval(this.timer);
 		}
 		this.timer = undefined;
@@ -79,6 +82,10 @@ class MetronomeClock {
 		this.beatsPerBar = beats;
 	}
 
+	setClicks(clicks: number[]) {
+		this.clicks = clicks;
+	}
+
 	onClick(listener: ClickListener) {
 		this.clickListeners.add(listener);
 		return () => this.clickListeners.delete(listener);
@@ -86,15 +93,22 @@ class MetronomeClock {
 
 	private schedule(ctx: AudioContext, buffers: Buffers) {
 		while (this.nextTime < ctx.currentTime + LOOKAHEAD_S) {
-			const source = ctx.createBufferSource();
-			const beatInBar = this.count % this.beatsPerBar;
-			source.buffer = beatInBar === 0 ? buffers.accent : buffers.beat;
-			source.connect(ctx.destination);
-			source.start(this.nextTime);
-			this.emitClick(contextTimeToPerfMs(ctx, this.nextTime), beatInBar);
-			this.nextTime += 60 / this.bpm;
+			const slot = this.count % (this.beatsPerBar * 2);
+			const perfMs = contextTimeToPerfMs(ctx, this.nextTime);
+			const sound = clickSound(enabledClicks(this.clicks, this.beatsPerBar), slot);
+			if (sound) this.play(ctx, buffers[sound], perfMs);
+			if (slot % 2 === 0) this.emitBeat(perfMs, slot / 2);
+			this.nextTime += 30 / this.bpm;
 			this.count += 1;
 		}
+	}
+
+	private play(ctx: AudioContext, buffer: AudioBuffer, perfMs: number) {
+		const source = ctx.createBufferSource();
+		source.buffer = buffer;
+		source.connect(ctx.destination);
+		source.start(this.nextTime);
+		this.clickListeners.forEach((listener) => listener(perfMs));
 	}
 
 	private describe() {
@@ -102,13 +116,12 @@ class MetronomeClock {
 		const { ctx, ctxTime, perfMs } = this.started;
 		const ctxElapsed = ctx.currentTime - ctxTime;
 		const wallElapsed = (performance.now() - perfMs) / 1000;
-		return `running=${this.running} clicks=${this.count} since start: ctx ${ctxElapsed.toFixed(1)}s vs wall ${wallElapsed.toFixed(1)}s`;
+		return `running=${this.running} eighths=${this.count} since start: ctx ${ctxElapsed.toFixed(1)}s vs wall ${wallElapsed.toFixed(1)}s`;
 	}
 
-	private emitClick(perfMs: number, beatInBar: number) {
+	private emitBeat(perfMs: number, beatInBar: number) {
 		const beatMs = 60000 / this.bpm;
 		const barMs = beatMs * this.beatsPerBar;
-		this.clickListeners.forEach((listener) => listener(perfMs));
 		if (this.grid && this.grid.beatMs === beatMs && this.grid.barMs === barMs) {
 			const drift = Math.abs(perfMs - this.grid.originMs) % beatMs;
 			if (Math.min(drift, beatMs - drift) <= DRIFT_MS) return;
