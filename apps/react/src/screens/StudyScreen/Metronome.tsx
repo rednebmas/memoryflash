@@ -1,30 +1,23 @@
 import { PauseIcon, PlayIcon } from '@heroicons/react/24/solid';
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { MetronomeSound } from '../../components/MetronomeSound';
-import { useAppSelector } from 'MemoryFlashCore/src/redux/store';
+import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
+import { rhythmActions } from 'MemoryFlashCore/src/redux/slices/rhythmSlice';
 import {
 	currBeatsPerBarSelector,
 	deckTempoSelector,
 } from 'MemoryFlashCore/src/redux/selectors/rhythmSelectors';
-import { useUpdateEffect } from '../../utils/useUpdateEffect';
 
 export const Metronome: React.FunctionComponent = () => {
-	const [playing, setPlaying] = useState(false);
+	const dispatch = useAppDispatch();
+	const playing = useAppSelector((state) => state.rhythm.metronomePlaying);
 	const bpm = useAppSelector(deckTempoSelector);
 	const beatsPerBar = useAppSelector(currBeatsPerBarSelector);
-	const onNotes = useAppSelector((state) => state.midi.notes);
-	const toggleKeyOn = onNotes.find((note) => note.number === 25);
-	useUpdateEffect(() => {
-		if (toggleKeyOn) {
-			setPlaying(!playing);
-		}
-	}, [toggleKeyOn]);
+	useEffect(() => () => void dispatch(rhythmActions.stopMetronome()), []);
 
 	return (
 		<div
-			onClick={() => {
-				setPlaying(!playing);
-			}}
+			onClick={() => dispatch(rhythmActions.toggleMetronome())}
 			title={playing ? undefined : 'Start the metronome to grade your timing'}
 		>
 			{playing && <MetronomeSound bpm={bpm} beatsPerBar={beatsPerBar} />}

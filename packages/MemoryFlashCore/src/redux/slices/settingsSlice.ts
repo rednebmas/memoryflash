@@ -2,6 +2,12 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { PresentationModeIds } from '../../types/PresentationMode';
 import { SaxType } from '../../lib/saxPitch';
 import { ToneMode } from '../../lib/saxTone';
+import {
+	DEFAULT_MIDI_ACTION_KEYS,
+	MIDI_ACTIONS,
+	MidiActionKey,
+	MidiActionKeys,
+} from '../../lib/midiActionKeys';
 
 export type ChordInputMode = 'piano' | 'names';
 export type Instrument = 'piano' | 'sax' | 'names';
@@ -18,6 +24,7 @@ export interface SettingsState {
 	saxAnyOctave?: boolean;
 	rhythmLatencyMs?: number;
 	saxRhythmLatencyMs?: number;
+	midiActionKeys?: Partial<MidiActionKeys>;
 }
 
 const initialState: SettingsState = {
@@ -63,6 +70,16 @@ const settingsSlice = createSlice({
 		},
 		setSaxRhythmLatencyMs(state, action: PayloadAction<number>) {
 			state.saxRhythmLatencyMs = action.payload;
+		},
+		setMidiActionKey(
+			state,
+			{ payload }: PayloadAction<{ action: MidiActionKey; note: number | null }>,
+		) {
+			const keys = { ...DEFAULT_MIDI_ACTION_KEYS, ...state.midiActionKeys };
+			for (const action of MIDI_ACTIONS)
+				if (keys[action] === payload.note) keys[action] = null;
+			keys[payload.action] = payload.note;
+			state.midiActionKeys = keys;
 		},
 	},
 });

@@ -9,6 +9,7 @@ import { Button } from './ui/Button';
 import { SchedulerPicker } from './SchedulerPicker';
 import { MissRepeatsSelect } from './MissRepeatsSelect';
 import { RhythmSettings } from './rhythm/RhythmSettings';
+import { MidiShortcutsSettings } from './MidiShortcutsSettings';
 
 export const DeckSettingsButton: React.FC = () => {
 	const [isOpen, setIsOpen] = useState(false);
@@ -29,6 +30,7 @@ export const DeckSettingsButton: React.FC = () => {
 						<MissRepeatsSelect />
 					</div>
 					<RhythmSettings />
+					<MidiShortcutsSettings />
 					<Button onClick={close}>Close</Button>
 				</div>
 			</Modal>

@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { WebMidi } from 'webmidi';
 import { midiActions } from 'MemoryFlashCore/src/redux/slices/midiSlice';
+import { midiNoteOn } from 'MemoryFlashCore/src/redux/actions/midi-note-on-action';
 import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store';
 import usePrevious from '../utils/usePrevious';
-import { Midi } from 'tonal';
 
 interface MidiToReduxProps {}
 
@@ -83,12 +83,8 @@ export const MidiToRedux: React.FunctionComponent<MidiToReduxProps> = ({}) => {
 			console.log('adding listener');
 
 			WebMidi.getInputById(selectedInputId)?.addListener('noteon', (e) => {
-				const note = Midi.midiToNoteName(e.note.number);
-				// console.log('Note On:', e.note.number, note);
-				dispatch(midiActions.addNote({ number: e.note.number, time: e.timestamp }));
-				if (e.note.number === 24) {
-					window.location.reload();
-				}
+				if (e.note.number === 24) return window.location.reload();
+				dispatch(midiNoteOn({ number: e.note.number, time: e.timestamp }));
 			});
 			WebMidi.getInputById(selectedInputId)?.addListener('noteoff', (e) => {
 				// console.log('Note Off:', e.note.number, e.note.name, e.note.octave);

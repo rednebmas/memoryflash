@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Midi, note, Note } from 'tonal';
+import { MidiActionKey } from '../../lib/midiActionKeys';
 
 type MidiInput = {
 	id: string;
@@ -22,6 +23,7 @@ export interface MidiReduxState {
 	selectedInput?: string;
 	selectedOutput?: string;
 	pendingClearClickedNotes: boolean;
+	learningActionKey?: MidiActionKey;
 }
 
 const initialState: MidiReduxState = {
@@ -150,6 +152,9 @@ const midiSlice = createSlice({
 				state.waitingUntilEmpty = false;
 			}
 			state.pendingClearClickedNotes = false;
+		},
+		learnActionKey(state, action: PayloadAction<MidiActionKey | undefined>) {
+			state.learningActionKey = action.payload;
 		},
 		requestClearClickedNotes(state) {
 			// Set flag to clear clicked notes on next mouse up

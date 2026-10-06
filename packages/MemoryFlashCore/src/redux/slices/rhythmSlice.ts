@@ -18,6 +18,7 @@ export interface RhythmState {
 	card?: RhythmCardState;
 	lastReport?: RhythmReport;
 	sessionLadder?: { deckId: string; ladder: TempoLadder };
+	metronomePlaying: boolean;
 }
 
 type GradePayload = {
@@ -28,7 +29,7 @@ type GradePayload = {
 	anchor?: { ms: number; beat: number };
 };
 
-const initialState: RhythmState = {};
+const initialState: RhythmState = { metronomePlaying: false };
 
 const cardFor = (state: RhythmState, batchId: string): RhythmCardState => {
 	if (state.card?.batchId !== batchId) {
@@ -66,6 +67,12 @@ const rhythmSlice = createSlice({
 		},
 		setSessionLadder(state, action: PayloadAction<RhythmState['sessionLadder']>) {
 			state.sessionLadder = action.payload;
+		},
+		toggleMetronome(state) {
+			state.metronomePlaying = !state.metronomePlaying;
+		},
+		stopMetronome(state) {
+			state.metronomePlaying = false;
 		},
 		setLastReport(state, action: PayloadAction<RhythmReport | undefined>) {
 			state.lastReport = action.payload;
