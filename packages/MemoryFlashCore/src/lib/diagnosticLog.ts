@@ -26,3 +26,5 @@ export const createDiagnosticLog = (max: number, now: () => number) => {
 		],
 	};
 };
+
+export const diagnostics = createDiagnosticLog(20, () => performance.now());

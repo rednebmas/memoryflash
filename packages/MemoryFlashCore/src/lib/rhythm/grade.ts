@@ -21,7 +21,7 @@ export function tierFor(offsetMs: number, strictness: RhythmStrictness): TimingT
 }
 
 export const deadlineMs = (expected: number, strictness: RhythmStrictness) =>
-	expected + TIERS_MS[strictness].ok;
+	expected + TIERS_MS[strictness].ok + ROLL_WINDOW_MS;
 
 export function chordOnset(
 	notes: TimedNote[],

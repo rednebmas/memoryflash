@@ -6,6 +6,7 @@ import {
 	snapAnchor,
 	tierFor,
 } from '../../lib/rhythm/grade';
+import { diagnostics } from '../../lib/diagnosticLog';
 import { StepGrade } from '../../lib/rhythm/types';
 import { MidiNote } from '../slices/midiSlice';
 import { schedulerActions } from '../slices/schedulerSlice';
@@ -31,12 +32,15 @@ const gradeContext = (state: ReduxState, index: number) => {
 	return { grid, beat, card, batchId: state.scheduler.batchId };
 };
 
-export const reportRhythmMiss = (): SyncAppThunk => (dispatch, getState) => {
-	const card = currRhythmCardSelector(getState());
-	if (card?.missReported) return;
-	dispatch(rhythmActions.markMissReported(getState().scheduler.batchId));
-	dispatch(schedulerActions.markCurrIncorrect());
-};
+export const reportRhythmMiss =
+	(index: number, reason: string): SyncAppThunk =>
+	(dispatch, getState) => {
+		const card = currRhythmCardSelector(getState());
+		if (card?.missReported) return;
+		diagnostics.log('rhythm', `miss step=${index} ${reason}`);
+		dispatch(rhythmActions.markMissReported(getState().scheduler.batchId));
+		dispatch(schedulerActions.markCurrIncorrect());
+	};
 
 export const reportStepOnset =
 	(index: number, notes: MidiNote[]): SyncAppThunk =>
@@ -55,7 +59,8 @@ export const reportStepOnset =
 		const endMs = onset.onsetMs + onset.spreadMs;
 		const grade = { onsetMs, offsetMs: Math.round(offsetMs), tier };
 		dispatch(rhythmActions.gradeStep({ batchId: ctx.batchId, index, grade, endMs, anchor }));
-		if (tier === 'miss') dispatch(reportRhythmMiss());
+		const reason = `offset=${grade.offsetMs}ms spread=${Math.round(onset.spreadMs)}ms`;
+		if (tier === 'miss') dispatch(reportRhythmMiss(index, reason));
 	};
 
 export const markStepMissed =
@@ -65,7 +70,7 @@ export const markStepMissed =
 		if (!ctx || ctx.card?.steps[index]) return;
 		const grade = { onsetMs: performance.now(), offsetMs: null, tier: 'miss' as const };
 		dispatch(rhythmActions.gradeStep({ batchId: ctx.batchId, index, grade }));
-		dispatch(reportRhythmMiss());
+		dispatch(reportRhythmMiss(index, 'no chord by the deadline'));
 	};
 
 export const anchorSaxCard =
@@ -83,7 +88,7 @@ export const reportCoverageStep =
 	(index: number, grade: StepGrade, isLast: boolean): SyncAppThunk =>
 	(dispatch, getState) => {
 		dispatch(rhythmActions.gradeStep({ batchId: getState().scheduler.batchId, index, grade }));
-		if (grade.tier === 'miss') dispatch(reportRhythmMiss());
+		if (grade.tier === 'miss') dispatch(reportRhythmMiss(index, `offset=${grade.offsetMs}ms`));
 		if (isLast) dispatch(recordAttempt(true));
 		else dispatch(schedulerActions.incrementMultiPartCardIndex());
 	};

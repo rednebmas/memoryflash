@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { ChordMemoryValidatorEngine } from '../../lib/ChordMemoryValidatorEngine';
+import { diagnostics } from '../../lib/diagnosticLog';
 import { MidiNote } from '../slices/midiSlice';
 import { rhythmActions } from '../slices/rhythmSlice';
 import { settingsActions } from '../slices/settingsSlice';
@@ -67,6 +68,24 @@ describe('rhythm grading', () => {
 		await Promise.resolve();
 		expect(lastAttempt(store).correct).to.equal(true);
 		expect(lastAttempt(store).timing?.offsetsMs[1]).to.equal(-10);
+	});
+
+	it('passes an in-time rolled chord that is still finishing when the late window closes', async () => {
+		const store = setup();
+		const engine = new ChordMemoryValidatorEngine([C_MAJOR, C_MAJOR, C_MAJOR]);
+		const playOnTheClock = (times: number[]) => {
+			const deadline = nextDeadlineMsSelector(store.getState());
+			const index = store.getState().scheduler.multiPartCardIndex;
+			if (deadline !== undefined && deadline < Math.max(...times))
+				store.dispatch(markStepMissed(index));
+			playChord(store, engine, times);
+		};
+		playOnTheClock([1000, 1000, 1000]);
+		playOnTheClock([1560, 1620, 1700]);
+		playOnTheClock([2000, 2000, 2000]);
+		await Promise.resolve();
+		expect(lastAttempt(store).correct).to.equal(true);
+		expect(lastAttempt(store).timing?.offsetsMs).to.deep.equal([0, 60, 0]);
 	});
 
 	it('fails a late chord but lets the player finish the card', async () => {
@@ -158,6 +177,8 @@ describe('rhythm grading', () => {
 		expect(store.getState().scheduler.incorrect).to.equal(true);
 		expect(store.getState().rhythm.card?.missReported).to.equal(true);
 		expect(store.getState().scheduler.nextCards.length).to.equal(queued);
+		const logged = diagnostics.entries().filter((e) => e.includes('[rhythm'));
+		expect(logged.pop()).to.include('miss step=1 no chord by the deadline');
 	});
 
 	it('does nothing when the metronome is not running', async () => {
@@ -179,7 +200,7 @@ describe('rhythm grading', () => {
 		playChord(store, engine, [700, 700, 700]);
 		store.dispatch(rhythmActions.setGrid({ originMs: 0, beatMs: 500 }));
 		playChord(store, engine, [1510, 1510, 1510]);
-		expect(nextDeadlineMsSelector(store.getState())).to.equal(2000 + 120);
+		expect(nextDeadlineMsSelector(store.getState())).to.equal(2000 + 120 + 150);
 		playChord(store, engine, [2000, 2000, 2000]);
 		await Promise.resolve();
 		expect(lastAttempt(store).correct).to.equal(true);
@@ -202,7 +223,7 @@ describe('rhythm grading', () => {
 		const engine = new ChordMemoryValidatorEngine([C_MAJOR, C_MAJOR, C_MAJOR]);
 		expect(nextDeadlineMsSelector(store.getState())).to.equal(undefined);
 		playChord(store, engine, [1000, 1000, 1000]);
-		expect(nextDeadlineMsSelector(store.getState())).to.equal(1500 + 120);
+		expect(nextDeadlineMsSelector(store.getState())).to.equal(1500 + 120 + 150);
 		playChord(store, engine, [1500, 1500, 1500]);
 		playChord(store, engine, [2000, 2000, 2000]);
 		await Promise.resolve();

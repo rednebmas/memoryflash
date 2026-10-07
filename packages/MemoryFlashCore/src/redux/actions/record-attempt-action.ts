@@ -1,4 +1,5 @@
 import ObjectId from 'bson-objectid';
+import { diagnostics } from '../../lib/diagnosticLog';
 import { schedulers } from '../../lib/schedulers';
 import { nextReview } from '../../lib/schedulers/nextReview';
 import { Attempt } from '../../types/Attempt';
@@ -79,6 +80,8 @@ export const recordAttempt =
 		if (!userId || !currCardId) return;
 		const scheduler = schedulers[activeSchedulerSelector(getState())];
 		if (!correct) {
+			const step = getState().scheduler.multiPartCardIndex;
+			diagnostics.log('grading', `wrong answer step=${step}`);
 			dispatch(schedulerActions.markCurrIncorrect());
 			return;
 		}
