@@ -8,17 +8,22 @@ const playThroughSilentMode = () => {
 	if (navigator.audioSession?.type === 'auto') navigator.audioSession.type = 'playback';
 };
 
+const describeSession = () => {
+	const session = navigator.audioSession;
+	return session ? `session=${session.type}/${session.state ?? '?'}` : 'session=n/a';
+};
+
 const describe = (ctx: AudioContext) =>
-	`state=${ctx.state} currentTime=${ctx.currentTime.toFixed(2)} session=${navigator.audioSession?.type ?? 'n/a'}`;
+	`state=${ctx.state} currentTime=${ctx.currentTime.toFixed(2)} ${describeSession()} outputLatency=${ctx.outputLatency?.toFixed(3)} baseLatency=${ctx.baseLatency?.toFixed(3)} channels=${ctx.destination.channelCount}/${ctx.destination.maxChannelCount}`;
 
 const createContext = () => {
 	const ctx = new AudioContext();
-	diagnostics.log(
-		'audio',
-		`created sampleRate=${ctx.sampleRate} channels=${ctx.destination.maxChannelCount} ${describe(ctx)}`,
-	);
+	diagnostics.log('audio', `created sampleRate=${ctx.sampleRate} ${describe(ctx)}`);
 	ctx.addEventListener('statechange', () =>
 		diagnostics.log('audio', `statechange ${describe(ctx)}`),
+	);
+	navigator.audioSession?.addEventListener('statechange', () =>
+		diagnostics.log('audio', `session statechange ${describe(ctx)}`),
 	);
 	diagnostics.snapshot('audio', () => describe(ctx));
 	return ctx;

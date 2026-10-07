@@ -26,6 +26,7 @@ class MetronomeClock {
 	private timer?: number;
 	private nextTime = 0;
 	private count = 0;
+	private played = 0;
 	private bpm = 60;
 	private beatsPerBar = 4;
 	private clicks?: number[];
@@ -53,6 +54,7 @@ class MetronomeClock {
 		});
 		if (!buffers || this.onGrid !== onGrid) return;
 		this.count = 0;
+		this.played = 0;
 		this.nextTime = ctx.currentTime + LOOKAHEAD_S;
 		this.timer = window.setInterval(() => this.schedule(ctx, buffers), TICK_MS);
 		this.started = { ctx, ctxTime: ctx.currentTime, perfMs: performance.now() };
@@ -108,6 +110,7 @@ class MetronomeClock {
 		source.buffer = buffer;
 		source.connect(ctx.destination);
 		source.start(this.nextTime);
+		this.played += 1;
 		this.clickListeners.forEach((listener) => listener(perfMs));
 	}
 
@@ -116,7 +119,7 @@ class MetronomeClock {
 		const { ctx, ctxTime, perfMs } = this.started;
 		const ctxElapsed = ctx.currentTime - ctxTime;
 		const wallElapsed = (performance.now() - perfMs) / 1000;
-		return `running=${this.running} eighths=${this.count} since start: ctx ${ctxElapsed.toFixed(1)}s vs wall ${wallElapsed.toFixed(1)}s`;
+		return `running=${this.running} eighths=${this.count} played=${this.played} clicks=[${enabledClicks(this.clicks, this.beatsPerBar)}] since start: ctx ${ctxElapsed.toFixed(1)}s vs wall ${wallElapsed.toFixed(1)}s`;
 	}
 
 	private emitBeat(perfMs: number, beatInBar: number) {
