@@ -24,11 +24,6 @@ export const currentSheetCardSelector = createSelector(
 	},
 );
 
-export const saxModeSelector = createSelector(
-	[instrumentSelector, currentSheetCardSelector],
-	(instrument, card) => instrument === 'sax' && !!card,
-);
-
 export const currentNoteNameSelector = createSelector([currentSheetCardSelector], (card) =>
 	card ? singleNoteName(card.question) : undefined,
 );
@@ -43,6 +38,11 @@ export const studyInputSelector = createSelector(
 		if (instrument === 'sax') return 'sax';
 		return noteName ? 'noteName' : 'spelling';
 	},
+);
+
+export const fingeringHintModeSelector = createSelector(
+	[studyInputSelector],
+	(input) => input === 'sax' || input === 'noteName',
 );
 
 export const currentCardIsNaturalSelector = createSelector([currentSheetCardSelector], (card) =>

@@ -6,6 +6,7 @@ import { ACCIDENTALS, Accidental, NOTE_LETTERS } from 'MemoryFlashCore/src/lib/n
 import { useTemporaryFlag } from '../../utils/useTemporaryFlag';
 import { WRONG_FLASH_MS } from './ChordNamePad';
 import { PadKey } from './PadKey';
+import { SaxFingeringsToggle } from '../sax/SaxFingerings';
 
 const ACCIDENTAL_LABELS: Record<Accidental, string> = { b: '♭', '#': '♯' };
 
@@ -57,6 +58,9 @@ export const NoteNamePad: React.FC = () => {
 						onPress={() => setAccidental(accidental === acc ? undefined : acc)}
 					/>
 				))}
+			</div>
+			<div className="flex justify-center pt-2">
+				<SaxFingeringsToggle />
 			</div>
 		</div>
 	);
