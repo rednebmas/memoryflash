@@ -12,7 +12,7 @@ import { devSleep } from './middleware/devSleep';
 import { api } from './routes';
 import { connectDB, winstonErrorLogger, winstonLogger } from './utils';
 import { generate251s } from './services/card-generators/ii-V-i/ii-V-I-progression-generators';
-import { generateIntervalDecks } from './services/card-generators/interval-generators';
+import { generateIntervalsCourse } from './services/card-generators/interval-generators';
 import { clearNonAuth } from './utils/clearNonAuth';
 import {
 	generateBluesCourse,
@@ -80,10 +80,10 @@ const initApp = async () => {
 		setupMiddlewaresAndRoutes(server, dbClient);
 		server.listen(PORT, async () => {
 			// seedData();
-			// generateIntervalDecks();
 			console.log(`Server is running on http://${APP_DOMAIN}:${PORT}`);
 			await generateNoteReadingCourse();
 			await generateExtensionsCourse();
+			await generateIntervalsCourse();
 			await backfillTranspositionGroups();
 			// await Attempt.updateMany(
 			// 	{ timeTaken: { $gt: 60 } },

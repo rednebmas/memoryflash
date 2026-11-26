@@ -10,8 +10,7 @@ import { DeckWithoutGeneratedFields as IDeck } from 'MemoryFlashCore/src/types/D
 import { notes, uniqueNotes } from 'MemoryFlashCore/src/lib/notes';
 import { transposeDown } from 'MemoryFlashCore/src/lib/transpose-down';
 import { zipVariedLengths } from 'MemoryFlashCore/src/lib/zip-varied-lengths';
-import { upsertDeckWithCards } from './upsert-deck-with-cards';
-import Course from '../../models/Course';
+import { findOrCreateSystemCourse, upsertCourse } from './upsert-course';
 
 export const trebleRange = {
 	min: Note.get('c3'),
@@ -26,64 +25,17 @@ export const bassRange = {
 	maxMidi: Note.get('b4').midi!,
 };
 
-export async function generateIntervalDecks() {
-	const { noteNameCards, bassSheetCards, trebleSheetCards } = generateIntervalCards();
-
-	let course = await Course.findOne({ name: 'Intervals' });
-	if (!course) {
-		course = new Course({ name: 'Intervals', decks: [] });
-	}
-
-	const leftHandIntervalNoteNamesDeck: IDeck = {
-		uid: 'left hand interval note names',
-		courseId: course._id,
-		name: 'Left Hand',
+export async function generateIntervalsCourse() {
+	const course = await findOrCreateSystemCourse('Intervals');
+	const deck: IDeck = {
+		uid: 'interval note names',
+		courseId: course.id,
+		name: 'All Intervals',
 		section: 'Note Names',
 		sectionSubtitle: '',
-		tags: ['left hand'],
+		tags: [],
 	};
-
-	const rightHandIntervalNoteNamesDeck: IDeck = {
-		uid: 'right hand interval note names',
-		courseId: course._id,
-		name: 'Right Hand',
-		section: 'Note Names',
-		sectionSubtitle: '',
-		tags: ['right hand'],
-	};
-
-	const bassClefDeck: IDeck = {
-		uid: 'bass clef intervals',
-		courseId: course._id,
-		name: 'Bass Clef',
-		section: 'Sheet Music',
-		sectionSubtitle: '',
-		tags: ['sheet music'],
-	};
-
-	const trebleClefDeck: IDeck = {
-		uid: 'treble clef intervals',
-		courseId: course._id,
-		name: 'Treble Clef',
-		section: 'Sheet Music',
-		sectionSubtitle: '',
-		tags: ['sheet music'],
-	};
-
-	const decks = await Promise.all([
-		upsertDeckWithCards(leftHandIntervalNoteNamesDeck, noteNameCards),
-		upsertDeckWithCards(rightHandIntervalNoteNamesDeck, noteNameCards),
-		upsertDeckWithCards(bassClefDeck, bassSheetCards),
-		upsertDeckWithCards(trebleClefDeck, trebleSheetCards),
-	]);
-
-	course.decks = decks.map((deck) => deck.deck._id);
-	await course.save();
-
-	return {
-		decks,
-		course,
-	};
+	return upsertCourse(course, [[deck, generateIntervalCards().noteNameCards]]);
 }
 
 export function generateIntervalCards() {
@@ -204,7 +156,7 @@ export function generateIntervalCards() {
 
 			if (!transposedDown.includes('##') && !transposedDown.includes('bb')) {
 				noteNameCards.push({
-					uid: `interval name ${noteName} ${interval}  down`,
+					uid: `interval name ${noteName} ${interval} down`,
 					type: CardTypeEnum.Interval,
 					question: {
 						interval,
