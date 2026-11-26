@@ -6,8 +6,10 @@ import {
 	EMPTY_PENDING,
 	ENTER,
 	PendingChord,
+	SLASH,
 	applyPadKey,
 	renderPending,
+	startsNewChord,
 } from 'MemoryFlashCore/src/lib/chordPad';
 import { prettyChordSymbol } from 'MemoryFlashCore/src/lib/romanNumerals';
 import { AnswerStrip } from './AnswerStrip';
@@ -38,9 +40,9 @@ export const ChordNamePad: React.FC = () => {
 
 	const press = (label: string) => {
 		if (label === ENTER) return commit();
-		const isRoot = rows[0].includes(label);
-		if (isRoot && symbol) commit();
-		setPending((p) => applyPadKey(isRoot && symbol ? EMPTY_PENDING : p, label, rows[0]));
+		const newChord = startsNewChord(pending, label, rows[0]);
+		if (newChord) commit();
+		setPending((p) => applyPadKey(newChord ? EMPTY_PENDING : p, label, rows[0]));
 	};
 
 	return (
@@ -59,7 +61,10 @@ export const ChordNamePad: React.FC = () => {
 							key={label}
 							label={label}
 							active={
-								i === 0 && !!pending.root && label.replace('°', '') === pending.root
+								(i === 0 &&
+									!!pending.root &&
+									label.replace('°', '') === pending.root) ||
+								(label === SLASH && !!pending.bass)
 							}
 							onPress={() => press(label)}
 						/>

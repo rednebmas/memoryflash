@@ -29,7 +29,6 @@ export const PadKey: React.FC<PadKeyProps> = ({
 			className={clsx(
 				'h-12 rounded-[10px] border font-medium select-none transition-colors',
 				label.length > 2 ? 'text-sm' : 'text-lg',
-				isEnter && 'col-span-2',
 				wrong
 					? 'bg-red-500 border-red-500 text-white'
 					: active || isEnter

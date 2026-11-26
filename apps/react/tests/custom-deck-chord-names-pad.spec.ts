@@ -58,7 +58,7 @@ test('Answer a Chord Memory card with the chord-name pad, then generate cards wi
 
 	await page.locator('button:has-text("Sheet Music")').click();
 	await page.getByRole('menuitem', { name: 'Chord Memory' }).click();
-	await page.fill('#chord-progression', 'Bm F#');
+	await page.fill('#chord-progression', 'Bm D/F#');
 	await page.fill('#chord-text-prompt', '[Verse] Hotel California');
 	await page.selectOption('#chord-key', 'Bm');
 
@@ -84,9 +84,13 @@ test('Answer a Chord Memory card with the chord-name pad, then generate cards wi
 	await clickButton('G');
 	await clickButton('✓');
 	await expect(page.locator('svg.stroke-red-500')).toBeVisible();
+	await expect(page.locator('.text-red-500.font-semibold')).toHaveCount(0);
 
+	await clickButton('D');
+	await clickButton('/');
 	await clickButton('F');
 	await clickButton('♯');
+	await expect(output).toHaveScreenshot('chord-names-pad-slash-chord.png', screenshotOpts);
 	const [attemptResp] = await Promise.all([
 		page.waitForResponse(
 			(r) => r.url().endsWith('/attempts') && r.request().method() === 'POST',
