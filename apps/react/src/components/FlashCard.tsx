@@ -63,7 +63,12 @@ export const FlashCard = forwardRef<HTMLDivElement, FlashCardProps>(
 				}}
 			>
 				<div className="absolute right-1 top-1">
-					<FlashCardOptionsMenu card={card} showEdit={showEdit} showDelete={showDelete} />
+					<FlashCardOptionsMenu
+						card={card}
+						showEdit={showEdit}
+						showDelete={showDelete}
+						showSkip={placement === 'cur'}
+					/>
 				</div>
 				<div className="text-4xl font-medium flex flex-1 justify-center items-center">
 					<QuestionComponent card={card} placement={placement} />

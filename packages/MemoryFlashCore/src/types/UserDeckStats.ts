@@ -2,6 +2,7 @@ import { CardReviews, SchedulerChoice } from '../lib/schedulers/types';
 import { RhythmSettings } from '../lib/rhythm/types';
 import { TempoLadder } from '../lib/rhythm/tempoLadder';
 import { MongoId } from './helper-types';
+import { SkippedCards } from '../lib/skippedCards';
 
 export type MedianHistoryValue = { median: number; date: Date };
 export type MedianHistory = MedianHistoryValue[];
@@ -15,6 +16,7 @@ export type UserDeckStatsType = {
 	medianTimeTaken: number;
 	medianHistory: MedianHistory;
 	hiddenCardIds: string[];
+	skippedCards?: SkippedCards;
 	reviews?: CardReviews;
 	recallClock?: number;
 	scheduler?: SchedulerChoice;

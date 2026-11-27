@@ -70,7 +70,10 @@ export async function processAttempt(doc: AttemptDoc) {
 const UPSERT = { new: true, upsert: true, setDefaultsOnInsert: true };
 
 type StatsFields = Partial<
-	Pick<UserDeckStatsMongo, 'hiddenCardIds' | 'scheduler' | 'missRepeats' | 'rhythm'>
+	Pick<
+		UserDeckStatsMongo,
+		'hiddenCardIds' | 'skippedCards' | 'scheduler' | 'missRepeats' | 'rhythm'
+	>
 >;
 
 export const setUserDeckStats = (deckId: string, userId: string, fields: StatsFields) =>

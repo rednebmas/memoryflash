@@ -78,8 +78,8 @@ export const setupRhythmStore = (cards: object[], instrument: Instrument = 'pian
 	return store;
 };
 
-export const setupDeckStore = (stats: Partial<UserDeckStatsType> = {}) => {
-	const store = makeTestStore();
+export const setupDeckStore = (stats: Partial<UserDeckStatsType> = {}, api?: object) => {
+	const store = makeTestStore(api);
 	store.dispatch(auth.setUser({ _id: 'u' } as never));
 	store.dispatch(
 		cardsActions.upsert(['a', 'b', 'c', 'd', 'e', 'f'].map((id) => makeCard(id)) as never),

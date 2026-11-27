@@ -10,6 +10,7 @@ import { useAppDispatch, useAppSelector } from 'MemoryFlashCore/src/redux/store'
 import { updateHiddenCards } from 'MemoryFlashCore/src/redux/actions/update-hidden-cards-action';
 import { deleteCard } from 'MemoryFlashCore/src/redux/actions/delete-card-action';
 import { recordAttempt } from 'MemoryFlashCore/src/redux/actions/record-attempt-action';
+import { skipCard } from 'MemoryFlashCore/src/redux/actions/skip-card-action';
 import {
 	CardWithAttempts,
 	selectHiddenCardIds,
@@ -20,12 +21,14 @@ interface FlashCardOptionsMenuProps {
 	card: CardWithAttempts;
 	showEdit?: boolean;
 	showDelete?: boolean;
+	showSkip?: boolean;
 }
 
 export const FlashCardOptionsMenu: React.FC<FlashCardOptionsMenuProps> = ({
 	card,
 	showEdit,
 	showDelete,
+	showSkip,
 }) => {
 	const navigate = useNavigate();
 	const dispatch = useAppDispatch();
@@ -49,6 +52,13 @@ export const FlashCardOptionsMenu: React.FC<FlashCardOptionsMenuProps> = ({
 			onClick: toggleHidden,
 		},
 	];
+
+	if (showSkip) {
+		items.unshift({
+			label: 'Skip for today',
+			onClick: () => dispatch(skipCard(card.deckId, card._id)),
+		});
+	}
 
 	if (canReveal) {
 		items.unshift({

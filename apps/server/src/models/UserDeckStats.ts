@@ -30,6 +30,10 @@ const UserDeckStatsSchema = new Schema<UserDeckStatsDoc>(
 			type: [String],
 			default: [],
 		},
+		skippedCards: {
+			type: Schema.Types.Mixed,
+			default: {},
+		},
 		reviews: {
 			type: Schema.Types.Mixed,
 			default: {},

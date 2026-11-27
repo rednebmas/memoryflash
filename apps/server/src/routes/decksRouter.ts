@@ -17,6 +17,7 @@ import { User } from 'MemoryFlashCore/src/types/User';
 import { getDeckStats, setUserDeckStats } from '../services/statsService';
 import { zSchedulerSettings } from 'MemoryFlashCore/src/lib/schedulers/types';
 import { zRhythmSettings } from 'MemoryFlashCore/src/lib/rhythm/types';
+import { zSkippedCards } from 'MemoryFlashCore/src/lib/skippedCards';
 import { Err } from '../middleware/errorHandler';
 
 const router = Router();
@@ -126,6 +127,19 @@ router.patch('/:id/hidden-cards', isAuthenticated, async (req, res, next) => {
 	try {
 		const stats = await setUserDeckStats(req.params.id, (req.user as User)._id.toString(), {
 			hiddenCardIds: req.body.hiddenCardIds || [],
+		});
+		return res.json({ stats });
+	} catch (error) {
+		next(error);
+	}
+});
+
+router.patch('/:id/skipped-cards', isAuthenticated, async (req, res, next) => {
+	try {
+		const skippedCards = zSkippedCards.safeParse(req.body.skippedCards);
+		if (!skippedCards.success) throw new Err('Invalid skipped cards', 400);
+		const stats = await setUserDeckStats(req.params.id, (req.user as User)._id.toString(), {
+			skippedCards: skippedCards.data,
 		});
 		return res.json({ stats });
 	} catch (error) {
