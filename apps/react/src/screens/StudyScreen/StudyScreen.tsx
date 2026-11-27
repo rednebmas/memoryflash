@@ -12,7 +12,6 @@ import { InstrumentToggle } from '../../components/sax/InstrumentToggle';
 import { RestartCardPill } from '../../components/RestartCardPill';
 import { SaxFingeringHint } from '../../components/sax/SaxFingeringHint';
 import { StudyInput } from './StudyInput';
-import { ChordMemoryDebugDialog } from '../../components/ChordMemoryDebugDialog';
 import { CardCarousel } from '../../components/CardCarousel';
 import {
 	selectActivePresentationMode,
@@ -99,7 +98,6 @@ export const StudyScreen = () => {
 					<InstrumentToggle />
 					<RestartCardPill />
 				</div>
-				{cards[index] && <ChordMemoryDebugDialog card={cards[index]} />}
 				<StudyInput />
 				{!IS_TEST_ENV && (
 					<div className="text-center text-xs">
