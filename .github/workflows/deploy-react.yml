@@ -5,6 +5,9 @@ on:
     workflow_dispatch:
 
 name: Deploy React
+concurrency:
+    group: deploy-react
+    cancel-in-progress: false
 jobs:
     deploy:
         name: Deploy React

@@ -5,6 +5,9 @@ on:
     workflow_dispatch:
 
 name: Deploy Server
+concurrency:
+    group: deploy-server
+    cancel-in-progress: false
 jobs:
     deploy:
         name: Deploy Server
