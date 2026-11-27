@@ -33,5 +33,9 @@ export async function deleteCard(cardId: string, userId: string) {
 	if (!deck) return;
 	const course = await Course.findById(deck.courseId);
 	if (!course || course.userId?.toString() !== userId) return;
-	await Promise.all([Card.deleteOne({ _id: cardId }), Attempt.deleteMany({ cardId })]);
+	await Promise.all([
+		Card.deleteOne({ _id: cardId }),
+		Attempt.deleteMany({ cardId }),
+		Deck.updateOne({ _id: deck._id }, { $inc: { cardCount: -1 } }),
+	]);
 }
